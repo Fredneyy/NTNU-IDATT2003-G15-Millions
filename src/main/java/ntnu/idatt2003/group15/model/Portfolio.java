@@ -11,8 +11,11 @@ public class Portfolio {
   }
 
   public boolean removeShare(Share inputShare) {
-    if (inputShare == null) {return false;}
-    return shares.remove(inputShare);
+    if (inputShare == null) {
+      return false;
+    } else {
+      return shares.remove(inputShare);
+    }
   }
 
   public List<Share> getShares() {
