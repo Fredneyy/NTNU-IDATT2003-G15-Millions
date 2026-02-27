@@ -13,6 +13,10 @@ public class Exchange {
   private Random random;
 
   public void Exchange(String name, List<Stock> stocks) {
+      if (name == null || name.isBlank()) {
+          throw new IllegalArgumentException("Name cannot be blank or null");
+      }
+
     this.name = name;
     this.stockMap = stocks.stream().collect(Collectors.toMap(Stock::getSymbol, stock -> stock));
     this.random = new Random();
