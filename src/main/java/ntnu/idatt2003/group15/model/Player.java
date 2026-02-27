@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.model;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class Player {
 
@@ -11,6 +12,11 @@ public class Player {
   private final TransactionArchive transactionArchive = new TransactionArchive();
 
   public Player(String name, BigDecimal startingMoney) {
+      if (name == null || name.isBlank()) {
+          throw new IllegalArgumentException("Name cannot be blank or null");
+      }
+      Objects.requireNonNull(startingMoney, "StartingMoney cannot be null");
+
     this.name = name;
     this.startingMoney = startingMoney;
   }
