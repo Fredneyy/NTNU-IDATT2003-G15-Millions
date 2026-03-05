@@ -8,7 +8,7 @@ public class SaleCalculator implements TransactionCalculator {
   private BigDecimal salesPrice;
   private BigDecimal quantity;
 
-  public SaleCalculator(Share share, BigDecimal salesPrice) {
+  public SaleCalculator(Share share, BigDecimal salesPrice) throws NullPointerException {
       Objects.requireNonNull(share, "Share cannot be null");
       Objects.requireNonNull(salesPrice, "SalesPrice cannot be null");
     this.purchasePrice = share.getPurchasePrice();
