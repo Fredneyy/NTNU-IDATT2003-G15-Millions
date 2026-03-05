@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static ntnu.idatt2003.group15.utilities.InputValidator.isBigDecimalValuePositive;
+
 public class Stock {
   private final String symbol;
   private final String company;
@@ -19,7 +21,7 @@ public class Stock {
       if (company.isBlank()) {
           throw new BlankArgumentException("Company cannot be blank");
       }
-      isSalesPriceValid(salesPrice);
+      isBigDecimalValuePositive("SalesPrice", salesPrice);
 
     this.symbol = symbol;
     this.company = company;
@@ -41,20 +43,10 @@ public class Stock {
   }
 
   public void addNewSalesPrice(BigDecimal price) throws IllegalArgumentException, NullPointerException {
-      if (isSalesPriceValid(price)) {
+      if (isBigDecimalValuePositive("SalesPrice", price)) {
           this.prices.add(price);
       }
   }
 
-  private boolean isSalesPriceValid (BigDecimal price) throws IllegalArgumentException, NullPointerException {
-      if (price == null) {
-          throw new NullPointerException("SalesPrice cannot be null");
-      }
 
-      if (price.compareTo(BigDecimal.ZERO) <= 0) {
-          throw new IllegalArgumentException("SalesPrice must be greater than zero");
-      }
-
-      return true;
-  }
 }
