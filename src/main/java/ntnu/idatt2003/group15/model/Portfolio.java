@@ -8,13 +8,12 @@ public class Portfolio {
   private final List<Share> shares = new ArrayList<>();
 
   public boolean addShare(Share inputShare) throws NullPointerException {
-      Objects.requireNonNull(inputShare, "InputShare cannot be null");
+    Objects.requireNonNull(inputShare, "InputShare cannot be null");
     return shares.add(inputShare);
   }
 
   public boolean removeShare(Share inputShare) throws NullPointerException {
-      Objects.requireNonNull(inputShare, "InputShare cannot be null");
-
+    Objects.requireNonNull(inputShare, "InputShare cannot be null");
     if (shares.stream().anyMatch(share -> share.equals(inputShare))) {
       return false;
     } else {
@@ -36,5 +35,4 @@ public class Portfolio {
   public boolean contains(Share inputShare) throws NullPointerException {
     return shares.contains(inputShare);
   }
-
 }

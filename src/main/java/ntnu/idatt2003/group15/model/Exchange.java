@@ -15,11 +15,12 @@ public class Exchange {
   private Map<String, Stock> stockMap;
   private Random random;
 
-  public void Exchange(String name, List<Stock> stocks) throws IllegalArgumentException {
-      if (name == null || name.isBlank()) {
-          throw new IllegalArgumentException("Name cannot be blank or null");
-      }
-
+  public void Exchange(String name, List<Stock> stocks) throws BlankArgumentException, NullPointerException {
+    Objects.requireNonNull(name, "name cannot be null");
+    if (name.isBlank()) {
+        throw new BlankArgumentException("Name cannot be blank");
+    }
+    Objects.requireNonNull(stocks, "stocks cannot be null");
     this.name = name;
     this.stockMap = stocks.stream().collect(Collectors.toMap(Stock::getSymbol, stock -> stock));
     this.random = new Random();
