@@ -11,7 +11,7 @@ public class Player {
   private final Portfolio portfolio = new Portfolio();
   private final TransactionArchive transactionArchive = new TransactionArchive();
 
-  public Player(String name, BigDecimal startingMoney) throws BlankArgumentException, NullPointerException {'
+  public Player(String name, BigDecimal startingMoney) throws BlankArgumentException, NullPointerException {
       Objects.requireNonNull(name, "Name cannot be zero");
       if (name.isBlank()) {
           throw new BlankArgumentException("Name cannot be blank");
