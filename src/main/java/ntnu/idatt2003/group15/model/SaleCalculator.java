@@ -4,11 +4,11 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class SaleCalculator implements TransactionCalculator {
-  private final BigDecimal purchasePrice;
-  private final BigDecimal salesPrice;
-  private final BigDecimal quantity;
+  private BigDecimal purchasePrice;
+  private BigDecimal salesPrice;
+  private BigDecimal quantity;
 
-  public SaleCalculator(Share share, BigDecimal salesPrice) throws NullPointerException {
+  public SaleCalculator(Share share, BigDecimal salesPrice) {
       Objects.requireNonNull(share, "Share cannot be null");
       Objects.requireNonNull(salesPrice, "SalesPrice cannot be null");
     this.purchasePrice = share.getPurchasePrice();

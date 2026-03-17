@@ -6,21 +6,19 @@ import java.util.Objects;
 public class Player {
 
   private final String name;
-  private BigDecimal money;
   private final BigDecimal startingMoney;
+  private BigDecimal money;
   private final Portfolio portfolio = new Portfolio();
   private final TransactionArchive transactionArchive = new TransactionArchive();
 
-  public Player(String name, BigDecimal startingMoney) throws BlankArgumentException, NullPointerException {
-      Objects.requireNonNull(name, "Name cannot be zero");
-      if (name.isBlank()) {
-          throw new BlankArgumentException("Name cannot be blank");
+  public Player(String name, BigDecimal startingMoney) {
+      if (name == null || name.isBlank()) {
+          throw new IllegalArgumentException("Name cannot be blank or null");
       }
       Objects.requireNonNull(startingMoney, "StartingMoney cannot be null");
 
     this.name = name;
     this.startingMoney = startingMoney;
-    this.money = startingMoney;
   }
 
   public String getName() {
@@ -31,13 +29,11 @@ public class Player {
     return money;
   }
 
-  public void addMoney(BigDecimal amount) throws NullPointerException {
-    Objects.requireNonNull(amount);
+  public void addMoney(BigDecimal amount) {
     money = money.add(amount);
   }
 
-  public void withdrawMoney(BigDecimal amount) throws NullPointerException {
-    Objects.requireNonNull(amount);
+  public void withdrawMoney(BigDecimal amount) {
     money = money.subtract(amount);
   }
 

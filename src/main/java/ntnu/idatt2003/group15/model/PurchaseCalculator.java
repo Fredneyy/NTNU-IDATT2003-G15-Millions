@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class PurchaseCalculator implements TransactionCalculator {
-  private final BigDecimal purchasePrice;
-  private final BigDecimal quantity;
+  private BigDecimal purchasePrice;
+  private BigDecimal quantity;
 
-  public PurchaseCalculator(Share share) throws NullPointerException {
+  public PurchaseCalculator(Share share) {
       Objects.requireNonNull(share, "Share cannot be null");
       this.purchasePrice = share.getPurchasePrice();
       this.quantity = share.getQuantity();

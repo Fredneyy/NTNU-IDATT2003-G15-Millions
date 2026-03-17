@@ -1,11 +1,8 @@
 package ntnu.idatt2003.group15.model;
 
-import com.sun.javafx.iio.ImageLoadListener;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -15,12 +12,11 @@ public class Exchange {
   private Map<String, Stock> stockMap;
   private Random random;
 
-  public void Exchange(String name, List<Stock> stocks) throws BlankArgumentException, NullPointerException {
-    Objects.requireNonNull(name, "name cannot be null");
-    if (name.isBlank()) {
-        throw new BlankArgumentException("Name cannot be blank");
-    }
-    Objects.requireNonNull(stocks, "stocks cannot be null");
+  public void Exchange(String name, List<Stock> stocks) {
+      if (name == null || name.isBlank()) {
+          throw new IllegalArgumentException("Name cannot be blank or null");
+      }
+
     this.name = name;
     this.stockMap = stocks.stream().collect(Collectors.toMap(Stock::getSymbol, stock -> stock));
     this.random = new Random();
@@ -34,16 +30,15 @@ public class Exchange {
     return week;
   }
 
-  public boolean hasStock(String symbol) throws NullPointerException{
+  public boolean hasStock(String symbol) {
     return this.stockMap.containsKey(symbol);
   }
 
-  public Stock getStock(String symbol) throws NullPointerException{
+  public Stock getStock(String symbol) {
     return this.stockMap.get(symbol);
   }
 
-  public List<Stock> findStocks(String searchTerm) throws NullPointerException{
-    Objects.requireNonNull(searchTerm, "Search term cannot be null");
+  public List<Stock> findStocks(String searchTerm) {
     return stockMap.entrySet().stream()
         .filter(entry ->
                 entry.getKey().equals(searchTerm) ||
@@ -53,10 +48,7 @@ public class Exchange {
   }
 
   // Kjøpspris er hardkodet og må oppdateres
-  public Purchase buy(String symbol, BigDecimal quantity, Player player) throws NullPointerException {
-    Objects.requireNonNull(symbol, "Symbol cannot be null");
-    Objects.requireNonNull(quantity, "Quantity cannot be null");
-    Objects.requireNonNull(player, "Player cannot be null");
+  public Purchase buy(String symbol, BigDecimal quantity, Player player) {
     Stock stock = getStock(symbol);
     Share share = new Share(stock, quantity, BigDecimal.valueOf(100));
     Purchase tx = new Purchase(share, getWeek());
@@ -65,9 +57,7 @@ public class Exchange {
   }
 
   // Salgsprislisten oppdateres ikke
-  public Sale sell(Share share, Player player) throws NullPointerException {
-    Objects.requireNonNull(share, "Share cannot be null");
-    Objects.requireNonNull(player, "Player cannot be null");
+  public Sale sell(Share share, Player player) {
     Stock stock = share.getStock();
     Sale tx = new Sale(share, getWeek(), stock.getSalesPrice());
     tx.commit(player);
