@@ -37,13 +37,13 @@ class TransactionArchiveTest {
 
     @Test
     void isEmptyOnNewArchive() {
-      assertTrue(archive.isEmpty());
+      assertTrue(archive.getTransactions(0).isEmpty());
     }
 
     @Test
     void isNotEmptyAfterAdd() {
       archive.add(purchase);
-      assertFalse(archive.isEmpty());
+      assertFalse(archive.getTransactions(1).isEmpty());
     }
 
     @Test
