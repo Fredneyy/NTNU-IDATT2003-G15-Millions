@@ -1,13 +1,16 @@
 package ntnu.idatt2003.group15.model;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class SaleCalculator implements TransactionCalculator {
-  private BigDecimal purchasePrice;
-  private BigDecimal salesPrice;
-  private BigDecimal quantity;
+  private final BigDecimal purchasePrice;
+  private final BigDecimal salesPrice;
+  private final BigDecimal quantity;
 
-  public SaleCalculator(Share share, BigDecimal salesPrice) {
+  public SaleCalculator(Share share, BigDecimal salesPrice) throws NullPointerException {
+      Objects.requireNonNull(share, "Share cannot be null");
+      Objects.requireNonNull(salesPrice, "SalesPrice cannot be null");
     this.purchasePrice = share.getPurchasePrice();
     this.quantity = share.getQuantity();
     this.salesPrice = salesPrice;
