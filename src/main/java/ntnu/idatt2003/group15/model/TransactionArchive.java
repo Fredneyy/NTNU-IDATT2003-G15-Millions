@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 public class TransactionArchive {
     private List<Transaction> transactions;
 
-    public void TransactionArchive() {}
+    public TransactionArchive() {
+        transactions = new java.util.ArrayList<>();
+    }
 
     public boolean add(Transaction transaction) {
         return transactions.add(transaction);
