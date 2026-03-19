@@ -14,6 +14,7 @@ public class Stock {
       private final String symbol;
       private final String company;
       private List<BigDecimal> prices;
+      private List<String> categories;
 
       public Stock(String symbol, String company, BigDecimal salesPrice) throws NullPointerException, BlankArgumentException, IllegalArgumentException {
           Objects.requireNonNull(symbol, "Company cannot be null");
@@ -85,5 +86,9 @@ public class Stock {
         BigDecimal oldPrice = prices.get(prices.size() - 2);
 
         return change.divide(oldPrice, 5, RoundingMode.HALF_UP);
+    }
+
+    public List<String> getCategories() {
+        return List.copyOf(categories);
     }
 }
