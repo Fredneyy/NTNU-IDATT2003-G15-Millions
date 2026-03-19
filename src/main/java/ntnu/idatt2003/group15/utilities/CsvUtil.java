@@ -1,0 +1,49 @@
+package ntnu.idatt2003.group15.utilities;
+
+import ntnu.idatt2003.group15.model.FileReaderException;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
+
+/**
+ * The type Csv util for reading csv files.
+ */
+public class CsvUtil {
+
+  private CsvUtil() {
+  }
+
+  private static final class UtilHolder {
+    private static final CsvUtil util = new CsvUtil();
+  }
+
+  /**
+   * Gets csv util instance.
+   *
+   * @return the csv util
+   */
+  public static CsvUtil getCsvUtil() {
+    return UtilHolder.util;
+  }
+
+  /**
+   * Read csv file list.
+   *
+   * @param filePath the file path
+   * @return {@code List} containing every comma seperated string.
+   * @throws FileReaderException if reader runs into a problem during operation
+   */
+  public List<String> readCsvFile(String filePath) throws FileReaderException {
+    try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
+      return lines.map(line -> Arrays.asList(line.split(","))).flatMap(Collection::stream).toList();
+    } catch (Exception e) {
+      throw new FileReaderException("Error reading file " + filePath, e);
+    }
+  }
+
+}
