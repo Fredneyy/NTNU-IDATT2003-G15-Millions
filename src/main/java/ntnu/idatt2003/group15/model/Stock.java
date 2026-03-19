@@ -8,45 +8,70 @@ import java.util.Objects;
 import static ntnu.idatt2003.group15.utilities.InputValidator.isBigDecimalValuePositive;
 
 public class Stock {
-  private final String symbol;
-  private final String company;
-  private List<BigDecimal> prices;
+      private final String symbol;
+      private final String company;
+      private List<BigDecimal> prices;
 
-  public Stock(String symbol, String company, BigDecimal salesPrice) throws NullPointerException, BlankArgumentException, IllegalArgumentException {
-      Objects.requireNonNull(symbol, "Company cannot be null");
-      if (symbol.isBlank()) {
-          throw new BlankArgumentException("Symbol cannot be blank");
+      public Stock(String symbol, String company, BigDecimal salesPrice) throws NullPointerException, BlankArgumentException, IllegalArgumentException {
+          Objects.requireNonNull(symbol, "Company cannot be null");
+          if (symbol.isBlank()) {
+              throw new BlankArgumentException("Symbol cannot be blank");
+          }
+          Objects.requireNonNull(company, "Company cannot be null");
+          if (company.isBlank()) {
+              throw new BlankArgumentException("Company cannot be blank");
+          }
+          isBigDecimalValuePositive("SalesPrice", salesPrice);
+
+        this.symbol = symbol;
+        this.company = company;
+        prices = new ArrayList<BigDecimal>();
+        this.prices.add(salesPrice);
       }
-      Objects.requireNonNull(company, "Company cannot be null");
-      if (company.isBlank()) {
-          throw new BlankArgumentException("Company cannot be blank");
+
+
+      public String getSymbol() {
+        return symbol;
       }
-      isBigDecimalValuePositive("SalesPrice", salesPrice);
 
-    this.symbol = symbol;
-    this.company = company;
-    prices = new ArrayList<BigDecimal>();
-    this.prices.add(salesPrice);
-  }
-
-
-  public String getSymbol() {
-    return symbol;
-  }
-
-  public String getCompany() {
-    return company;
-  }
-
-  public BigDecimal getSalesPrice() {
-    return this.prices.getLast();
-  }
-
-  public void addNewSalesPrice(BigDecimal price) throws IllegalArgumentException, NullPointerException {
-      if (isBigDecimalValuePositive("SalesPrice", price)) {
-          this.prices.add(price);
+      public String getCompany() {
+        return company;
       }
-  }
 
+      public BigDecimal getSalesPrice() {
+        return this.prices.getLast();
+      }
 
+      public void addNewSalesPrice(BigDecimal price) throws IllegalArgumentException, NullPointerException {
+          if (isBigDecimalValuePositive("SalesPrice", price)) {
+              this.prices.add(price);
+          }
+      }
+
+      public List<BigDecimal> getHistoricalPrices() {
+          return prices;
+      }
+
+      public BigDecimal getHighestPrice() {
+          return prices.stream()
+                  .max(BigDecimal::compareTo)
+                  .orElse(BigDecimal.ZERO);
+      }
+
+    public BigDecimal getLowestPrice() {
+        return prices.stream()
+                .min(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
+    }
+
+    public BigDecimal getLatestPriceChange() {
+          if (prices.size() == 1) {
+              return BigDecimal.ZERO;
+          }
+
+          BigDecimal lastPrice = prices.getLast();
+          BigDecimal secondLastPrice = prices.get(prices.size() - 2);
+
+          return lastPrice.subtract(secondLastPrice);
+    }
 }
