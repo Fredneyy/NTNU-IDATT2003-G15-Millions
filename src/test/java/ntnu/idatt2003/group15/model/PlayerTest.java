@@ -48,6 +48,12 @@ class PlayerTest {
     void getPortfolioIsNotNull() {
       assertNotNull(player.getPortfolio());
     }
+
+    @Test
+    void getNetWorth() {
+      assertEquals(BigDecimal.valueOf(1000), player.getNetWorth());
+    }
+
   }
 
   @Nested
