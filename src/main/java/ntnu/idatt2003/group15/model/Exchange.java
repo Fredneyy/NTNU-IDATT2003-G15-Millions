@@ -1,6 +1,6 @@
 package ntnu.idatt2003.group15.model;
 
-import com.sun.javafx.iio.ImageLoadListener;
+import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 
 import java.math.BigDecimal;
 import java.util.*;

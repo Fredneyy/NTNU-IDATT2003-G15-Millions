@@ -1,5 +1,7 @@
 package ntnu.idatt2003.group15.model;
 
+import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;

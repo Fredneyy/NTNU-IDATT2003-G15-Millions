@@ -1,5 +1,6 @@
 package ntnu.idatt2003.group15.model;
 
+import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

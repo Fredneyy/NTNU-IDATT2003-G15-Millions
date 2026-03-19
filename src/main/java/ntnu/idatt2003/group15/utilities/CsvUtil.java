@@ -1,10 +1,9 @@
 package ntnu.idatt2003.group15.utilities;
 
-import ntnu.idatt2003.group15.model.FileReaderException;
+import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
