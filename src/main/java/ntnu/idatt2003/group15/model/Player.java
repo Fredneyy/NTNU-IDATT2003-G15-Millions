@@ -49,4 +49,8 @@ public class Player {
         return transactionArchive;
     }
 
+    public BigDecimal getNetWorth() {
+        BigDecimal marketValue = getPortfolio().getTotalMarketValue();
+        return marketValue.add(getMoney());
+    }
 }

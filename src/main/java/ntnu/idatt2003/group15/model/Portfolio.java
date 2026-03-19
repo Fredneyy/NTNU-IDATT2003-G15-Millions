@@ -1,5 +1,6 @@
 package ntnu.idatt2003.group15.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,4 +34,12 @@ public class Portfolio {
         return shares.contains(inputShare);
     }
 
+    public BigDecimal getTotalMarketValue() {
+        BigDecimal totalValue = BigDecimal.ZERO;
+        for (Share currentShare : shares) {
+            SaleCalculator saleCalculator = new SaleCalculator(currentShare, currentShare.getStock().getSalesPrice());
+            totalValue = totalValue.add(saleCalculator.calculateGross());
+        }
+        return totalValue;
+    }
 }
