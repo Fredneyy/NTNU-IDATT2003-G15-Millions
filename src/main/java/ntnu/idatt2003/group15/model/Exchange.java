@@ -3,10 +3,7 @@ package ntnu.idatt2003.group15.model;
 import com.sun.javafx.iio.ImageLoadListener;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Exchange {
@@ -76,5 +73,29 @@ public class Exchange {
 
     public void advance() {
         this.week = getWeek() + 1;
+    }
+
+    public List<Stock> getGainers(int limit) {
+        List<Stock> list = new ArrayList<>();
+        stockMap.forEach((s, stock) -> {
+            list.add(stock);
+        });
+
+        return list.stream()
+                .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative).reversed())
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    public List<Stock> getLosers(int limit) {
+        List<Stock> list = new ArrayList<>();
+        stockMap.forEach((s, stock) -> {
+            list.add(stock);
+        });
+
+        return list.stream()
+                .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative))
+                .limit(limit)
+                .collect(Collectors.toList());
     }
 }

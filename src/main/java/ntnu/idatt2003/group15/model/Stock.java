@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -65,7 +66,7 @@ public class Stock {
     }
 
     public BigDecimal getLatestPriceChange() {
-          if (prices.size() == 1) {
+          if (prices.size() < 2) {
               return BigDecimal.ZERO;
           }
 
@@ -73,5 +74,14 @@ public class Stock {
           BigDecimal secondLastPrice = prices.get(prices.size() - 2);
 
           return lastPrice.subtract(secondLastPrice);
+    }
+
+    public BigDecimal getLatestPriceChangeRelative() {
+        if (prices.size() < 2) return BigDecimal.ZERO;
+
+        BigDecimal change = getLatestPriceChange();
+        BigDecimal oldPrice = prices.get(prices.size() - 2);
+
+        return change.divide(oldPrice, 5, RoundingMode.HALF_UP);
     }
 }
