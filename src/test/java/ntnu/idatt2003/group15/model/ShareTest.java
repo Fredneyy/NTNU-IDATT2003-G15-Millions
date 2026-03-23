@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class ShareTest {
 
     @Nested
-    @DisplayName("Positive Share Tests")
-    class positiveShareTests {
+    @DisplayName("Positive Stock Tests")
+    class positiveStockTests {
         private Stock stock;
         private Share share;
         @BeforeEach

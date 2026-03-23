@@ -11,10 +11,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExchangeTest {
-  private Exchange exchange;
-  private Stock pgtStock;
-  private Share txShare;
-  private Player player;
 
   @BeforeEach
   void setUp() {
