@@ -21,11 +21,7 @@ public class PurchaseCalculator implements TransactionCalculator {
         return calculateGross().multiply(commission); // 0.5%
     }
 
-    public BigDecimal calculateTax() {
-        return BigDecimal.valueOf(0);
-    }
-
-    public BigDecimal calculateTotal(BigDecimal commission) {
-        return calculateGross().add(calculateCommission(commission)).add(calculateTax());
+    public BigDecimal calculateTotal(BigDecimal commission, BigDecimal tax) {
+        return calculateGross().add(calculateCommission(commission)).add(tax);
     }
 }

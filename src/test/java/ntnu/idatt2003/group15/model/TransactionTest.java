@@ -11,12 +11,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionTest {
 
-  private Stock stock;
   private Share share;
 
   @BeforeEach
   void setUpShared() {
-    stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100));
+    Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100));
     share = new Share(stock, BigDecimal.valueOf(10), BigDecimal.valueOf(100));
   }
 
@@ -89,14 +88,14 @@ class TransactionTest {
 
     @Test
     void commitWithdrawsMoneyFromPlayer() {
-      BigDecimal expectedMoney = player.getMoney().subtract(purchase.getCalculator().calculateTotal());
-      purchase.commit(player);
+      BigDecimal expectedMoney = player.getMoney().subtract(purchase.getCalculator().calculateTotal(BigDecimal.ZERO, BigDecimal.ZERO));
+      purchase.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
       assertEquals(0, player.getMoney().compareTo(expectedMoney));
     }
 
     @Test
     void commitAddsShareToPortfolio() {
-      purchase.commit(player);
+      purchase.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
       assertTrue(player.getPortfolio().contains(share));
     }
   }
@@ -116,7 +115,7 @@ class TransactionTest {
     void commitWithNullPlayerThrowsNullPointerException() {
       Purchase purchase = new Purchase(share, 1);
       assertThrows(NullPointerException.class, () ->
-          purchase.commit(null)
+          purchase.commit(null, BigDecimal.ZERO, BigDecimal.ZERO)
       );
     }
   }
@@ -146,14 +145,14 @@ class TransactionTest {
 
     @Test
     void commitAddsMoneyToPlayer() {
-      BigDecimal expectedMoney = player.getMoney().add(sale.getCalculator().calculateTotal());
-      sale.commit(player);
+      BigDecimal expectedMoney = player.getMoney().add(sale.getCalculator().calculateTotal(BigDecimal.ZERO, BigDecimal.ZERO));
+      sale.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
       assertEquals(0, player.getMoney().compareTo(expectedMoney));
     }
 
     @Test
     void commitRemovesShareFromPortfolio() {
-      sale.commit(player);
+      sale.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
       assertFalse(player.getPortfolio().contains(share));
     }
   }
@@ -180,8 +179,25 @@ class TransactionTest {
     void commitWithNullPlayerThrowsNullPointerException() {
       Sale sale = new Sale(share, 1, BigDecimal.valueOf(150));
       assertThrows(NullPointerException.class, () ->
-          sale.commit(null)
+          sale.commit(null, BigDecimal.ZERO, BigDecimal.ZERO)
       );
     }
+
+    @Test
+    void commitWithNullCommissionThrowsNullPointerException() {
+      Sale sale = new Sale(share, 1, BigDecimal.valueOf(150));
+      assertThrows(NullPointerException.class, () ->
+          sale.commit(new Player("Ot", BigDecimal.ZERO), null, BigDecimal.ZERO)
+      );
+    }
+
+    @Test
+    void commitWithNullTaxThrowsNullPointerException() {
+      Sale sale = new Sale(share, 1, BigDecimal.valueOf(150));
+      assertThrows(NullPointerException.class, () ->
+          sale.commit(new Player("Ot", BigDecimal.ZERO), BigDecimal.ZERO, null)
+      );
+    }
+
   }
 }

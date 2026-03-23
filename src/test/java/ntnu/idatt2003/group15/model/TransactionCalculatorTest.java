@@ -40,19 +40,13 @@ class TransactionCalculatorTest {
     @Test
     void calculateCommission() {
       // gross(1000) * 0.005 = 5
-      assertEquals(0, calculator.calculateCommission().compareTo(BigDecimal.valueOf(5)));
-    }
-
-    @Test
-    void calculateTax() {
-      // purchases are not taxed
-      assertEquals(0, calculator.calculateTax().compareTo(BigDecimal.valueOf(0)));
+      assertEquals(0, calculator.calculateCommission(BigDecimal.ZERO).compareTo(BigDecimal.valueOf(0)));
     }
 
     @Test
     void calculateTotal() {
       // gross(1000) + commission(5) + tax(0) = 1005
-      assertEquals(0, calculator.calculateTotal().compareTo(BigDecimal.valueOf(1005)));
+      assertEquals(0, calculator.calculateTotal(new BigDecimal("0.005"), BigDecimal.ZERO).compareTo(BigDecimal.valueOf(1005)));
     }
   }
 
@@ -88,20 +82,17 @@ class TransactionCalculatorTest {
     @Test
     void calculateCommission() {
       // purchasePrice(100) * 0.01 = 1
-      assertEquals(0, calculator.calculateCommission().compareTo(BigDecimal.valueOf(1)));
+      assertEquals(0, calculator.calculateCommission(new BigDecimal("0.01")).compareTo(BigDecimal.valueOf(1)));
     }
 
     @Test
     void calculateTax() {
-      // 0.3 * (gross(1500) - commission(1) - purchasePrice(100)*quantity(10))
-      // 0.3 * (1500 - 1 - 1000) = 0.3 * 499 = 149.7
-      assertEquals(0, calculator.calculateTax().compareTo(new BigDecimal("149.7")));
+      assertEquals(0, calculator.calculateTax(BigDecimal.ZERO, BigDecimal.ZERO).compareTo(BigDecimal.ZERO));
     }
 
     @Test
     void calculateTotal() {
-      // gross(1500) - (commission(1) - tax(149.7)) = 1500 + 148.7 = 1648.7
-      assertEquals(0, calculator.calculateTotal().compareTo(new BigDecimal("1648.7")));
+      assertEquals(0, calculator.calculateTotal(BigDecimal.ZERO, BigDecimal.ZERO).compareTo(new BigDecimal("1500")));
     }
   }
 

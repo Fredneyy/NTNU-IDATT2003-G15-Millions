@@ -59,7 +59,7 @@ class ExchangeTest {
       void buy () {
         Purchase purchaseTx = exchange.buy("PGT", BigDecimal.valueOf(2), player);
 
-        PurchaseCalculator purchaseCalculator = new PurchaseCalculator(share)
+        PurchaseCalculator purchaseCalculator = new PurchaseCalculator(txShare);
 
         assertEquals(BigDecimal.valueOf(10000 - 1000), player.getMoney());
 
