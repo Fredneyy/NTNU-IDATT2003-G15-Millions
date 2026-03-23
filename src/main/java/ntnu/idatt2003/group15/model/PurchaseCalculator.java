@@ -9,7 +9,7 @@ public class PurchaseCalculator implements TransactionCalculator {
 
     public PurchaseCalculator(Share share) throws NullPointerException {
         Objects.requireNonNull(share, "Share cannot be null");
-        this.purchasePrice = share.getPurchasePrice();
+        this.purchasePrice = share.getPricePerShare();
         this.quantity = share.getQuantity();
     }
 

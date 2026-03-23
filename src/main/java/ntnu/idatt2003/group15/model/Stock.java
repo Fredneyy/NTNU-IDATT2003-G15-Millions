@@ -14,7 +14,7 @@ public class Stock {
       private final String symbol;
       private final String company;
       private List<BigDecimal> prices;
-      private List<String> categories;
+      private final List<String> categories;
 
       public Stock(String symbol, String company, BigDecimal salesPrice) throws NullPointerException, BlankArgumentException, IllegalArgumentException {
           Objects.requireNonNull(symbol, "Company cannot be null");
@@ -29,10 +29,15 @@ public class Stock {
 
         this.symbol = symbol;
         this.company = company;
+        this.categories = new ArrayList<>();
         prices = new ArrayList<>();
         this.prices.add(salesPrice);
       }
 
+      public void setCategories(List<String> categories) {
+        this.categories.clear();
+        this.categories.addAll(categories);
+      }
 
       public String getSymbol() {
         return symbol;

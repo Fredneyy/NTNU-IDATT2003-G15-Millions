@@ -53,7 +53,7 @@ public class Player {
 
     public BigDecimal getNetWorth() {
         BigDecimal marketValue = getPortfolio().getTotalMarketValue();
-        return marketValue.add(getMoney());
+        return marketValue.add(money);
     }
 
     public PlayerStatus getStatus() {
