@@ -53,4 +53,14 @@ public class Player {
         BigDecimal marketValue = getPortfolio().getTotalMarketValue();
         return marketValue.add(getMoney());
     }
+
+    public PlayerStatus getStatus() {
+        if (getNetWorth().compareTo(startingMoney.multiply(new BigDecimal("2"))) >= 0) {
+            return PlayerStatus.SPECULATOR;
+        } else if (getNetWorth().compareTo(startingMoney.multiply(new BigDecimal("1.20"))) >= 0) {
+            return PlayerStatus.INVESTOR;
+        } else {
+            return PlayerStatus.NOVICE;
+        }
+    }
 }
