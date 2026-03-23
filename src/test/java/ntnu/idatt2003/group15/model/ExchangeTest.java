@@ -12,6 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ExchangeTest {
 
+  private Stock pgtStock;
+  private Exchange exchange;
+  private Share txShare;
+  private Player player;
+
   @BeforeEach
   void setUp() {
     pgtStock = new Stock("PGT", "Porsgrunn toaletter", BigDecimal.valueOf(1000));
@@ -59,9 +64,7 @@ class ExchangeTest {
       void buy () {
         Purchase purchaseTx = exchange.buy("PGT", BigDecimal.valueOf(2), player);
 
-        PurchaseCalculator purchaseCalculator = new PurchaseCalculator(txShare);
-
-        assertEquals(BigDecimal.valueOf(10000 - 1000), player.getMoney());
+        assertEquals(0, player.getMoney().compareTo(BigDecimal.valueOf(10000 - 2000)));
 
     }
 

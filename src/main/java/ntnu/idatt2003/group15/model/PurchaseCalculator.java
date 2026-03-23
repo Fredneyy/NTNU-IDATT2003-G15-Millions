@@ -4,24 +4,19 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class PurchaseCalculator implements TransactionCalculator {
-    private final BigDecimal purchasePrice;
-    private final BigDecimal quantity;
 
-    public PurchaseCalculator(Share share) throws NullPointerException {
+    public BigDecimal calculateGross(Share share) {
         Objects.requireNonNull(share, "Share cannot be null");
-        this.purchasePrice = share.getPricePerShare();
-        this.quantity = share.getQuantity();
+        return share.getPricePerShare().multiply(share.getQuantity());
     }
 
-    public BigDecimal calculateGross() {
-        return purchasePrice.multiply(quantity);
+    public BigDecimal calculateCommission(Share share, BigDecimal commission) {
+        Objects.requireNonNull(share, "Share cannot be null");
+        return calculateGross(share).multiply(commission);
     }
 
-    public BigDecimal calculateCommission(BigDecimal commission) {
-        return calculateGross().multiply(commission); // 0.5%
-    }
-
-    public BigDecimal calculateTotal(BigDecimal commission, BigDecimal tax) {
-        return calculateGross().add(calculateCommission(commission)).add(tax);
+    public BigDecimal calculateTotal(Share share, BigDecimal commission, BigDecimal tax) {
+        Objects.requireNonNull(share, "Share cannot be null");
+        return calculateGross(share).add(calculateCommission(share, commission)).add(tax);
     }
 }

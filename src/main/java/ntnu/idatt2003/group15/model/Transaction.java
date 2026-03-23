@@ -34,5 +34,9 @@ public abstract class Transaction {
         return committed;
     }
 
-    public void commit(Player player, BigDecimal commission, BigDecimal tax) {}
+    protected void setCommitted(boolean committed) {
+        this.committed = committed;
+    }
+
+    public abstract void commit(Player player, BigDecimal commission, BigDecimal tax);
 }

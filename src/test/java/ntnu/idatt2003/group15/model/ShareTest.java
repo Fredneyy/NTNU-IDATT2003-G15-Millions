@@ -33,8 +33,8 @@ class ShareTest {
         }
 
         @Test
-        void getPurchasePrice() {
-            assertEquals(BigDecimal.valueOf(5000), share.getPurchasePrice());
+        void getPricePerShareTimesQuantity() {
+            assertEquals(0, share.getPricePerShare().multiply(share.getQuantity()).compareTo(BigDecimal.valueOf(5000)));
         }
 
         @Test

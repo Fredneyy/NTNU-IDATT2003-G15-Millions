@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public class Purchase extends Transaction {
     public Purchase(Share share, int week) {
-        super(share, week, new PurchaseCalculator(share));
+        super(share, week, new PurchaseCalculator());
     }
 
     @Override
@@ -13,9 +13,10 @@ public class Purchase extends Transaction {
         Objects.requireNonNull(player, "Player cannot be null");
         Objects.requireNonNull(commission, "Commission cannot be null");
         Objects.requireNonNull(tax, "Tax cannot be null");
-        BigDecimal buyAmount = getCalculator().calculateTotal(commission, tax);
+        BigDecimal buyAmount = getCalculator().calculateTotal(getShare(), commission, tax);
         player.withdrawMoney(buyAmount);
         player.getPortfolio().addShare(getShare());
         player.getTransactionArchive().add(this);
+        setCommitted(true);
     }
 }

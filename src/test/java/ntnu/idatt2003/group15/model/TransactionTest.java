@@ -88,7 +88,7 @@ class TransactionTest {
 
     @Test
     void commitWithdrawsMoneyFromPlayer() {
-      BigDecimal expectedMoney = player.getMoney().subtract(purchase.getCalculator().calculateTotal(BigDecimal.ZERO, BigDecimal.ZERO));
+      BigDecimal expectedMoney = player.getMoney().subtract(purchase.getCalculator().calculateTotal(share, BigDecimal.ZERO, BigDecimal.ZERO));
       purchase.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
       assertEquals(0, player.getMoney().compareTo(expectedMoney));
     }
@@ -128,7 +128,7 @@ class TransactionTest {
 
     @BeforeEach
     void setUp() {
-      sale = new Sale(share, 2, BigDecimal.valueOf(150));
+      sale = new Sale(share, 2);
       player = new Player("trader", BigDecimal.valueOf(10000));
       player.getPortfolio().addShare(share);
     }
@@ -145,7 +145,7 @@ class TransactionTest {
 
     @Test
     void commitAddsMoneyToPlayer() {
-      BigDecimal expectedMoney = player.getMoney().add(sale.getCalculator().calculateTotal(BigDecimal.ZERO, BigDecimal.ZERO));
+      BigDecimal expectedMoney = player.getMoney().add(sale.getCalculator().calculateTotal(share, BigDecimal.ZERO, BigDecimal.ZERO));
       sale.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
       assertEquals(0, player.getMoney().compareTo(expectedMoney));
     }
@@ -164,20 +164,13 @@ class TransactionTest {
     @Test
     void nullShareThrowsNullPointerException() {
       assertThrows(NullPointerException.class, () ->
-          new Sale(null, 1, BigDecimal.valueOf(150))
-      );
-    }
-
-    @Test
-    void nullSalesPriceThrowsNullPointerException() {
-      assertThrows(NullPointerException.class, () ->
-          new Sale(share, 1, null)
+          new Sale(null, 1)
       );
     }
 
     @Test
     void commitWithNullPlayerThrowsNullPointerException() {
-      Sale sale = new Sale(share, 1, BigDecimal.valueOf(150));
+      Sale sale = new Sale(share, 1);
       assertThrows(NullPointerException.class, () ->
           sale.commit(null, BigDecimal.ZERO, BigDecimal.ZERO)
       );
@@ -185,7 +178,7 @@ class TransactionTest {
 
     @Test
     void commitWithNullCommissionThrowsNullPointerException() {
-      Sale sale = new Sale(share, 1, BigDecimal.valueOf(150));
+      Sale sale = new Sale(share, 1);
       assertThrows(NullPointerException.class, () ->
           sale.commit(new Player("Ot", BigDecimal.ZERO), null, BigDecimal.ZERO)
       );
@@ -193,7 +186,7 @@ class TransactionTest {
 
     @Test
     void commitWithNullTaxThrowsNullPointerException() {
-      Sale sale = new Sale(share, 1, BigDecimal.valueOf(150));
+      Sale sale = new Sale(share, 1);
       assertThrows(NullPointerException.class, () ->
           sale.commit(new Player("Ot", BigDecimal.ZERO), BigDecimal.ZERO, null)
       );

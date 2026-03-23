@@ -4,31 +4,25 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class SaleCalculator implements TransactionCalculator {
-    private final BigDecimal purchasePrice;
-    private final BigDecimal salesPrice;
-    private final BigDecimal quantity;
 
-    public SaleCalculator(Share share, BigDecimal salesPrice) throws NullPointerException {
+    public BigDecimal calculateGross(Share share) {
         Objects.requireNonNull(share, "Share cannot be null");
-        Objects.requireNonNull(salesPrice, "SalesPrice cannot be null");
-        this.purchasePrice = share.getPricePerShare();
-        this.quantity = share.getQuantity();
-        this.salesPrice = salesPrice;
+        BigDecimal salesPrice = share.getStock().getSalesPrice();
+        return salesPrice.multiply(share.getQuantity());
     }
 
-    public BigDecimal calculateGross() {
-        return salesPrice.multiply(quantity);
+    public BigDecimal calculateCommission(Share share, BigDecimal commission) {
+        Objects.requireNonNull(share, "Share cannot be null");
+        return share.getPricePerShare().multiply(commission);
     }
 
-    public BigDecimal calculateCommission(BigDecimal commission) {
-        return purchasePrice.multiply(commission); // 1%
+    public BigDecimal calculateTax(Share share, BigDecimal tax, BigDecimal commission) {
+        Objects.requireNonNull(share, "Share cannot be null");
+        return tax.multiply(calculateGross(share).subtract(calculateCommission(share, commission)));
     }
 
-    public BigDecimal calculateTax(BigDecimal tax, BigDecimal commission) {
-        return tax.multiply(calculateGross().subtract(calculateCommission(commission)));
-    }
-
-    public BigDecimal calculateTotal(BigDecimal commission, BigDecimal tax) {
-        return calculateGross().subtract(calculateCommission(commission).subtract(calculateTax(tax, commission)));
+    public BigDecimal calculateTotal(Share share, BigDecimal commission, BigDecimal tax) {
+        Objects.requireNonNull(share, "Share cannot be null");
+        return calculateGross(share).subtract(calculateCommission(share, commission)).subtract(calculateTax(share, tax, commission));
     }
 }

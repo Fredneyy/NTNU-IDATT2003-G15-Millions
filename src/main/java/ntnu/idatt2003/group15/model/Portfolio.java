@@ -35,10 +35,10 @@ public class Portfolio {
     }
 
     public BigDecimal getTotalMarketValue() {
+        SaleCalculator saleCalculator = new SaleCalculator();
         BigDecimal totalValue = BigDecimal.ZERO;
         for (Share currentShare : shares) {
-            SaleCalculator saleCalculator = new SaleCalculator(currentShare, currentShare.getStock().getSalesPrice());
-            totalValue = totalValue.add(saleCalculator.calculateGross());
+            totalValue = totalValue.add(saleCalculator.calculateGross(currentShare));
         }
         return totalValue;
     }
