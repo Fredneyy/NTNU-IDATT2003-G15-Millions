@@ -59,6 +59,14 @@ class StockTest {
             appleStock.addNewSalesPrice(BigDecimal.valueOf(150));
             assertEquals(BigDecimal.valueOf(150), appleStock.getSalesPrice());
         }
+
+        @Test
+        void getLatestPriceChange() {
+            assertEquals(BigDecimal.valueOf(-50), appleStock.getLatestPriceChange());
+        }
+
+        @Test
+
     }
 
     @Nested
