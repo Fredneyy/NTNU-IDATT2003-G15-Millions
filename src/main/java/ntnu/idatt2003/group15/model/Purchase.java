@@ -8,9 +8,12 @@ public class Purchase extends Transaction {
         super(share, week, new PurchaseCalculator(share));
     }
 
-    public void commit(Player player) throws NullPointerException {
+    @Override
+    public void commit(Player player, BigDecimal commission, BigDecimal tax) throws NullPointerException {
         Objects.requireNonNull(player, "Player cannot be null");
-        BigDecimal buyAmount = getCalculator().calculateTotal();
+        Objects.requireNonNull(commission, "Commission cannot be null");
+        Objects.requireNonNull(tax, "Tax cannot be null");
+        BigDecimal buyAmount = getCalculator().calculateTotal(commission, tax);
         player.withdrawMoney(buyAmount);
         player.getPortfolio().addShare(getShare());
         player.getTransactionArchive().add(this);

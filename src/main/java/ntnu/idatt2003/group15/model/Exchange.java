@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class Exchange {
     private String name;
     private int week = 1;
-    private Map<String, Stock> stockMap;
+    private final Map<String, Stock> stockMap;
     private Random random;
 
     public void Exchange(String name, List<Stock> stocks) throws BlankArgumentException, NullPointerException {
@@ -43,13 +43,12 @@ public class Exchange {
         Objects.requireNonNull(searchTerm, "Search term cannot be null");
         return stockMap.entrySet().stream()
                 .filter(entry ->
-                        entry.getKey().equals(searchTerm) ||
-                                entry.getValue().getCompany().equalsIgnoreCase(searchTerm))
+                    entry.getKey().contains(searchTerm) ||
+                                entry.getValue().getCompany().contains(searchTerm))
                 .map(Map.Entry::getValue)
                 .toList();
     }
 
-    // Kjøpspris er hardkodet og må oppdateres
     public Purchase buy(String symbol, BigDecimal quantity, Player player) throws NullPointerException {
         Objects.requireNonNull(symbol, "Symbol cannot be null");
         Objects.requireNonNull(quantity, "Quantity cannot be null");
@@ -57,17 +56,16 @@ public class Exchange {
         Stock stock = getStock(symbol);
         Share share = new Share(stock, quantity, BigDecimal.valueOf(100));
         Purchase tx = new Purchase(share, getWeek());
-        tx.commit(player);
+        tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
         return tx;
     }
 
-    // Salgsprislisten oppdateres ikke
     public Sale sell(Share share, Player player) throws NullPointerException {
         Objects.requireNonNull(share, "Share cannot be null");
         Objects.requireNonNull(player, "Player cannot be null");
         Stock stock = share.getStock();
         Sale tx = new Sale(share, getWeek(), stock.getSalesPrice());
-        tx.commit(player);
+        tx.commit(player , BigDecimal.ZERO, BigDecimal.ZERO);
         return tx;
     }
 

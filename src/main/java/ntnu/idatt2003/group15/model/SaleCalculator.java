@@ -20,15 +20,15 @@ public class SaleCalculator implements TransactionCalculator {
         return salesPrice.multiply(quantity);
     }
 
-    public BigDecimal calculateCommission() {
-        return purchasePrice.multiply(BigDecimal.valueOf(0.01)); // 1%
+    public BigDecimal calculateCommission(BigDecimal commission) {
+        return purchasePrice.multiply(commission); // 1%
     }
 
-    public BigDecimal calculateTax() {
-        return BigDecimal.valueOf(0.3).multiply(calculateGross().subtract(calculateCommission()).subtract(purchasePrice.multiply(quantity)));
+    public BigDecimal calculateTax(BigDecimal tax) {
+        return BigDecimal.valueOf(tax).multiply(calculateGross().subtract(calculateCommission()).subtract(purchasePrice.multiply(quantity)));
     }
 
-    public BigDecimal calculateTotal() {
-        return calculateGross().subtract(calculateCommission().subtract(calculateTax()));
+    public BigDecimal calculateTotal(BigDecimal commission, BigDecimal tax) {
+        return calculateGross().subtract(calculateCommission(commission).subtract(calculateTax(tax)));
     }
 }

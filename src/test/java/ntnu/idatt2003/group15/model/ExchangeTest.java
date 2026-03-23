@@ -1,49 +1,84 @@
 package ntnu.idatt2003.group15.model;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExchangeTest {
 
-    @BeforeEach
-    void setUp() {
+  @BeforeEach
+  void setUp() {
+    pgtStock = new Stock("PGT", "Porsgrunn toaletter", BigDecimal.valueOf(1000));
+    List<Stock> stocks = List.of(
+            new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(50)),
+        pgtStock
+      );
+    exchange = new Exchange("FREX", stocks);
+    txShare = new Share(pgtStock, BigDecimal.valueOf(2), BigDecimal.valueOf(1000));
+    player = new Player("Ole Theodor", BigDecimal.valueOf(10000));
+  }
+
+  @Nested
+  class positiveExchangeTests {
+
+      @Test
+      void getName () {
+        assertEquals("FREX", exchange.getName());
+      }
+
+      @Test
+      void getWeek () {
+        assertEquals(1, exchange.getWeek());
     }
 
-    @Test
-    void exchange() {
+      @Test
+      void hasStock () {
+        assertTrue(exchange.hasStock("AAPL"));
+        assertFalse(exchange.hasStock("EQNR"));
     }
 
-    @Test
-    void getName() {
+      @Test
+      void getStock () {
+        Stock porsgrunn = new Stock("PGT", "Porsgrunn toaletter", BigDecimal.valueOf(1000));
+        assertEquals(porsgrunn, exchange.getStock("PGT"));
     }
 
-    @Test
-    void getWeek() {
+      @Test
+      void findStocks () {
+        List<Stock> stocks = exchange.findStocks("Porsgrunn");
+        assertEquals(stocks.getFirst(), exchange.getStock("PGT"));
     }
 
-    @Test
-    void hasStock() {
+      @Test
+      void buy () {
+        Purchase purchaseTx = exchange.buy("PGT", BigDecimal.valueOf(2), player);
+
+        PurchaseCalculator purchaseCalculator = new PurchaseCalculator(share)
+
+        assertEquals(BigDecimal.valueOf(10000 - 1000), player.getMoney());
+
     }
 
-    @Test
-    void getStock() {
+      @Test
+      void sell () {
     }
 
-    @Test
-    void findStocks() {
+      @Test
+      void advance () {
     }
 
-    @Test
-    void buy() {
+      @Test
+      void getGainers () {
     }
 
-    @Test
-    void sell() {
+      @Test
+      void getLosers () {
     }
-
-    @Test
-    void advance() {
-    }
+  }
 }

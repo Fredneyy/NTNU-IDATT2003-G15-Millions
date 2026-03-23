@@ -17,15 +17,15 @@ public class PurchaseCalculator implements TransactionCalculator {
         return purchasePrice.multiply(quantity);
     }
 
-    public BigDecimal calculateCommission() {
-        return calculateGross().multiply(BigDecimal.valueOf(0.005)); // 0.5%
+    public BigDecimal calculateCommission(BigDecimal commission) {
+        return calculateGross().multiply(commission); // 0.5%
     }
 
     public BigDecimal calculateTax() {
         return BigDecimal.valueOf(0);
     }
 
-    public BigDecimal calculateTotal() {
-        return calculateGross().add(calculateCommission()).add(calculateTax());
+    public BigDecimal calculateTotal(BigDecimal commission) {
+        return calculateGross().add(calculateCommission(commission)).add(calculateTax());
     }
 }

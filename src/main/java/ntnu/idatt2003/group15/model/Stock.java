@@ -13,7 +13,7 @@ import static ntnu.idatt2003.group15.utilities.InputValidator.isBigDecimalValueP
 public class Stock {
       private final String symbol;
       private final String company;
-      private List<BigDecimal> prices;
+      private final List<BigDecimal> prices;
       private final List<String> categories;
 
       public Stock(String symbol, String company, BigDecimal salesPrice) throws NullPointerException, BlankArgumentException, IllegalArgumentException {
@@ -96,4 +96,18 @@ public class Stock {
     public List<String> getCategories() {
         return List.copyOf(categories);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+          return false;
+        }
+        if (this == o) return true;
+        if (!(o instanceof Stock stock)) {
+          return false;
+        }
+        return symbol.equalsIgnoreCase(stock.symbol)
+          && company.equalsIgnoreCase(stock.company);
+    }
+
 }
