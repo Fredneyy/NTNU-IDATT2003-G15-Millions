@@ -16,10 +16,14 @@ class PlayerTest {
   @DisplayName("Positive Player Tests")
   class positivePlayerTests {
     private Player player;
+    private Stock appleStock;
+    private Share share;
 
     @BeforeEach
     void setUp() {
       player = new Player("username", BigDecimal.valueOf(1000));
+      appleStock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(50));
+      share = new Share(appleStock, BigDecimal.valueOf(10), BigDecimal.valueOf(50));
     }
 
     @Test
@@ -54,6 +58,17 @@ class PlayerTest {
       assertEquals(BigDecimal.valueOf(1000), player.getNetWorth());
     }
 
+    @Test
+    void getStatus() {
+      assertEquals(PlayerStatus.NOVICE, player.getStatus());
+
+      player.getPortfolio().addShare(share);
+
+      assertEquals(PlayerStatus.INVESTOR, player.getStatus());
+
+      player.getPortfolio().getShares("AAPL").getFirst().getStock().addNewSalesPrice(BigDecimal.valueOf(150));
+      assertEquals(PlayerStatus.SPECULATOR, player.getStatus());
+    }
   }
 
   @Nested

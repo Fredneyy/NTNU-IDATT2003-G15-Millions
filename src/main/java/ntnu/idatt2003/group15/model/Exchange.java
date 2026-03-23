@@ -12,7 +12,7 @@ public class Exchange {
     private final Map<String, Stock> stockMap;
     private Random random;
 
-    public void Exchange(String name, List<Stock> stocks) throws BlankArgumentException, NullPointerException {
+    public Exchange(String name, List<Stock> stocks) throws BlankArgumentException, NullPointerException {
         Objects.requireNonNull(name, "name cannot be null");
         if (name.isBlank()) {
             throw new BlankArgumentException("Name cannot be blank");
@@ -54,7 +54,7 @@ public class Exchange {
         Objects.requireNonNull(quantity, "Quantity cannot be null");
         Objects.requireNonNull(player, "Player cannot be null");
         Stock stock = getStock(symbol);
-        Share share = new Share(stock, quantity, BigDecimal.valueOf(100));
+        Share share = new Share(stock, quantity, stock.getSalesPrice());
         Purchase tx = new Purchase(share, getWeek());
         tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
         return tx;

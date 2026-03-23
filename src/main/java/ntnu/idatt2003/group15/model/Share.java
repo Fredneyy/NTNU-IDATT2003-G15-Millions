@@ -31,4 +31,7 @@ public class Share {
     return pricePerShare;
   }
 
+  public BigDecimal getPurchasePrice() {
+    return pricePerShare.multiply(quantity);
+  }
 }
