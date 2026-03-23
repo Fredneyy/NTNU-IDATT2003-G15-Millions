@@ -29,7 +29,7 @@ public class Stock {
 
         this.symbol = symbol;
         this.company = company;
-        prices = new ArrayList<BigDecimal>();
+        prices = new ArrayList<>();
         this.prices.add(salesPrice);
       }
 

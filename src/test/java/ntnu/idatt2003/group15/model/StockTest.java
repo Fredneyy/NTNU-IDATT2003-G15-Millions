@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,6 +20,7 @@ class StockTest {
         @BeforeEach
         void setUp() {
             appleStock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100));
+            appleStock.addNewSalesPrice(BigDecimal.valueOf(50));
         }
 
         @Test
@@ -33,7 +35,23 @@ class StockTest {
 
         @Test
         void getSalesPrice() {
-            assertEquals(BigDecimal.valueOf(100), appleStock.getSalesPrice());
+            assertEquals(BigDecimal.valueOf(50), appleStock.getSalesPrice());
+        }
+
+        @Test
+        void getHistoricalPrice() {
+            List<BigDecimal> prices = appleStock.getHistoricalPrices();
+            assertEquals(BigDecimal.valueOf(100), prices.getFirst());
+        }
+
+        @Test
+        void getHighestPrice() {
+            assertEquals(BigDecimal.valueOf(100), appleStock.getHighestPrice());
+        }
+
+        @Test
+        void getLowestPrice() {
+            assertEquals(BigDecimal.valueOf(50), appleStock.getLowestPrice());
         }
 
         @Test
