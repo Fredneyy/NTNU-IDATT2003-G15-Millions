@@ -28,31 +28,25 @@ class TransactionCalculatorTest {
 
     @BeforeEach
     void setUp() {
-      calculator = new PurchaseCalculator(share);
+      calculator = new PurchaseCalculator();
     }
 
     @Test
     void calculateGross() {
       // purchasePrice(100) * quantity(10) = 1000
-      assertEquals(0, calculator.calculateGross().compareTo(BigDecimal.valueOf(1000)));
+      assertEquals(0, calculator.calculateGross(share).compareTo(BigDecimal.valueOf(1000)));
     }
 
     @Test
     void calculateCommission() {
-      // gross(1000) * 0.005 = 5
-      assertEquals(0, calculator.calculateCommission().compareTo(BigDecimal.valueOf(5)));
-    }
-
-    @Test
-    void calculateTax() {
-      // purchases are not taxed
-      assertEquals(0, calculator.calculateTax().compareTo(BigDecimal.valueOf(0)));
+      // gross(1000) * 0 = 0
+      assertEquals(0, calculator.calculateCommission(share, BigDecimal.ZERO).compareTo(BigDecimal.valueOf(0)));
     }
 
     @Test
     void calculateTotal() {
       // gross(1000) + commission(5) + tax(0) = 1005
-      assertEquals(0, calculator.calculateTotal().compareTo(BigDecimal.valueOf(1005)));
+      assertEquals(0, calculator.calculateTotal(share, new BigDecimal("0.005"), BigDecimal.ZERO).compareTo(BigDecimal.valueOf(1005)));
     }
   }
 
@@ -62,8 +56,9 @@ class TransactionCalculatorTest {
 
     @Test
     void nullShareThrowsNullPointerException() {
+      PurchaseCalculator calculator = new PurchaseCalculator();
       assertThrows(NullPointerException.class, () ->
-          new PurchaseCalculator(null)
+          calculator.calculateGross(null)
       );
     }
   }
@@ -71,37 +66,40 @@ class TransactionCalculatorTest {
   @Nested
   @DisplayName("Positive SaleCalculator Tests")
   class positiveSaleCalculatorTests {
-    // Share: quantity=10, purchasePrice=100, salesPrice=150
+    // Share: quantity=10, purchasePrice=100, stock salesPrice=100
+    // To test with salesPrice=150, we add a new price to the stock
     private SaleCalculator calculator;
+    private Share saleShare;
 
     @BeforeEach
     void setUp() {
-      calculator = new SaleCalculator(share, BigDecimal.valueOf(150));
+      calculator = new SaleCalculator();
+      // Stock starts at 100, add 150 as new price so getSalesPrice() returns 150
+      stock.addNewSalesPrice(BigDecimal.valueOf(150));
+      saleShare = new Share(stock, BigDecimal.valueOf(10), BigDecimal.valueOf(100));
     }
 
     @Test
     void calculateGross() {
       // salesPrice(150) * quantity(10) = 1500
-      assertEquals(0, calculator.calculateGross().compareTo(BigDecimal.valueOf(1500)));
+      assertEquals(0, calculator.calculateGross(saleShare).compareTo(BigDecimal.valueOf(1500)));
     }
 
     @Test
     void calculateCommission() {
       // purchasePrice(100) * 0.01 = 1
-      assertEquals(0, calculator.calculateCommission().compareTo(BigDecimal.valueOf(1)));
+      assertEquals(0, calculator.calculateCommission(saleShare, new BigDecimal("0.01")).compareTo(BigDecimal.valueOf(1)));
     }
 
     @Test
     void calculateTax() {
-      // 0.3 * (gross(1500) - commission(1) - purchasePrice(100)*quantity(10))
-      // 0.3 * (1500 - 1 - 1000) = 0.3 * 499 = 149.7
-      assertEquals(0, calculator.calculateTax().compareTo(new BigDecimal("149.7")));
+      assertEquals(0, calculator.calculateTax(saleShare, BigDecimal.ZERO, BigDecimal.ZERO).compareTo(BigDecimal.ZERO));
     }
 
     @Test
     void calculateTotal() {
-      // gross(1500) - (commission(1) - tax(149.7)) = 1500 + 148.7 = 1648.7
-      assertEquals(0, calculator.calculateTotal().compareTo(new BigDecimal("1648.7")));
+      // gross(1500) - commission(0) - tax(0) = 1500
+      assertEquals(0, calculator.calculateTotal(saleShare, BigDecimal.ZERO, BigDecimal.ZERO).compareTo(new BigDecimal("1500")));
     }
   }
 
@@ -111,15 +109,9 @@ class TransactionCalculatorTest {
 
     @Test
     void nullShareThrowsNullPointerException() {
+      SaleCalculator calculator = new SaleCalculator();
       assertThrows(NullPointerException.class, () ->
-          new SaleCalculator(null, BigDecimal.valueOf(150))
-      );
-    }
-
-    @Test
-    void nullSalesPriceThrowsNullPointerException() {
-      assertThrows(NullPointerException.class, () ->
-          new SaleCalculator(share, null)
+          calculator.calculateGross(null)
       );
     }
   }

@@ -22,7 +22,7 @@ class TransactionArchiveTest {
     stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100));
     share = new Share(stock, BigDecimal.valueOf(10), BigDecimal.valueOf(1000));
     purchase = new Purchase(share, 1);
-    sale = new Sale(share, 2, BigDecimal.valueOf(110));
+    sale = new Sale(share, 2);
   }
 
   @Nested

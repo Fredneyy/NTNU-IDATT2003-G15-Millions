@@ -1,5 +1,6 @@
 package ntnu.idatt2003.group15.model;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public abstract class Transaction {
@@ -33,5 +34,9 @@ public abstract class Transaction {
         return committed;
     }
 
-    public void commit(Player player) {}
+    protected void setCommitted(boolean committed) {
+        this.committed = committed;
+    }
+
+    public abstract void commit(Player player, BigDecimal commission, BigDecimal tax);
 }

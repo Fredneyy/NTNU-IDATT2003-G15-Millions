@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,6 +22,7 @@ class StockTest {
         @BeforeEach
         void setUp() {
             appleStock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100));
+            appleStock.addNewSalesPrice(BigDecimal.valueOf(50));
         }
 
         @Test
@@ -33,7 +37,23 @@ class StockTest {
 
         @Test
         void getSalesPrice() {
-            assertEquals(BigDecimal.valueOf(100), appleStock.getSalesPrice());
+            assertEquals(BigDecimal.valueOf(50), appleStock.getSalesPrice());
+        }
+
+        @Test
+        void getHistoricalPrice() {
+            List<BigDecimal> prices = appleStock.getHistoricalPrices();
+            assertEquals(BigDecimal.valueOf(100), prices.getFirst());
+        }
+
+        @Test
+        void getHighestPrice() {
+            assertEquals(BigDecimal.valueOf(100), appleStock.getHighestPrice());
+        }
+
+        @Test
+        void getLowestPrice() {
+            assertEquals(BigDecimal.valueOf(50), appleStock.getLowestPrice());
         }
 
         @Test
@@ -41,6 +61,26 @@ class StockTest {
             appleStock.addNewSalesPrice(BigDecimal.valueOf(150));
             assertEquals(BigDecimal.valueOf(150), appleStock.getSalesPrice());
         }
+
+        @Test
+        void getLatestPriceChange() {
+            assertEquals(BigDecimal.valueOf(-50), appleStock.getLatestPriceChange());
+            appleStock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100));
+            assertEquals(BigDecimal.ZERO, appleStock.getLatestPriceChange());
+        }
+
+        @Test
+        void getLatestPriceChangeRelative() {
+            assertEquals(new BigDecimal("-0.50000"), appleStock.getLatestPriceChangeRelative());
+        }
+
+        @Test
+        void setAndGetCategories() {
+            List<String> categories = List.of("String");
+            appleStock.setCategories(categories);
+            assertEquals(categories, appleStock.getCategories());
+        }
+
     }
 
     @Nested

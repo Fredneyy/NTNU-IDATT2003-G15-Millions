@@ -5,14 +5,18 @@ import java.util.Objects;
 
 public class Purchase extends Transaction {
     public Purchase(Share share, int week) {
-        super(share, week, new PurchaseCalculator(share));
+        super(share, week, new PurchaseCalculator());
     }
 
-    public void commit(Player player) throws NullPointerException {
+    @Override
+    public void commit(Player player, BigDecimal commission, BigDecimal tax) throws NullPointerException {
         Objects.requireNonNull(player, "Player cannot be null");
-        BigDecimal buyAmount = getCalculator().calculateTotal();
+        Objects.requireNonNull(commission, "Commission cannot be null");
+        Objects.requireNonNull(tax, "Tax cannot be null");
+        BigDecimal buyAmount = getCalculator().calculateTotal(getShare(), commission, tax);
         player.withdrawMoney(buyAmount);
         player.getPortfolio().addShare(getShare());
         player.getTransactionArchive().add(this);
+        setCommitted(true);
     }
 }

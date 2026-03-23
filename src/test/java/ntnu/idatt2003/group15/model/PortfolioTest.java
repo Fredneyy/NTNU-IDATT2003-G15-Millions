@@ -72,6 +72,14 @@ class PortfolioTest {
       portfolio.removeShare(share);
       assertFalse(portfolio.contains(share));
     }
+
+    @Test
+    void getTotalMarketValue() {
+      portfolio.addShare(share);
+      BigDecimal totalValue = portfolio.getTotalMarketValue();
+      assertEquals(BigDecimal.valueOf(1000), totalValue);
+    }
+
   }
 
   @Nested
