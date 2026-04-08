@@ -1,17 +1,22 @@
 package ntnu.idatt2003.group15.utilities;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
+/**
+ * Utility class for validating structural and domain constraints on input data.
+ */
 public class InputValidator {
-    public static boolean isBigDecimalValuePositive (String variableName, BigDecimal price) throws IllegalArgumentException, NullPointerException {
-        if (price == null) {
-            throw new NullPointerException(variableName + " cannot be null");
-        }
 
-        if (price.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException(variableName + " must be greater than zero");
-        }
-
-        return true;
-    }
+  /**
+   * Returns {@code true} if number is positive, {@code false} otherwise.
+   *
+   * @param price the amount
+   * @return {@code true} if number is >0, {@code false} otherwise
+   * @throws NullPointerException if price is null
+   */
+  public static boolean isBigDecimalValuePositive(BigDecimal price) throws NullPointerException {
+    Objects.requireNonNull(price);
+    return price.compareTo(java.math.BigDecimal.ZERO) <= 0;
+  }
 }

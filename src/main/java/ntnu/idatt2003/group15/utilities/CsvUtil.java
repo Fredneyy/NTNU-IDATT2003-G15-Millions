@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * The type Csv util for reading csv files.
+ * Provides utility methods for parsing and writing CSV data.
  */
 public class CsvUtil {
 
@@ -36,6 +36,8 @@ public class CsvUtil {
    * @param filePath the file path
    * @return {@code List} containing every comma seperated string.
    * @throws FileReaderException if reader runs into a problem during operation
+   * @param filePath  
+   * @return 
    */
   public List<String> readCsvFile(String filePath) throws FileReaderException {
     try (Stream<String> lines = Files.lines(Paths.get(filePath))) {

@@ -3,40 +3,82 @@ package ntnu.idatt2003.group15.model;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+/**
+ * Defines the base structure for financial operations within the market.
+ */
 public abstract class Transaction {
-    private Share share;
-    private int week;
-    private TransactionCalculator calculator;
-    private boolean committed;
+  private Share share;
+  private int week;
+  private TransactionCalculator calculator;
+  private boolean committed;
 
-    public Transaction(Share share, int week, TransactionCalculator calculator) {
-        Objects.requireNonNull(share, "Share cannot be null");
-        Objects.requireNonNull(calculator, "Calculator cannot be null");
+  /**
+   * Constructs a new  instance ready for market operations.
+   *
+   * @param share the share of the transaction
+   * @param week the week of the transaction
+   * @param calculator the transaction calculator
+   */
+  protected Transaction(Share share, int week, TransactionCalculator calculator) {
+    Objects.requireNonNull(share, "Share cannot be null");
+    Objects.requireNonNull(calculator, "Calculator cannot be null");
 
-        this.share = share;
-        this.week = week;
-        this.calculator = calculator;
-    }
+    this.share = share;
+    this.week = week;
+    this.calculator = calculator;
+  }
 
-    public Share getShare() {
-        return share;
-    }
+  /**
+   * Returns the share of the transaction.
+   *
+   * @return the share
+   */
+  public Share getShare() {
+    return share;
+  }
 
-    public int getWeek() {
-        return week;
-    }
+  /**
+   * Returns the week of the transaction.
+   *
+   * @return the week
+   */
+  public int getWeek() {
+    return week;
+  }
 
-    public TransactionCalculator getCalculator() {
-        return calculator;
-    }
+  /**
+   * Returns the calculator of the transaction.
+   *
+   * @return the calculator
+   */
+  public TransactionCalculator getCalculator() {
+    return calculator;
+  }
 
-    public boolean isCommitted() {
-        return committed;
-    }
+  /**
+   * Checks whether the transaction is completed.
+   *
+   * @return {@code true} if completed, {@code false} otherwise
+   */
+  public boolean isCommitted() {
+    return committed;
+  }
 
-    protected void setCommitted(boolean committed) {
-        this.committed = committed;
-    }
+  /**
+   * Sets transaction to committed or not.
+   *
+   * @param committed the new state of the transaction
+   */
+  protected void setCommitted(boolean committed) {
+    this.committed = committed;
+  }
 
-    public abstract void commit(Player player, BigDecimal commission, BigDecimal tax);
+  /**
+   * Commits a transaction.
+   *
+   * @param player the player
+   * @param commission the commission of the transaction
+   * @param tax the tax of the transaction
+   */
+  public abstract void commit(Player player, BigDecimal commission, BigDecimal tax);
 }

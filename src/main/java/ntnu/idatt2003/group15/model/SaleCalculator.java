@@ -3,26 +3,59 @@ package ntnu.idatt2003.group15.model;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+/**
+ * Calculates the financial outcomes and proceeds from selling stock.
+ */
 public class SaleCalculator implements TransactionCalculator {
 
-    public BigDecimal calculateGross(Share share) {
-        Objects.requireNonNull(share, "Share cannot be null");
-        BigDecimal salesPrice = share.getStock().getSalesPrice();
-        return salesPrice.multiply(share.getQuantity());
-    }
+  /**
+   * Computes and returns the  based on transaction data.
+   *
+   * @param share the share to sell
+   * @return the value of the shares
+   */
+  public BigDecimal calculateGross(Share share) {
+    Objects.requireNonNull(share, "Share cannot be null");
+    BigDecimal salesPrice = share.getStock().getSalesPrice();
+    return salesPrice.multiply(share.getQuantity());
+  }
 
-    public BigDecimal calculateCommission(Share share, BigDecimal commission) {
-        Objects.requireNonNull(share, "Share cannot be null");
-        return share.getPricePerShare().multiply(commission);
-    }
+  /**
+   * Computes and returns the  based on transaction data.
+   *
+   * @param share the share to sell
+   * @param commission the amount of comission
+   * @return the amount of commission
+   */
+  public BigDecimal calculateCommission(Share share, BigDecimal commission) {
+    Objects.requireNonNull(share, "Share cannot be null");
+    return share.getPricePerShare().multiply(commission);
+  }
 
-    public BigDecimal calculateTax(Share share, BigDecimal tax, BigDecimal commission) {
-        Objects.requireNonNull(share, "Share cannot be null");
-        return tax.multiply(calculateGross(share).subtract(calculateCommission(share, commission)));
-    }
+  /**
+   * Computes and returns the  based on transaction data.
+   *
+   * @param share the share to sell
+   * @param tax the amount of tax
+   * @param commission the amount of commission
+   * @return the total amount of tax
+   */
+  public BigDecimal calculateTax(Share share, BigDecimal tax, BigDecimal commission) {
+    Objects.requireNonNull(share, "Share cannot be null");
+    return tax.multiply(calculateGross(share).subtract(calculateCommission(share, commission)));
+  }
 
-    public BigDecimal calculateTotal(Share share, BigDecimal commission, BigDecimal tax) {
-        Objects.requireNonNull(share, "Share cannot be null");
-        return calculateGross(share).subtract(calculateCommission(share, commission)).subtract(calculateTax(share, tax, commission));
-    }
+  /**
+   * Computes and returns the  based on transaction data.
+   *
+   * @param share the share to sell
+   * @param commission the amount of commission
+   * @param tax the amount of tax
+   * @return the total amount of sale minus taxes and commission
+   */
+  public BigDecimal calculateTotal(Share share, BigDecimal commission, BigDecimal tax) {
+    Objects.requireNonNull(share, "Share cannot be null");
+    return calculateGross(share).subtract(calculateCommission(share, commission))
+        .subtract(calculateTax(share, tax, commission));
+  }
 }
