@@ -8,9 +8,10 @@ public class FileReaderException extends RuntimeException {
   private final Throwable cause;
 
   /**
-   * Executes the  operation to manage market logic.
-   * @param message  
-   * @param cause  
+   * Create a new instance of file reader exception.
+   *
+   * @param message the message of the exception
+   * @param cause the root cause
    */
   public FileReaderException(String message, Throwable cause) {
     super(message);
@@ -18,8 +19,9 @@ public class FileReaderException extends RuntimeException {
   }
 
   /**
-   * Returns the current value of the .
-   * @return 
+   * Returns the cause of the exception.
+   *
+   * @return throwable cause
    */
   public Throwable getCause() {
     return cause;

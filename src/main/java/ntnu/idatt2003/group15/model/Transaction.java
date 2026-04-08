@@ -7,9 +7,9 @@ import java.util.Objects;
  * Defines the base structure for financial operations within the market.
  */
 public abstract class Transaction {
-  private Share share;
-  private int week;
-  private TransactionCalculator calculator;
+  private final Share share;
+  private final int week;
+  private final TransactionCalculator calculator;
   private boolean committed;
 
   /**

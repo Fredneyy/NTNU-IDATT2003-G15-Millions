@@ -5,7 +5,7 @@ package ntnu.idatt2003.group15;
  */
 public class App 
 {
-    public static void main( String[] args )
+    void main()
     {
         System.out.println( "Hello World!" );
     }
