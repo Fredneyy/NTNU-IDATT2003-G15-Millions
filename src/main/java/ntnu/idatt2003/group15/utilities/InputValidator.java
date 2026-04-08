@@ -17,6 +17,6 @@ public class InputValidator {
    */
   public static boolean isBigDecimalValuePositive(BigDecimal price) throws NullPointerException {
     Objects.requireNonNull(price);
-    return price.compareTo(java.math.BigDecimal.ZERO) <= 0;
+    return price.compareTo(BigDecimal.ZERO) > 0;
   }
 }

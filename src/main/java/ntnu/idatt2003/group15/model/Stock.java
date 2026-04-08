@@ -37,8 +37,9 @@ public class Stock {
     if (company.isBlank()) {
       throw new BlankArgumentException("Company cannot be blank");
     }
-    InputValidator.isBigDecimalValuePositive(salesPrice);
-
+    if (!InputValidator.isBigDecimalValuePositive(salesPrice)) {
+      throw new IllegalArgumentException("SalesPrice must be positive");
+    }
     this.symbol = new SimpleStringProperty(symbol);
     this.company = new SimpleStringProperty(company);
     this.categories = FXCollections.observableArrayList();
@@ -98,7 +99,7 @@ public class Stock {
    * @return the sales price
    */
   public BigDecimal getSalesPrice() {
-    return this.prices.getLast();
+    return prices.getLast();
   }
 
   /**
@@ -107,9 +108,11 @@ public class Stock {
    * @param price the new price
    */
   public void addNewSalesPrice(BigDecimal price)
-      throws IllegalArgumentException, NullPointerException {
+      throws NullPointerException, IllegalArgumentException {
     if (InputValidator.isBigDecimalValuePositive(price)) {
-      this.prices.add(price);
+      prices.add(price);
+    } else {
+      throw new IllegalArgumentException("Price must be positive");
     }
   }
 

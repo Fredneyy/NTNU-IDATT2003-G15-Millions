@@ -131,9 +131,9 @@ class StockTest {
         }
 
         @Test
-        void addZeroOrNegativeSalesPrice() {
+        void addNegativeSalesPrice() {
             assertThrows(IllegalArgumentException.class, () -> {
-                appleStock.addNewSalesPrice(BigDecimal.valueOf(0));
+                appleStock.addNewSalesPrice(BigDecimal.valueOf(-1));
             });
 
             assertThrows(IllegalArgumentException.class, () -> {

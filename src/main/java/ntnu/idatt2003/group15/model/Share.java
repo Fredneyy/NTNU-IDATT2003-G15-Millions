@@ -22,8 +22,12 @@ public class Share {
   public Share(Stock stock, BigDecimal quantity, BigDecimal pricePerShare)
       throws NullPointerException, IllegalArgumentException {
     Objects.requireNonNull(stock, "Stock cannot be null");
-    InputValidator.isBigDecimalValuePositive(quantity);
-    InputValidator.isBigDecimalValuePositive(pricePerShare);
+    if (!InputValidator.isBigDecimalValuePositive(quantity)) {
+      throw new  IllegalArgumentException("Quantity must be positive");
+    }
+    if (!InputValidator.isBigDecimalValuePositive(pricePerShare)) {
+      throw new  IllegalArgumentException("PricePerShare must be positive");
+    }
     this.stock = stock;
     this.quantity = quantity;
     this.pricePerShare = pricePerShare;
