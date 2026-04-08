@@ -10,7 +10,7 @@ import javafx.collections.ObservableList;
  * Maintains a historical ledger of all executed market transactions.
  */
 public class TransactionArchive {
-  private ObservableList<Transaction> transactions;
+  private final ObservableList<Transaction> transactions;
 
   /**
    * Constructs a new  instance of a transaction archive.

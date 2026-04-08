@@ -10,10 +10,9 @@ import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
  * and their weekly trading values.
  */
 public class Exchange {
-  private String name;
+  private final String name;
   private int week = 1;
   private final Map<String, Stock> stockMap;
-  private Random random;
 
   /**
    * Initializes a new stock exchange with the given name and collection of initial stocks.
@@ -30,7 +29,7 @@ public class Exchange {
     Objects.requireNonNull(stocks, "stocks cannot be null");
     this.name = name;
     this.stockMap = stocks.stream().collect(Collectors.toMap(Stock::getSymbol, stock -> stock));
-    this.random = new Random();
+    Random random = new Random();
   }
 
   /**
