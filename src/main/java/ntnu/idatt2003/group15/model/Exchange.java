@@ -154,9 +154,7 @@ public class Exchange {
    */
   public List<Stock> getLosers(int limit) {
     List<Stock> list = new ArrayList<>();
-    stockMap.forEach((s, stock) -> {
-      list.add(stock);
-    });
+    stockMap.forEach((s, stock) -> list.add(stock));
 
     return list.stream()
         .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative))
