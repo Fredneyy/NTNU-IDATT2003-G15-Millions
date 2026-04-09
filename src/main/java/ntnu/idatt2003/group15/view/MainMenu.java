@@ -14,9 +14,7 @@ import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -219,11 +217,11 @@ public class MainMenu {
   }
 
   private VBox buildCard() {
-    Label sectionLabel = new Label("▷  New Game");
+    Label sectionLabel = new Label("New Game");
     sectionLabel.getStyleClass().add("card-section-label");
 
     nameField.setPromptText("Enter your trader name...");
-    nameField.getStyleClass().add("text-field");    // already in CSS
+    nameField.getStyleClass().add("text-field");
     HBox.setHgrow(nameField, Priority.ALWAYS);
 
     playButton.getStyleClass().add("button-primary");
