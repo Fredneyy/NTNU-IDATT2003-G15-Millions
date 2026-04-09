@@ -23,11 +23,20 @@ public class MainMenu {
   private final StackPane view = new StackPane();
   private final TextField nameField = new TextField();
   private final Button playButton = new Button("Play");
+  private final TranslateTransition shakeAnimation = new TranslateTransition(Duration.millis(60), nameField);
+  private boolean isPlaying = false;
 
   public MainMenu() {
     buildUI();
     wireEvents();
     playEntranceAnimation();
+    shakeAnimation.setByX(8);
+    shakeAnimation.setCycleCount(6);
+    shakeAnimation.setAutoReverse(true);
+    shakeAnimation.setOnFinished(_ -> {
+      nameField.setTranslateX(0);
+      isPlaying = false;
+    });
   }
 
   public StackPane getView() {
@@ -271,15 +280,13 @@ public class MainMenu {
 
   /** Brief horizontal shake on the name field when submitted empty */
   private void shakeField() {
-    TranslateTransition shake = new TranslateTransition(Duration.millis(60), nameField);
-    shake.setByX(8);
-    shake.setCycleCount(6);
-    shake.setAutoReverse(true);
-    shake.setOnFinished(_ -> nameField.setTranslateX(0));
-    shake.play();
-
-    nameField.setStyle("-fx-border-color: #f0637a;");
-    nameField.focusedProperty().addListener((_, _, _) -> nameField.setStyle(""));
+    if (!isPlaying) {
+      isPlaying = true;
+      nameField.setTranslateX(0);
+      shakeAnimation.playFromStart();
+      nameField.setStyle("-fx-border-color: #f0637a;");
+      nameField.focusedProperty().addListener((_, _, _) -> nameField.setStyle(""));
+    }
   }
 
   /** Scale-pulse on the Play button, then fire callback */
