@@ -2,15 +2,12 @@
    StockRush — JavaFX Dark Theme
    Deep navy space background, blue/purple accents
    ============================================= */
-
-/* ── Root & Scene ── */
 .root {
     -fx-background-color: #080d1a;
     -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     -fx-font-size: 14px;
     -fx-text-fill: #e8eaf6;
 
-    /* Design tokens */
     -stock-bg-deep:        #080d1a;
     -stock-bg-card:        #0f1729;
     -stock-bg-card-border: #1e2d4d;
@@ -26,7 +23,6 @@
     -stock-input-focus:    #5c6ef5;
 }
 
-/* ── Scene / AnchorPane background with radial glow ── */
 .scene-root, AnchorPane, StackPane {
     -fx-background-color: radial-gradient(
             center 50% 40%, radius 65%,
@@ -35,7 +31,6 @@
     );
 }
 
-/* ── App Icon (square rounded tile) ── */
 .app-icon {
     -fx-background-color: linear-gradient(to bottom right, #5c6ef5, #7c6ef5);
     -fx-background-radius: 18;
@@ -46,7 +41,6 @@
     -fx-max-height: 72;
 }
 
-/* ── Title label ── */
 .title-label {
     -fx-text-fill: #e8eaf6;
     -fx-font-size: 32px;
@@ -58,13 +52,11 @@
     -fx-font-weight: 900;
 }
 
-/* ── Subtitle / tagline ── */
 .subtitle-label {
     -fx-text-fill: #8892b0;
     -fx-font-size: 14px;
 }
 
-/* ── Tip / notification banner ── */
 .tip-banner {
     -fx-background-color: rgba(201,162,39,0.12);
     -fx-border-color: rgba(201,162,39,0.35);
@@ -83,7 +75,6 @@ author {
     -fx-font-size: 13px;
 }
 
-/* ── Card / panel ── */
 .card {
     -fx-background-color: #0f1729;
     -fx-border-color: #1e2d4d;
@@ -94,14 +85,12 @@ author {
     -fx-effect: dropshadow(gaussian, rgba(0,0,10,0.6), 32, 0.1, 0, 8);
 }
 
-/* ── Section label inside card (e.g. "New Game") ── */
 .card-section-label {
     -fx-text-fill: #e8eaf6;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
 
-/* ── Text field ── */
 .text-field {
     -fx-background-color: #131d35;
     -fx-border-color: #2a3d66;
@@ -111,7 +100,7 @@ author {
     -fx-text-fill: #e8eaf6;
     -fx-prompt-text-fill: #4a5580;
     -fx-font-size: 14px;
-    -fx-padding: 12 16 12 40;   /* left padding leaves room for icon */
+    -fx-padding: 12 16 12 40;
     -fx-pref-height: 48;
 }
 
@@ -124,7 +113,6 @@ author {
     -fx-border-color: #3a4d86;
 }
 
-/* ── Primary button (Play) ── */
 .button-primary {
     -fx-background-color: linear-gradient(to bottom right, #5c6ef5, #7c6ef5);
     -fx-text-fill: white;
@@ -152,7 +140,6 @@ author {
     -fx-effect: dropshadow(gaussian, rgba(92,110,245,0.25), 6, 0.1, 0, 1);
 }
 
-/* ── Secondary / outline button ── */
 .button-secondary {
     -fx-background-color: transparent;
     -fx-border-color: #2a3d66;
@@ -170,19 +157,16 @@ author {
     -fx-text-fill: #e8eaf6;
 }
 
-/* ── Footer / small hint text ── */
 .footer-label {
     -fx-text-fill: #4a5580;
     -fx-font-size: 12px;
 }
 
-/* ── Separator ── */
 .separator .line {
     -fx-border-color: #1e2d4d;
     -fx-border-width: 1 0 0 0;
 }
 
-/* ── Scroll pane ── */
 .scroll-pane {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
@@ -203,7 +187,6 @@ author {
     -fx-background-color: transparent;
 }
 
-/* ── Table view ── */
 .table-view {
     -fx-background-color: #0f1729;
     -fx-border-color: #1e2d4d;
@@ -248,7 +231,6 @@ author {
     -fx-font-size: 13px;
 }
 
-/* ── Value labels — profit green / loss red ── */
 .value-positive {
     -fx-text-fill: #3fcf8e;
     -fx-font-weight: bold;
@@ -259,7 +241,6 @@ author {
     -fx-font-weight: bold;
 }
 
-/* ── List view ── */
 .list-view {
     -fx-background-color: transparent;
     -fx-border-color: #1e2d4d;
@@ -283,7 +264,6 @@ author {
     -fx-text-fill: #e8eaf6;
 }
 
-/* ── Progress bar ── */
 .progress-bar .track {
     -fx-background-color: #1e2d4d;
     -fx-background-radius: 4;
@@ -295,7 +275,6 @@ author {
     -fx-background-insets: 0;
 }
 
-/* ── Combo box ── */
 .combo-box {
     -fx-background-color: #131d35;
     -fx-border-color: #2a3d66;
@@ -321,7 +300,6 @@ author {
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 20, 0.1, 0, 6);
 }
 
-/* ── Label utility classes ── */
 .label-muted {
     -fx-text-fill: #8892b0;
     -fx-font-size: 13px;
@@ -336,7 +314,6 @@ author {
     -fx-text-fill: #c9a227;
 }
 
-/* ── Tooltip ── */
 .tooltip {
     -fx-background-color: #0f1729;
     -fx-border-color: #2a3d66;
@@ -348,7 +325,6 @@ author {
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 12, 0.1, 0, 4);
 }
 
-/* ── Check box ── */
 .check-box .box {
     -fx-background-color: #131d35;
     -fx-border-color: #2a3d66;
@@ -369,7 +345,6 @@ author {
     -fx-text-fill: #8892b0;
 }
 
-/* ── Menu bar (if used) ── */
 .menu-bar {
     -fx-background-color: #080d1a;
     -fx-border-color: transparent transparent #1e2d4d transparent;

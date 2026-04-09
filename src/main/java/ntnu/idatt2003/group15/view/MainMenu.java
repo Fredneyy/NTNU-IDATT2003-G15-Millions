@@ -1,7 +1,6 @@
 package ntnu.idatt2003.group15.view;
 
 import javafx.animation.*;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -228,9 +227,8 @@ public class MainMenu {
     playButton.setMinWidth(90);
 
     HBox inputRow = new HBox(10, nameField, playButton);
-    inputRow.setAlignment(Pos.CENTER_LEFT);
 
-    Label footer = new Label("Start with $10,000  •  15 Stocks  •  Real-time Events");
+    Label footer = new Label("Start with $10,000  •  Real-time Events");
     footer.getStyleClass().add("footer-label");
 
     VBox card = new VBox(16, sectionLabel, inputRow, footer);
