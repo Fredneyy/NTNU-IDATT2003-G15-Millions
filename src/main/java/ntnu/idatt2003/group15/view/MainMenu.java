@@ -58,13 +58,13 @@ public class MainMenu {
 
     VBox tipContainer = new VBox();
     tipContainer.setSpacing(10);
-    tipContainer.setMinHeight(100);
+    tipContainer.setMinHeight(80);
     tipContainer.getStyleClass().add("tip-banner");
     tipContainer.setFillWidth(true);
 
-    HBox qouteWrapper = new HBox();
-    VBox.setVgrow(qouteWrapper, Priority.ALWAYS);
-    qouteWrapper.setMaxHeight(Double.MAX_VALUE);
+    HBox quoteWrapper = new HBox();
+    VBox.setVgrow(quoteWrapper, Priority.ALWAYS);
+    quoteWrapper.setMaxHeight(Double.MAX_VALUE);
 
     HBox authorWrapper = new HBox();
     VBox.setVgrow(authorWrapper, Priority.ALWAYS);
@@ -75,8 +75,8 @@ public class MainMenu {
     Label author = buildTipLabel();
     author.getStyleClass().add("author");
     authorWrapper.getChildren().add(author);
-    qouteWrapper.getChildren().add(quote);
-    tipContainer.getChildren().addAll(qouteWrapper, authorWrapper);
+    quoteWrapper.getChildren().add(quote);
+    tipContainer.getChildren().addAll(quoteWrapper, authorWrapper);
 
     startQuoteAnimation(quotes, tipContainer, quote, author);
 
@@ -221,7 +221,7 @@ public class MainMenu {
   private void animateCircle(Circle circle, Random random) {
     double duration = 4 + random.nextDouble() * 6;
     double drift    = 80 + random.nextDouble() * 120;
-    double wobble   = random.nextGaussian() * 30;
+    double wobble   = random.nextGaussian() * 35;
 
     FadeTransition fade = new FadeTransition(Duration.seconds(duration), circle);
     fade.setFromValue(0.5 + random.nextDouble() * 0.3);
@@ -250,7 +250,7 @@ public class MainMenu {
     FadeTransition fadeIn = new FadeTransition(Duration.millis(800), circle);
     fadeIn.setFromValue(0);
     fadeIn.setToValue(0.5 + random.nextDouble() * 0.3);
-    fadeIn.setOnFinished(f -> parallelTransition.play());
+    parallelTransition.play();
     fadeIn.play();
   }
 
