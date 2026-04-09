@@ -17,9 +17,10 @@ public class App extends Application {
     public void start(Stage stage) throws Exception {
         StackPane root =  new StackPane();
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/style/MainMenuStyle.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
         MainMenu mainMenu = new MainMenu();
         root.getChildren().add(mainMenu.getView());
+        root.getStyleClass().add("scene-root");
         stage.setWidth(900);
         stage.setHeight(700);
         stage.setScene(scene);

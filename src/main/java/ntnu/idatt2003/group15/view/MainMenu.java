@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -13,6 +14,8 @@ import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
+import org.kordamp.ikonli.fontawesome.FontAwesome;
+import org.kordamp.ikonli.javafx.FontIcon;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -85,6 +88,7 @@ public class MainMenu {
     );
 
     Pane particleLayer = new Pane();
+    particleLayer.setEffect(new GaussianBlur(2));
     particleLayer.getChildren().addAll(createBackgroundCircles());
     particleLayer.setMouseTransparent(true);
 
@@ -251,8 +255,12 @@ public class MainMenu {
   }
 
   private VBox buildCard() {
+    FontIcon playIcon =  new FontIcon(FontAwesome.PLAY);
+    playIcon.getStyleClass().add("play-icon");
     Label sectionLabel = new Label("New Game");
     sectionLabel.getStyleClass().add("card-section-label");
+    HBox sectionBox = new HBox(5, playIcon, sectionLabel);
+    sectionBox.setAlignment(Pos.CENTER_LEFT);
 
     nameField.setPromptText("Enter your trader name...");
     nameField.getStyleClass().add("text-field");
@@ -266,7 +274,7 @@ public class MainMenu {
     Label footer = new Label("Start with $10,000  •  Real-time Events");
     footer.getStyleClass().add("footer-label");
 
-    VBox card = new VBox(16, sectionLabel, inputRow, footer);
+    VBox card = new VBox(16, sectionBox, inputRow, footer);
     card.getStyleClass().add("card");
     card.setAlignment(Pos.CENTER_LEFT);
 

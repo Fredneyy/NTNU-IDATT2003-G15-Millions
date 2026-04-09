@@ -3,7 +3,7 @@
    Deep navy space background, blue/purple accents
    ============================================= */
 .root {
-    -fx-background-color: #080d1a;
+    -fx-background-color: #07121e;
     -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     -fx-font-size: 14px;
     -fx-text-fill: #e8eaf6;
@@ -23,7 +23,7 @@
     -stock-input-focus:    #5c6ef5;
 }
 
-.scene-root, AnchorPane, StackPane {
+.scene-root {
     -fx-background-color: radial-gradient(
             center 50% 40%, radius 65%,
             #0d1535 0%,
@@ -89,6 +89,14 @@ author {
     -fx-text-fill: #e8eaf6;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
+}
+
+.play-icon {
+    -fx-text-fill: #28E07A;
+    -fx-fill: #28E07A;
+    -fx-effect: dropshadow(gaussian, rgba(40,224,122,0.25), 8, 0.0, 0, 2);
+    -fx-padding: 6;
+    -fx-background-color: transparent;
 }
 
 .text-field {
