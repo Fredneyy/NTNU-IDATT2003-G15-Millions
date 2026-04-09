@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.view;
 
 import javafx.animation.*;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -15,6 +16,7 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -155,8 +157,11 @@ public class MainMenu {
   private List<Circle> createBackgroundCircles() {
     List<Circle> circles = new ArrayList<>();
     Random random = new Random();
-
-    for (int i = 1; i <= 100; i++) {
+    Double randomAmount = random.nextGaussian();
+    if (randomAmount < 0) {
+      randomAmount = randomAmount * -1;
+    }
+    for (int i = 1; i <= randomAmount * 70; i++) {
       Circle circle = new Circle();
 
       circle.setRadius(3);
