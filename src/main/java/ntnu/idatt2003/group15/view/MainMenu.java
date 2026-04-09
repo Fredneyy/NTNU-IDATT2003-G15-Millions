@@ -55,17 +55,25 @@ public class MainMenu {
 
     VBox tipContainer = new VBox();
     tipContainer.setSpacing(10);
-    tipContainer.setAlignment(Pos.CENTER);
+    tipContainer.setMinHeight(100);
     tipContainer.getStyleClass().add("tip-banner");
+    tipContainer.setFillWidth(true);
+
+    HBox qouteWrapper = new HBox();
+    VBox.setVgrow(qouteWrapper, Priority.ALWAYS);
+    qouteWrapper.setMaxHeight(Double.MAX_VALUE);
 
     HBox authorWrapper = new HBox();
+    VBox.setVgrow(authorWrapper, Priority.ALWAYS);
     authorWrapper.setAlignment(Pos.BOTTOM_RIGHT);
+    authorWrapper.setMaxHeight(Double.MAX_VALUE);
 
     Label quote = buildTipLabel();
     Label author = buildTipLabel();
     author.getStyleClass().add("author");
     authorWrapper.getChildren().add(author);
-    tipContainer.getChildren().addAll(quote, authorWrapper);
+    qouteWrapper.getChildren().add(quote);
+    tipContainer.getChildren().addAll(qouteWrapper, authorWrapper);
 
     startQuoteAnimation(quotes, tipContainer, quote, author);
 
@@ -137,33 +145,49 @@ public class MainMenu {
     return fileReader.readCsvFile("src/main/resources/storage/mainmenu.csv");
   }
 
-  private void startQuoteAnimation(List<String> quotes,VBox tipConatiner, Label quoteLabel, Label authorLabel) {
+  private void startQuoteAnimation(List<String> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel) {
     AtomicInteger index = new AtomicInteger(2);
-    quoteLabel.setText(quotes.get(index.getAndIncrement()));
+
+    qouteLabel.setText(quotes.get(index.getAndIncrement()));
     authorLabel.setText(quotes.get(index.getAndIncrement()));
-    Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(7), _ -> {
+
+    scheduleAnimation(quotes, tipContainer, qouteLabel, authorLabel, index);
+  }
+
+  private void scheduleAnimation(List<String> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel, AtomicInteger index) {
+    double durationDouble = quotes.get(index.get()).split(" ").length * 0.5;
+    Duration duration = Duration.seconds(durationDouble);
+
+    qouteLabel.setText(quotes.get(index.getAndIncrement()));
+    authorLabel.setText(quotes.get(index.getAndIncrement()));
+
+    FadeTransition fadeIn = new FadeTransition(Duration.millis(700), tipContainer);
+    fadeIn.setFromValue(0);
+    fadeIn.setToValue(1);
+    fadeIn.play();
+
+    Timeline timeline = new Timeline();
+    KeyFrame keyFrame = new KeyFrame(duration, _ -> {
       if (index.get() == quotes.size()) {
         index.set(2);
       }
-      FadeTransition fade = new FadeTransition(Duration.millis(700), tipConatiner);
-      fade.setFromValue(1); fade.setToValue(0);
+      FadeTransition fade = new FadeTransition(Duration.millis(700), tipContainer);
+      fade.setFromValue(1);
+      fade.setToValue(0);
       fade.setOnFinished(_ -> {
-        quoteLabel.setText(quotes.get(index.getAndIncrement()));
-        authorLabel.setText(quotes.get(index.getAndIncrement()));
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(700), tipConatiner);
-        fadeIn.setFromValue(0); fadeIn.setToValue(1);
-        fadeIn.play();
+        scheduleAnimation(quotes, tipContainer, qouteLabel, authorLabel, index);
       });
       fade.play();
-    }));
-    timeline.setCycleCount(Animation.INDEFINITE);
+    });
+    timeline.setCycleCount(1);
+    timeline.getKeyFrames().add(keyFrame);
     timeline.play();
   }
 
   private List<Circle> createBackgroundCircles() {
     List<Circle> circles = new ArrayList<>();
     Random random = new Random();
-    Double randomAmount = random.nextGaussian();
+    double randomAmount = random.nextGaussian();
     if (randomAmount < 0) {
       randomAmount = randomAmount * -1;
     }
@@ -203,6 +227,8 @@ public class MainMenu {
     move.setByY(-drift);
     move.setByX(wobble);
 
+    ParallelTransition parallelTransition = new ParallelTransition(fade, move);
+
     move.setOnFinished(e -> {
       circle.setCenterX(random.nextDouble() * Screen.getPrimary().getBounds().getWidth());
       circle.setCenterY(random.nextDouble() * Screen.getPrimary().getBounds().getHeight());
@@ -220,7 +246,7 @@ public class MainMenu {
     FadeTransition fadeIn = new FadeTransition(Duration.millis(800), circle);
     fadeIn.setFromValue(0);
     fadeIn.setToValue(0.5 + random.nextDouble() * 0.3);
-    fadeIn.setOnFinished(f -> { fade.play(); move.play(); });
+    fadeIn.setOnFinished(f -> parallelTransition.play());
     fadeIn.play();
   }
 
