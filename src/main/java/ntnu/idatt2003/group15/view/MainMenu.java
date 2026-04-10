@@ -3,6 +3,7 @@ package ntnu.idatt2003.group15.view;
 import javafx.animation.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -26,9 +27,12 @@ public class MainMenu {
   private final Button playButton = new Button("Play");
   private final TranslateTransition shakeAnimation = new TranslateTransition(Duration.millis(60), nameField);
   Random random = new Random();
+  private final StackPane root;
   private boolean isPlaying = false;
 
-  public MainMenu() {
+  public MainMenu(StackPane root) throws NullPointerException {
+    Objects.requireNonNull(root);
+    this.root = root;
     buildUI();
     wireEvents();
     playEntranceAnimation();
@@ -303,6 +307,21 @@ public class MainMenu {
 
     return card;
   }
+
+  private void close() {
+    ScaleTransition st = new ScaleTransition(Duration.millis(500), view);
+    st.setFromX(1.0);
+    st.setFromY(1.0);
+    st.setToX(0.0);
+    st.setToY(0.0);
+    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), view);
+    fadeOut.setFromValue(1);
+    fadeOut.setToValue(0);
+    ParallelTransition parallelTransition = new ParallelTransition(st, fadeOut);
+    parallelTransition.setOnFinished(e -> root.getChildren().remove(view));
+    parallelTransition.play();
+  }
+
 
   private void wireEvents() {
     playButton.setOnAction(_ -> handlePlay());

@@ -18,7 +18,7 @@ public class App extends Application {
         StackPane root =  new StackPane();
         Scene scene = new Scene(root);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
-        MainMenu mainMenu = new MainMenu();
+        MainMenu mainMenu = new MainMenu(root);
         root.getChildren().add(mainMenu.getView());
         root.getStyleClass().add("scene-root");
         stage.setFullScreen(true);
