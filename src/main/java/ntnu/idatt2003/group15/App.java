@@ -21,8 +21,6 @@ public class App extends Application {
         MainMenu mainMenu = new MainMenu();
         root.getChildren().add(mainMenu.getView());
         root.getStyleClass().add("scene-root");
-        stage.setWidth(900);
-        stage.setHeight(700);
         stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
