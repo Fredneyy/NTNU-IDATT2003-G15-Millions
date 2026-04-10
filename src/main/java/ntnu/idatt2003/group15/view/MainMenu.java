@@ -3,6 +3,7 @@ package ntnu.idatt2003.group15.view;
 import javafx.animation.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -16,9 +17,7 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainMenu {
@@ -27,6 +26,7 @@ public class MainMenu {
   private final TextField nameField = new TextField();
   private final Button playButton = new Button("Play");
   private final TranslateTransition shakeAnimation = new TranslateTransition(Duration.millis(60), nameField);
+  Random random = new Random();
   private boolean isPlaying = false;
 
   public MainMenu() {
@@ -51,14 +51,14 @@ public class MainMenu {
 
     VBox center = new VBox(24);
     center.setAlignment(Pos.CENTER);
-    center.setMaxWidth(420);
+    center.setMaxWidth(Screen.getPrimary().getVisualBounds().getWidth()/5);
     center.setPadding(new Insets(0, 24, 0, 24));
 
     List<String> quotes = loadQuotes();
 
     VBox tipContainer = new VBox();
-    tipContainer.setSpacing(10);
-    tipContainer.setMinHeight(80);
+    tipContainer.setSpacing(5);
+    tipContainer.setMinHeight(90);
     tipContainer.getStyleClass().add("tip-banner");
     tipContainer.setFillWidth(true);
 
@@ -146,42 +146,67 @@ public class MainMenu {
 
   private List<String> loadQuotes() {
     CsvUtil fileReader = CsvUtil.getCsvUtil();
-    return fileReader.readCsvFile("src/main/resources/storage/mainmenu.csv");
+    List<String> rawQuotes = fileReader.readCsvFile("src/main/resources/storage/mainmenu.csv");
+    List<List<String>> quotes = new ArrayList<>();
+    for (int i = 2; i < rawQuotes.size(); i += 2) {
+      List<String> embeddedQuotes = new ArrayList<>();
+      embeddedQuotes.add(rawQuotes.get(i));
+      embeddedQuotes.add(rawQuotes.get(i + 1));
+      quotes.add(embeddedQuotes);
+    }
+    Collections.shuffle(quotes);
+    return quotes.stream().flatMap(List::stream).toList();
   }
 
   private void startQuoteAnimation(List<String> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel) {
     AtomicInteger index = new AtomicInteger(2);
 
-    qouteLabel.setText(quotes.get(index.getAndIncrement()));
-    authorLabel.setText(quotes.get(index.getAndIncrement()));
+    if (quotes.isEmpty()) {
+      qouteLabel.setText("Millions the game");
+      authorLabel.setText("Master the game");
+    } else {
+      qouteLabel.setText(quotes.get(index.getAndIncrement()));
+      authorLabel.setText(quotes.get(index.getAndIncrement()));
 
-    scheduleAnimation(quotes, tipContainer, qouteLabel, authorLabel, index);
+      scheduleAnimation(quotes, tipContainer, qouteLabel, authorLabel, index);
+    }
   }
 
   private void scheduleAnimation(List<String> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel, AtomicInteger index) {
+    if (index.get() == quotes.size()) {
+      index.set(2);
+    }
     double durationDouble = quotes.get(index.get()).split(" ").length * 0.5;
     Duration duration = Duration.seconds(durationDouble);
 
     qouteLabel.setText(quotes.get(index.getAndIncrement()));
     authorLabel.setText(quotes.get(index.getAndIncrement()));
 
-    FadeTransition fadeIn = new FadeTransition(Duration.millis(700), tipContainer);
+    ParallelTransition fadeInTransitions = new ParallelTransition();
+    TranslateTransition translateIn = new TranslateTransition(Duration.millis(800), tipContainer);
+    translateIn.setByY(5);
+    translateIn.setInterpolator(Interpolator.EASE_OUT);
+    FadeTransition fadeIn = new FadeTransition(Duration.millis(800), tipContainer);
     fadeIn.setFromValue(0);
     fadeIn.setToValue(1);
-    fadeIn.play();
+    fadeInTransitions.getChildren().addAll(translateIn, fadeIn);
+    fadeInTransitions.play();
 
     Timeline timeline = new Timeline();
     KeyFrame keyFrame = new KeyFrame(duration, _ -> {
-      if (index.get() == quotes.size()) {
-        index.set(2);
-      }
-      FadeTransition fade = new FadeTransition(Duration.millis(700), tipContainer);
-      fade.setFromValue(1);
-      fade.setToValue(0);
-      fade.setOnFinished(_ -> {
-        scheduleAnimation(quotes, tipContainer, qouteLabel, authorLabel, index);
-      });
-      fade.play();
+      ParallelTransition fadeOutTransitions = new ParallelTransition();
+
+      TranslateTransition translateOut = new TranslateTransition(Duration.millis(800), tipContainer);
+      translateOut.setByY(5);
+      translateOut.setInterpolator(Interpolator.EASE_IN);
+      translateOut.setOnFinished(_ -> tipContainer.setTranslateY(-5));
+
+      FadeTransition fadeOut = new FadeTransition(Duration.millis(800), tipContainer);
+      fadeOut.setFromValue(1);
+      fadeOut.setToValue(0);
+      fadeOutTransitions.getChildren().addAll(translateOut, fadeOut);
+      fadeOutTransitions.setOnFinished(_ -> scheduleAnimation(quotes,tipContainer, qouteLabel, authorLabel, index));
+      fadeOutTransitions.play();
     });
     timeline.setCycleCount(1);
     timeline.getKeyFrames().add(keyFrame);
@@ -190,7 +215,6 @@ public class MainMenu {
 
   private List<Circle> createBackgroundCircles() {
     List<Circle> circles = new ArrayList<>();
-    Random random = new Random();
     double randomAmount = random.nextGaussian();
     if (randomAmount < 0) {
       randomAmount = randomAmount * -1;
@@ -233,7 +257,7 @@ public class MainMenu {
 
     ParallelTransition parallelTransition = new ParallelTransition(fade, move);
 
-    move.setOnFinished(e -> {
+    move.setOnFinished(_ -> {
       circle.setCenterX(random.nextDouble() * Screen.getPrimary().getBounds().getWidth());
       circle.setCenterY(random.nextDouble() * Screen.getPrimary().getBounds().getHeight());
       circle.setTranslateX(0);
@@ -243,7 +267,7 @@ public class MainMenu {
       PauseTransition pause = new PauseTransition(
           Duration.millis(random.nextDouble() * 1500)
       );
-      pause.setOnFinished(p -> animateCircle(circle, random));
+      pause.setOnFinished(_ -> animateCircle(circle, random));
       pause.play();
     });
 
