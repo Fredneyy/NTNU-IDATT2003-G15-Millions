@@ -13,13 +13,12 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.util.Duration;
-import ntnu.idatt2003.group15.utilities.CsvUtil;
-import ntnu.idatt2003.group15.utilities.TaskUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import ntnu.idatt2003.group15.utilities.*;
 
 public class MainMenu {
 

@@ -11,7 +11,7 @@ import javafx.util.Duration;
 
 import java.util.Objects;
 
-public abstract class BaseDialog implements Dialog {
+public abstract class BaseDialog {
 
   protected final VBox dialog;
   protected StackPane root;
@@ -59,10 +59,8 @@ public abstract class BaseDialog implements Dialog {
     return scaleTransition;
   }
 
-  @Override
   public abstract void show(StackPane root, String title, String message);
 
-  @Override
   public abstract void close();
 }
 

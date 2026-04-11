@@ -20,9 +20,9 @@ import java.util.function.Consumer;
  */
 public class App extends Application {
 
-    TaskUtil taskUtil;
-    Consumer<Throwable> errorHandler;
-    CsvUtil csvUtil;
+    private TaskUtil taskUtil;
+    private Consumer<Throwable> errorHandler;
+    private CsvUtil csvUtil;
 
     @Override
     public void start(Stage stage) {
@@ -74,7 +74,10 @@ public class App extends Application {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Exception :(");
         alert.setHeaderText(null);
-        alert.setContentText(e.getMessage());
+        String message = e.getMessage();
+        alert.setContentText(message == null || message.isBlank()
+            ? "An unexpected error occurred."
+            : message);
         alert.showAndWait();
     }
 

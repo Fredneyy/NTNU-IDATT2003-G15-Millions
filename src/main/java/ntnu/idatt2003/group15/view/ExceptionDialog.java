@@ -17,6 +17,7 @@ public class ExceptionDialog extends BaseDialog {
   private final GaussianBlur gaussianBlur;
 
   public ExceptionDialog(Duration animationDuration, double blurAmount) {
+
     super(animationDuration);
 
     this.dialogPane = new StackPane();
