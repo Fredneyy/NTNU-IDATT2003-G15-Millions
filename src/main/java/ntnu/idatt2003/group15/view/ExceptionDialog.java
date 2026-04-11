@@ -1,12 +1,7 @@
 package ntnu.idatt2003.group15.view;
 
-import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
-import javafx.animation.ScaleTransition;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -14,31 +9,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import java.util.Objects;
 
-public class ExceptionDialog implements Dialog {
-
-  private final Label titleLabel;
-  private final Label messageLabel;
-  
-  private final VBox dialog;
-  private StackPane root;
-  private final Duration animationDuration;
-  private final Button closeButton;
+public class ExceptionDialog extends BaseDialog {
 
   private final StackPane dialogPane;
   private final StackPane overlay;
   private final GaussianBlur gaussianBlur;
 
   public ExceptionDialog(Duration animationDuration, double blurAmount) {
-    this.animationDuration = animationDuration;
-    
-    this.dialog = new VBox();
-    this.dialog.getStyleClass().add("pop-up-container");
-
-    this.closeButton = new Button("X");
-    this.closeButton.setOnAction(_ -> close());
-    this.closeButton.getStyleClass().add("close-button");
+    super(animationDuration);
 
     this.dialogPane = new StackPane();
     this.overlay = createOverlay();
@@ -46,20 +25,14 @@ public class ExceptionDialog implements Dialog {
     this.gaussianBlur = new GaussianBlur(blurAmount);
 
     this.dialog.getChildren().addAll(closeButtonContainer, dialogPane);
-    
-    messageLabel = new Label();
-    titleLabel = new Label();
+
     titleLabel.getStyleClass().add("dialog-title-label");
     messageLabel.getStyleClass().add("dialog-message-label");
-    messageLabel.setWrapText(true);
   }
 
   @Override
   public void show(StackPane root, String title, String message) {
-    Objects.requireNonNull(root, "root must not be null");
-    this.root = root;
-    titleLabel.setText(title);
-    messageLabel.setText(message);
+    prepareDialog(root, title, message);
     dialogPane.setAlignment(Pos.CENTER);
     VBox mainContainer = new VBox(10);
     VBox messageBox = new VBox();
@@ -80,8 +53,8 @@ public class ExceptionDialog implements Dialog {
       root.getChildren().addAll(overlay, dialog);
 
       ParallelTransition transition = new ParallelTransition(
-          createFadeTransition(dialog, 0, 1, animationDuration),
-          createScaleTransition(dialog, 0, 1, animationDuration)
+          createFadeTransition(dialog, 0, 1),
+          createScaleTransition(dialog, 0, 1)
       );
       transition.play();
     }
@@ -92,8 +65,8 @@ public class ExceptionDialog implements Dialog {
   public void close() {
     if (root != null && root.getChildren().contains(overlay)) {
       ParallelTransition closeAnimation = new ParallelTransition(
-          createFadeTransition(dialog, 1, 0, animationDuration),
-          createScaleTransition(dialog, 1.0, 0.1, animationDuration)
+          createFadeTransition(dialog, 1, 0),
+          createScaleTransition(dialog, 1.0, 0.1)
       );
 
       closeAnimation.setOnFinished(_ -> {
@@ -121,20 +94,5 @@ public class ExceptionDialog implements Dialog {
     return newOverlay;
   }
 
-  protected FadeTransition createFadeTransition(Node node, double from, double to, Duration duration) {
-    FadeTransition fadeTransition = new FadeTransition(duration, node);
-    fadeTransition.setFromValue(from);
-    fadeTransition.setToValue(to);
-    return fadeTransition;
-  }
-
-  protected ScaleTransition createScaleTransition(Node node, double from, double to, Duration duration) {
-    ScaleTransition scaleTransition = new ScaleTransition(duration, node);
-    scaleTransition.setFromX(from);
-    scaleTransition.setFromY(from);
-    scaleTransition.setToX(to);
-    scaleTransition.setToY(to);
-    return scaleTransition;
-  }
 
 }
