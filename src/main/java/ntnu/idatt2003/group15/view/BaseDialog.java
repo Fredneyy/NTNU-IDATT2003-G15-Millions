@@ -24,19 +24,22 @@ public abstract class BaseDialog {
   protected BaseDialog(Duration animationDuration) {
     this.animationDuration = animationDuration;
 
-    this.dialog = new VBox();
-    this.dialog.getStyleClass().add("pop-up-container");
+    dialog = new VBox();
+    dialog.getStyleClass().add("pop-up-container");
+    dialog.setPickOnBounds(false);
 
-    this.closeButton = new Button("X");
-    this.closeButton.setOnAction(event -> close());
-    this.closeButton.getStyleClass().add("close-button");
+    closeButton = new Button("X");
+    closeButton.setOnAction(_ -> close());
+    closeButton.getStyleClass().add("close-button");
+    closeButton.setPickOnBounds(false);
 
-    this.titleLabel = new Label();
-    this.messageLabel = new Label();
-    this.messageLabel.setWrapText(true);
+    titleLabel = new Label();
+    messageLabel = new Label();
+    messageLabel.setWrapText(true);
   }
 
-  protected void prepareDialog(StackPane root, String title, String message) {
+  protected void prepareDialog(StackPane root, String title, String message)
+      throws NullPointerException {
     Objects.requireNonNull(root, "root must not be null");
     this.root = root;
     titleLabel.setText(title);

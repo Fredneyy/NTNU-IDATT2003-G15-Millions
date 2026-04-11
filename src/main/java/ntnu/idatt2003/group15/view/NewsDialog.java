@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 public class NewsDialog extends BaseDialog {
@@ -12,7 +13,6 @@ public class NewsDialog extends BaseDialog {
   private final ProgressBar progressBar;
   private final Duration displayDuration;
   private Timeline progressTimeline;
-  private boolean isClosing = false;
 
   public NewsDialog(Duration animationDuration, Duration displayDuration) {
     super(animationDuration);
@@ -25,6 +25,15 @@ public class NewsDialog extends BaseDialog {
     progressBar = new ProgressBar(1.0);
     progressBar.setMaxWidth(Double.MAX_VALUE);
     progressBar.getStyleClass().add("news-progress-bar");
+    dialog.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+      Rectangle clip = new Rectangle(
+          newBounds.getWidth(),
+          newBounds.getHeight()
+      );
+      clip.setArcWidth(24);
+      clip.setArcHeight(24);
+      progressBar.setClip(clip);
+    });
 
     titleLabel.getStyleClass().add("news-title-label");
 
@@ -41,14 +50,11 @@ public class NewsDialog extends BaseDialog {
     contentRow.getStyleClass().add("news-content-area");
 
     dialog.getChildren().addAll(progressBar, contentRow);
-
-    dialog.setPickOnBounds(true);
   }
 
   @Override
   public void show(StackPane root, String title, String message) {
     prepareDialog(root, title, message);
-    isClosing = false;
 
     if (!root.getChildren().contains(dialog)) {
       root.getChildren().add(dialog);
@@ -95,9 +101,7 @@ public class NewsDialog extends BaseDialog {
 
   @Override
   public void close() {
-    if (isClosing) return;
     if (root != null && root.getChildren().contains(dialog)) {
-      isClosing = true;
       if (progressTimeline != null) progressTimeline.stop();
 
       TranslateTransition tt = new TranslateTransition(animationDuration, dialog);
@@ -108,10 +112,7 @@ public class NewsDialog extends BaseDialog {
 
       ParallelTransition exit = new ParallelTransition(tt, ft);
 
-      exit.setOnFinished(_ -> {
-        root.getChildren().remove(dialog);
-        isClosing = false;
-      });
+      exit.setOnFinished(_ -> root.getChildren().remove(dialog));
       exit.play();
     }
   }

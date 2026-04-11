@@ -31,13 +31,13 @@ public class App extends Application {
 
         StackPane root =  new StackPane();
         Scene scene = new Scene(root);
-        NewsDialog news = new NewsDialog(Duration.millis(500), Duration.millis(5000));
-        news.show(root, "Nvidia", "Nvidia ceo caught lacking");
+        NewsDialog news = new NewsDialog(Duration.millis(500), Duration.millis(10000));
         ExceptionDialog exceptionDialog = new ExceptionDialog(Duration.millis(300), 2);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
         MainMenu mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil);
         root.getChildren().add(mainMenu.getView());
+        news.show(root, "Nvidia", "Nvidia ceo caught lacking");
         root.getStyleClass().add("scene-root");
         stage.setFullScreen(true);
         stage.setScene(scene);
