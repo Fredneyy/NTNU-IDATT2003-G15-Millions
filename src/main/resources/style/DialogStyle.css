@@ -29,16 +29,72 @@
 
 .close-button:hover {
     -fx-background-color: #1e2d4d;
-    -fx-text-fill: #f0637a;
-    -fx-border-color: #f0637a;
-    -fx-effect: dropshadow(gaussian, rgba(240,99,122,0.3), 10, 0.2, 0, 0);
+    -fx-text-fill: #e8eaf6;
+    -fx-border-color: #5c6ef5;
+    -fx-effect: dropshadow(gaussian, rgba(92,110,245,0.3), 10, 0.2, 0, 0);
+}
+
+.dialog-title-label {
+    -fx-text-fill: #e8eaf6;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(92,110,245,0.35), 10, 0.2, 0, 1);
+}
+
+.dialog-message-label {
+    -fx-text-fill: #8892b0;
+    -fx-font-size: 14px;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
 }
 
 .close-button:pressed {
+    -fx-background-color: linear-gradient(to bottom right, #4b5de4, #6b5de4);
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-effect: dropshadow(gaussian, rgba(92,110,245,0.25), 6, 0.1, 0, 1);
+}
+
+.news-popup-container {
     -fx-background-color: #0f1729;
-    -fx-text-fill: #d94a61;
-    -fx-border-color: #d94a61;
-    -fx-scale-x: 0.95;
-    -fx-scale-y: 0.95;
-    -fx-effect: dropshadow(gaussian, rgba(240,99,122,0.15), 6, 0.1, 0, 1);
+    -fx-border-color: #1e2d4d;
+    -fx-border-width: 1;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,10,0.6), 24, 0.1, 0, 6);
+    -fx-min-width: 320;
+    -fx-max-width: 320;
+    -fx-padding: 0;
+}
+
+.news-content-area {
+    -fx-padding: 16;
+}
+
+.news-progress-bar {
+    -fx-pref-height: 4;
+}
+
+.news-progress-bar .track {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12 12 0 0;
+}
+
+.news-progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #5c6ef5, #2dd4bf);
+    -fx-background-radius: 12 12 0 0;
+    -fx-background-insets: 0;
+}
+
+.news-title-label {
+    -fx-text-fill: #e8eaf6;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.news-message-label {
+    -fx-text-fill: #8892b0;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
 }

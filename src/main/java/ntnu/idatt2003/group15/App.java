@@ -8,8 +8,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
-import ntnu.idatt2003.group15.view.BaseDialog;
+import ntnu.idatt2003.group15.view.ExceptionDialog;
 import ntnu.idatt2003.group15.view.MainMenu;
+import ntnu.idatt2003.group15.view.NewsDialog;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -30,13 +31,13 @@ public class App extends Application {
 
         StackPane root =  new StackPane();
         Scene scene = new Scene(root);
-        BaseDialog dialog = new BaseDialog(Duration.millis(400), 5);
+        NewsDialog news = new NewsDialog(Duration.millis(500), Duration.millis(5000));
+        news.show(root, "Nvidia", "Nvidia ceo caught lacking");
+        ExceptionDialog exceptionDialog = new ExceptionDialog(Duration.millis(300), 2);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
         MainMenu mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil);
         root.getChildren().add(mainMenu.getView());
-        Runnable onFinished = () -> {System.out.println("finished");};
-        dialog.show(root, onFinished);
         root.getStyleClass().add("scene-root");
         stage.setFullScreen(true);
         stage.setScene(scene);
