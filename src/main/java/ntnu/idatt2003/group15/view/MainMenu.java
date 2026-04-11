@@ -355,9 +355,7 @@ public class MainMenu {
     String name = nameField.getText().trim();
     if (name.isEmpty()) {
       shakeField();
-      return;
     }
-    animatePlayButton();
   }
 
   /** Staggered fade + slide-up entrance for the whole menu */
@@ -368,7 +366,7 @@ public class MainMenu {
     fade.setFromValue(0);
     fade.setToValue(1);
 
-    TranslateTransition slide = new TranslateTransition(Duration.millis(500), view);
+    TranslateTransition slide = new TranslateTransition(Duration.millis(600), view);
     slide.setFromY(20);
     slide.setToY(0);
 
@@ -385,14 +383,5 @@ public class MainMenu {
       nameField.setStyle("-fx-border-color: #f0637a;");
       nameField.focusedProperty().addListener((_, _, _) -> nameField.setStyle(""));
     }
-  }
-
-  /** Scale-pulse on the Play button, then fire callback */
-  private void animatePlayButton() {
-    ScaleTransition pulse = new ScaleTransition(Duration.millis(120), playButton);
-    pulse.setToX(0.92);
-    pulse.setToY(0.92);
-    pulse.setCycleCount(2);
-    pulse.setAutoReverse(true);
   }
 }

@@ -5,8 +5,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
+import ntnu.idatt2003.group15.view.BaseDialog;
 import ntnu.idatt2003.group15.view.MainMenu;
 
 import java.util.Objects;
@@ -28,9 +30,13 @@ public class App extends Application {
 
         StackPane root =  new StackPane();
         Scene scene = new Scene(root);
+        BaseDialog dialog = new BaseDialog(Duration.millis(400), 5);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
         MainMenu mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil);
         root.getChildren().add(mainMenu.getView());
+        Runnable onFinished = () -> {System.out.println("finished");};
+        dialog.show(root, onFinished);
         root.getStyleClass().add("scene-root");
         stage.setFullScreen(true);
         stage.setScene(scene);
