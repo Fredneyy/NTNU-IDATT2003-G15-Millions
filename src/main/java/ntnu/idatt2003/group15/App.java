@@ -12,7 +12,6 @@ import java.util.Objects;
  * The main entry point for the Millions stock simulation application.
  */
 public class App extends Application {
-
     @Override
     public void start(Stage stage) throws Exception {
         StackPane root =  new StackPane();
@@ -24,5 +23,12 @@ public class App extends Application {
         stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
+    }
+
+    /**
+     * This method is called by the Launcher class.
+     */
+    public static void main(String[] args) {
+        launch(args);
     }
 }
