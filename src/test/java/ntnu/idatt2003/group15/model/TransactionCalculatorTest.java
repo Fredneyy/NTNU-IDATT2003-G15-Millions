@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionCalculatorTest {
 
-  // Share: quantity=10, purchasePrice=100
   private Stock stock;
   private Share share;
 
@@ -66,28 +65,23 @@ class TransactionCalculatorTest {
   @Nested
   @DisplayName("Positive SaleCalculator Tests")
   class positiveSaleCalculatorTests {
-    // Share: quantity=10, purchasePrice=100, stock salesPrice=100
-    // To test with salesPrice=150, we add a new price to the stock
     private SaleCalculator calculator;
     private Share saleShare;
 
     @BeforeEach
     void setUp() {
       calculator = new SaleCalculator();
-      // Stock starts at 100, add 150 as new price so getSalesPrice() returns 150
-      stock.addNewSalesPrice(BigDecimal.valueOf(150));
+      stock.addNewSalesPrice(BigDecimal.valueOf(1000));
       saleShare = new Share(stock, BigDecimal.valueOf(10), BigDecimal.valueOf(100));
     }
 
     @Test
     void calculateGross() {
-      // salesPrice(150) * quantity(10) = 1500
-      assertEquals(0, calculator.calculateGross(saleShare).compareTo(BigDecimal.valueOf(1500)));
+      assertEquals(0, calculator.calculateGross(saleShare).compareTo(BigDecimal.valueOf(10000)));
     }
 
     @Test
     void calculateCommission() {
-      // purchasePrice(100) * 0.01 = 1
       assertEquals(0, calculator.calculateCommission(saleShare, new BigDecimal("0.01")).compareTo(BigDecimal.valueOf(1)));
     }
 
@@ -98,8 +92,7 @@ class TransactionCalculatorTest {
 
     @Test
     void calculateTotal() {
-      // gross(1500) - commission(0) - tax(0) = 1500
-      assertEquals(0, calculator.calculateTotal(saleShare, BigDecimal.ZERO, BigDecimal.ZERO).compareTo(new BigDecimal("1500")));
+      assertEquals(0, calculator.calculateTotal(saleShare, BigDecimal.ZERO, BigDecimal.ZERO).compareTo(new BigDecimal("10000")));
     }
   }
 

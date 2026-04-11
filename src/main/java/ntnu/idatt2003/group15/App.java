@@ -1,13 +1,34 @@
 package ntnu.idatt2003.group15;
 
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import ntnu.idatt2003.group15.view.MainMenu;
+
+import java.util.Objects;
+
 /**
- * Hello world!
- *
+ * The main entry point for the Millions stock simulation application.
  */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
+public class App extends Application {
+    @Override
+    public void start(Stage stage) throws Exception {
+        StackPane root =  new StackPane();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
+        MainMenu mainMenu = new MainMenu(root);
+        root.getChildren().add(mainMenu.getView());
+        root.getStyleClass().add("scene-root");
+        stage.setFullScreen(true);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    /**
+     * This method is called by the Launcher class.
+     */
+    public static void main(String[] args) {
+        launch(args);
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * The type Csv util for reading csv files.
+ * Provides utility methods for parsing and writing CSV data.
  */
 public class CsvUtil {
 

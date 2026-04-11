@@ -1,68 +1,135 @@
 package ntnu.idatt2003.group15.model;
 
-import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
-
 import java.math.BigDecimal;
 import java.util.Objects;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 
+/**
+ * Represents a participant in the stock market simulation managing a portfolio and balance.
+ */
 public class Player {
 
-    private final String name;
-    private BigDecimal money;
-    private final BigDecimal startingMoney;
-    private final Portfolio portfolio = new Portfolio();
-    private final TransactionArchive transactionArchive = new TransactionArchive();
+  private final String name;
+  private ObjectProperty<BigDecimal> money;
+  private final BigDecimal startingMoney;
+  private final Portfolio portfolio = new Portfolio();
+  private final TransactionArchive transactionArchive = new TransactionArchive();
+  private ObjectProperty<PlayerStatus> status;
 
-    public Player(String name, BigDecimal startingMoney) throws BlankArgumentException, NullPointerException {
-        Objects.requireNonNull(name, "Name cannot be zero");
-        if (name.isBlank()) {
-            throw new BlankArgumentException("Name cannot be blank");
-        }
-        Objects.requireNonNull(startingMoney, "StartingMoney cannot be null");
-
-        this.name = name;
-        this.startingMoney = startingMoney;
-        this.money = startingMoney;
+  /**
+   * Initializes a new player with a name and starting balance.
+   *
+   * @param name the name of the player
+   * @param startingMoney the amount of money to start with
+   */
+  public Player(String name, BigDecimal startingMoney)
+      throws BlankArgumentException, NullPointerException {
+    Objects.requireNonNull(name, "Name cannot be zero");
+    if (name.isBlank()) {
+      throw new BlankArgumentException("Name cannot be blank");
     }
+    Objects.requireNonNull(startingMoney, "StartingMoney cannot be null");
 
-    public String getName() {
-        return name;
-    }
+    this.name = name;
+    this.startingMoney = startingMoney;
+    this.money = new SimpleObjectProperty<>(startingMoney);
+    this.status = new SimpleObjectProperty<>(PlayerStatus.NOVICE);
+  }
 
-    public BigDecimal getMoney() {
-        return money;
-    }
+  /**
+   * Returns the participant's name.
+   *
+   * @return the name of the player
+   */
+  public String getName() {
+    return name;
+  }
 
-    public void addMoney(BigDecimal amount) throws NullPointerException {
-        Objects.requireNonNull(amount);
-        money = money.add(amount);
-    }
+  /**
+   * Returns the observable property for the player's balance.
+   *
+   * @return the money property
+   */
+  public ObjectProperty<BigDecimal> moneyProperty() {
+    return money;
+  }
 
-    public void withdrawMoney(BigDecimal amount) throws NullPointerException {
-        Objects.requireNonNull(amount);
-        money = money.subtract(amount);
-    }
+  /**
+   * Returns the current balance of the player.
+   *
+   * @return the amount of money
+   */
+  public BigDecimal getMoney() {
+    return money.get();
+  }
 
-    public Portfolio getPortfolio() {
-        return portfolio;
-    }
+  /**
+   * Deposits the specified amount to the player's balance.
+   *
+   * @param amount the amount to add to money
+   */
+  public void addMoney(BigDecimal amount) throws NullPointerException {
+    Objects.requireNonNull(amount);
+    BigDecimal newMoney = money.get().add(amount);
+    money.set(newMoney);
+  }
 
-    public TransactionArchive getTransactionArchive() {
-        return transactionArchive;
-    }
+  /**
+   * Withdraws the specified amount from the player's balance.
+   *
+   * @param amount the amount to withdraw from money
+   */
+  public void withdrawMoney(BigDecimal amount) throws NullPointerException {
+    Objects.requireNonNull(amount);
+    BigDecimal newMoney = money.get().subtract(amount);
+    money.set(newMoney);
+  }
 
-    public BigDecimal getNetWorth() {
-        BigDecimal marketValue = getPortfolio().getTotalMarketValue();
-        return marketValue.add(money);
-    }
+  /**
+   * Retrieves the player's current portfolio of active holdings.
+   *
+   * @return the portfolio of the player
+   */
+  public Portfolio getPortfolio() {
+    return portfolio;
+  }
 
-    public PlayerStatus getStatus() {
-        if (getNetWorth().compareTo(startingMoney.multiply(new BigDecimal("2"))) >= 0) {
-            return PlayerStatus.SPECULATOR;
-        } else if (getNetWorth().compareTo(startingMoney.multiply(new BigDecimal("1.20"))) >= 0) {
-            return PlayerStatus.INVESTOR;
-        } else {
-            return PlayerStatus.NOVICE;
-        }
-    }
+  /**
+   * Retrieves the transaction archive recording the player's history.
+   *
+   * @return the transaction archive of the player
+   */
+  public TransactionArchive getTransactionArchive() {
+    return transactionArchive;
+  }
+
+  /**
+   * Calculates the player's total net worth including liquid balance and stock market value.
+   *
+   * @return the current net worth of the player
+   */
+  public BigDecimal getNetWorth() {
+    BigDecimal marketValue = getPortfolio().getTotalMarketValue();
+    return marketValue.add(money.get());
+  }
+
+  /**
+   * Returns the observable property for the player's status.
+   *
+   * @return the status property of the player
+   */
+  public ObjectProperty<PlayerStatus> statusProperty() {
+    return status;
+  }
+
+  /**
+   * Returns the current status of the player.
+   *
+   * @return the current status of the player
+   */
+  public PlayerStatus getStatus() {
+    return status.get();
+  }
 }
