@@ -3,7 +3,6 @@ package ntnu.idatt2003.group15.view;
 import javafx.animation.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -14,35 +13,48 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.util.Duration;
-import ntnu.idatt2003.group15.utilities.CsvUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import ntnu.idatt2003.group15.utilities.*;
 
 public class MainMenu {
 
   private final StackPane view = new StackPane();
   private final TextField nameField = new TextField();
   private final Button playButton = new Button("Play");
+  private final Label quoteLabel;
+  private final Label authorLabel;
+  VBox tipContainer = new VBox();
   private final TranslateTransition shakeAnimation = new TranslateTransition(Duration.millis(60), nameField);
   Random random = new Random();
   private final StackPane root;
   private boolean isPlaying = false;
+  Consumer<Throwable> errorHandler;
+  CsvUtil csvUtil;
+  TaskUtil taskUtil;
 
-  public MainMenu(StackPane root) throws NullPointerException {
+  public MainMenu(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
     Objects.requireNonNull(root);
+    Objects.requireNonNull(errorHandler);
+    Objects.requireNonNull(csvUtil);
+    Objects.requireNonNull(taskUtil);
+
     this.root = root;
+    this.errorHandler = errorHandler;
+    this.csvUtil = csvUtil;
+    this.taskUtil = taskUtil;
+
+    quoteLabel = buildTipLabel();
+    authorLabel = buildTipLabel();
+
     buildUI();
     wireEvents();
+    loadQuotes();
     playEntranceAnimation();
-    shakeAnimation.setByX(8);
-    shakeAnimation.setCycleCount(6);
-    shakeAnimation.setAutoReverse(true);
-    shakeAnimation.setOnFinished(_ -> {
-      nameField.setTranslateX(0);
-      isPlaying = false;
-    });
+    configureShakeAnimation();
   }
 
   public StackPane getView() {
@@ -57,13 +69,11 @@ public class MainMenu {
     center.setMaxWidth(Screen.getPrimary().getVisualBounds().getWidth()/5);
     center.setPadding(new Insets(0, 24, 0, 24));
 
-    List<String> quotes = loadQuotes();
-
-    VBox tipContainer = new VBox();
     tipContainer.setSpacing(5);
     tipContainer.setMinHeight(90);
     tipContainer.getStyleClass().add("tip-banner");
     tipContainer.setFillWidth(true);
+    tipContainer.setVisible(false);
 
     HBox quoteWrapper = new HBox();
     VBox.setVgrow(quoteWrapper, Priority.ALWAYS);
@@ -74,14 +84,11 @@ public class MainMenu {
     authorWrapper.setAlignment(Pos.BOTTOM_RIGHT);
     authorWrapper.setMaxHeight(Double.MAX_VALUE);
 
-    Label quote = buildTipLabel();
-    Label author = buildTipLabel();
-    author.getStyleClass().add("author");
-    authorWrapper.getChildren().add(author);
-    quoteWrapper.getChildren().add(quote);
+    authorLabel.getStyleClass().add("author");
+    authorWrapper.getChildren().add(authorLabel);
+    quoteWrapper.getChildren().add(quoteLabel);
     tipContainer.getChildren().addAll(quoteWrapper, authorWrapper);
 
-    startQuoteAnimation(quotes, tipContainer, quote, author);
 
     center.getChildren().addAll(
         buildIcon(),
@@ -96,6 +103,16 @@ public class MainMenu {
     particleLayer.setMouseTransparent(true);
 
     view.getChildren().addAll(particleLayer, center);
+  }
+
+  private void configureShakeAnimation() {
+    shakeAnimation.setByX(8);
+    shakeAnimation.setCycleCount(6);
+    shakeAnimation.setAutoReverse(true);
+    shakeAnimation.setOnFinished(_ -> {
+      nameField.setTranslateX(0);
+      isPlaying = false;
+    });
   }
 
   private Pane buildIcon() {
@@ -147,18 +164,22 @@ public class MainMenu {
     return block;
   }
 
-  private List<String> loadQuotes() {
-    CsvUtil fileReader = CsvUtil.getCsvUtil();
-    List<String> rawQuotes = fileReader.readCsvFile("src/main/resources/storage/mainmenu.csv");
-    List<List<String>> quotes = new ArrayList<>();
-    for (int i = 2; i < rawQuotes.size(); i += 2) {
-      List<String> embeddedQuotes = new ArrayList<>();
-      embeddedQuotes.add(rawQuotes.get(i));
-      embeddedQuotes.add(rawQuotes.get(i + 1));
-      quotes.add(embeddedQuotes);
-    }
-    Collections.shuffle(quotes);
-    return quotes.stream().flatMap(List::stream).toList();
+  private void loadQuotes() {
+    taskUtil.runTask(() -> {
+      List<String> rawQuotes = csvUtil.readCsvFile("src/main/resources/storage/mainmenu.csv");
+      List<List<String>> quotes = new ArrayList<>();
+      for (int i = 2; i < rawQuotes.size(); i += 2) {
+        List<String> embeddedQuotes = new ArrayList<>();
+        embeddedQuotes.add(rawQuotes.get(i));
+        embeddedQuotes.add(rawQuotes.get(i + 1));
+        quotes.add(embeddedQuotes);
+      }
+      Collections.shuffle(quotes);
+      return quotes.stream().flatMap(List::stream).toList();
+    }, result -> {
+      startQuoteAnimation(result, tipContainer, quoteLabel, authorLabel);
+      tipContainer.setVisible(true);
+    }, errorHandler);
   }
 
   private void startQuoteAnimation(List<String> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel) {
@@ -318,7 +339,7 @@ public class MainMenu {
     fadeOut.setFromValue(1);
     fadeOut.setToValue(0);
     ParallelTransition parallelTransition = new ParallelTransition(st, fadeOut);
-    parallelTransition.setOnFinished(e -> root.getChildren().remove(view));
+    parallelTransition.setOnFinished(_ -> root.getChildren().remove(view));
     parallelTransition.play();
   }
 
@@ -333,9 +354,7 @@ public class MainMenu {
     String name = nameField.getText().trim();
     if (name.isEmpty()) {
       shakeField();
-      return;
     }
-    animatePlayButton();
   }
 
   /** Staggered fade + slide-up entrance for the whole menu */
@@ -346,7 +365,7 @@ public class MainMenu {
     fade.setFromValue(0);
     fade.setToValue(1);
 
-    TranslateTransition slide = new TranslateTransition(Duration.millis(500), view);
+    TranslateTransition slide = new TranslateTransition(Duration.millis(600), view);
     slide.setFromY(20);
     slide.setToY(0);
 
@@ -363,14 +382,5 @@ public class MainMenu {
       nameField.setStyle("-fx-border-color: #f0637a;");
       nameField.focusedProperty().addListener((_, _, _) -> nameField.setStyle(""));
     }
-  }
-
-  /** Scale-pulse on the Play button, then fire callback */
-  private void animatePlayButton() {
-    ScaleTransition pulse = new ScaleTransition(Duration.millis(120), playButton);
-    pulse.setToX(0.92);
-    pulse.setToY(0.92);
-    pulse.setCycleCount(2);
-    pulse.setAutoReverse(true);
   }
 }

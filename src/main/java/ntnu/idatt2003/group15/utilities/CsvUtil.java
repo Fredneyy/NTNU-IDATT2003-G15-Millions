@@ -14,22 +14,6 @@ import java.util.stream.Stream;
  */
 public class CsvUtil {
 
-  private CsvUtil() {
-  }
-
-  private static final class UtilHolder {
-    private static final CsvUtil util = new CsvUtil();
-  }
-
-  /**
-   * Gets csv util instance.
-   *
-   * @return the csv util
-   */
-  public static CsvUtil getCsvUtil() {
-    return UtilHolder.util;
-  }
-
   /**
    * Read csv file list.
    *

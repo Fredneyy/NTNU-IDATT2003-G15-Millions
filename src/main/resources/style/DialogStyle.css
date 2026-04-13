@@ -1,0 +1,102 @@
+.pop-up-container {
+    -fx-background-color: #0f1729;
+    -fx-border-color: #1e2d4d;
+    -fx-border-width: 1;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,10,0.6), 32, 0.1, 0, 8);
+    -fx-padding: 20 20;
+}
+
+.close-button {
+    -fx-background-color: #131d35;
+    -fx-text-fill: #8892b0;
+    -fx-border-color: #2a3d66;
+    -fx-border-width: 1.5;
+    -fx-background-radius: 30%;
+    -fx-border-radius: 30%;
+    -fx-min-width: 36px;
+    -fx-min-height: 36px;
+    -fx-max-width: 36px;
+    -fx-max-height: 36px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.close-button:hover {
+    -fx-background-color: #1e2d4d;
+    -fx-text-fill: #e8eaf6;
+    -fx-border-color: #5c6ef5;
+    -fx-effect: dropshadow(gaussian, rgba(92,110,245,0.3), 10, 0.2, 0, 0);
+}
+
+.dialog-title-label {
+    -fx-text-fill: #e8eaf6;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(92,110,245,0.35), 10, 0.2, 0, 1);
+}
+
+.dialog-message-label {
+    -fx-text-fill: #8892b0;
+    -fx-font-size: 14px;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.close-button:pressed {
+    -fx-background-color: linear-gradient(to bottom right, #4b5de4, #6b5de4);
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-effect: dropshadow(gaussian, rgba(92,110,245,0.25), 6, 0.1, 0, 1);
+}
+
+.news-popup-container {
+    -fx-background-color: #0f1729;
+    -fx-border-color: #1e2d4d;
+    -fx-border-width: 1;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,10,0.6), 24, 0.1, 0, 6);
+    -fx-min-width: 320;
+    -fx-max-width: 320;
+    -fx-padding: 0;
+}
+
+.news-content-area {
+    -fx-padding: 16;
+}
+
+.news-progress-bar {
+    -fx-pref-height: 4;
+    -fx-background-radius: 12 12 0 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.news-progress-bar .track {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12 12 0 0;
+    -fx-background-insets: 0;
+}
+
+.news-progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #5c6ef5, #2dd4bf);
+    -fx-background-radius: 12 12 0 0;  /* match container top radius */
+    -fx-background-insets: 0;
+}
+
+.news-title-label {
+    -fx-text-fill: #e8eaf6;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.news-message-label {
+    -fx-text-fill: #8892b0;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
+}

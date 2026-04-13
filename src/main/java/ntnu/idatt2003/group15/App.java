@@ -2,27 +2,53 @@ package ntnu.idatt2003.group15;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import ntnu.idatt2003.group15.utilities.CsvUtil;
+import ntnu.idatt2003.group15.utilities.TaskUtil;
+import ntnu.idatt2003.group15.view.ExceptionDialog;
 import ntnu.idatt2003.group15.view.MainMenu;
+import ntnu.idatt2003.group15.view.NewsDialog;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * The main entry point for the Millions stock simulation application.
  */
 public class App extends Application {
+
+    private TaskUtil taskUtil;
+    private Consumer<Throwable> errorHandler;
+    private CsvUtil csvUtil;
+
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
+
+        setUpDependencies();
+
         StackPane root =  new StackPane();
         Scene scene = new Scene(root);
+        NewsDialog news = new NewsDialog(Duration.millis(500), Duration.millis(10000));
+        ExceptionDialog exceptionDialog = new ExceptionDialog(Duration.millis(300), 2);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
-        MainMenu mainMenu = new MainMenu(root);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
+        MainMenu mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil);
         root.getChildren().add(mainMenu.getView());
+        news.show(root, "Nvidia", "Nvidia ceo caught lacking");
         root.getStyleClass().add("scene-root");
         stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
+    }
+
+    @Override
+    public void stop() {
+        if (taskUtil != null) {
+            taskUtil.shutdown();
+        }
     }
 
     /**
@@ -31,4 +57,28 @@ public class App extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
+    private void setUpDependencies() {
+        // infrastructure
+        taskUtil = new TaskUtil();
+        try {
+            taskUtil.init(Runtime.getRuntime().availableProcessors());
+        } catch (IllegalArgumentException e) {
+            exceptionPopUp(e);
+        }
+        csvUtil = new CsvUtil();
+        errorHandler = this::exceptionPopUp;
+    }
+
+    private void exceptionPopUp(Throwable e) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Exception :(");
+        alert.setHeaderText(null);
+        String message = e.getMessage();
+        alert.setContentText(message == null || message.isBlank()
+            ? "An unexpected error occurred."
+            : message);
+        alert.showAndWait();
+    }
+
 }
