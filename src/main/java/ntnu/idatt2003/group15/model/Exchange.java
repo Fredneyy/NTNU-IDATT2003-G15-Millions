@@ -71,6 +71,15 @@ public class Exchange {
   }
 
   /**
+   * Retrieves all stocks currently listed on the exchange.
+   *
+   * @return a {@code List} containing all listed stocks
+   */
+  public List<Stock> getAllStocks() {
+    return List.copyOf(stockMap.values());
+  }
+
+  /**
    * Searches for listed stocks matching the specified symbol or company name substring.
    *
    * @param searchTerm the term to search for
