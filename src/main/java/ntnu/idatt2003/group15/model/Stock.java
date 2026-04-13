@@ -19,7 +19,6 @@ public class Stock {
   private final StringProperty company;
   private final ObservableList<BigDecimal> prices;
   private final ObservableList<String> categories;
-  private final StockPrice stockPrice;
 
   /**
    * Constructs a new  instance ready for market operations.
@@ -28,11 +27,9 @@ public class Stock {
    * @param company the name of the stock
    * @param salesPrice the price of the stock
    */
-  public Stock(String symbol, String company, BigDecimal salesPrice, StandardStockPrice stockPrice)
+  public Stock(String symbol, String company, BigDecimal salesPrice)
       throws NullPointerException, BlankArgumentException, IllegalArgumentException {
     Objects.requireNonNull(symbol, "Company cannot be null");
-    Objects.requireNonNull(stockPrice, "StockPrice cannot be null");
-    this.stockPrice = stockPrice;
     if (symbol.isBlank()) {
       throw new BlankArgumentException("Symbol cannot be blank");
     }
