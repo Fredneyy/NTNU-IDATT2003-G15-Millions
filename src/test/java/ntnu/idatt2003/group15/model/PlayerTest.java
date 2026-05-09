@@ -77,7 +77,7 @@ class PlayerTest {
     @Test
     void nullStartingMoney() {
       assertThrows(NullPointerException.class, () ->
-          new Player("username", null)
+          new Player("username", null), "StartingMoney cannot be null"
       );
     }
 

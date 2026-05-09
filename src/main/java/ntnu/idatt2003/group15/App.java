@@ -1,18 +1,13 @@
 package ntnu.idatt2003.group15;
 
-import com.sun.tools.javac.Main;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainController;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
-import ntnu.idatt2003.group15.view.ExceptionDialog;
-import ntnu.idatt2003.group15.view.MainMenu;
-import ntnu.idatt2003.group15.view.NewsDialog;
 
 import java.util.Objects;
 import java.util.function.Consumer;

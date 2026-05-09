@@ -1,7 +1,6 @@
 package ntnu.idatt2003.group15.view;
 
 import javafx.animation.*;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,6 +12,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.util.Duration;
+import ntnu.idatt2003.group15.controller.MainMenuController;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 import java.util.*;
@@ -27,25 +27,29 @@ public class MainMenu {
   private final Button playButton = new Button("Play");
   private final Label quoteLabel;
   private final Label authorLabel;
-  VBox tipContainer = new VBox();
+  private final VBox tipContainer = new VBox();
+  private final StackPane root;
+
   private final TranslateTransition shakeAnimation = new TranslateTransition(Duration.millis(60), nameField);
   Random random = new Random();
-  private final StackPane root;
   private boolean isPlaying = false;
   Consumer<Throwable> errorHandler;
   CsvUtil csvUtil;
   TaskUtil taskUtil;
+  private final MainMenuController mainMenuController;
 
-  public MainMenu(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
+  public MainMenu(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil, MainMenuController mainMenuController) {
     Objects.requireNonNull(root);
     Objects.requireNonNull(errorHandler);
     Objects.requireNonNull(csvUtil);
     Objects.requireNonNull(taskUtil);
+    Objects.requireNonNull(mainMenuController);
 
     this.root = root;
     this.errorHandler = errorHandler;
     this.csvUtil = csvUtil;
     this.taskUtil = taskUtil;
+    this.mainMenuController = mainMenuController;
 
     quoteLabel = buildTipLabel();
     authorLabel = buildTipLabel();
@@ -66,9 +70,7 @@ public class MainMenu {
 
     VBox center = new VBox(24);
     center.setAlignment(Pos.CENTER);
-    center.setMaxWidth(Screen.getPrimary().getVisualBounds().getWidth()/5);
-    center.setPadding(new Insets(0, 24, 0, 24));
-
+    center.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 4);
     tipContainer.setSpacing(5);
     tipContainer.setMinHeight(90);
     tipContainer.getStyleClass().add("tip-banner");
@@ -165,7 +167,7 @@ public class MainMenu {
   }
 
   private void loadQuotes() {
-    taskUtil.runTask(() -> {
+    taskUtil.runTaskAsync(() -> {
       List<String> rawQuotes = csvUtil.readCsvFile("src/main/resources/storage/mainmenu.csv");
       List<List<String>> quotes = new ArrayList<>();
       for (int i = 2; i < rawQuotes.size(); i += 2) {

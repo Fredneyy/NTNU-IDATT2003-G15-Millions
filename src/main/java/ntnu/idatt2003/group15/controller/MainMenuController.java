@@ -35,9 +35,12 @@ public class MainMenuController {
    * @throws NullPointerException   if name is null
    * @throws BlankArgumentException if name is blank
    */
-  public ExchangeController startGame(String name) throws BlankArgumentException {
+  public ExchangeController startGame(String name, BigDecimal startingMoney) throws BlankArgumentException {
     Objects.requireNonNull(name, "Name cannot be null");
-    Player player = new Player(name, DEFAULT_STARTING_MONEY);
+    if (startingMoney == null) {
+      startingMoney = DEFAULT_STARTING_MONEY;
+    }
+    Player player = new Player(name, startingMoney);
     return new ExchangeController(exchange, player);
   }
 

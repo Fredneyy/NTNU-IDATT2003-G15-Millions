@@ -15,11 +15,11 @@
     -fx-border-width: 1.5;
     -fx-background-radius: 30%;
     -fx-border-radius: 30%;
-    -fx-min-width: 36px;
-    -fx-min-height: 36px;
-    -fx-max-width: 36px;
-    -fx-max-height: 36px;
-    -fx-font-size: 14px;
+    -fx-min-width: 2.571em;
+    -fx-min-height: 2.571em;
+    -fx-max-width: 2.571em;
+    -fx-max-height: 2.571em;
+    -fx-font-size: 1em;
     -fx-font-weight: bold;
     -fx-padding: 0;
     -fx-cursor: hand;
@@ -34,14 +34,14 @@
 
 .dialog-title-label {
     -fx-text-fill: #e8eaf6;
-    -fx-font-size: 22px;
+    -fx-font-size: 1.571em;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(gaussian, rgba(92,110,245,0.35), 10, 0.2, 0, 1);
 }
 
 .dialog-message-label {
     -fx-text-fill: #8892b0;
-    -fx-font-size: 14px;
+    -fx-font-size: 1em;
     -fx-wrap-text: true;
     -fx-text-alignment: center;
     -fx-alignment: center;
@@ -91,12 +91,12 @@
 
 .news-title-label {
     -fx-text-fill: #e8eaf6;
-    -fx-font-size: 16px;
+    -fx-font-size: 1.143em;
     -fx-font-weight: bold;
 }
 
 .news-message-label {
     -fx-text-fill: #8892b0;
-    -fx-font-size: 13px;
+    -fx-font-size: 0.929em;
     -fx-wrap-text: true;
 }
