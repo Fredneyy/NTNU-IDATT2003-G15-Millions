@@ -13,11 +13,16 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.util.Duration;
+import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.MainMenuController;
+import ntnu.idatt2003.group15.controller.PlayerController;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import ntnu.idatt2003.group15.utilities.*;
 import org.kordamp.ikonli.javafx.Icon;
@@ -41,7 +46,9 @@ public class MainMenu {
   TaskUtil taskUtil;
   private final MainMenuController mainMenuController;
 
-  public MainMenu(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil, MainMenuController mainMenuController) {
+  public MainMenu(StackPane root, Consumer<Throwable> errorHandler,
+                  CsvUtil csvUtil, TaskUtil taskUtil,
+                  MainMenuController mainMenuController) throws NullPointerException {
     Objects.requireNonNull(root);
     Objects.requireNonNull(errorHandler);
     Objects.requireNonNull(csvUtil);
@@ -63,7 +70,6 @@ public class MainMenu {
     buildUI();
     wireEvents();
     loadQuotes();
-    playEntranceAnimation();
   }
 
   public StackPane getView() {
@@ -362,28 +368,16 @@ public class MainMenu {
   private void handlePlay() {
     String name = nameField.getText().trim();
     String startingMoney = startingMoneyField.getText();
-    if (name.isEmpty()) {
+    if (name.isBlank()) {
       shakeField(nameField, shakeAnimationNameField);
     }
     if (!InputValidator.isInt(startingMoney)) {
       shakeField(startingMoneyField, shakeAnimationStartMoneyField);
     }
-  }
-
-  /** Staggered fade + slide-up entrance for the whole menu */
-  private void playEntranceAnimation() {
-    view.setOpacity(0);
-
-    FadeTransition fade = new FadeTransition(Duration.millis(600), view);
-    fade.setFromValue(0);
-    fade.setToValue(1);
-
-    TranslateTransition slide = new TranslateTransition(Duration.millis(600), view);
-    slide.setFromY(20);
-    slide.setToY(0);
-
-    fade.play();
-    slide.play();
+    if (!name.isBlank() && InputValidator.isInt(startingMoney)) {
+      mainMenuController.startGame(name, BigDecimal.valueOf(Long.parseLong(startingMoney)));
+      close();
+    }
   }
 
   private TranslateTransition configureShakeAnimation(TextField textField) {

@@ -2,6 +2,9 @@ package ntnu.idatt2003.group15.controller;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.function.BiConsumer;
+
+import javafx.beans.property.SimpleObjectProperty;
 import ntnu.idatt2003.group15.model.Exchange;
 import ntnu.idatt2003.group15.model.Player;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
@@ -12,7 +15,8 @@ import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
  */
 public class MainMenuController {
 
-  private static final BigDecimal DEFAULT_STARTING_MONEY = new BigDecimal("10000");
+  private final BigDecimal DEFAULT_STARTING_MONEY = new BigDecimal("10000");
+  private final BiConsumer<ExchangeController, PlayerController> onGameStartConsumer;
 
   private final Exchange exchange;
 
@@ -22,8 +26,9 @@ public class MainMenuController {
    * @param exchange the exchange that will be used for the game session
    * @throws NullPointerException if exchange is null
    */
-  public MainMenuController(Exchange exchange) {
+  public MainMenuController(Exchange exchange, BiConsumer<ExchangeController, PlayerController> onGameStartConsumer) {
     this.exchange = Objects.requireNonNull(exchange, "Exchange cannot be null");
+    this.onGameStartConsumer = onGameStartConsumer;
   }
 
   /**
@@ -35,27 +40,26 @@ public class MainMenuController {
    * @throws NullPointerException   if name is null
    * @throws BlankArgumentException if name is blank
    */
-  public ExchangeController startGame(String name, BigDecimal startingMoney) throws BlankArgumentException {
+  public void startGame(String name, BigDecimal startingMoney) throws BlankArgumentException, NullPointerException {
     Objects.requireNonNull(name, "Name cannot be null");
     if (startingMoney == null) {
       startingMoney = DEFAULT_STARTING_MONEY;
     }
     Player player = new Player(name, startingMoney);
-    return new ExchangeController(exchange, player);
+    PlayerController playerController = createPlayerController(player);
+    onGameStartConsumer.accept(new  ExchangeController(exchange, player), playerController);
   }
 
   /**
    * Returns a {@link PlayerController} for the given name without starting a full game session.
    * Useful when the UI needs to preview player state before entering the exchange view.
    *
-   * @param name the name entered by the user
+   * @param player the player object
    * @return a {@link PlayerController} wrapping the newly created player
    * @throws NullPointerException   if name is null
-   * @throws BlankArgumentException if name is blank
    */
-  public PlayerController createPlayerController(String name) throws BlankArgumentException {
-    Objects.requireNonNull(name, "Name cannot be null");
-    Player player = new Player(name, DEFAULT_STARTING_MONEY);
+  public PlayerController createPlayerController(Player player) throws NullPointerException {
+    Objects.requireNonNull(player, "Player cannot be null");
     return new PlayerController(player);
   }
 
