@@ -118,7 +118,6 @@
 
 .button-primary {
     -fx-background-color: linear-gradient(to bottom right, #5c6ef5, #7c6ef5);
-    -fx-text-fill: white;
     -fx-font-size: 1em;
     -fx-font-weight: bold;
     -fx-background-radius: 10;

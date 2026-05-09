@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
@@ -19,13 +20,14 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import ntnu.idatt2003.group15.utilities.*;
+import org.kordamp.ikonli.javafx.Icon;
 
 public class MainMenu {
 
   private final StackPane view = new StackPane();
   private final TextField nameField = new TextField();
   private final TextField startingMoneyField = new TextField();
-  private final Button playButton = new Button("Play");
+  private final Button playButton = new Button();
   private final Label quoteLabel;
   private final Label authorLabel;
   private final VBox tipContainer = new VBox();
@@ -93,6 +95,11 @@ public class MainMenu {
     authorWrapper.getChildren().add(authorLabel);
     quoteWrapper.getChildren().add(quoteLabel);
     tipContainer.getChildren().addAll(quoteWrapper, authorWrapper);
+
+    FontIcon icon = new FontIcon(FontAwesome.PLAY);
+    icon.setIconColor(Paint.valueOf("White"));
+    playButton.setGraphic(icon);
+    VBox.setVgrow(playButton, Priority.ALWAYS);
 
 
     center.getChildren().addAll(
