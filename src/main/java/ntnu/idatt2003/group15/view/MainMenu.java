@@ -24,13 +24,14 @@ public class MainMenu {
 
   private final StackPane view = new StackPane();
   private final TextField nameField = new TextField();
+  private final TextField startingMoneyField = new TextField();
   private final Button playButton = new Button("Play");
   private final Label quoteLabel;
   private final Label authorLabel;
   private final VBox tipContainer = new VBox();
   private final StackPane root;
-
-  private final TranslateTransition shakeAnimation = new TranslateTransition(Duration.millis(60), nameField);
+  private final TranslateTransition shakeAnimationNameField;
+  private final TranslateTransition shakeAnimationStartMoneyField;
   Random random = new Random();
   private boolean isPlaying = false;
   Consumer<Throwable> errorHandler;
@@ -51,6 +52,9 @@ public class MainMenu {
     this.taskUtil = taskUtil;
     this.mainMenuController = mainMenuController;
 
+    shakeAnimationNameField = configureShakeAnimation(nameField);
+    shakeAnimationStartMoneyField = configureShakeAnimation(startingMoneyField);
+
     quoteLabel = buildTipLabel();
     authorLabel = buildTipLabel();
 
@@ -58,7 +62,6 @@ public class MainMenu {
     wireEvents();
     loadQuotes();
     playEntranceAnimation();
-    configureShakeAnimation();
   }
 
   public StackPane getView() {
@@ -105,16 +108,6 @@ public class MainMenu {
     particleLayer.setMouseTransparent(true);
 
     view.getChildren().addAll(particleLayer, center);
-  }
-
-  private void configureShakeAnimation() {
-    shakeAnimation.setByX(8);
-    shakeAnimation.setCycleCount(6);
-    shakeAnimation.setAutoReverse(true);
-    shakeAnimation.setOnFinished(_ -> {
-      nameField.setTranslateX(0);
-      isPlaying = false;
-    });
   }
 
   private Pane buildIcon() {
@@ -316,10 +309,17 @@ public class MainMenu {
     nameField.getStyleClass().add("text-field");
     HBox.setHgrow(nameField, Priority.ALWAYS);
 
+    startingMoneyField.setPromptText("Enter starting money amount...");
+    startingMoneyField.getStyleClass().add("text-field");
+    HBox.setHgrow(startingMoneyField, Priority.ALWAYS);
+
     playButton.getStyleClass().add("button-primary");
     playButton.setMinWidth(90);
 
-    HBox inputRow = new HBox(10, nameField, playButton);
+    VBox inputFields = new VBox(10, nameField, startingMoneyField);
+    HBox.setHgrow(inputFields, Priority.ALWAYS);
+    HBox inputRow = new HBox(10, inputFields,  playButton);
+    inputRow.setAlignment(Pos.CENTER_LEFT);
 
     Label footer = new Label("Start with $10,000  •  Real-time Events");
     footer.getStyleClass().add("footer-label");
@@ -354,8 +354,12 @@ public class MainMenu {
 
   private void handlePlay() {
     String name = nameField.getText().trim();
+    String startingMoney = startingMoneyField.getText();
     if (name.isEmpty()) {
-      shakeField();
+      shakeField(nameField, shakeAnimationNameField);
+    }
+    if (!InputValidator.isInt(startingMoney)) {
+      shakeField(startingMoneyField, shakeAnimationStartMoneyField);
     }
   }
 
@@ -375,14 +379,21 @@ public class MainMenu {
     slide.play();
   }
 
-  /** Brief horizontal shake on the name field when submitted empty */
-  private void shakeField() {
-    if (!isPlaying) {
-      isPlaying = true;
-      nameField.setTranslateX(0);
-      shakeAnimation.playFromStart();
-      nameField.setStyle("-fx-border-color: #f0637a;");
-      nameField.focusedProperty().addListener((_, _, _) -> nameField.setStyle(""));
-    }
+  private TranslateTransition configureShakeAnimation(TextField textField) {
+    TranslateTransition shakeAnimation = new TranslateTransition(Duration.millis(60), textField);
+    shakeAnimation.setByX(8);
+    shakeAnimation.setCycleCount(6);
+    shakeAnimation.setAutoReverse(true);
+    shakeAnimation.setOnFinished(_ -> {
+      textField.setTranslateX(0);
+    });
+    return shakeAnimation;
+  }
+
+  private void shakeField(TextField textField, TranslateTransition shakeAnimation) {
+    textField.setTranslateX(0);
+    shakeAnimation.playFromStart();
+    textField.setStyle("-fx-border-color: #f0637a;");
+    textField.focusedProperty().addListener((_, _, _) -> textField.setStyle(""));
   }
 }
