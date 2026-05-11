@@ -10,6 +10,7 @@ import ntnu.idatt2003.group15.controller.MainController;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.ExceptionDialog;
+import ntnu.idatt2003.group15.view.SettingsView;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -34,7 +35,12 @@ public class App extends Application {
 
         MainController mainController = new MainController(root, errorHandler, csvUtil, taskUtil);
         mainController.showMainMenu();
-        exceptionPopUp(new NullPointerException("Shit"));
+
+        // SettingsView settingsView = new SettingsView(root);
+        // root.getChildren().setAll(settingsView.getView());
+
+        // exceptionPopUp(new NullPointerException("Shit"));
+        scene.getStylesheets().add(getClass().getResource("/style/SettingsStyle.css").toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
         root.getStyleClass().add("scene-root");
