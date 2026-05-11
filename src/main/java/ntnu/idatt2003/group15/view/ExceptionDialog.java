@@ -8,6 +8,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.util.Duration;
 
 public class ExceptionDialog extends BaseDialog {
@@ -19,6 +20,9 @@ public class ExceptionDialog extends BaseDialog {
   public ExceptionDialog(Duration animationDuration, double blurAmount) {
 
     super(animationDuration);
+
+    dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3);
+    dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3);
 
     this.dialogPane = new StackPane();
     this.overlay = createOverlay();

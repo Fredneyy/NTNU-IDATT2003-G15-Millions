@@ -28,5 +28,4 @@ public class CsvUtil {
       throw new FileReaderException("Error reading file " + filePath, e);
     }
   }
-
 }

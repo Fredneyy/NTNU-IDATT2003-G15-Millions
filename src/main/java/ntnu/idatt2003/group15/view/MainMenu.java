@@ -1,7 +1,6 @@
 package ntnu.idatt2003.group15.view;
 
 import javafx.animation.*;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,43 +8,61 @@ import javafx.scene.control.TextField;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.util.Duration;
+import ntnu.idatt2003.group15.controller.ExchangeController;
+import ntnu.idatt2003.group15.controller.MainMenuController;
+import ntnu.idatt2003.group15.controller.PlayerController;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import ntnu.idatt2003.group15.utilities.*;
+import org.kordamp.ikonli.javafx.Icon;
 
 public class MainMenu {
 
   private final StackPane view = new StackPane();
   private final TextField nameField = new TextField();
-  private final Button playButton = new Button("Play");
+  private final TextField startingMoneyField = new TextField();
+  private final Button playButton = new Button();
   private final Label quoteLabel;
   private final Label authorLabel;
-  VBox tipContainer = new VBox();
-  private final TranslateTransition shakeAnimation = new TranslateTransition(Duration.millis(60), nameField);
-  Random random = new Random();
+  private final VBox tipContainer = new VBox();
   private final StackPane root;
+  private final TranslateTransition shakeAnimationNameField;
+  private final TranslateTransition shakeAnimationStartMoneyField;
+  Random random = new Random();
   private boolean isPlaying = false;
   Consumer<Throwable> errorHandler;
   CsvUtil csvUtil;
   TaskUtil taskUtil;
+  private final MainMenuController mainMenuController;
 
-  public MainMenu(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
+  public MainMenu(StackPane root, Consumer<Throwable> errorHandler,
+                  CsvUtil csvUtil, TaskUtil taskUtil,
+                  MainMenuController mainMenuController) throws NullPointerException {
     Objects.requireNonNull(root);
     Objects.requireNonNull(errorHandler);
     Objects.requireNonNull(csvUtil);
     Objects.requireNonNull(taskUtil);
+    Objects.requireNonNull(mainMenuController);
 
     this.root = root;
     this.errorHandler = errorHandler;
     this.csvUtil = csvUtil;
     this.taskUtil = taskUtil;
+    this.mainMenuController = mainMenuController;
+
+    shakeAnimationNameField = configureShakeAnimation(nameField);
+    shakeAnimationStartMoneyField = configureShakeAnimation(startingMoneyField);
 
     quoteLabel = buildTipLabel();
     authorLabel = buildTipLabel();
@@ -53,8 +70,6 @@ public class MainMenu {
     buildUI();
     wireEvents();
     loadQuotes();
-    playEntranceAnimation();
-    configureShakeAnimation();
   }
 
   public StackPane getView() {
@@ -66,9 +81,7 @@ public class MainMenu {
 
     VBox center = new VBox(24);
     center.setAlignment(Pos.CENTER);
-    center.setMaxWidth(Screen.getPrimary().getVisualBounds().getWidth()/5);
-    center.setPadding(new Insets(0, 24, 0, 24));
-
+    center.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 4);
     tipContainer.setSpacing(5);
     tipContainer.setMinHeight(90);
     tipContainer.getStyleClass().add("tip-banner");
@@ -89,6 +102,11 @@ public class MainMenu {
     quoteWrapper.getChildren().add(quoteLabel);
     tipContainer.getChildren().addAll(quoteWrapper, authorWrapper);
 
+    FontIcon icon = new FontIcon(FontAwesome.PLAY);
+    icon.setIconColor(Paint.valueOf("White"));
+    playButton.setGraphic(icon);
+    VBox.setVgrow(playButton, Priority.ALWAYS);
+
 
     center.getChildren().addAll(
         buildIcon(),
@@ -103,16 +121,6 @@ public class MainMenu {
     particleLayer.setMouseTransparent(true);
 
     view.getChildren().addAll(particleLayer, center);
-  }
-
-  private void configureShakeAnimation() {
-    shakeAnimation.setByX(8);
-    shakeAnimation.setCycleCount(6);
-    shakeAnimation.setAutoReverse(true);
-    shakeAnimation.setOnFinished(_ -> {
-      nameField.setTranslateX(0);
-      isPlaying = false;
-    });
   }
 
   private Pane buildIcon() {
@@ -165,7 +173,7 @@ public class MainMenu {
   }
 
   private void loadQuotes() {
-    taskUtil.runTask(() -> {
+    taskUtil.runTaskAsync(() -> {
       List<String> rawQuotes = csvUtil.readCsvFile("src/main/resources/storage/mainmenu.csv");
       List<List<String>> quotes = new ArrayList<>();
       for (int i = 2; i < rawQuotes.size(); i += 2) {
@@ -314,10 +322,17 @@ public class MainMenu {
     nameField.getStyleClass().add("text-field");
     HBox.setHgrow(nameField, Priority.ALWAYS);
 
+    startingMoneyField.setPromptText("Enter starting money amount...");
+    startingMoneyField.getStyleClass().add("text-field");
+    HBox.setHgrow(startingMoneyField, Priority.ALWAYS);
+
     playButton.getStyleClass().add("button-primary");
     playButton.setMinWidth(90);
 
-    HBox inputRow = new HBox(10, nameField, playButton);
+    VBox inputFields = new VBox(10, nameField, startingMoneyField);
+    HBox.setHgrow(inputFields, Priority.ALWAYS);
+    HBox inputRow = new HBox(10, inputFields,  playButton);
+    inputRow.setAlignment(Pos.CENTER_LEFT);
 
     Label footer = new Label("Start with $10,000  •  Real-time Events");
     footer.getStyleClass().add("footer-label");
@@ -352,35 +367,34 @@ public class MainMenu {
 
   private void handlePlay() {
     String name = nameField.getText().trim();
-    if (name.isEmpty()) {
-      shakeField();
+    String startingMoney = startingMoneyField.getText();
+    if (name.isBlank()) {
+      shakeField(nameField, shakeAnimationNameField);
+    }
+    if (!InputValidator.isInt(startingMoney)) {
+      shakeField(startingMoneyField, shakeAnimationStartMoneyField);
+    }
+    if (!name.isBlank() && InputValidator.isInt(startingMoney)) {
+      mainMenuController.startGame(name, BigDecimal.valueOf(Long.parseLong(startingMoney)));
+      close();
     }
   }
 
-  /** Staggered fade + slide-up entrance for the whole menu */
-  private void playEntranceAnimation() {
-    view.setOpacity(0);
-
-    FadeTransition fade = new FadeTransition(Duration.millis(600), view);
-    fade.setFromValue(0);
-    fade.setToValue(1);
-
-    TranslateTransition slide = new TranslateTransition(Duration.millis(600), view);
-    slide.setFromY(20);
-    slide.setToY(0);
-
-    fade.play();
-    slide.play();
+  private TranslateTransition configureShakeAnimation(TextField textField) {
+    TranslateTransition shakeAnimation = new TranslateTransition(Duration.millis(60), textField);
+    shakeAnimation.setByX(8);
+    shakeAnimation.setCycleCount(6);
+    shakeAnimation.setAutoReverse(true);
+    shakeAnimation.setOnFinished(_ -> {
+      textField.setTranslateX(0);
+    });
+    return shakeAnimation;
   }
 
-  /** Brief horizontal shake on the name field when submitted empty */
-  private void shakeField() {
-    if (!isPlaying) {
-      isPlaying = true;
-      nameField.setTranslateX(0);
-      shakeAnimation.playFromStart();
-      nameField.setStyle("-fx-border-color: #f0637a;");
-      nameField.focusedProperty().addListener((_, _, _) -> nameField.setStyle(""));
-    }
+  private void shakeField(TextField textField, TranslateTransition shakeAnimation) {
+    textField.setTranslateX(0);
+    shakeAnimation.playFromStart();
+    textField.setStyle("-fx-border-color: #f0637a;");
+    textField.focusedProperty().addListener((_, _, _) -> textField.setStyle(""));
   }
 }

@@ -1,6 +1,5 @@
 package ntnu.idatt2003.group15;
 
-import com.sun.tools.javac.Main;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -11,8 +10,6 @@ import ntnu.idatt2003.group15.controller.MainController;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.ExceptionDialog;
-import ntnu.idatt2003.group15.view.MainMenu;
-import ntnu.idatt2003.group15.view.NewsDialog;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -25,18 +22,19 @@ public class App extends Application {
     private TaskUtil taskUtil;
     private Consumer<Throwable> errorHandler;
     private CsvUtil csvUtil;
+    private ExceptionDialog exceptionDialog;
+    private StackPane root;
 
     @Override
     public void start(Stage stage) {
-
         setUpDependencies();
 
-        StackPane root =  new StackPane();
+        root =  new StackPane();
         Scene scene = new Scene(root);
 
         MainController mainController = new MainController(root, errorHandler, csvUtil, taskUtil);
         mainController.showMainMenu();
-
+        exceptionPopUp(new NullPointerException("Shit"));
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
         root.getStyleClass().add("scene-root");
@@ -69,17 +67,11 @@ public class App extends Application {
         }
         csvUtil = new CsvUtil();
         errorHandler = this::exceptionPopUp;
+        exceptionDialog = new ExceptionDialog(Duration.millis(200), 2.0);
     }
 
     private void exceptionPopUp(Throwable e) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Exception :(");
-        alert.setHeaderText(null);
-        String message = e.getMessage();
-        alert.setContentText(message == null || message.isBlank()
-            ? "An unexpected error occurred."
-            : message);
-        alert.showAndWait();
+        exceptionDialog.show(root, e.getClass().getSimpleName(), e.getMessage());
     }
 
 }

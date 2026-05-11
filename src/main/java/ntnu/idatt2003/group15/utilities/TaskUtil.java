@@ -31,7 +31,7 @@ public class TaskUtil {
    * Run a task.
    *
    * <p>Takes in a callable for running something on a background thread. The result is then
-   * used in the onFinished consumer that runs on the thread that calls the runTask
+   * used in the onFinished consumer that runs on the thread that calls the runTaskAsync
    * . OnError is what to run if the task fails, also runs on the main thread</p>
    *
    * @param <T>        the type parameter
@@ -40,7 +40,7 @@ public class TaskUtil {
    * @param onError    what to do when error occurs
    * @throws NullPointerException if any parameter is null
    */
-  public <T> void runTask(
+  public <T> void runTaskAsync(
       Callable<T> taskToRun,
       Consumer<T> onFinished,
       Consumer<Throwable> onError) throws NullPointerException {
