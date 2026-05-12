@@ -33,12 +33,10 @@ public class App extends Application {
         root =  new StackPane();
         Scene scene = new Scene(root);
 
-
-
         MainController mainController = new MainController(root, errorHandler, csvUtil, taskUtil);
         OnBoardingDialog onBoardingDialog = new OnBoardingDialog(csvUtil, taskUtil);
+        mainController.showMainMenu();
         onBoardingDialog.show(root);
-        exceptionPopUp(new NullPointerException("Shit"));
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/OnBoardStyle.css")).toExternalForm());

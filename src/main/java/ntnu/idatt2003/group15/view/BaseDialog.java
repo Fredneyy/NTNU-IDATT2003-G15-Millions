@@ -55,12 +55,12 @@ public abstract class BaseDialog {
     return scaleTransition;
   }
 
-  protected TranslateTransition createTranslateTransition(Node node, double from, double to) {
+  protected TranslateTransition createTranslateTransition(Node node, double fromX, double toX, double fromY, double toY) {
     TranslateTransition translateTransition = new TranslateTransition(animationDuration, node);
-    translateTransition.setFromX(from);
-    translateTransition.setFromY(from);
-    translateTransition.setToX(to);
-    translateTransition.setToY(to);
+    translateTransition.setFromX(fromX);
+    translateTransition.setToX(toX);
+    translateTransition.setFromY(fromY);
+    translateTransition.setToY(toY);
     return translateTransition;
   }
 

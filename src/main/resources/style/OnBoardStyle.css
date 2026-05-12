@@ -1,110 +1,119 @@
 /* ============================================================
    onboarding.css  –  Wizard / Onboarding screen stylesheet
-   Colour tokens inherited from the root theme defined in the
-   main application stylesheet.
    ============================================================ */
 
 /* ----------------------------------------------------------
-   Scene background – deep radial gradient
-   ---------------------------------------------------------- */
-.onboarding-root {
-    -fx-background-color: radial-gradient(
-            center 50% 40%, radius 65%,
-            #0d1535 0%,
-            #080d1a 100%
-    );
-}
-
-/* ----------------------------------------------------------
-   Outer container card
+   Outer container card  –  lifted from the scene background
+   so it reads clearly against the dark backdrop
    ---------------------------------------------------------- */
 .onboarding-card {
-    -fx-background-color: #0f1729;
-    -fx-border-color: #1e2d4d;
-    -fx-border-width: 1;
-    -fx-border-radius: 20;
-    -fx-background-radius: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 10, 0.65), 40, 0.12, 0, 10);
+    -fx-background-color: linear-gradient(to bottom, #1e2d4d, #172036);
+    -fx-border-color: rgba(92, 110, 245, 0.45);
+    -fx-border-width: 1.5;
+    -fx-border-radius: 28;
+    -fx-background-radius: 28;
+    -fx-effect: dropshadow(gaussian, rgba(92, 110, 245, 0.35), 56, 0.18, 0, 14);
 }
 
 /* ----------------------------------------------------------
-   App icon  (ImageView or StackPane placed at the top)
+   Progress bar  (top edge of card)
    ---------------------------------------------------------- */
-.onboarding-icon {
-    -fx-background-color: linear-gradient(to bottom right, #3fcf8e, #2dd4bf);
-    -fx-background-radius: 22;
-    -fx-effect: dropshadow(gaussian, rgba(45, 212, 191, 0.45), 22, 0.30, 0, 5);
-    -fx-min-width:  80;
-    -fx-min-height: 80;
-    -fx-max-width:  80;
-    -fx-max-height: 80;
+.onboarding-progress-bar {
+    -fx-pref-height: 5;
 }
 
-/* Glyph / SVG icon drawn inside the icon box */
-.onboarding-icon-glyph {
-    -fx-text-fill: white;
-    -fx-font-size: 2em;
+.onboarding-progress-bar .track {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-background-radius: 0;
+}
+
+.onboarding-progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #5c6ef5, #2dd4bf);
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+}
+
+/* ----------------------------------------------------------
+   Icon backgrounds  (per-slide StackPane)
+   ---------------------------------------------------------- */
+.onboarding-icon-rocket {
+    -fx-background-color: linear-gradient(to bottom right, #f97316, #ec4899);
+    -fx-background-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(249, 115, 22, 0.60), 24, 0.35, 0, 6);
+    -fx-min-width: 80; -fx-max-width: 80;
+    -fx-min-height: 80; -fx-max-height: 80;
+}
+
+.onboarding-icon-trending {
+    -fx-background-color: linear-gradient(to bottom right, #3fcf8e, #2dd4bf);
+    -fx-background-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(63, 207, 142, 0.60), 24, 0.35, 0, 6);
+    -fx-min-width: 80; -fx-max-width: 80;
+    -fx-min-height: 80; -fx-max-height: 80;
+}
+
+.onboarding-icon-cart {
+    -fx-background-color: linear-gradient(to bottom right, #f59e0b, #f97316);
+    -fx-background-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.60), 24, 0.35, 0, 6);
+    -fx-min-width: 80; -fx-max-width: 80;
+    -fx-min-height: 80; -fx-max-height: 80;
+}
+
+.onboarding-icon-news {
+    -fx-background-color: linear-gradient(to bottom right, #2dd4bf, #0ea5e9);
+    -fx-background-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(45, 212, 191, 0.60), 24, 0.35, 0, 6);
+    -fx-min-width: 80; -fx-max-width: 80;
+    -fx-min-height: 80; -fx-max-height: 80;
+}
+
+.onboarding-icon-chart {
+    -fx-background-color: linear-gradient(to bottom right, #6366f1, #3b82f6);
+    -fx-background-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.60), 24, 0.35, 0, 6);
+    -fx-min-width: 80; -fx-max-width: 80;
+    -fx-min-height: 80; -fx-max-height: 80;
+}
+
+.onboarding-icon-zap {
+    -fx-background-color: linear-gradient(to bottom right, #f0637a, #e11d48);
+    -fx-background-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(240, 99, 122, 0.60), 24, 0.35, 0, 6);
+    -fx-min-width: 80; -fx-max-width: 80;
+    -fx-min-height: 80; -fx-max-height: 80;
 }
 
 /* ----------------------------------------------------------
    Title label
    ---------------------------------------------------------- */
 .onboarding-title {
-    -fx-text-fill: #e8eaf6;
-    -fx-font-size: 3em;          /* ~24 px at 14 px base */
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 1.714em;
     -fx-font-weight: bold;
     -fx-alignment: center;
     -fx-text-alignment: center;
-    -fx-effect: dropshadow(gaussian, rgba(92, 110, 245, 0.35), 12, 0.20, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(92, 110, 245, 0.45), 14, 0.25, 0, 2);
 }
 
 /* ----------------------------------------------------------
-   Description / body label
+   Description label
    ---------------------------------------------------------- */
 .onboarding-description {
-    -fx-text-fill: #8892b0;
-    -fx-font-size: 1.5em;          /* ~13 px */
+    -fx-text-fill: #b0bacf;
+    -fx-font-size: 0.929em;
     -fx-alignment: center;
     -fx-text-alignment: center;
     -fx-wrap-text: true;
-    -fx-line-spacing: 3;
-}
-
-/* Highlight colour tokens used inline in the description */
-.onboarding-description .highlight-green {
-    -fx-fill: #3fcf8e;
-}
-
-.onboarding-description .highlight-red {
-    -fx-fill: #f0637a;
+    -fx-line-spacing: 4;
 }
 
 /* ----------------------------------------------------------
-   Step / progress dots
-   ---------------------------------------------------------- */
-.onboarding-progress-bar {
-    -fx-pref-height: 10;
-    -fx-background-radius: 3;
-    -fx-border-radius: 3;
-}
-
-.onboarding-progress-bar .track {
-    -fx-background-color: #1e2d4d;
-    -fx-background-radius: 3;
-}
-
-.onboarding-progress-bar .bar {
-    -fx-background-color: linear-gradient(to right, #5c6ef5, #7c6ef5);
-    -fx-background-radius: 3;
-    -fx-background-insets: 0;
-}
-
-/* ----------------------------------------------------------
-   Navigation hyperlinks  ("< Back" and "Next >")
+   Navigation hyperlinks
    ---------------------------------------------------------- */
 .onboarding-nav-link {
-    -fx-text-fill: #8892b0;
-    -fx-font-size: 1.5em;
+    -fx-text-fill: #6b7a99;
+    -fx-font-size: 0.929em;
     -fx-cursor: hand;
     -fx-underline: false;
     -fx-border-color: transparent;
@@ -121,11 +130,15 @@
     -fx-scale-y: 0.97;
 }
 
-/* "Next" link gets accent colour to draw the eye */
+.onboarding-nav-link:disabled {
+    -fx-text-fill: #2e3d5c;
+    -fx-cursor: default;
+}
+
 .onboarding-nav-link-next {
-    -fx-text-fill: #5c6ef5;
+    -fx-text-fill: #7c8ff5;
     -fx-font-weight: bold;
-    -fx-font-size: 1.5em;
+    -fx-font-size: 0.929em;
     -fx-cursor: hand;
     -fx-underline: false;
     -fx-border-color: transparent;
@@ -133,33 +146,30 @@
 }
 
 .onboarding-nav-link-next:hover {
-    -fx-text-fill: #7c6ef5;
-    -fx-effect: dropshadow(gaussian, rgba(92, 110, 245, 0.35), 8, 0.2, 0, 0);
+    -fx-text-fill: #a0aeff;
+    -fx-effect: dropshadow(gaussian, rgba(124, 143, 245, 0.45), 10, 0.25, 0, 0);
 }
 
 .onboarding-nav-link-next:pressed {
+    -fx-text-fill: #5c6ef5;
     -fx-scale-x: 0.97;
     -fx-scale-y: 0.97;
-    -fx-text-fill: #4b5de4;
-}
-
-/* Disabled "Back" on the first step */
-.onboarding-nav-link:disabled {
-    -fx-text-fill: #2a3d66;
-    -fx-cursor: default;
 }
 
 /* ----------------------------------------------------------
-   Separator rule (optional thin line above the nav row)
+   Optional separator above footer
    ---------------------------------------------------------- */
 .onboarding-separator .line {
-    -fx-border-color: #1e2d4d;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
     -fx-border-width: 1 0 0 0;
 }
 
+/* ----------------------------------------------------------
+   Optional tip banner
+   ---------------------------------------------------------- */
 .onboarding-tip {
-    -fx-background-color: rgba(45, 212, 191, 0.07);
-    -fx-border-color: rgba(45, 212, 191, 0.28);
+    -fx-background-color: rgba(45, 212, 191, 0.09);
+    -fx-border-color: rgba(45, 212, 191, 0.32);
     -fx-border-width: 1;
     -fx-border-radius: 10;
     -fx-background-radius: 10;

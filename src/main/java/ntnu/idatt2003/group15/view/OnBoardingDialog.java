@@ -8,19 +8,34 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 
 public class OnBoardingDialog extends BaseDialog {
 
+  private static final String[] ICON_STYLES = {
+      "onboarding-icon-rocket",
+      "onboarding-icon-trending",
+      "onboarding-icon-cart",
+      "onboarding-icon-news",
+      "onboarding-icon-chart",
+      "onboarding-icon-zap"
+  };
+
   private final ProgressBar progressBar;
   private final VBox textContainer;
+  private final StackPane iconBox;
   private final CsvUtil csvUtil;
   private final TaskUtil taskUtil;
   private List<String> onboardingText;
@@ -29,15 +44,19 @@ public class OnBoardingDialog extends BaseDialog {
   private ListIterator<String> onboardingTextIterator;
   private boolean forwardIteration = false;
   private StackPane root;
+  private double progressStep;
+  private int currentStep = 0;
+  private final List<FontIcon> icons;
 
 
   public OnBoardingDialog(CsvUtil csvUtil, TaskUtil taskUtil) throws NullPointerException {
-    super(Duration.millis(400));
+    super(Duration.millis(200));
 
     this.csvUtil = Objects.requireNonNull(csvUtil);
     this.taskUtil = Objects.requireNonNull(taskUtil);
 
     loadText();
+    icons = setUpIcons();
     progressBar = setUpProgressBar();
 
     dialog.getStyleClass().setAll("onboarding-card");
@@ -51,8 +70,16 @@ public class OnBoardingDialog extends BaseDialog {
     messageLabel.getStyleClass().add("onboarding-description");
     messageLabel.setMinHeight(Region.USE_PREF_SIZE);
 
-    textContainer = new VBox(5, titleLabel, messageLabel);
-    textContainer.setAlignment(Pos.CENTER);
+    textContainer = new VBox(15);
+    textContainer.setAlignment(Pos.BOTTOM_CENTER);
+
+    iconBox = new StackPane(icons.getFirst());
+    iconBox.getStyleClass().add(ICON_STYLES[0]);
+    iconBox.setAlignment(Pos.CENTER);
+    iconBox.setMaxSize(80, 80);
+    iconBox.setMinSize(80, 80);
+
+    textContainer.getChildren().addAll(iconBox, titleLabel, messageLabel);
 
     Hyperlink backLabel = new Hyperlink("< Back");
     backLabel.getStyleClass().add("onboarding-nav-link");
@@ -75,6 +102,7 @@ public class OnBoardingDialog extends BaseDialog {
     VBox content = new VBox(textContainer, verticalSpacer, footerContainer);
     content.setAlignment(Pos.TOP_CENTER);
     content.setMaxHeight(Double.MAX_VALUE);
+    content.setSpacing(16);
     content.setPadding(new Insets(30));
     VBox.setVgrow(content, Priority.ALWAYS);
 
@@ -94,6 +122,21 @@ public class OnBoardingDialog extends BaseDialog {
     }
   }
 
+  private void updateIconBox(int step) {
+    iconBox.getChildren().setAll(icons.get(step));
+    iconBox.getStyleClass().setAll(ICON_STYLES[step]);
+  }
+
+  private List<FontIcon> setUpIcons() {
+    FontIcon rocket   = FontIcon.of(MaterialDesignR.ROCKET_LAUNCH, 48, Color.web("#e8eaf6"));
+    FontIcon trending = FontIcon.of(MaterialDesignT.TRENDING_UP,   48, Color.web("#e8eaf6"));
+    FontIcon cart     = FontIcon.of(MaterialDesignC.CART,           48, Color.web("#e8eaf6"));
+    FontIcon news     = FontIcon.of(MaterialDesignN.NEWSPAPER,      48, Color.web("#e8eaf6"));
+    FontIcon chart    = FontIcon.of(MaterialDesignC.CHART_BAR,      48, Color.web("#e8eaf6"));
+    FontIcon zap      = FontIcon.of(MaterialDesignL.LIGHTNING_BOLT, 48, Color.web("#e8eaf6"));
+    return new ArrayList<>(List.of(rocket, trending, cart, news, chart, zap));
+  }
+
   private void loadText() {
     taskUtil.runTaskAsync(() -> {
           List<String> rawData = csvUtil.readCsvFile("src/main/resources/storage/onboarding.csv");
@@ -103,6 +146,7 @@ public class OnBoardingDialog extends BaseDialog {
           onboardingTextIterator = this.onboardingText.listIterator();
           titleLabel.setText(onboardingText.get(0));
           messageLabel.setText(onboardingText.get(1));
+          progressStep = 1.0 / ((onboardingText.size() * 0.5) - 1);
         },
         error -> close());
   }
@@ -113,47 +157,69 @@ public class OnBoardingDialog extends BaseDialog {
     progressTypeBar.getStyleClass().add("onboarding-progress-bar");
     dialog.layoutBoundsProperty().addListener((_, _, newBounds) -> {
       Rectangle clip = new Rectangle(newBounds.getWidth(), newBounds.getHeight());
-      clip.setArcWidth(40);
-      clip.setArcHeight(40);
+      clip.setArcWidth(56);
+      clip.setArcHeight(56);
       progressTypeBar.setClip(clip);
     });
 
     Rectangle clip = new Rectangle(dialog.getWidth(), dialog.getHeight());
-    clip.setArcWidth(40);
-    clip.setArcHeight(40);
+    clip.setArcWidth(56);
+    clip.setArcHeight(56);
     progressTypeBar.setClip(clip);
     return progressTypeBar;
   }
 
-  private void setUpTransition(int setByX) {
-    TranslateTransition translateTransition = new TranslateTransition(Duration.millis(300), textContainer);
-    translateTransition.setToX(setByX);
-    FadeTransition fadeTransition = new FadeTransition(Duration.millis(300), textContainer);
+  private void animateSlide(double outDirection, Runnable contentUpdate) {
+    double slideDistance = 40;
+
+    FadeTransition fadeOut = createFadeTransition(textContainer, 1.0, 0.0);
+    TranslateTransition slideOut = createTranslateTransition(textContainer, 0, -1 * outDirection * slideDistance,  0, 0);
+
+    ParallelTransition out = new ParallelTransition(fadeOut, slideOut);
+    out.setOnFinished(_ -> {
+      contentUpdate.run();
+      textContainer.setTranslateX(outDirection * slideDistance);
+      FadeTransition fadeIn = createFadeTransition(textContainer, 0.0, 1.0);
+      TranslateTransition slideIn = createTranslateTransition(textContainer,
+          outDirection * slideDistance, 0, 0, 0);
+
+      new ParallelTransition(fadeIn, slideIn).play();
+    });
+
+    out.play();
   }
 
   private void nextSlide() {
     if (onboardingTextIterator.nextIndex() <= onboardingText.size() - 1) {
-      if (!forwardIteration) {
-        onboardingTextIterator.next();
-        onboardingTextIterator.next();
-      }
-      forwardIteration = true;
-      titleLabel.setText(onboardingTextIterator.next());
-      messageLabel.setText(onboardingTextIterator.next());
-      progressBar.setProgress(1.0 / onboardingText.size() + (1.0 / onboardingText.size()) * onboardingTextIterator.nextIndex());
+      progressBar.setProgress(progressBar.getProgress() + progressStep);
+      animateSlide(1, () -> {
+        if (!forwardIteration) {
+          onboardingTextIterator.next();
+          onboardingTextIterator.next();
+        }
+        forwardIteration = true;
+        titleLabel.setText(onboardingTextIterator.next());
+        messageLabel.setText(onboardingTextIterator.next());
+        currentStep = Math.min(currentStep + 1, icons.size() - 1);
+        updateIconBox(currentStep);
+      });
     }
   }
 
   private void previousSlide() {
     if (onboardingTextIterator.previousIndex() >= 1) {
-      if (forwardIteration) {
-        onboardingTextIterator.previous();
-        onboardingTextIterator.previous();
-      }
-      forwardIteration = false;
-      messageLabel.setText(onboardingTextIterator.previous());
-      titleLabel.setText(onboardingTextIterator.previous());
-      progressBar.setProgress(1.0 / onboardingText.size() + (1.0 / onboardingText.size()) * onboardingTextIterator.previousIndex());
+      progressBar.setProgress(progressBar.getProgress() - progressStep);
+      animateSlide(-1, () -> {
+        if (forwardIteration) {
+          onboardingTextIterator.previous();
+          onboardingTextIterator.previous();
+        }
+        forwardIteration = false;
+        messageLabel.setText(onboardingTextIterator.previous());
+        titleLabel.setText(onboardingTextIterator.previous());
+        currentStep = Math.max(currentStep - 1, 0);
+        updateIconBox(currentStep);
+      });
     }
   }
 }
