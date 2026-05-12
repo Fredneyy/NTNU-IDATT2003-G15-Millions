@@ -36,7 +36,6 @@ public class MainMenu {
   private final TranslateTransition shakeAnimationNameField;
   private final TranslateTransition shakeAnimationStartMoneyField;
   Random random = new Random();
-  private boolean isPlaying = false;
   Consumer<Throwable> errorHandler;
   CsvUtil csvUtil;
   TaskUtil taskUtil;
@@ -352,7 +351,12 @@ public class MainMenu {
     fadeOut.setFromValue(1);
     fadeOut.setToValue(0);
     ParallelTransition parallelTransition = new ParallelTransition(st, fadeOut);
-    parallelTransition.setOnFinished(_ -> root.getChildren().remove(view));
+    parallelTransition.setOnFinished(_ -> {
+      root.getChildren().remove(view);
+      view.setScaleX(1);
+      view.setScaleY(1);
+      view.setOpacity(1);
+    });
     parallelTransition.play();
   }
 
@@ -383,9 +387,7 @@ public class MainMenu {
     shakeAnimation.setByX(8);
     shakeAnimation.setCycleCount(6);
     shakeAnimation.setAutoReverse(true);
-    shakeAnimation.setOnFinished(_ -> {
-      textField.setTranslateX(0);
-    });
+    shakeAnimation.setOnFinished(_ -> textField.setTranslateX(0));
     return shakeAnimation;
   }
 
@@ -394,5 +396,10 @@ public class MainMenu {
     shakeAnimation.playFromStart();
     textField.setStyle("-fx-border-color: #f0637a;");
     textField.focusedProperty().addListener((_, _, _) -> textField.setStyle(""));
+  }
+
+  public boolean isPlaying() {
+    boolean isPlaying = false;
+    return isPlaying;
   }
 }

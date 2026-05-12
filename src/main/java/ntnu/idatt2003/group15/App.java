@@ -41,20 +41,12 @@ public class App extends Application {
         Scene scene = new Scene(root);
         MainController mainController = new MainController(root, errorHandler, csvUtil, taskUtil);
         mainController.showMainMenu();
-        StockSimulator stockSimulator = new StockSimulator(1.0 / 365.0);
-
-        StockChartDialog stockChartDialog = new StockChartDialog();
-        Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(20000));
-        for (int i = 0; i<100; i++) {
-            stock.addNewSalesPrice(stockSimulator.nextPrice(new StandardPriceEvent(0.11, 0.2), stock.getSalesPrice()));
-        }
-        taskUtil.runTaskAsync(() -> {
-            Thread.sleep(2000);
-            return List.of("");
-        }, result -> stockChartDialog.show(root, stock)
-        , this::exceptionPopUp);
 
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/SettingsStyle.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/TabView.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/StatisticsOverview.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/StockChartDialog.css")).toExternalForm());
         root.getStyleClass().add("scene-root");
         stage.setFullScreen(true);
         stage.setScene(scene);

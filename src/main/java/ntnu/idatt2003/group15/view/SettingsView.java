@@ -23,18 +23,13 @@ public class SettingsView {
     private boolean open = false;
     private double naturalHeight = 0;
 
-    // --- Header ---
-    private final StackPane iconBox = new StackPane();
-    private final FontIcon icon = new FontIcon(FontAwesome.SLIDERS);
-    private final Label title = new Label("Difficulty Settings");
+  private final Label title = new Label("Difficulty Settings");
     private final Label subtitle = new Label("Adjust market volatility and event frequency");
     private final VBox titleBox = new VBox(title, subtitle);
-    private final HBox iconAndTitle = new HBox(iconBox, titleBox);
-    private final Label difficultyValueLabel = new Label("Normal");
+  private final Label difficultyValueLabel = new Label("Normal");
     private final Region headerSpacer = new Region();
-    private final HBox headerContent = new HBox(iconAndTitle, headerSpacer, difficultyValueLabel);
 
-    // --- Slider section ---
+  // --- Slider section ---
     private final Label sliderLabel = new Label("Market Difficulty");
     private final Label sliderValueLabel = new Label("1.0x");
     private final Region sliderHeaderSpacer = new Region();
@@ -62,9 +57,8 @@ public class SettingsView {
     private final VBox eventFrequencyCard = buildStatCard("Event Frequency", "Normal");
     private final VBox priceVolatilityCard = buildStatCard("Price Volatility", "100%");
     private final VBox maxEventChanceCard = buildStatCard("Max Event Chance", "12.0%");
-    private final HBox statsRow = new HBox(eventFrequencyCard, priceVolatilityCard, maxEventChanceCard);
 
-    // Keep references to the value labels so you can update them later
+  // Keep references to the value labels so you can update them later
     private final Label eventFrequencyValue;
     private final Label priceVolatilityValue;
     private final Label maxEventChanceValue;
@@ -89,7 +83,10 @@ public class SettingsView {
         HBox.setHgrow(tipLabel, javafx.scene.layout.Priority.ALWAYS);
         tipLabel.setMaxWidth(Double.MAX_VALUE);
 
-        iconBox.getChildren().add(icon);
+      FontIcon icon = new FontIcon(FontAwesome.SLIDERS);
+      // --- Header ---
+      StackPane iconBox = new StackPane();
+      iconBox.getChildren().add(icon);
 
         // Let spacers push content apart in HBoxes
         HBox.setHgrow(headerSpacer, javafx.scene.layout.Priority.ALWAYS);
@@ -116,9 +113,11 @@ public class SettingsView {
         title.getStyleClass().add("settings-title");
         subtitle.getStyleClass().add("settings-subtitle");
         titleBox.getStyleClass().add("settings-title-box");
-        iconAndTitle.getStyleClass().add("settings-icon-and-title");
+      HBox iconAndTitle = new HBox(iconBox, titleBox);
+      iconAndTitle.getStyleClass().add("settings-icon-and-title");
         difficultyValueLabel.getStyleClass().add("settings-difficulty-badge");
-        headerContent.getStyleClass().add("settings-header");
+      HBox headerContent = new HBox(iconAndTitle, headerSpacer, difficultyValueLabel);
+      headerContent.getStyleClass().add("settings-header");
 
         sliderLabel.getStyleClass().add("settings-slider-label");
         sliderValueLabel.getStyleClass().add("settings-slider-value");
@@ -132,7 +131,8 @@ public class SettingsView {
 
         divider.getStyleClass().add("settings-divider");
 
-        statsRow.getStyleClass().add("settings-stats-row");
+      HBox statsRow = new HBox(eventFrequencyCard, priceVolatilityCard, maxEventChanceCard);
+      statsRow.getStyleClass().add("settings-stats-row");
 
         tipIcon.getStyleClass().add("settings-tip-icon");
         tipLabel.getStyleClass().add("settings-tip-label");
@@ -140,10 +140,10 @@ public class SettingsView {
 
         // Compose the card
         card.getChildren().addAll(
-                headerContent,
+            headerContent,
                 sliderSection,
                 divider,
-                statsRow,
+            statsRow,
                 tipBox
         );
 

@@ -4,7 +4,6 @@ import javafx.animation.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
@@ -29,7 +28,7 @@ public class NewsDialog extends BaseDialog {
     progressBar = new ProgressBar(1.0);
     progressBar.setMaxWidth(Double.MAX_VALUE);
     progressBar.getStyleClass().add("news-progress-bar");
-    dialog.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+    dialog.layoutBoundsProperty().addListener((_, _, newBounds) -> {
       Rectangle clip = new Rectangle(
           newBounds.getWidth(),
           newBounds.getHeight()
