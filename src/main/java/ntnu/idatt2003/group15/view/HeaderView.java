@@ -13,9 +13,18 @@ import javafx.scene.text.TextFlow;
 public class HeaderView {
 
     private Button settingsBtn;
+    private Text playerNameText;
+    private String playerName = "";
 
     public Button getSettingsButton() {
         return settingsBtn;
+    }
+
+    public void setPlayerName(String name) {
+        this.playerName = name == null ? "" : name;
+        if (playerNameText != null) {
+            playerNameText.setText(this.playerName);
+        }
     }
 
     public HBox createHeader() {
@@ -43,9 +52,9 @@ public class HeaderView {
 
         Text statusText = new Text("Playing as ");
         statusText.getStyleClass().add("status-label");
-        Text userName = new Text("asd");
-        userName.getStyleClass().addAll("status-label", "status-name");
-        TextFlow statusFlow = new TextFlow(statusText, userName);
+        playerNameText = new Text(playerName);
+        playerNameText.getStyleClass().addAll("status-label", "status-name");
+        TextFlow statusFlow = new TextFlow(statusText, playerNameText);
 
         titleBox.getChildren().addAll(brandFlow, statusFlow);
         logoContainer.getChildren().addAll(iconBox, titleBox);
@@ -64,18 +73,13 @@ public class HeaderView {
         settingsBtn = new Button("⚙");
         settingsBtn.getStyleClass().addAll("action-button", "icon-only-button");
 
-        Label resetLabel = new Label("Reset");
-        resetLabel.getStyleClass().add("reset-link");
-
-        // Wrap reset in HBox for padding/alignment
-        HBox resetBox = new HBox(resetLabel);
-        resetBox.setAlignment(Pos.CENTER);
-        resetBox.setPadding(new javafx.geometry.Insets(0, 10, 0, 10));
+        Button resetBtn = new Button("Reset");
+        resetBtn.getStyleClass().add("action-button");
 
         Button exitBtn = new Button("↳");
         exitBtn.getStyleClass().addAll("action-button", "icon-only-button");
 
-        actionContainer.getChildren().addAll(saveBtn, settingsBtn, resetBox, exitBtn);
+        actionContainer.getChildren().addAll(saveBtn, settingsBtn, resetBtn, exitBtn);
 
         header.getChildren().addAll(logoContainer, spacer, actionContainer);
         return header;

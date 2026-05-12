@@ -23,8 +23,8 @@
 /* ---------- Root container ---------- */
 .tab-view {
     -fx-spacing: 16;
-    -fx-padding: 16;
-    -fx-background-color: -fx-tab-bar-bg;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
 }
 
 /* ---------- Tab bar (the row of tabs) ---------- */

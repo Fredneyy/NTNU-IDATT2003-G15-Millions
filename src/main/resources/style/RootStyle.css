@@ -26,3 +26,52 @@
             #080d1a 100%
     );
 }
+
+/* ---------- Tailwind-like container: clamps width, parent centers it ---------- */
+.container {
+    -fx-min-width: 1280;
+    -fx-pref-width: 1280;
+    -fx-max-width: 1280;
+}
+
+/* ---------- GameView vertical layout (stacks header + sections) ---------- */
+.game-layout {
+    -fx-spacing: 16;
+    -fx-padding: 16 0 24 0;
+}
+
+/* ---------- Search bar (used in GameView below the tabs) ---------- */
+.search-bar {
+    -fx-background-color: -stock-bg-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -stock-bg-card-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 4 14;
+    -fx-spacing: 12;
+}
+
+.search-icon {
+    -fx-background-color: -stock-text-muted;
+    -fx-min-width: 18;
+    -fx-min-height: 18;
+    -fx-max-width: 18;
+    -fx-max-height: 18;
+    -fx-scale-shape: true;
+}
+
+.search-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: -stock-text-primary;
+    -fx-prompt-text-fill: -stock-text-muted;
+    -fx-font-size: 14px;
+    -fx-pref-height: 44;
+    -fx-padding: 0;
+}
+
+.search-field:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+}

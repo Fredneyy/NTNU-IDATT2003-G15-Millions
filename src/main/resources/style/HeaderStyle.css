@@ -1,6 +1,6 @@
 /* --- Main Layout --- */
 .header-bar {
-    -fx-padding: 15 40;
+    -fx-padding: 15 24;
     -fx-alignment: CENTER_LEFT;
     -fx-spacing: 20;
     /* Uses the gradient variable from your RootStyle */
@@ -52,9 +52,15 @@
     -fx-border-radius: 6;
     -fx-background-radius: 6;
     -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 14px;
     -fx-font-weight: 600;
-    -fx-padding: 8 18;
+    -fx-padding: 0 14;
+    -fx-min-height: 40;
+    -fx-pref-height: 40;
+    -fx-min-width: 40;
     -fx-cursor: hand;
+    -fx-alignment: center;
+    -fx-content-display: center;
     -fx-transition-duration: 0.2s;
 }
 
@@ -68,22 +74,12 @@
     -fx-scale-y: 0.96;
 }
 
+/* Icon-only buttons stay square (40x40) by skipping the wider text padding */
 .icon-only-button {
-    -fx-padding: 8 10;
+    -fx-padding: 0;
+    -fx-pref-width: 40;
+    -fx-max-width: 40;
     -fx-font-size: 18px;
-}
-
-/* --- Utility Controls --- */
-.reset-link {
-    -fx-text-fill: -stock-text-muted;
-    -fx-font-size: 14px;
-    -fx-padding: 0 10;
-    -fx-cursor: hand;
-}
-
-.reset-link:hover {
-    -fx-text-fill: -stock-text-secondary;
-    -fx-underline: true;
 }
 
 /* --- Spacer --- */
