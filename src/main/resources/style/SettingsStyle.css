@@ -22,8 +22,8 @@
 
 /* ---------- Root container ---------- */
 .settings-view {
-    -fx-background-color: -fx-bg-deep;
-    -fx-padding: 24;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
 }
 
 /* ---------- Main card ---------- */
@@ -35,7 +35,6 @@
     -fx-border-width: 1;
     -fx-padding: 24;
     -fx-spacing: 20;
-    -fx-max-width: 1200;
 }
 
 /* ---------- Header row ---------- */
@@ -59,16 +58,10 @@
     -fx-alignment: center;
 }
 
-/* The icon itself: a simple "activity / pulse" shape drawn with -fx-shape.
-   Replace the SVG path if you want a different glyph. */
+/* Ikonli FontIcon — settings header glyph */
 .settings-icon {
-    -fx-shape: "M2 12 L7 12 L9 6 L13 18 L15 12 L22 12";
-    -fx-background-color: -fx-accent-blue;
-    -fx-min-width: 22;
-    -fx-min-height: 22;
-    -fx-max-width: 22;
-    -fx-max-height: 22;
-    -fx-scale-shape: true;
+    -fx-icon-color: -fx-accent-blue;
+    -fx-icon-size: 22;
 }
 
 .settings-title-box {
@@ -185,15 +178,10 @@
     -fx-alignment: center-left;
 }
 
-/* Lightning bolt drawn with -fx-shape */
+/* Ikonli FontIcon — lightning bolt next to the pro tip */
 .settings-tip-icon {
-    -fx-shape: "M13 2 L4 14 L11 14 L9 22 L20 10 L13 10 Z";
-    -fx-background-color: -fx-accent-blue-2;
-    -fx-min-width: 16;
-    -fx-min-height: 16;
-    -fx-max-width: 16;
-    -fx-max-height: 16;
-    -fx-scale-shape: true;
+    -fx-icon-color: -fx-accent-blue-2;
+    -fx-icon-size: 16;
 }
 
 .settings-tip-label {

@@ -28,7 +28,7 @@
     -fx-border-color: -fx-stats-border;
     -fx-border-radius: 16;
     -fx-border-width: 1;
-    -fx-padding: 24 28;
+    -fx-padding: 24;
     -fx-spacing: 36;
     -fx-alignment: center-left;
 }
@@ -65,23 +65,19 @@
     -fx-background-color: rgba(148, 163, 184, 0.18);
 }
 
-/* The icon glyph itself */
+/* The Ikonli FontIcon glyph itself */
 .stat-icon {
-    -fx-min-width: 20;
-    -fx-min-height: 20;
-    -fx-max-width: 20;
-    -fx-max-height: 20;
-    -fx-scale-shape: true;
+    -fx-icon-size: 20;
 }
 
-.stat-icon--blue   { -fx-background-color: -fx-tone-blue; }
-.stat-icon--green  { -fx-background-color: -fx-tone-green; }
-.stat-icon--purple { -fx-background-color: -fx-tone-purple; }
-.stat-icon--red    { -fx-background-color: -fx-tone-red; }
+.stat-icon--blue   { -fx-icon-color: -fx-tone-blue; }
+.stat-icon--green  { -fx-icon-color: -fx-tone-green; }
+.stat-icon--purple { -fx-icon-color: -fx-tone-purple; }
+.stat-icon--red    { -fx-icon-color: -fx-tone-red; }
 .stat-icon--neutral,
 .stat-icon--positive,
 .stat-icon--negative {
-    -fx-background-color: -fx-stats-text-muted;
+    -fx-icon-color: -fx-stats-text-muted;
 }
 
 /* ---------- Card label (the small text next to the icon) ---------- */

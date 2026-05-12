@@ -2,16 +2,13 @@ package ntnu.idatt2003.group15;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainController;
-import ntnu.idatt2003.group15.controller.MainMenuController;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
-import ntnu.idatt2003.group15.view.*;
+import ntnu.idatt2003.group15.view.ExceptionDialog;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -36,18 +33,8 @@ public class App extends Application {
         MainController mainController = new MainController(root, errorHandler, csvUtil, taskUtil);
         mainController.showMainMenu();
 
-        SettingsView settingsView = new SettingsView(root);
-        TabContainer tabContainer = new TabContainer(
-                new TabContainer.Tab("market", "Market", "M4 16 L10 10 L14 14 L20 8 M15 8 L20 8 L20 13", new Label("Market")),
-                new TabContainer.Tab("portfolio", "Portfolio", "M4 16 L10 10 L14 14 L20 8 M15 8 L20 8 L20 13", new Label("Portfolio")),
-                new TabContainer.Tab("stats", "Stats", "M4 16 L10 10 L14 14 L20 8 M15 8 L20 8 L20 13", new Label("Test")),
-                new TabContainer.Tab("trades", "Trades", "M4 16 L10 10 L14 14 L20 8 M15 8 L20 8 L20 13", new Label("Test")),
-                new TabContainer.Tab("news", "News", "M4 16 L10 10 L14 14 L20 8 M15 8 L20 8 L20 13", new Label("Test"))
-        );
-
-        // root.getChildren().setAll(tabContainer.getView());
-
-        // exceptionPopUp(new NullPointerException("Shit"));
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/HeaderStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/StatisticsOverview.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/SettingsStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/TabView.css")).toExternalForm());

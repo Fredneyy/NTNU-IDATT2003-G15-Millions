@@ -1,11 +1,19 @@
 package ntnu.idatt2003.group15.view;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
+import org.kordamp.ikonli.fontawesome.FontAwesome;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Objects;
 
@@ -15,9 +23,12 @@ public class SettingsView {
     private final StackPane view = new StackPane();
     private final VBox card = new VBox();
 
+    private boolean open = false;
+    private double naturalHeight = 0;
+
     // --- Header ---
     private final StackPane iconBox = new StackPane();
-    private final Region icon = new Region(); // shape via CSS (e.g. -fx-shape)
+    private final FontIcon icon = new FontIcon(FontAwesome.SLIDERS);
     private final Label title = new Label("Difficulty Settings");
     private final Label subtitle = new Label("Adjust market volatility and event frequency");
     private final VBox titleBox = new VBox(title, subtitle);
@@ -62,7 +73,7 @@ public class SettingsView {
     private final Label maxEventChanceValue;
 
     // --- Pro tip footer ---
-    private final Region tipIcon = new Region(); // lightning bolt via CSS
+    private final FontIcon tipIcon = new FontIcon(FontAwesome.BOLT);
     private final Label tipLabel = new Label(
             "Pro tip: Higher difficulty means more frequent events, higher volatility, " +
                     "and more technical stocks. Perfect for experienced traders!"
@@ -138,6 +149,51 @@ public class SettingsView {
         );
 
         view.getChildren().add(card);
+
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(view.widthProperty());
+        clip.heightProperty().bind(view.heightProperty());
+        view.setClip(clip);
+
+        view.setManaged(false);
+        view.setVisible(false);
+        view.setPrefHeight(0);
+    }
+
+    public void toggle() {
+        if (open) {
+            naturalHeight = view.getHeight();
+            Timeline tl = new Timeline(
+                    new KeyFrame(Duration.ZERO,
+                            new KeyValue(view.prefHeightProperty(), naturalHeight)),
+                    new KeyFrame(Duration.millis(280),
+                            new KeyValue(view.prefHeightProperty(), 0, Interpolator.EASE_IN))
+            );
+            tl.setOnFinished(_ -> {
+                view.setManaged(false);
+                view.setVisible(false);
+            });
+            tl.play();
+        } else {
+            view.setManaged(true);
+            view.setVisible(true);
+            if (naturalHeight == 0) {
+                view.setPrefHeight(Region.USE_COMPUTED_SIZE);
+                view.applyCss();
+                view.layout();
+                naturalHeight = view.prefHeight(-1);
+            }
+            view.setPrefHeight(0);
+            Timeline tl = new Timeline(
+                    new KeyFrame(Duration.ZERO,
+                            new KeyValue(view.prefHeightProperty(), 0)),
+                    new KeyFrame(Duration.millis(280),
+                            new KeyValue(view.prefHeightProperty(), naturalHeight, Interpolator.EASE_OUT))
+            );
+            tl.setOnFinished(_ -> view.setPrefHeight(Region.USE_COMPUTED_SIZE));
+            tl.play();
+        }
+        open = !open;
     }
 
     private VBox buildStatCard(String labelText, String valueText) {

@@ -9,9 +9,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,25 +32,25 @@ public class TabContainer {
     public static class Tab {
         private final String id;
         private final String label;
-        private final String iconSvgPath; // SVG path used with -fx-shape; nullable
+        private final Ikon icon;          // Ikonli icon code; nullable
         private final Node content;
         private String badgeText;         // nullable; e.g. "9+", "0", or null for no badge
 
-        public Tab(String id, String label, String iconSvgPath, Node content, String badgeText) {
+        public Tab(String id, String label, Ikon icon, Node content, String badgeText) {
             this.id = Objects.requireNonNull(id);
             this.label = Objects.requireNonNull(label);
-            this.iconSvgPath = iconSvgPath;
+            this.icon = icon;
             this.content = Objects.requireNonNull(content);
             this.badgeText = badgeText;
         }
 
-        public Tab(String id, String label, String iconSvgPath, Node content) {
-            this(id, label, iconSvgPath, content, null);
+        public Tab(String id, String label, Ikon icon, Node content) {
+            this(id, label, icon, content, null);
         }
 
         public String getId() { return id; }
         public String getLabel() { return label; }
-        public String getIconSvgPath() { return iconSvgPath; }
+        public Ikon getIcon() { return icon; }
         public Node getContent() { return content; }
         public String getBadgeText() { return badgeText; }
         public void setBadgeText(String badgeText) { this.badgeText = badgeText; }
@@ -149,10 +150,9 @@ public class TabContainer {
         button.setFocusTraversable(true);
 
         // Icon (optional)
-        if (tab.getIconSvgPath() != null) {
-            Region icon = new Region();
+        if (tab.getIcon() != null) {
+            FontIcon icon = new FontIcon(tab.getIcon());
             icon.getStyleClass().add("tab-icon");
-            icon.setStyle("-fx-shape: \"" + tab.getIconSvgPath() + "\";");
             button.getChildren().add(icon);
         }
 

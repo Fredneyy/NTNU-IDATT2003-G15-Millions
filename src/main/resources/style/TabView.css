@@ -23,8 +23,8 @@
 /* ---------- Root container ---------- */
 .tab-view {
     -fx-spacing: 16;
-    -fx-padding: 16;
-    -fx-background-color: -fx-tab-bar-bg;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
 }
 
 /* ---------- Tab bar (the row of tabs) ---------- */
@@ -88,23 +88,19 @@
     -fx-text-fill: -fx-tab-active-fg;
 }
 
-/* ---------- Tab icon (Region with -fx-shape set inline) ---------- */
+/* ---------- Tab icon (Ikonli FontIcon) ---------- */
 .tab-icon {
-    -fx-background-color: -fx-tab-inactive-fg;
-    -fx-min-width: 18;
-    -fx-min-height: 18;
-    -fx-max-width: 18;
-    -fx-max-height: 18;
-    -fx-scale-shape: true;
+    -fx-icon-color: -fx-tab-inactive-fg;
+    -fx-icon-size: 16;
 }
 
 .tab-button:hover .tab-icon {
-    -fx-background-color: #cbd5e1;
+    -fx-icon-color: #cbd5e1;
 }
 
 .tab-button:selected .tab-icon,
 .tab-button:selected:hover .tab-icon {
-    -fx-background-color: -fx-tab-active-fg;
+    -fx-icon-color: -fx-tab-active-fg;
 }
 
 /* ---------- Notification badge ---------- */

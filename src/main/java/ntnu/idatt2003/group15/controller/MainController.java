@@ -4,6 +4,7 @@ import javafx.scene.layout.StackPane;
 import ntnu.idatt2003.group15.model.Exchange;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
+import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;
 
 import java.util.ArrayList;
@@ -35,7 +36,8 @@ public class MainController {
   private void startGame(ExchangeController exchangeController, PlayerController playerController) {
     this.playerController = playerController;
     this.exchangeController = exchangeController;
-    System.out.println("Starting game");
+    GameView gameView = new GameView(playerController.getName());
+    root.getChildren().setAll(gameView.getView());
   }
 
 }
