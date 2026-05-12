@@ -274,7 +274,6 @@
 .stock-area-chart .chart-series-area-line {
     -fx-stroke: #3fcf8e;
     -fx-stroke-width: 2;
-    -fx-effect: dropshadow(gaussian, rgba(63, 207, 142, 0.40), 6, 0.0, 0, 0);
 }
 
 .stock-area-chart .chart-series-area-fill {

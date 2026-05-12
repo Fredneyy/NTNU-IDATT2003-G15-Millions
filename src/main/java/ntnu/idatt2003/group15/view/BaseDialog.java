@@ -26,6 +26,8 @@ public abstract class BaseDialog {
   protected BaseDialog(Duration animationDuration) {
     this.animationDuration = animationDuration;
 
+    dialog.getStylesheets().add(
+        Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
     dialog.getStyleClass().add("pop-up-container");
     dialog.setPickOnBounds(false);
 

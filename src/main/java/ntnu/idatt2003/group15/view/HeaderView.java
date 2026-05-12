@@ -12,6 +12,8 @@ import javafx.scene.text.TextFlow;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.util.Objects;
+
 public class HeaderView {
 
     private Button settingsBtn;
@@ -31,6 +33,8 @@ public class HeaderView {
 
     public HBox createHeader() {
         HBox header = new HBox();
+        header.getStylesheets().add(
+            Objects.requireNonNull(getClass().getResource("/style/HeaderStyle.css")).toExternalForm());
         header.getStyleClass().add("header-bar");
 
         // --- Left Side: Logo and Title ---

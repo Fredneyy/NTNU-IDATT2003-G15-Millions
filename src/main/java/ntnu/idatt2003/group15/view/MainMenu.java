@@ -73,6 +73,8 @@ public class MainMenu {
   }
 
   private void buildUI() {
+    view.getStylesheets().add(
+        Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
     view.setAlignment(Pos.CENTER);
 
     VBox center = new VBox(24);

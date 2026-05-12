@@ -106,6 +106,8 @@ public class SettingsView {
         maxEventChanceCard.setMaxWidth(Double.MAX_VALUE);
 
         // Style class hooks for your CSS
+        view.getStylesheets().add(
+            Objects.requireNonNull(getClass().getResource("/style/SettingsStyle.css")).toExternalForm());
         view.getStyleClass().add("settings-view");
         card.getStyleClass().add("settings-card");
 

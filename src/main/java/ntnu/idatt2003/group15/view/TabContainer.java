@@ -67,6 +67,8 @@ public class TabContainer {
     private final ReadOnlyObjectWrapper<Tab> selectedTab = new ReadOnlyObjectWrapper<>();
 
     public TabContainer() {
+        view.getStylesheets().add(
+            Objects.requireNonNull(getClass().getResource("/style/TabView.css")).toExternalForm());
         view.getStyleClass().add("tab-view");
         tabBar.getStyleClass().add("tab-bar");
         contentArea.getStyleClass().add("tab-content");

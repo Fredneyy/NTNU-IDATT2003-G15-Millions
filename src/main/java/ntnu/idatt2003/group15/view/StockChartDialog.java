@@ -10,9 +10,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.model.Stock;
@@ -20,6 +18,8 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+import java.util.Objects;
 
 public class StockChartDialog extends BaseDialog {
 
@@ -36,21 +36,18 @@ public class StockChartDialog extends BaseDialog {
   private final VBox chartContainer  = new VBox();
   private final VBox chartSection = new VBox();
 
+  private List<BigDecimal> historicalPrices;
 
   public StockChartDialog() {
     super(Duration.millis(220));
 
-    double maxW = Screen.getPrimary().getVisualBounds().getWidth()  * 0.55;
-    double maxH = Screen.getPrimary().getVisualBounds().getHeight() * 0.88;
+    double maxW = Screen.getPrimary().getVisualBounds().getWidth()  * 0.35;
+    double maxH = Screen.getPrimary().getVisualBounds().getHeight() * 0.55;
     dialog.setMaxWidth(maxW);
     dialog.setMaxHeight(maxH);
+    dialog.getStylesheets().add(
+        Objects.requireNonNull(getClass().getResource("/style/StockChartDialog.css")).toExternalForm());
     dialog.getStyleClass().setAll("stock-dialog-card");
-
-    dialog.layoutBoundsProperty().addListener((_, _, b) -> {
-      Rectangle clip = new Rectangle(b.getWidth(), b.getHeight());
-      clip.setArcWidth(28); clip.setArcHeight(28);
-      dialog.setClip(clip);
-    });
 
     VBox body = new VBox(16,
         buildHeader(),
@@ -59,19 +56,14 @@ public class StockChartDialog extends BaseDialog {
     );
     body.setPadding(new Insets(24, 28, 28, 28));
     body.setFillWidth(true);
-    VBox.setVgrow(chartSection, Priority.ALWAYS);
 
-    ScrollPane scroll = new ScrollPane(body);
-    scroll.setFitToWidth(true);
-    scroll.setFitToHeight(true);
-    scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-    scroll.getStyleClass().add("stock-dialog-scroll");
-    scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-
-    dialog.getChildren().add(scroll);
+    dialog.getChildren().add(body);
+    dialog.applyCss();
+    dialog.layout();
 
     openAnimation  = buildOpenAnimation();
     closeAnimation = buildCloseAnimation();
+
   }
 
   public void show(StackPane root, Stock stockData) {
@@ -88,7 +80,6 @@ public class StockChartDialog extends BaseDialog {
 
   private void isNotInRoot(StackPane root) {
     if (!root.getChildren().contains(dialog)) {
-      blurBackground(root, true, 2);
       root.getChildren().add(dialog);
       dialog.setOpacity(0);
       dialog.setScaleX(0.92);
@@ -105,22 +96,23 @@ public class StockChartDialog extends BaseDialog {
   }
 
   private void populate(Stock stockData) {
+    historicalPrices = stockData.getHistoricalPrices();
     symbolLabel.setText(stockData.getSymbol());
     companyLabel.setText(stockData.getCompany());
 
     currentPriceLabel.setText(String.format("$%.2f", stockData.getSalesPrice()));
 
-    String sign = stockData.getLatestPriceChange().compareTo(BigDecimal.ZERO) > 0 ? "+" : "-";
+    String sign = stockData.getLatestPriceChange().compareTo(BigDecimal.ZERO) > 0 ? "+" : "";
     lastRelativeChange.setText(String.format("%s%.2f%%", sign, stockData.getLatestPriceChangeRelative()));
     lastRelativeChange.getStyleClass().setAll("stock-stat-value",
         stockData.getLatestPriceChange().compareTo(BigDecimal.ZERO) > 0 ? "value-positive" : "value-negative");
 
-    String ssign = stockData.getLatestPriceChangeRelative().compareTo(BigDecimal.ZERO) > 0 ? "+" : "-";
+    String ssign = stockData.getLatestPriceChangeRelative().compareTo(BigDecimal.ZERO) > 0 ? "+" : "";
     lastAbsoluteChangeLabel.setText(String.format("%s%.2f", ssign, stockData.getLatestPriceChange()));
     lastAbsoluteChangeLabel.getStyleClass().setAll("stock-stat-value",
         stockData.getLatestPriceChangeRelative().compareTo(BigDecimal.ZERO) > 0 ? "value-positive" : "value-negative");
 
-    dataPointsLabel.setText(String.valueOf(stockData.getHistoricalPrices().size()));
+    dataPointsLabel.setText(String.valueOf(historicalPrices.size()));
 
     buildChart(stockData);
   }
@@ -216,9 +208,6 @@ public class StockChartDialog extends BaseDialog {
     chartContainer.setMaxWidth(Double.MAX_VALUE);
     chartContainer.setMaxHeight(Double.MAX_VALUE);
 
-    chartContainer.minHeightProperty().bind(
-        dialog.heightProperty().multiply(0.45)
-    );
     VBox.setVgrow(chartContainer, Priority.ALWAYS);
 
     chartSection.getChildren().setAll(header, chartContainer);
@@ -234,7 +223,7 @@ public class StockChartDialog extends BaseDialog {
 
   private void buildChart(Stock stockData) {
     chartContainer.getChildren().clear();
-    if (stockData.getHistoricalPrices() == null || stockData.getHistoricalPrices().isEmpty()) return;
+    if (historicalPrices == null || historicalPrices.isEmpty()) return;
 
     NumberAxis xAxis = new NumberAxis();
     xAxis.setTickLabelsVisible(false);
@@ -264,13 +253,10 @@ public class StockChartDialog extends BaseDialog {
     chart.setCreateSymbols(false);
     chart.setMaxWidth(Double.MAX_VALUE);
     chart.setMaxHeight(Double.MAX_VALUE);
-    chart.minHeightProperty().bind(chartContainer.minHeightProperty());
-    VBox.setVgrow(chart, Priority.ALWAYS);
-    HBox.setHgrow(chart, Priority.ALWAYS);
 
     XYChart.Series<Number, Number> series = new XYChart.Series<>();
-    for (int i = 0; i < stockData.getHistoricalPrices().size(); i++) {
-      series.getData().add(new XYChart.Data<>(i, stockData.getHistoricalPrices().get(i).doubleValue()));
+    for (int i = 0; i < historicalPrices.size(); i++) {
+      series.getData().add(new XYChart.Data<>(i, historicalPrices.get(i).doubleValue()));
     }
     chart.getData().add(series);
     chartContainer.getChildren().add(chart);
@@ -287,7 +273,6 @@ public class StockChartDialog extends BaseDialog {
     ScaleTransition scale = createScaleTransition(dialog, 1.0, 0.92);
     ParallelTransition pt = new ParallelTransition(fade, scale);
     pt.setOnFinished(_ -> {
-      blurBackground(root, false, 0);
       root.getChildren().remove(dialog);
       dialog.setOpacity(1);
       dialog.setScaleX(1);
