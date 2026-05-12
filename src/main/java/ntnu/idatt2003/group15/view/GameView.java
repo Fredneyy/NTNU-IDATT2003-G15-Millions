@@ -1,5 +1,10 @@
 package ntnu.idatt2003.group15.view;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Set;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
@@ -8,10 +13,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
-
-import java.util.Set;
 
 public class GameView {
 
@@ -23,10 +27,12 @@ public class GameView {
     private final HeaderView headerView = new HeaderView();
     private final SettingsView settingsView;
     private final StatisticsOverview statisticsOverview = new StatisticsOverview();
+    private final ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
+    private final MarketTableView marketTable = new MarketTableView(marketStocks);
     private final TextField searchField = new TextField();
     private final HBox searchBar;
 
-    private final VBox marketContent = new VBox(new Label("Market"));
+    private final VBox marketContent = new VBox(marketTable.getView());
     private final VBox portfolioContent = new VBox(new Label("Portfolio"));
     private final VBox statsContent = new VBox(new Label("Stats"));
     private final VBox tradesContent = new VBox(new Label("Trades"));
@@ -54,6 +60,9 @@ public class GameView {
         addStatisticsCards();
         searchBar = buildSearchBar();
         styleTabContent(marketContent, portfolioContent, statsContent, tradesContent, newsContent);
+        VBox.setVgrow(marketTable.getView(), Priority.ALWAYS);
+        searchField.textProperty().addListener((_, _, q) -> marketTable.setSearchFilter(q));
+        seedDemoStocks();
 
         VBox.setVgrow(tabContainer.getView(), Priority.ALWAYS);
 
@@ -179,5 +188,39 @@ public class GameView {
 
     public TextField getSearchField() {
         return searchField;
+    }
+
+    public MarketTableView getMarketTable() {
+        return marketTable;
+    }
+
+    public void setMarketStocks(List<Stock> stocks) {
+        marketStocks.setAll(stocks);
+    }
+
+    /** Placeholder data so the table renders something before a controller wires real stocks. */
+    private void seedDemoStocks() {
+        Stock aapl = stockWithHistory("AAPL", "Apple Inc.", List.of("Tech"),
+                170.10, 172.45, 175.80, 174.20, 177.10, 178.42, 182.16);
+        Stock msft = stockWithHistory("MSFT", "Microsoft Corp.", List.of("Tech", "Cloud"),
+                420.30, 418.40, 415.60, 414.10, 412.50, 410.10, 408.20);
+        Stock nvda = stockWithHistory("NVDA", "NVIDIA Corp.", List.of("Tech", "AI"),
+                810.00, 830.20, 845.50, 855.10, 865.10, 880.40, 892.40);
+        Stock tsla = stockWithHistory("TSLA", "Tesla Inc.", List.of("Auto", "EV"),
+                265.20, 258.10, 252.50, 248.40, 251.30, 244.20, 239.90);
+        Stock jpm = stockWithHistory("JPM", "JPMorgan Chase", List.of("Finance"),
+                193.40, 195.10, 196.80, 197.50, 198.75, 200.10, 201.10);
+
+        marketStocks.setAll(aapl, msft, nvda, tsla, jpm);
+    }
+
+    private static Stock stockWithHistory(String symbol, String company,
+                                          List<String> categories, double... prices) {
+        Stock s = new Stock(symbol, company, BigDecimal.valueOf(prices[0]));
+        for (int i = 1; i < prices.length; i++) {
+            s.addNewSalesPrice(BigDecimal.valueOf(prices[i]));
+        }
+        s.setCategories(categories);
+        return s;
     }
 }
