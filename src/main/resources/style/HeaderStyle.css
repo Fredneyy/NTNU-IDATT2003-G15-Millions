@@ -24,6 +24,21 @@
     -fx-alignment: CENTER;
 }
 
+.logo-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 22;
+}
+
+/* Header button graphics (FontIcons set via setGraphic) */
+.action-button .ikonli-font-icon {
+    -fx-icon-color: -stock-text-primary;
+    -fx-icon-size: 16;
+}
+
+.action-button:hover .ikonli-font-icon {
+    -fx-icon-color: -stock-accent-blue;
+}
+
 .brand-text-main {
     -fx-font-size: 24px;
     -fx-font-weight: 700;

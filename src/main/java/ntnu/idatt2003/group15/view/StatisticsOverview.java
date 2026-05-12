@@ -4,9 +4,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class StatisticsOverview {
     public static class StatCard {
         private final String id;
         private final String label;
-        private final String iconSvgPath;
+        private final Ikon icon;
         private final Tone iconTone;       // controls the icon background color
         private String value;
         private String subline;
@@ -45,7 +46,7 @@ public class StatisticsOverview {
 
         public StatCard(String id,
                         String label,
-                        String iconSvgPath,
+                        Ikon icon,
                         Tone iconTone,
                         String value,
                         String subline,
@@ -53,7 +54,7 @@ public class StatisticsOverview {
                         Tone sublineTone) {
             this.id = Objects.requireNonNull(id);
             this.label = Objects.requireNonNull(label);
-            this.iconSvgPath = iconSvgPath;
+            this.icon = icon;
             this.iconTone = iconTone == null ? Tone.NEUTRAL : iconTone;
             this.value = value == null ? "" : value;
             this.subline = subline == null ? "" : subline;
@@ -63,7 +64,7 @@ public class StatisticsOverview {
 
         public String getId() { return id; }
         public String getLabel() { return label; }
-        public String getIconSvgPath() { return iconSvgPath; }
+        public Ikon getIcon() { return icon; }
         public Tone getIconTone() { return iconTone; }
         public String getValue() { return value; }
         public String getSubline() { return subline; }
@@ -112,10 +113,9 @@ public class StatisticsOverview {
         StackPane iconBox = new StackPane();
         iconBox.getStyleClass().addAll("stat-icon-box", toneClass("stat-icon-box", card.getIconTone()));
 
-        if (card.getIconSvgPath() != null) {
-            Region icon = new Region();
+        if (card.getIcon() != null) {
+            FontIcon icon = new FontIcon(card.getIcon());
             icon.getStyleClass().addAll("stat-icon", toneClass("stat-icon", card.getIconTone()));
-            icon.setStyle("-fx-shape: \"" + card.getIconSvgPath() + "\";");
             iconBox.getChildren().add(icon);
         }
 

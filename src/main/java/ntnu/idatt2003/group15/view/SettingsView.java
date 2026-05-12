@@ -12,6 +12,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import org.kordamp.ikonli.fontawesome.FontAwesome;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Objects;
 
@@ -26,7 +28,7 @@ public class SettingsView {
 
     // --- Header ---
     private final StackPane iconBox = new StackPane();
-    private final Region icon = new Region(); // shape via CSS (e.g. -fx-shape)
+    private final FontIcon icon = new FontIcon(FontAwesome.SLIDERS);
     private final Label title = new Label("Difficulty Settings");
     private final Label subtitle = new Label("Adjust market volatility and event frequency");
     private final VBox titleBox = new VBox(title, subtitle);
@@ -71,7 +73,7 @@ public class SettingsView {
     private final Label maxEventChanceValue;
 
     // --- Pro tip footer ---
-    private final Region tipIcon = new Region(); // lightning bolt via CSS
+    private final FontIcon tipIcon = new FontIcon(FontAwesome.BOLT);
     private final Label tipLabel = new Label(
             "Pro tip: Higher difficulty means more frequent events, higher volatility, " +
                     "and more technical stocks. Perfect for experienced traders!"

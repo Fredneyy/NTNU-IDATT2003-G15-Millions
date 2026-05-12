@@ -15,18 +15,6 @@ import java.util.Set;
 
 public class GameView {
 
-    private static final String PLACEHOLDER_ICON =
-            "M4 16 L10 10 L14 14 L20 8 M15 8 L20 8 L20 13";
-    private static final String DOLLAR_SIGN =
-            "M13 3 H11 V5 H9 A3 3 0 0 0 9 11 H13 A2 2 0 0 1 13 15 H8 V13 H6 V17 H11 V19 H13 V17 "
-                    + "A3 3 0 0 0 13 11 H9 A1 1 0 0 1 9 9 H15 V7 H13 Z";
-    private static final String BULLSEYE =
-            "M12 2 A10 10 0 1 0 12 22 A10 10 0 1 0 12 2 Z "
-                    + "M12 5 A7 7 0 1 1 12 19 A7 7 0 1 1 12 5 Z "
-                    + "M12 8 A4 4 0 1 0 12 16 A4 4 0 1 0 12 8 Z "
-                    + "M12 10 A2 2 0 1 1 12 14 A2 2 0 1 1 12 10 Z";
-    private static final String TRENDING_UP =
-            "M3 17 L9 11 L13 15 L20 8 L20 13 L22 13 L22 4 L13 4 L13 6 L18 6 L13 11 L9 7 L1 15 Z";
     private static final Set<String> TABS_WITH_SEARCH = Set.of("market", "portfolio");
 
     private final StackPane view = new StackPane();
@@ -45,11 +33,11 @@ public class GameView {
     private final VBox newsContent = new VBox(new Label("News"));
 
     private final TabContainer tabContainer = new TabContainer(
-            new TabContainer.Tab("market",    "Market",    PLACEHOLDER_ICON, marketContent),
-            new TabContainer.Tab("portfolio", "Portfolio", PLACEHOLDER_ICON, portfolioContent),
-            new TabContainer.Tab("stats",     "Stats",     PLACEHOLDER_ICON, statsContent),
-            new TabContainer.Tab("trades",    "Trades",    PLACEHOLDER_ICON, tradesContent),
-            new TabContainer.Tab("news",      "News",      PLACEHOLDER_ICON, newsContent, "1")
+            new TabContainer.Tab("market",    "Market",    FontAwesome.LINE_CHART,  marketContent),
+            new TabContainer.Tab("portfolio", "Portfolio", FontAwesome.BRIEFCASE,   portfolioContent),
+            new TabContainer.Tab("stats",     "Stats",     FontAwesome.BAR_CHART,   statsContent),
+            new TabContainer.Tab("trades",    "Trades",    FontAwesome.CLOCK_O,     tradesContent),
+            new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent, "1")
     );
 
     public GameView() {
@@ -138,19 +126,19 @@ public class GameView {
 
     private void addStatisticsCards() {
         statisticsOverview.addCard(new StatisticsOverview.StatCard(
-                "netWorth", "Net Worth", DOLLAR_SIGN, StatisticsOverview.Tone.BLUE,
+                "netWorth", "Net Worth", FontAwesome.DOLLAR, StatisticsOverview.Tone.BLUE,
                 "$10,000.00", "+$0.00 (+0.00%)",
                 StatisticsOverview.Tone.NEUTRAL, StatisticsOverview.Tone.POSITIVE));
         statisticsOverview.addCard(new StatisticsOverview.StatCard(
-                "cash", "Cash Available", DOLLAR_SIGN, StatisticsOverview.Tone.GREEN,
+                "cash", "Cash Available", FontAwesome.MONEY, StatisticsOverview.Tone.GREEN,
                 "$10,000.00", "100.0% of portfolio",
                 StatisticsOverview.Tone.NEUTRAL, StatisticsOverview.Tone.NEUTRAL));
         statisticsOverview.addCard(new StatisticsOverview.StatCard(
-                "portfolio", "Portfolio Value", BULLSEYE, StatisticsOverview.Tone.PURPLE,
+                "portfolio", "Portfolio Value", FontAwesome.BULLSEYE, StatisticsOverview.Tone.PURPLE,
                 "$0.00", "Invested: $0.00",
                 StatisticsOverview.Tone.NEUTRAL, StatisticsOverview.Tone.NEUTRAL));
         statisticsOverview.addCard(new StatisticsOverview.StatCard(
-                "pnl", "Unrealized P/L", TRENDING_UP, StatisticsOverview.Tone.GREEN,
+                "pnl", "Unrealized P/L", FontAwesome.LINE_CHART, StatisticsOverview.Tone.GREEN,
                 "+$0.00", "+0.00% on holdings",
                 StatisticsOverview.Tone.POSITIVE, StatisticsOverview.Tone.POSITIVE));
     }
