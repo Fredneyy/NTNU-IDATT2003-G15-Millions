@@ -15,8 +15,6 @@ public class NewsDialog extends BaseDialog {
   private final ProgressBar progressBar;
   private final Duration displayDuration;
   private Timeline progressTimeline;
-  private final Label messageLabel = new Label();
-  private final Label titleLabel = new Label();
   private final Button closeButton = new Button("X");
 
   public NewsDialog(Duration animationDuration, Duration displayDuration) {
@@ -44,7 +42,6 @@ public class NewsDialog extends BaseDialog {
     titleLabel.getStyleClass().add("news-title-label");
 
     messageLabel.getStyleClass().add("news-message-label");
-    messageLabel.setMinHeight(Region.USE_PREF_SIZE);
 
     closeButton.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     closeButton.setOnAction(_ -> close());

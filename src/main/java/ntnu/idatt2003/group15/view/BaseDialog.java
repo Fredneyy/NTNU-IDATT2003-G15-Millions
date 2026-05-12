@@ -31,6 +31,8 @@ public abstract class BaseDialog {
 
     titleLabel.getStyleClass().add("dialog-title-label");
     messageLabel.getStyleClass().add("dialog-message-label");
+    titleLabel.setWrapText(true);
+    messageLabel.setWrapText(true);
 
     VBox.setVgrow(dialog, Priority.ALWAYS);
     VBox.setVgrow(titleLabel, Priority.ALWAYS);
