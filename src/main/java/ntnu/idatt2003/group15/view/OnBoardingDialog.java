@@ -2,6 +2,7 @@ package ntnu.idatt2003.group15.view;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -48,6 +49,7 @@ public class OnBoardingDialog extends BaseDialog {
   private int currentStep = 0;
   private final List<FontIcon> icons;
   private final Hyperlink nextLabel;
+  private final ParallelTransition closeAnimation;
 
 
   public OnBoardingDialog(CsvUtil csvUtil, TaskUtil taskUtil) throws NullPointerException {
@@ -59,6 +61,7 @@ public class OnBoardingDialog extends BaseDialog {
     loadText();
     icons = setUpIcons();
     progressBar = setUpProgressBar();
+    closeAnimation = createCloseAnimation();
 
     dialog.getStyleClass().setAll("onboarding-card");
     dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
@@ -113,8 +116,7 @@ public class OnBoardingDialog extends BaseDialog {
   @Override
   public void close() {
     if (root != null && root.getChildren().contains(dialog)) {
-      root.getChildren().remove(dialog);
-      blurBackground(root, false, 0);
+      closeAnimation.play();
     }
   }
 
@@ -142,6 +144,17 @@ public class OnBoardingDialog extends BaseDialog {
       nextLabel.setText("Next >");
       nextLabel.setOnAction(e -> nextSlide());
     }
+  }
+
+  private ParallelTransition createCloseAnimation() {
+    ScaleTransition scaleTransition = createScaleTransition(dialog, 1, 0);
+    FadeTransition fadeTransition = createFadeTransition(dialog, 1, 0);
+    ParallelTransition parallelTransition = new ParallelTransition(scaleTransition, fadeTransition);
+    parallelTransition.setOnFinished(e -> {
+      root.getChildren().remove(dialog);
+      blurBackground(root, false, 0);
+    });
+    return parallelTransition;
   }
 
   private List<FontIcon> setUpIcons() {
