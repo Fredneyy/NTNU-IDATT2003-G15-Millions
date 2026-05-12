@@ -18,12 +18,10 @@ public abstract class BaseDialog {
 
   protected final VBox dialog = new VBox();
   protected StackPane root;
-  protected final Duration animationDuration;
   protected final Label titleLabel = new Label();
   protected final Label messageLabel = new Label();
 
-  protected BaseDialog(Duration animationDuration) {
-    this.animationDuration = animationDuration;
+  protected BaseDialog() {
 
     dialog.getStylesheets().add(
         Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
@@ -43,15 +41,15 @@ public abstract class BaseDialog {
     HBox.setHgrow(dialog, Priority.ALWAYS);
   }
 
-  protected FadeTransition createFadeTransition(Node node, double from, double to) {
-    FadeTransition fadeTransition = new FadeTransition(animationDuration, node);
+  protected FadeTransition createFadeTransition(Node node, Duration duration,  double from, double to) {
+    FadeTransition fadeTransition = new FadeTransition(duration, node);
     fadeTransition.setFromValue(from);
     fadeTransition.setToValue(to);
     return fadeTransition;
   }
 
-  protected ScaleTransition createScaleTransition(Node node, double from, double to) {
-    ScaleTransition scaleTransition = new ScaleTransition(animationDuration, node);
+  protected ScaleTransition createScaleTransition(Node node, Duration duration, double from, double to) {
+    ScaleTransition scaleTransition = new ScaleTransition(duration, node);
     scaleTransition.setFromX(from);
     scaleTransition.setFromY(from);
     scaleTransition.setToX(to);
@@ -59,8 +57,8 @@ public abstract class BaseDialog {
     return scaleTransition;
   }
 
-  protected TranslateTransition createTranslateTransition(Node node, double fromX, double toX) {
-    TranslateTransition translateTransition = new TranslateTransition(animationDuration, node);
+  protected TranslateTransition createTranslateTransition(Node node, Duration duration, double fromX, double toX) {
+    TranslateTransition translateTransition = new TranslateTransition(duration, node);
     translateTransition.setFromX(fromX);
     translateTransition.setToX(toX);
     translateTransition.setFromY(0);

@@ -21,9 +21,8 @@ public class ExceptionDialog extends BaseDialog {
   private final Button closeButton = new Button("X");
   private final ParallelTransition closeAnimation;
 
-  public ExceptionDialog(Duration animationDuration) {
-
-    super(animationDuration);
+  public ExceptionDialog() {
+    super();
 
     dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);
@@ -71,8 +70,8 @@ public class ExceptionDialog extends BaseDialog {
       root.getChildren().addAll(overlay, dialog);
 
       ParallelTransition transition = new ParallelTransition(
-          createFadeTransition(dialog, 0, 1),
-          createScaleTransition(dialog, 0, 1)
+          createFadeTransition(dialog, Duration.millis(300), 0, 1),
+          createScaleTransition(dialog, Duration.millis(300), 0, 1)
       );
       transition.play();
     }
@@ -89,8 +88,8 @@ public class ExceptionDialog extends BaseDialog {
 
   private ParallelTransition createCloseAnimation() {
     ParallelTransition animation = new ParallelTransition(
-        createFadeTransition(dialog, 1, 0),
-        createScaleTransition(dialog, 1.0, 0.1)
+        createFadeTransition(dialog, Duration.millis(300), 1, 0),
+        createScaleTransition(dialog,  Duration.millis(300), 1.0, 0.1)
     );
 
     animation.setOnFinished(_ -> {

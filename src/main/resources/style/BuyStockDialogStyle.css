@@ -1,0 +1,208 @@
+/* =========================================================================
+   Buy Stock Dialog
+   Matches the dark navy / green "Buy AAPL" mockup.
+   Relies on a few colour tokens — adjust to match the rest of your theme.
+   ========================================================================= */
+
+/* ---------- Card root ---------- */
+.buy-stock-dialog {
+    -fx-background-color: #1f2533;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: #2a3142;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 28, 0.2, 0, 8);
+}
+
+/* The body VBox inside the dialog — controls padding + vertical rhythm */
+.buy-dialog-body {
+    -fx-padding: 22 22 22 22;
+    -fx-spacing: 0;
+}
+
+/* ---------- Header ---------- */
+.buy-header {
+    -fx-spacing: 12;
+    -fx-padding: 0 0 16 0;
+    -fx-border-color: transparent transparent #2a3142 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.buy-header-text {
+    -fx-spacing: 2;
+}
+
+.buy-header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+}
+
+.buy-header-subtitle {
+    -fx-text-fill: #8b94a8;
+    -fx-font-size: 13px;
+}
+
+.buy-close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8b94a8;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 4 8 4 8;
+    -fx-background-radius: 6;
+}
+
+.buy-close-button:hover {
+    -fx-background-color: #2a3142;
+    -fx-text-fill: white;
+}
+
+/* ---------- Content stack ---------- */
+.buy-content {
+    -fx-spacing: 16;
+    -fx-padding: 16 0 0 0;
+}
+
+/* ---------- Generic dark card (current price + cost summary) ---------- */
+.buy-card,
+.buy-cost-card {
+    -fx-background-color: #161b27;
+    -fx-background-radius: 12;
+    -fx-border-color: #2a3142;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-padding: 16 18 16 18;
+}
+
+.buy-card {
+    -fx-spacing: 4;
+}
+
+/* Title above the big price (e.g. "Current Price") */
+.buy-stat-title {
+    -fx-text-fill: #8b94a8;
+    -fx-font-size: 13px;
+}
+
+/* The large $1075.16 number */
+.buy-stat-price {
+    -fx-text-fill: white;
+    -fx-font-size: 26px;
+    -fx-font-weight: 700;
+}
+
+/* ---------- Quantity section ---------- */
+.buy-quantity-container {
+    -fx-spacing: 8;
+}
+
+.buy-section-label {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.buy-quantity-row {
+    -fx-spacing: 8;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.buy-quantity-input {
+    -fx-background-color: #161b27;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #5a6378;
+    -fx-font-size: 14px;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 8;
+    -fx-border-color: #2a3142;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+}
+
+.buy-quantity-input:focused {
+    -fx-border-color: #3a4358;
+    -fx-background-color: #1a2030;
+}
+
+.buy-max-button {
+    -fx-background-color: #2a3142;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 10 18 10 18;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.buy-max-button:hover {
+    -fx-background-color: #343c52;
+}
+
+.buy-max-hint {
+    -fx-text-fill: #8b94a8;
+    -fx-font-size: 12px;
+}
+
+/* ---------- Cost summary ---------- */
+.buy-cost-card {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.buy-cost-labels {
+    -fx-spacing: 6;
+}
+
+.buy-cost-values {
+    -fx-spacing: 6;
+}
+
+.buy-cost-label-major {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+}
+
+.buy-cost-label {
+    -fx-text-fill: #8b94a8;
+    -fx-font-size: 13px;
+}
+
+.buy-cost-value-major {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+}
+
+.buy-cost-value {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+}
+
+.value-positive {
+    -fx-text-fill: #4ade80;
+    -fx-font-weight: 600;
+}
+
+.value-negative {
+    -fx-text-fill: #f87171;
+    -fx-font-weight: 600;
+}
+
+/* ---------- Primary buy button ---------- */
+.buy-confirm-button {
+    -fx-background-color: #4ade80;
+    -fx-text-fill: #0d2818;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-padding: 14 0 14 0;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.buy-confirm-button:hover {
+    -fx-background-color: #5fe891;
+}
+
+.buy-confirm-button:pressed {
+    -fx-background-color: #3fc56e;
+}
