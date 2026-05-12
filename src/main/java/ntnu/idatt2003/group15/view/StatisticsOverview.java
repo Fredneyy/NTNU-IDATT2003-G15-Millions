@@ -15,7 +15,6 @@ import java.util.Objects;
 
 /**
  * A row of stat cards: icon + label + big value + sub line.
- *
  * Cards are added via {@link #addCard(StatCard)} and values can be updated
  * at runtime via {@link #setValue(String, String)} and
  * {@link #setSubline(String, String, Tone)}.
@@ -39,10 +38,10 @@ public class StatisticsOverview {
         private final String label;
         private final Ikon icon;
         private final Tone iconTone;       // controls the icon background color
-        private String value;
-        private String subline;
-        private Tone valueTone;            // controls value text color
-        private Tone sublineTone;          // controls subline text color
+        private final String value;
+        private final String subline;
+        private final Tone valueTone;            // controls value text color
+        private final Tone sublineTone;          // controls subline text color
 
         public StatCard(String id,
                         String label,

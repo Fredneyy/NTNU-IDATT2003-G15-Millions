@@ -20,7 +20,6 @@ import java.util.Objects;
 
 /**
  * A reusable tab container.
- *
  * The top row holds the tab buttons; below it a content area swaps in the
  * Node associated with the currently selected tab.
  */
@@ -95,7 +94,7 @@ public class TabContainer {
         tabButtons.put(tab.getId(), button);
         tabBar.getChildren().add(button);
 
-        button.setOnMouseClicked(e -> select(tab.getId()));
+        button.setOnMouseClicked(_ -> select(tab.getId()));
     }
 
     /** Select a tab by id. No-op if id is unknown. */
