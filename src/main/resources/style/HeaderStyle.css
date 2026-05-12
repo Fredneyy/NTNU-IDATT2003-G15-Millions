@@ -1,0 +1,92 @@
+/* --- Main Layout --- */
+.header-bar {
+    -fx-padding: 15 40;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 20;
+    /* Uses the gradient variable from your RootStyle */
+    -fx-background-color: transparent;
+}
+
+/* --- Brand Section --- */
+.brand-container {
+    -fx-spacing: 12;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.logo-frame {
+    -fx-min-width: 44;
+    -fx-min-height: 44;
+    -fx-max-width: 44;
+    -fx-max-height: 44;
+    -fx-background-radius: 10;
+    /* References your blue-to-purple gradient logic */
+    -fx-background-color: linear-gradient(to bottom right, -stock-accent-blue, -stock-accent-purple);
+    -fx-alignment: CENTER;
+}
+
+.brand-text-main {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-fill: -stock-text-primary;
+}
+
+.brand-text-accent {
+    -fx-fill: -stock-accent-blue;
+}
+
+.status-label {
+    -fx-font-size: 13px;
+    -fx-fill: -stock-text-secondary;
+}
+
+.status-name {
+    -fx-fill: -stock-accent-blue;
+    -fx-font-weight: bold;
+}
+
+/* --- Action Buttons --- */
+.action-button {
+    -fx-background-color: -stock-bg-card;
+    -fx-border-color: -stock-bg-card-border;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-weight: 600;
+    -fx-padding: 8 18;
+    -fx-cursor: hand;
+    -fx-transition-duration: 0.2s;
+}
+
+.action-button:hover {
+    -fx-background-color: -stock-bg-card-border;
+    -fx-border-color: -stock-accent-blue;
+}
+
+.action-button:pressed {
+    -fx-scale-x: 0.96;
+    -fx-scale-y: 0.96;
+}
+
+.icon-only-button {
+    -fx-padding: 8 10;
+    -fx-font-size: 18px;
+}
+
+/* --- Utility Controls --- */
+.reset-link {
+    -fx-text-fill: -stock-text-muted;
+    -fx-font-size: 14px;
+    -fx-padding: 0 10;
+    -fx-cursor: hand;
+}
+
+.reset-link:hover {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-underline: true;
+}
+
+/* --- Spacer --- */
+.horizontal-spacer {
+    -fx-max-width: infinity;
+}
