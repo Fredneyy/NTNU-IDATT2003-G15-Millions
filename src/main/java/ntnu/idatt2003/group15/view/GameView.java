@@ -10,6 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
+import java.util.Objects;
 import java.util.Set;
 
 public class GameView {
@@ -46,6 +47,7 @@ public class GameView {
     public GameView(String playerName) {
         settingsView = new SettingsView(view);
         headerView.setPlayerName(playerName);
+        view.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
 
         HBox header = headerView.createHeader();
         headerView.getSettingsButton().setOnAction(_ -> settingsView.toggle());
@@ -77,7 +79,6 @@ public class GameView {
         view.getChildren().add(layout);
     }
 
-    /** Place the search bar at the top of market/portfolio tab content; hide on the rest. */
     private void wireSearchBarToTabs() {
         // Initial state: TabContainer auto-selects the first tab on construction,
         // but our listener attaches after that, so seed the initial placement manually.
