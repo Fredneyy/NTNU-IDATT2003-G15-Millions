@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
+import ntnu.idatt2003.group15.model.factories.TransactionFactory;
+import ntnu.idatt2003.group15.model.factories.TransactionType;
 
 /**
  * Represents a stock exchange managing a collection of active stocks
@@ -110,7 +112,7 @@ public class Exchange {
     Objects.requireNonNull(player, "Player cannot be null");
     Stock stock = getStock(symbol);
     Share share = new Share(stock, quantity, stock.getSalesPrice());
-    Purchase tx = new Purchase(share, getWeek());
+    Purchase tx = (Purchase) TransactionFactory.createTransaction(TransactionType.PURCHASE, share, getWeek());
     tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
     return tx;
   }
@@ -125,7 +127,7 @@ public class Exchange {
   public Sale sell(Share share, Player player) throws NullPointerException {
     Objects.requireNonNull(share, "Share cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
-    Sale tx = new Sale(share, getWeek());
+    Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, getWeek());
     tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
     return tx;
   }

@@ -1,0 +1,191 @@
+/* =========================================================
+   SettingsView stylesheet
+   Matches the dark navy "Difficulty Settings" card design.
+   ========================================================= */
+
+/* ---------- Color & size tokens (via .root so they cascade) ---------- */
+.root {
+    -fx-bg-deep:        #0b1220;   /* page background (behind the card) */
+    -fx-bg-card:        #111a2e;   /* main card background */
+    -fx-bg-inner:       #0f1828;   /* inner panels (stat cards) */
+    -fx-bg-tip:         #15233f;   /* pro tip footer background */
+    -fx-border-subtle:  #1f2a44;   /* hairline borders */
+    -fx-border-tip:     #2a3a64;   /* slightly brighter border for the tip box */
+
+    -fx-accent-blue:    #3b82f6;   /* primary blue (slider, badge, icons) */
+    -fx-accent-blue-2:  #60a5fa;   /* lighter blue for value text */
+
+    -fx-text-strong:    #ffffff;
+    -fx-text-muted:     #94a3b8;
+    -fx-text-faint:     #64748b;
+}
+
+/* ---------- Root container ---------- */
+.settings-view {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* ---------- Main card ---------- */
+.settings-card {
+    -fx-background-color: -fx-bg-card;
+    -fx-background-radius: 16;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-padding: 24;
+    -fx-spacing: 20;
+}
+
+/* ---------- Header row ---------- */
+.settings-header {
+    -fx-alignment: center-left;
+    -fx-spacing: 16;
+}
+
+.settings-icon-and-title {
+    -fx-alignment: center-left;
+    -fx-spacing: 14;
+}
+
+.settings-icon-box {
+    -fx-background-color: rgba(59, 130, 246, 0.15);
+    -fx-background-radius: 10;
+    -fx-min-width: 44;
+    -fx-min-height: 44;
+    -fx-max-width: 44;
+    -fx-max-height: 44;
+    -fx-alignment: center;
+}
+
+/* Ikonli FontIcon — settings header glyph */
+.settings-icon {
+    -fx-icon-color: -fx-accent-blue;
+    -fx-icon-size: 22;
+}
+
+.settings-title-box {
+    -fx-spacing: 2;
+}
+
+.settings-title {
+    -fx-text-fill: -fx-text-strong;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.settings-subtitle {
+    -fx-text-fill: -fx-text-muted;
+    -fx-font-size: 13px;
+}
+
+.settings-difficulty-badge {
+    -fx-text-fill: -fx-accent-blue-2;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+/* ---------- Slider section ---------- */
+.settings-slider-section {
+    -fx-spacing: 10;
+}
+
+.settings-slider-header {
+    -fx-alignment: center-left;
+}
+
+.settings-slider-label {
+    -fx-text-fill: -fx-text-strong;
+    -fx-font-size: 14px;
+}
+
+.settings-slider-value {
+    -fx-text-fill: -fx-text-muted;
+    -fx-font-size: 14px;
+}
+
+/* Slider track and thumb */
+.settings-slider .track {
+    -fx-background-color: #1e2a44;
+    -fx-background-radius: 4;
+    -fx-pref-height: 6;
+}
+
+.settings-slider .thumb {
+    -fx-background-color: -fx-accent-blue;
+    -fx-background-radius: 50%;
+    -fx-pref-width: 16;
+    -fx-pref-height: 16;
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.5), 6, 0, 0, 0);
+}
+
+.settings-slider .thumb:hover {
+    -fx-background-color: -fx-accent-blue-2;
+}
+
+.settings-slider-scale {
+    -fx-padding: 4 0 0 0;
+}
+
+.settings-slider-scale-label {
+    -fx-text-fill: -fx-text-faint;
+    -fx-font-size: 12px;
+}
+
+/* ---------- Divider ---------- */
+.settings-divider {
+    -fx-background-color: -fx-border-subtle;
+    -fx-min-height: 1;
+    -fx-max-height: 1;
+    -fx-pref-height: 1;
+}
+
+/* ---------- Stat cards row ---------- */
+.settings-stats-row {
+    -fx-spacing: 16;
+}
+
+.settings-stat-card {
+    -fx-background-color: -fx-bg-inner;
+    -fx-background-radius: 12;
+    -fx-border-color: -fx-border-subtle;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 16 18;
+    -fx-spacing: 6;
+}
+
+.settings-stat-label {
+    -fx-text-fill: -fx-text-muted;
+    -fx-font-size: 13px;
+}
+
+.settings-stat-value {
+    -fx-text-fill: -fx-text-strong;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+/* ---------- Pro tip footer ---------- */
+.settings-tip-box {
+    -fx-background-color: -fx-bg-tip;
+    -fx-background-radius: 10;
+    -fx-border-color: -fx-border-tip;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 12 16;
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+/* Ikonli FontIcon — lightning bolt next to the pro tip */
+.settings-tip-icon {
+    -fx-icon-color: -fx-accent-blue-2;
+    -fx-icon-size: 16;
+}
+
+.settings-tip-label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
+}

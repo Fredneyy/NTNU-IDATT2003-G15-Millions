@@ -1,0 +1,103 @@
+/* --- Main Layout --- */
+.header-bar {
+    -fx-padding: 15 24;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 20;
+    /* Uses the gradient variable from your RootStyle */
+    -fx-background-color: transparent;
+}
+
+/* --- Brand Section --- */
+.brand-container {
+    -fx-spacing: 12;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.logo-frame {
+    -fx-min-width: 44;
+    -fx-min-height: 44;
+    -fx-max-width: 44;
+    -fx-max-height: 44;
+    -fx-background-radius: 10;
+    /* References your blue-to-purple gradient logic */
+    -fx-background-color: linear-gradient(to bottom right, -stock-accent-blue, -stock-accent-purple);
+    -fx-alignment: CENTER;
+}
+
+.logo-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 22;
+}
+
+/* Header button graphics (FontIcons set via setGraphic) */
+.action-button .ikonli-font-icon {
+    -fx-icon-color: -stock-text-primary;
+    -fx-icon-size: 16;
+}
+
+.action-button:hover .ikonli-font-icon {
+    -fx-icon-color: -stock-accent-blue;
+}
+
+.brand-text-main {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-fill: -stock-text-primary;
+}
+
+.brand-text-accent {
+    -fx-fill: -stock-accent-blue;
+}
+
+.status-label {
+    -fx-font-size: 13px;
+    -fx-fill: -stock-text-secondary;
+}
+
+.status-name {
+    -fx-fill: -stock-accent-blue;
+    -fx-font-weight: bold;
+}
+
+/* --- Action Buttons --- */
+.action-button {
+    -fx-background-color: -stock-bg-card;
+    -fx-border-color: -stock-bg-card-border;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 0 14;
+    -fx-min-height: 40;
+    -fx-pref-height: 40;
+    -fx-min-width: 40;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-transition-duration: 0.2s;
+}
+
+.action-button:hover {
+    -fx-background-color: -stock-bg-card-border;
+    -fx-border-color: -stock-accent-blue;
+}
+
+.action-button:pressed {
+    -fx-scale-x: 0.96;
+    -fx-scale-y: 0.96;
+}
+
+/* Icon-only buttons stay square (40x40) by skipping the wider text padding */
+.icon-only-button {
+    -fx-padding: 0;
+    -fx-pref-width: 40;
+    -fx-max-width: 40;
+    -fx-font-size: 18px;
+}
+
+/* --- Spacer --- */
+.horizontal-spacer {
+    -fx-max-width: infinity;
+}
