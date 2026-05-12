@@ -40,38 +40,37 @@
     -fx-padding: 16 0 24 0;
 }
 
-/* ---------- Search bar (used in GameView below the tabs) ---------- */
+/* ---------- Search bar (used in GameView at the top of market/portfolio tabs) ---------- */
 .search-bar {
     -fx-background-color: -stock-bg-card;
-    -fx-background-radius: 12;
+    -fx-background-radius: 14;
     -fx-border-color: -stock-bg-card-border;
-    -fx-border-radius: 12;
+    -fx-border-radius: 14;
     -fx-border-width: 1;
-    -fx-padding: 4 14;
-    -fx-spacing: 12;
+    -fx-padding: 8 20;
+    -fx-spacing: 14;
+    -fx-alignment: center-left;
 }
 
-.search-icon {
-    -fx-background-color: -stock-text-muted;
-    -fx-min-width: 18;
-    -fx-min-height: 18;
-    -fx-max-width: 18;
-    -fx-max-height: 18;
-    -fx-scale-shape: true;
+.search-bar .search-icon {
+    -fx-icon-color: -stock-text-muted;
+    -fx-icon-size: 18;
 }
 
-.search-field {
+/* Compound selector raises specificity above .text-field in MainMenuStyle.css */
+.search-bar .search-field,
+.search-bar .search-field:focused,
+.search-bar .search-field:hover {
     -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
     -fx-border-color: transparent;
+    -fx-border-width: 0;
     -fx-text-fill: -stock-text-primary;
     -fx-prompt-text-fill: -stock-text-muted;
-    -fx-font-size: 14px;
-    -fx-pref-height: 44;
+    -fx-highlight-fill: rgba(92,110,245,0.35);
+    -fx-font-size: 15px;
+    -fx-pref-height: 40;
     -fx-padding: 0;
-}
-
-.search-field:focused {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
     -fx-effect: null;
 }

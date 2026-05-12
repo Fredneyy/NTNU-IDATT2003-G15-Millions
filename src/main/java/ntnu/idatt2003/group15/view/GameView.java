@@ -1,12 +1,17 @@
 package ntnu.idatt2003.group15.view;
 
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import org.kordamp.ikonli.fontawesome.FontAwesome;
+import org.kordamp.ikonli.javafx.FontIcon;
+
+import java.util.Set;
 
 public class GameView {
 
@@ -22,8 +27,7 @@ public class GameView {
                     + "M12 10 A2 2 0 1 1 12 14 A2 2 0 1 1 12 10 Z";
     private static final String TRENDING_UP =
             "M3 17 L9 11 L13 15 L20 8 L20 13 L22 13 L22 4 L13 4 L13 6 L18 6 L13 11 L9 7 L1 15 Z";
-    private static final String SEARCH_ICON =
-            "M10 4 A6 6 0 1 1 10 16 A6 6 0 1 1 10 4 Z M14.5 14.5 L20 20";
+    private static final Set<String> TABS_WITH_SEARCH = Set.of("market", "portfolio");
 
     private final StackPane view = new StackPane();
     private final VBox layout = new VBox();
@@ -32,13 +36,20 @@ public class GameView {
     private final SettingsView settingsView;
     private final StatisticsOverview statisticsOverview = new StatisticsOverview();
     private final TextField searchField = new TextField();
+    private final HBox searchBar;
+
+    private final VBox marketContent = new VBox(new Label("Market"));
+    private final VBox portfolioContent = new VBox(new Label("Portfolio"));
+    private final VBox statsContent = new VBox(new Label("Stats"));
+    private final VBox tradesContent = new VBox(new Label("Trades"));
+    private final VBox newsContent = new VBox(new Label("News"));
 
     private final TabContainer tabContainer = new TabContainer(
-            new TabContainer.Tab("market",    "Market",    PLACEHOLDER_ICON, new javafx.scene.control.Label("Market")),
-            new TabContainer.Tab("portfolio", "Portfolio", PLACEHOLDER_ICON, new javafx.scene.control.Label("Portfolio")),
-            new TabContainer.Tab("stats",     "Stats",     PLACEHOLDER_ICON, new javafx.scene.control.Label("Stats")),
-            new TabContainer.Tab("trades",    "Trades",    PLACEHOLDER_ICON, new javafx.scene.control.Label("Trades")),
-            new TabContainer.Tab("news",      "News",      PLACEHOLDER_ICON, new javafx.scene.control.Label("News"), "1")
+            new TabContainer.Tab("market",    "Market",    PLACEHOLDER_ICON, marketContent),
+            new TabContainer.Tab("portfolio", "Portfolio", PLACEHOLDER_ICON, portfolioContent),
+            new TabContainer.Tab("stats",     "Stats",     PLACEHOLDER_ICON, statsContent),
+            new TabContainer.Tab("trades",    "Trades",    PLACEHOLDER_ICON, tradesContent),
+            new TabContainer.Tab("news",      "News",      PLACEHOLDER_ICON, newsContent, "1")
     );
 
     public GameView() {
@@ -53,15 +64,17 @@ public class GameView {
         headerView.getSettingsButton().setOnAction(_ -> settingsView.toggle());
 
         addStatisticsCards();
-        HBox searchBar = buildSearchBar();
+        searchBar = buildSearchBar();
+        styleTabContent(marketContent, portfolioContent, statsContent, tradesContent, newsContent);
 
         VBox.setVgrow(tabContainer.getView(), Priority.ALWAYS);
 
         settingsView.getView().getStyleClass().add("container");
         statisticsOverview.getView().getStyleClass().add("container");
         tabContainer.getView().getStyleClass().add("container");
-        searchBar.getStyleClass().add("container");
         header.getStyleClass().add("container");
+
+        wireSearchBarToTabs();
 
         layout.getStyleClass().add("game-layout");
         layout.setFillWidth(false);
@@ -70,12 +83,57 @@ public class GameView {
                 header,
                 settingsView.getView(),
                 statisticsOverview.getView(),
-                tabContainer.getView(),
-                searchBar
+                tabContainer.getView()
         );
 
         view.getStyleClass().add("game-view");
         view.getChildren().add(layout);
+    }
+
+    /** Place the search bar at the top of market/portfolio tab content; hide on the rest. */
+    private void wireSearchBarToTabs() {
+        // Initial state: TabContainer auto-selects the first tab on construction,
+        // but our listener attaches after that, so seed the initial placement manually.
+        TabContainer.Tab initial = tabContainer.selectedTabProperty().get();
+        if (initial != null && TABS_WITH_SEARCH.contains(initial.getId())) {
+            placeSearchBarIn(targetContentFor(initial.getId()));
+        }
+
+        tabContainer.selectedTabProperty().addListener((_, _, newTab) -> {
+            detachSearchBar();
+            if (newTab != null && TABS_WITH_SEARCH.contains(newTab.getId())) {
+                placeSearchBarIn(targetContentFor(newTab.getId()));
+            }
+        });
+    }
+
+    private VBox targetContentFor(String tabId) {
+        return switch (tabId) {
+            case "market" -> marketContent;
+            case "portfolio" -> portfolioContent;
+            default -> null;
+        };
+    }
+
+    private void placeSearchBarIn(VBox target) {
+        if (target == null) return;
+        if (!target.getChildren().contains(searchBar)) {
+            target.getChildren().add(0, searchBar);
+        }
+    }
+
+    private void detachSearchBar() {
+        Parent parent = searchBar.getParent();
+        if (parent instanceof VBox vb) {
+            vb.getChildren().remove(searchBar);
+        }
+    }
+
+    private void styleTabContent(VBox... boxes) {
+        for (VBox box : boxes) {
+            box.getStyleClass().add("tab-content-pane");
+            box.setSpacing(16);
+        }
     }
 
     private void addStatisticsCards() {
@@ -98,9 +156,8 @@ public class GameView {
     }
 
     private HBox buildSearchBar() {
-        Region searchIcon = new Region();
+        FontIcon searchIcon = new FontIcon(FontAwesome.SEARCH);
         searchIcon.getStyleClass().add("search-icon");
-        searchIcon.setStyle("-fx-shape: \"" + SEARCH_ICON + "\";");
 
         searchField.setPromptText("Search stocks by symbol or company name...");
         searchField.getStyleClass().add("search-field");
