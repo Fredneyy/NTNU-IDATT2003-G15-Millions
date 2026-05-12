@@ -3,6 +3,7 @@ package ntnu.idatt2003.group15.view;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.ProgressBar;
@@ -37,25 +38,13 @@ public class OnBoardingDialog extends BaseDialog {
     this.taskUtil = Objects.requireNonNull(taskUtil);
 
     loadText();
+    progressBar = setUpProgressBar();
 
     dialog.getStyleClass().setAll("onboarding-card");
-    dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 2.0);
-    dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 2.0);
+    dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
+    dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);
     dialog.setMinHeight(Region.USE_COMPUTED_SIZE);
     dialog.setMinWidth(Region.USE_COMPUTED_SIZE);
-
-    progressBar = new ProgressBar(0);
-    progressBar.setMaxWidth(Double.MAX_VALUE);
-    progressBar.getStyleClass().add("onboarding-progress-bar");
-    dialog.layoutBoundsProperty().addListener((_, _, newBounds) -> {
-      Rectangle clip = new Rectangle(
-          newBounds.getWidth(),
-          newBounds.getHeight()
-      );
-      clip.setArcWidth(24);
-      clip.setArcHeight(24);
-      progressBar.setClip(clip);
-    });
 
     titleLabel.getStyleClass().add("onboarding-title");
 
@@ -63,19 +52,33 @@ public class OnBoardingDialog extends BaseDialog {
     messageLabel.setMinHeight(Region.USE_PREF_SIZE);
 
     textContainer = new VBox(5, titleLabel, messageLabel);
+    textContainer.setAlignment(Pos.CENTER);
 
-    HBox footerContainer = new HBox(10);
-    footerContainer.setAlignment(Pos.BOTTOM_CENTER);
+    Hyperlink backLabel = new Hyperlink("< Back");
+    backLabel.getStyleClass().add("onboarding-nav-link");
+    backLabel.setOnAction(e -> previousSlide());
 
-    Hyperlink backLabel =  new Hyperlink("< Back");
-    backLabel.getStyleClass().add("onboarding-nav-link-next");
     Hyperlink nextLabel = new Hyperlink("Next >");
     nextLabel.getStyleClass().add("onboarding-nav-link-next");
     nextLabel.setOnAction(e -> nextSlide());
-    backLabel.setOnAction(e -> previousSlide());
-    footerContainer.getChildren().addAll(backLabel, nextLabel);
 
-    dialog.getChildren().addAll(progressBar, textContainer, footerContainer);
+    Region footerSpacer = new Region();
+    HBox.setHgrow(footerSpacer, Priority.ALWAYS);
+
+    HBox footerContainer = new HBox(backLabel, footerSpacer, nextLabel);
+    footerContainer.setAlignment(Pos.CENTER);
+    footerContainer.setMaxWidth(Double.MAX_VALUE);
+
+    Region verticalSpacer = new Region();
+    VBox.setVgrow(verticalSpacer, Priority.ALWAYS);
+
+    VBox content = new VBox(textContainer, verticalSpacer, footerContainer);
+    content.setAlignment(Pos.TOP_CENTER);
+    content.setMaxHeight(Double.MAX_VALUE);
+    content.setPadding(new Insets(30));
+    VBox.setVgrow(content, Priority.ALWAYS);
+
+    dialog.getChildren().addAll(progressBar, content);
   }
 
   @Override
@@ -93,15 +96,33 @@ public class OnBoardingDialog extends BaseDialog {
 
   private void loadText() {
     taskUtil.runTaskAsync(() -> {
-      List<String> rawData = csvUtil.readCsvFile("src/main/resources/storage/onboarding.csv");
-      return rawData;
-      }, result -> {
-      this.onboardingText = (List<String>) result;
-      onboardingTextIterator = this.onboardingText.listIterator();
-      titleLabel.setText(onboardingText.get(0));
-      messageLabel.setText(onboardingText.get(1));
-      }
-      , error -> close());
+          List<String> rawData = csvUtil.readCsvFile("src/main/resources/storage/onboarding.csv");
+          return rawData;
+        }, result -> {
+          this.onboardingText = (List<String>) result;
+          onboardingTextIterator = this.onboardingText.listIterator();
+          titleLabel.setText(onboardingText.get(0));
+          messageLabel.setText(onboardingText.get(1));
+        },
+        error -> close());
+  }
+
+  private ProgressBar setUpProgressBar() {
+    ProgressBar progressTypeBar = new ProgressBar(0);
+    progressTypeBar.setMaxWidth(Double.MAX_VALUE);
+    progressTypeBar.getStyleClass().add("onboarding-progress-bar");
+    dialog.layoutBoundsProperty().addListener((_, _, newBounds) -> {
+      Rectangle clip = new Rectangle(newBounds.getWidth(), newBounds.getHeight());
+      clip.setArcWidth(40);
+      clip.setArcHeight(40);
+      progressTypeBar.setClip(clip);
+    });
+
+    Rectangle clip = new Rectangle(dialog.getWidth(), dialog.getHeight());
+    clip.setArcWidth(40);
+    clip.setArcHeight(40);
+    progressTypeBar.setClip(clip);
+    return progressTypeBar;
   }
 
   private void setUpTransition(int setByX) {
@@ -119,6 +140,7 @@ public class OnBoardingDialog extends BaseDialog {
       forwardIteration = true;
       titleLabel.setText(onboardingTextIterator.next());
       messageLabel.setText(onboardingTextIterator.next());
+      progressBar.setProgress(1.0 / onboardingText.size() + (1.0 / onboardingText.size()) * onboardingTextIterator.nextIndex());
     }
   }
 
@@ -131,6 +153,7 @@ public class OnBoardingDialog extends BaseDialog {
       forwardIteration = false;
       messageLabel.setText(onboardingTextIterator.previous());
       titleLabel.setText(onboardingTextIterator.previous());
+      progressBar.setProgress(1.0 / onboardingText.size() + (1.0 / onboardingText.size()) * onboardingTextIterator.previousIndex());
     }
   }
 }

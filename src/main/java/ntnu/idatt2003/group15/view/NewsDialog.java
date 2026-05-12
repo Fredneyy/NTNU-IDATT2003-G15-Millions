@@ -18,7 +18,6 @@ public class NewsDialog extends BaseDialog {
   private final Label messageLabel = new Label();
   private final Label titleLabel = new Label();
   private final Button closeButton = new Button("X");
-  private final VBox content = new VBox();
 
   public NewsDialog(Duration animationDuration, Duration displayDuration) {
     super(animationDuration);
@@ -28,7 +27,6 @@ public class NewsDialog extends BaseDialog {
     dialog.setMinHeight(Region.USE_PREF_SIZE);
     dialog.setMaxHeight(Region.USE_PREF_SIZE);
 
-    dialog.getChildren().setAll(content);
 
     progressBar = new ProgressBar(1.0);
     progressBar.setMaxWidth(Double.MAX_VALUE);
@@ -58,7 +56,7 @@ public class NewsDialog extends BaseDialog {
     HBox.setHgrow(textContainer, Priority.ALWAYS);
     contentRow.getStyleClass().add("news-content-area");
 
-    content.getChildren().addAll(progressBar, contentRow);
+    dialog.getChildren().addAll(progressBar, contentRow);
   }
 
   public void setText(String title, String message) {

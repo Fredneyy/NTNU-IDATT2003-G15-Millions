@@ -2,9 +2,12 @@ package ntnu.idatt2003.group15.view;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -13,7 +16,7 @@ import java.util.Objects;
 
 public abstract class BaseDialog {
 
-  protected final StackPane dialog;
+  protected final VBox dialog = new VBox();
   protected StackPane root;
   protected final Duration animationDuration;
   protected final Label titleLabel = new Label();
@@ -22,12 +25,18 @@ public abstract class BaseDialog {
   protected BaseDialog(Duration animationDuration) {
     this.animationDuration = animationDuration;
 
-    dialog = new StackPane();
     dialog.getStyleClass().add("pop-up-container");
     dialog.setPickOnBounds(false);
 
     titleLabel.getStyleClass().add("dialog-title-label");
     messageLabel.getStyleClass().add("dialog-message-label");
+
+    VBox.setVgrow(dialog, Priority.ALWAYS);
+    VBox.setVgrow(titleLabel, Priority.ALWAYS);
+    VBox.setVgrow(messageLabel, Priority.ALWAYS);
+    HBox.setHgrow(titleLabel, Priority.ALWAYS);
+    HBox.setHgrow(messageLabel, Priority.ALWAYS);
+    HBox.setHgrow(dialog, Priority.ALWAYS);
   }
 
   protected FadeTransition createFadeTransition(Node node, double from, double to) {
@@ -44,6 +53,15 @@ public abstract class BaseDialog {
     scaleTransition.setToX(to);
     scaleTransition.setToY(to);
     return scaleTransition;
+  }
+
+  protected TranslateTransition createTranslateTransition(Node node, double from, double to) {
+    TranslateTransition translateTransition = new TranslateTransition(animationDuration, node);
+    translateTransition.setFromX(from);
+    translateTransition.setFromY(from);
+    translateTransition.setToX(to);
+    translateTransition.setToY(to);
+    return translateTransition;
   }
 
   public abstract void show(StackPane root);

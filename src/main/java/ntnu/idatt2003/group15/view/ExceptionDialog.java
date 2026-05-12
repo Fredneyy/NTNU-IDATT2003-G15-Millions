@@ -13,19 +13,20 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 
+import java.util.Objects;
+
 public class ExceptionDialog extends BaseDialog {
 
+  private StackPane root;
   private final StackPane dialogPane;
   private final StackPane overlay;
   private final GaussianBlur gaussianBlur;
-  private final VBox content = new VBox();
   private final Button closeButton = new Button("X");
+  private final ParallelTransition closeAnimation;
 
   public ExceptionDialog(Duration animationDuration, double blurAmount) {
 
     super(animationDuration);
-
-    dialog.getChildren().setAll(content);
 
     dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);
@@ -38,10 +39,12 @@ public class ExceptionDialog extends BaseDialog {
     closeButton.getStyleClass().add("close-button");
     closeButton.setOnAction(_ -> close());
 
-    content.getChildren().addAll(closeButtonContainer, dialogPane);
-
     titleLabel.getStyleClass().add("dialog-title-label");
     messageLabel.getStyleClass().add("dialog-message-label");
+
+    closeAnimation = createCloseAnimation();
+
+    dialog.getChildren().addAll(closeButtonContainer, dialogPane);
   }
 
   public void setText(String title, String message) {
@@ -51,6 +54,7 @@ public class ExceptionDialog extends BaseDialog {
 
   @Override
   public void show(StackPane root) {
+    this.root = Objects.requireNonNull(root);
     dialogPane.setAlignment(Pos.CENTER);
     VBox mainContainer = new VBox(10);
     VBox messageBox = new VBox();
@@ -81,19 +85,24 @@ public class ExceptionDialog extends BaseDialog {
 
   @Override
   public void close() {
-    if (root != null && root.getChildren().contains(overlay)) {
-      ParallelTransition closeAnimation = new ParallelTransition(
-          createFadeTransition(dialog, 1, 0),
-          createScaleTransition(dialog, 1.0, 0.1)
-      );
-
-      closeAnimation.setOnFinished(_ -> {
-        root.getChildren().removeAll(overlay, dialog);
-        root.getChildren().forEach(node -> node.setEffect(null));
-      });
-
+    if (root != null && root.getChildren().contains(overlay)
+    && root.getChildren().contains(dialog)) {
       closeAnimation.play();
     }
+  }
+
+  private ParallelTransition createCloseAnimation() {
+    ParallelTransition animation = new ParallelTransition(
+        createFadeTransition(dialog, 1, 0),
+        createScaleTransition(dialog, 1.0, 0.1)
+    );
+
+    animation.setOnFinished(_ -> {
+      root.getChildren().removeAll(overlay, dialog);
+      root.getChildren().forEach(node -> node.setEffect(null));
+    });
+
+    return animation;
   }
 
   private HBox createCloseButtonAndContainer() {

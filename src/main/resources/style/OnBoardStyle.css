@@ -24,7 +24,6 @@
     -fx-border-width: 1;
     -fx-border-radius: 20;
     -fx-background-radius: 20;
-    -fx-padding: 48 40 32 40;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 10, 0.65), 40, 0.12, 0, 10);
 }
 
@@ -52,7 +51,7 @@
    ---------------------------------------------------------- */
 .onboarding-title {
     -fx-text-fill: #e8eaf6;
-    -fx-font-size: 1.714em;          /* ~24 px at 14 px base */
+    -fx-font-size: 3em;          /* ~24 px at 14 px base */
     -fx-font-weight: bold;
     -fx-alignment: center;
     -fx-text-alignment: center;
@@ -64,7 +63,7 @@
    ---------------------------------------------------------- */
 .onboarding-description {
     -fx-text-fill: #8892b0;
-    -fx-font-size: 0.929em;          /* ~13 px */
+    -fx-font-size: 1.5em;          /* ~13 px */
     -fx-alignment: center;
     -fx-text-alignment: center;
     -fx-wrap-text: true;
@@ -84,8 +83,7 @@
    Step / progress dots
    ---------------------------------------------------------- */
 .onboarding-progress-bar {
-    -fx-pref-height: 4;
-    -fx-pref-width: 140;
+    -fx-pref-height: 10;
     -fx-background-radius: 3;
     -fx-border-radius: 3;
 }
@@ -106,7 +104,7 @@
    ---------------------------------------------------------- */
 .onboarding-nav-link {
     -fx-text-fill: #8892b0;
-    -fx-font-size: 0.929em;
+    -fx-font-size: 1.5em;
     -fx-cursor: hand;
     -fx-underline: false;
     -fx-border-color: transparent;
@@ -127,7 +125,7 @@
 .onboarding-nav-link-next {
     -fx-text-fill: #5c6ef5;
     -fx-font-weight: bold;
-    -fx-font-size: 0.929em;
+    -fx-font-size: 1.5em;
     -fx-cursor: hand;
     -fx-underline: false;
     -fx-border-color: transparent;
