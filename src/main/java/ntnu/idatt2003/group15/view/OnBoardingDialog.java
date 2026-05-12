@@ -177,7 +177,6 @@ public class OnBoardingDialog extends BaseDialog {
           titleLabel.setText(onboardingText.get(0));
           messageLabel.setText(onboardingText.get(1));
           progressStep = 1.0 / ((onboardingText.size() * 0.5) - 1);
-          // Fix 2: check on load in case there is only one slide
           updateNextButton(onboardingText.size() / 2 == 1);
         },
         error -> close());

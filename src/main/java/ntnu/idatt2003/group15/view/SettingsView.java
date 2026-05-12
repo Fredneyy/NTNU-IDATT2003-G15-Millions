@@ -1,9 +1,6 @@
 package ntnu.idatt2003.group15.view;
 
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
@@ -161,34 +158,33 @@ public class SettingsView {
     }
 
     public void toggle() {
+        KeyValue heightKv;
+        KeyValue opacityKv;
+
         if (open) {
-            naturalHeight = view.getHeight();
+            heightKv  = new KeyValue(view.prefHeightProperty(), 0, Interpolator.EASE_IN);
+            opacityKv = new KeyValue(view.opacityProperty(), 0, Interpolator.EASE_IN);
             Timeline tl = new Timeline(
-                    new KeyFrame(Duration.ZERO,
-                            new KeyValue(view.prefHeightProperty(), naturalHeight)),
-                    new KeyFrame(Duration.millis(280),
-                            new KeyValue(view.prefHeightProperty(), 0, Interpolator.EASE_IN))
+                new KeyFrame(Duration.ZERO),
+                new KeyFrame(Duration.millis(250), heightKv, opacityKv)
             );
             tl.setOnFinished(_ -> {
                 view.setManaged(false);
                 view.setVisible(false);
+                view.setOpacity(1);       // reset for next open
+                view.setPrefHeight(naturalHeight);  // reset for next open
             });
             tl.play();
         } else {
+            view.setOpacity(0);
+            view.setPrefHeight(0);
             view.setManaged(true);
             view.setVisible(true);
-            if (naturalHeight == 0) {
-                view.setPrefHeight(Region.USE_COMPUTED_SIZE);
-                view.applyCss();
-                view.layout();
-                naturalHeight = view.prefHeight(-1);
-            }
-            view.setPrefHeight(0);
+            heightKv  = new KeyValue(view.prefHeightProperty(), naturalHeight, Interpolator.EASE_OUT);
+            opacityKv = new KeyValue(view.opacityProperty(), 1, Interpolator.EASE_OUT);
             Timeline tl = new Timeline(
-                    new KeyFrame(Duration.ZERO,
-                            new KeyValue(view.prefHeightProperty(), 0)),
-                    new KeyFrame(Duration.millis(280),
-                            new KeyValue(view.prefHeightProperty(), naturalHeight, Interpolator.EASE_OUT))
+                new KeyFrame(Duration.ZERO),
+                new KeyFrame(Duration.millis(250), heightKv, opacityKv)
             );
             tl.setOnFinished(_ -> view.setPrefHeight(Region.USE_COMPUTED_SIZE));
             tl.play();

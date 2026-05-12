@@ -1,0 +1,288 @@
+/* ============================================================
+   stock-chart-dialog.css
+   Matches the app-wide dark theme tokens.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   Dialog card  –  same surface as .card
+   ---------------------------------------------------------- */
+.stock-dialog-card {
+    -fx-background-color: #0f1729;
+    -fx-border-color: #1e2d4d;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 10, 0.60), 32, 0.10, 0, 8);
+}
+
+.stock-dialog-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ----------------------------------------------------------
+   Scroll bar  –  matches app scrollbar tokens
+   ---------------------------------------------------------- */
+.stock-dialog-scroll .scroll-bar:vertical .thumb,
+.stock-dialog-scroll .scroll-bar:horizontal .thumb {
+    -fx-background-color: #2a3d66;
+    -fx-background-radius: 4;
+}
+
+.stock-dialog-scroll .scroll-bar:vertical .track,
+.stock-dialog-scroll .scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+}
+
+/* ----------------------------------------------------------
+   Header – avatar tile
+   ---------------------------------------------------------- */
+.stock-avatar {
+    -fx-background-color: linear-gradient(to bottom right, #5c6ef5, #7c6ef5);
+    -fx-background-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(92, 110, 245, 0.55), 20, 0.30, 0, 4);
+}
+
+.stock-avatar-text {
+    -fx-text-fill: #e8eaf6;
+    -fx-font-size: 1.143em;
+    -fx-font-weight: bold;
+}
+
+.stock-symbol {
+    -fx-text-fill: #e8eaf6;
+    -fx-font-size: 1.714em;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(92, 110, 245, 0.40), 12, 0.2, 0, 2);
+}
+
+.stock-company {
+    -fx-text-fill: #8892b0;
+    -fx-font-size: 0.929em;
+}
+
+.stock-separator {
+    -fx-background-color: #1e2d4d;
+}
+
+/* ----------------------------------------------------------
+   Close button
+   ---------------------------------------------------------- */
+.stock-close-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: #2a3d66;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-padding: 6 8 6 8;
+}
+
+.stock-close-btn:hover {
+    -fx-border-color: #5c6ef5;
+    -fx-background-color: rgba(92, 110, 245, 0.10);
+}
+
+.stock-close-btn:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
+
+.close-icon {
+    -fx-icon-size: 16;
+    -fx-icon-color: #8892b0;
+}
+
+.stock-close-btn:hover .close-icon {
+    -fx-icon-color: #e8eaf6;
+}
+
+/* ----------------------------------------------------------
+   Badges  –  pill labels for volatility / event status
+   ---------------------------------------------------------- */
+.stock-badge {
+    -fx-font-size: 0.714em;
+    -fx-font-weight: bold;
+    -fx-padding: 3 8 3 8;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+}
+
+.stock-badge-green {
+    -fx-text-fill: #3fcf8e;
+    -fx-background-color: rgba(63, 207, 142, 0.10);
+    -fx-border-color: rgba(63, 207, 142, 0.38);
+}
+
+.stock-badge-red {
+    -fx-text-fill: #f0637a;
+    -fx-background-color: rgba(240, 99, 122, 0.10);
+    -fx-border-color: rgba(240, 99, 122, 0.38);
+}
+
+/* ----------------------------------------------------------
+   Stat cards  –  mirrors .card with tighter padding
+   ---------------------------------------------------------- */
+.stock-stat-card {
+    -fx-background-color: #0b1221;
+    -fx-border-color: #1e2d4d;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 10, 0.40), 16, 0.05, 0, 4);
+}
+
+.stock-stat-card:hover {
+    -fx-border-color: #2a3d66;
+}
+
+.stock-stat-title {
+    -fx-text-fill: #8892b0;
+    -fx-font-size: 0.857em;
+}
+
+.stock-stat-value {
+    -fx-text-fill: #e8eaf6;
+    -fx-font-size: 1.286em;
+    -fx-font-weight: bold;
+}
+
+.stock-price {
+    -fx-font-size: 1.429em;
+}
+
+/* shared with app stylesheet */
+.value-positive {
+    -fx-text-fill: #3fcf8e;
+    -fx-font-weight: bold;
+}
+
+.value-negative {
+    -fx-text-fill: #f0637a;
+    -fx-font-weight: bold;
+}
+
+/* ----------------------------------------------------------
+   Event banner  –  mirrors .tip-banner in red tone
+   ---------------------------------------------------------- */
+.event-banner {
+    -fx-background-color: rgba(240, 99, 122, 0.07);
+    -fx-border-color: rgba(240, 99, 122, 0.28);
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.event-icon-box {
+    -fx-background-color: rgba(240, 99, 122, 0.15);
+    -fx-background-radius: 10;
+}
+
+.event-icon {
+    -fx-icon-size: 16;
+    -fx-icon-color: #f0637a;
+}
+
+.event-title {
+    -fx-text-fill: #f0637a;
+    -fx-font-size: 0.929em;
+    -fx-font-weight: bold;
+    -fx-wrap-text: true;
+}
+
+.event-desc {
+    -fx-text-fill: #8892b0;
+    -fx-font-size: 0.857em;
+    -fx-wrap-text: true;
+}
+
+.event-meta {
+    -fx-text-fill: #8892b0;
+    -fx-font-size: 0.857em;
+    -fx-font-weight: bold;
+}
+
+/* ----------------------------------------------------------
+   Chart section container  –  mirrors .card
+   ---------------------------------------------------------- */
+.stock-chart-section {
+    -fx-background-color: #0f1729;
+    -fx-border-color: #1e2d4d;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 10, 0.40), 16, 0.05, 0, 4);
+}
+
+.section-icon {
+    -fx-icon-size: 14;
+    -fx-icon-color: #5c6ef5;
+}
+
+.section-title {
+    -fx-text-fill: #e8eaf6;
+    -fx-font-size: 1em;
+    -fx-font-weight: bold;
+}
+
+.section-subtitle {
+    -fx-text-fill: #4a5580;
+    -fx-font-size: 0.857em;
+}
+
+/* ----------------------------------------------------------
+   AreaChart  –  transparent background, green series
+   ---------------------------------------------------------- */
+.stock-area-chart {
+    -fx-background-color: transparent;
+    -fx-padding: 4 0 0 0;
+}
+
+.stock-area-chart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.stock-area-chart .chart-content {
+    -fx-padding: 0;
+}
+
+.stock-area-chart .axis {
+    -fx-tick-label-fill: #4a5580;
+    -fx-font-size: 0.786em;
+}
+
+.stock-area-chart .axis-tick-mark,
+.stock-area-chart .axis-minor-tick-mark {
+    -fx-stroke: transparent;
+}
+
+.stock-area-chart .chart-vertical-grid-lines {
+    -fx-stroke: transparent;
+}
+
+.stock-area-chart .chart-horizontal-grid-lines {
+    -fx-stroke: #1e2d4d;
+    -fx-stroke-dash-array: 3 5;
+}
+
+.stock-area-chart .chart-alternative-row-fill,
+.stock-area-chart .chart-alternative-column-fill {
+    -fx-fill: transparent;
+    -fx-stroke: transparent;
+}
+
+.stock-area-chart .chart-series-area-line {
+    -fx-stroke: #3fcf8e;
+    -fx-stroke-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(63, 207, 142, 0.40), 6, 0.0, 0, 0);
+}
+
+.stock-area-chart .chart-series-area-fill {
+    -fx-fill: linear-gradient(to bottom,
+    rgba(63, 207, 142, 0.25) 0%,
+    rgba(63, 207, 142, 0.00) 100%);
+}
+
+.stock-area-chart .chart-legend {
+    -fx-background-color: transparent;
+}
