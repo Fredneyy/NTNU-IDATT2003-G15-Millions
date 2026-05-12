@@ -43,10 +43,9 @@ public class App extends Application {
 
         StockChartDialog stockChartDialog = new StockChartDialog();
         Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(200));
-        for (int i = 0; i<100; i++) {
+        for (int i = 0; i<1000; i++) {
             stock.addNewSalesPrice(stockSimulator.nextPrice(new StandardPriceEvent(0.11, 0.2), stock.getSalesPrice()));
         }
-        stock.addNewSalesPrice(stock.getHighestPrice().multiply(BigDecimal.valueOf(1.1)));
         stockChartDialog.show(root, stock);
 
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());

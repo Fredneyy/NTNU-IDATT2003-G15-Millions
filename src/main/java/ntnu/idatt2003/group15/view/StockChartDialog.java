@@ -30,8 +30,8 @@ public class StockChartDialog extends BaseDialog {
   private final Label symbolLabel = new Label();
   private final Label companyLabel = new Label();
   private final Label currentPriceLabel = new Label();
-  private final Label lastChangeLabel = new Label();
-  private final Label sessionChangeLabel = new Label();
+  private final Label lastRelativeChange = new Label();
+  private final Label lastAbsoluteChangeLabel = new Label();
   private final Label dataPointsLabel = new Label();
   private final VBox chartContainer  = new VBox();
   private final VBox chartSection = new VBox();
@@ -110,14 +110,14 @@ public class StockChartDialog extends BaseDialog {
 
     currentPriceLabel.setText(String.format("$%.2f", stockData.getSalesPrice()));
 
-    String sign = stockData.getLatestPriceChange().compareTo(BigDecimal.ZERO) > 0 ? "+" : "";
-    lastChangeLabel.setText(String.format("%s%.2f%%", sign, stockData.getLatestPriceChange()));
-    lastChangeLabel.getStyleClass().setAll("stock-stat-value",
+    String sign = stockData.getLatestPriceChange().compareTo(BigDecimal.ZERO) > 0 ? "+" : "-";
+    lastRelativeChange.setText(String.format("%s%.2f%%", sign, stockData.getLatestPriceChangeRelative()));
+    lastRelativeChange.getStyleClass().setAll("stock-stat-value",
         stockData.getLatestPriceChange().compareTo(BigDecimal.ZERO) > 0 ? "value-positive" : "value-negative");
 
-    String ssign = stockData.getLatestPriceChangeRelative().compareTo(BigDecimal.ZERO) > 0 ? "+" : "";
-    sessionChangeLabel.setText(String.format("%s%.2f%%", ssign, stockData.getLatestPriceChangeRelative()));
-    sessionChangeLabel.getStyleClass().setAll("stock-stat-value",
+    String ssign = stockData.getLatestPriceChangeRelative().compareTo(BigDecimal.ZERO) > 0 ? "+" : "-";
+    lastAbsoluteChangeLabel.setText(String.format("%s%.2f", ssign, stockData.getLatestPriceChange()));
+    lastAbsoluteChangeLabel.getStyleClass().setAll("stock-stat-value",
         stockData.getLatestPriceChangeRelative().compareTo(BigDecimal.ZERO) > 0 ? "value-positive" : "value-negative");
 
     dataPointsLabel.setText(String.valueOf(stockData.getHistoricalPrices().size()));
@@ -167,14 +167,14 @@ public class StockChartDialog extends BaseDialog {
 
   private HBox buildStatCards() {
     currentPriceLabel.getStyleClass().addAll("stock-stat-value", "stock-price");
-    lastChangeLabel.getStyleClass().addAll("stock-stat-value", "value-negative");
-    sessionChangeLabel.getStyleClass().addAll("stock-stat-value", "value-positive");
+    lastRelativeChange.getStyleClass().addAll("stock-stat-value", "value-negative");
+    lastAbsoluteChangeLabel.getStyleClass().addAll("stock-stat-value", "value-positive");
     dataPointsLabel.getStyleClass().addAll("stock-stat-value");
 
     HBox row = new HBox(12,
         statCard("Current Price",   currentPriceLabel),
-        statCard("Last Change",     lastChangeLabel),
-        statCard("Session Change",  sessionChangeLabel),
+        statCard("Last Relative Change", lastRelativeChange),
+        statCard("Last Absolute Change", lastAbsoluteChangeLabel),
         statCard("Data Points",     dataPointsLabel)
     );
     row.setFillHeight(true);
