@@ -18,6 +18,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,6 +37,11 @@ public class StockChartDialog extends BaseDialog {
   private final VBox chartContainer  = new VBox();
   private final VBox chartSection = new VBox();
 
+  private final NumberAxis xAxis = new NumberAxis();
+  private final NumberAxis yAxis = new NumberAxis();
+  private final AreaChart<Number, Number> chart = new AreaChart<>(xAxis, yAxis);
+  private final XYChart.Series<Number, Number> series = new XYChart.Series<>();
+
   private List<BigDecimal> historicalPrices;
 
   public StockChartDialog() {
@@ -48,6 +54,8 @@ public class StockChartDialog extends BaseDialog {
     dialog.getStylesheets().add(
         Objects.requireNonNull(getClass().getResource("/style/StockChartDialog.css")).toExternalForm());
     dialog.getStyleClass().setAll("stock-dialog-card");
+
+    configureChart();
 
     VBox body = new VBox(16,
         buildHeader(),
@@ -114,7 +122,7 @@ public class StockChartDialog extends BaseDialog {
 
     dataPointsLabel.setText(String.valueOf(historicalPrices.size()));
 
-    buildChart(stockData);
+    updateChart(stockData);
   }
 
   private HBox buildHeader() {
@@ -207,6 +215,7 @@ public class StockChartDialog extends BaseDialog {
     chartContainer.setFillWidth(true);
     chartContainer.setMaxWidth(Double.MAX_VALUE);
     chartContainer.setMaxHeight(Double.MAX_VALUE);
+    chartContainer.getChildren().setAll(chart);
 
     VBox.setVgrow(chartContainer, Priority.ALWAYS);
 
@@ -221,45 +230,48 @@ public class StockChartDialog extends BaseDialog {
     return chartSection;
   }
 
-  private void buildChart(Stock stockData) {
-    chartContainer.getChildren().clear();
-    if (historicalPrices == null || historicalPrices.isEmpty()) return;
-
-    NumberAxis xAxis = new NumberAxis();
+  private void configureChart() {
     xAxis.setTickLabelsVisible(false);
     xAxis.setTickMarkVisible(false);
     xAxis.setMinorTickVisible(false);
     xAxis.getStyleClass().add("chart-axis");
 
-    BigDecimal min     = stockData.getLowestPrice();
-    BigDecimal max     = stockData.getHighestPrice();
-    BigDecimal range   = max.subtract(min);
-    BigDecimal padding = range.multiply(new BigDecimal("0.05"));
-    BigDecimal tick    = range.divide(new BigDecimal("4"), 2, RoundingMode.HALF_UP);
-
-    NumberAxis yAxis = new NumberAxis(
-        min.subtract(padding).doubleValue(),
-        max.add(padding).doubleValue(),
-        tick.doubleValue()
-    );
+    yAxis.setAutoRanging(false);
     yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis, "$", null));
     yAxis.getStyleClass().add("chart-axis");
     yAxis.setMinorTickVisible(false);
 
-    AreaChart<Number, Number> chart = new AreaChart<>(xAxis, yAxis);
     chart.setLegendVisible(false);
     chart.setAnimated(false);
     chart.getStyleClass().add("stock-area-chart");
     chart.setCreateSymbols(false);
     chart.setMaxWidth(Double.MAX_VALUE);
     chart.setMaxHeight(Double.MAX_VALUE);
-
-    XYChart.Series<Number, Number> series = new XYChart.Series<>();
-    for (int i = 0; i < historicalPrices.size(); i++) {
-      series.getData().add(new XYChart.Data<>(i, historicalPrices.get(i).doubleValue()));
-    }
     chart.getData().add(series);
-    chartContainer.getChildren().add(chart);
+  }
+
+  private void updateChart(Stock stockData) {
+    if (historicalPrices == null || historicalPrices.isEmpty()) {
+      series.getData().clear();
+      return;
+    }
+
+    BigDecimal min     = stockData.getLowestPrice();
+    BigDecimal max     = stockData.getHighestPrice();
+    BigDecimal range   = max.subtract(min);
+    boolean    flat    = range.signum() == 0;
+    BigDecimal padding = flat ? BigDecimal.ONE : range.multiply(new BigDecimal("0.05"));
+    BigDecimal tick    = flat ? BigDecimal.ONE : range.divide(new BigDecimal("4"), 2, RoundingMode.HALF_UP);
+
+    yAxis.setLowerBound(min.subtract(padding).doubleValue());
+    yAxis.setUpperBound(max.add(padding).doubleValue());
+    yAxis.setTickUnit(tick.doubleValue());
+
+    List<XYChart.Data<Number, Number>> data = new ArrayList<>(historicalPrices.size());
+    for (int i = 0; i < historicalPrices.size(); i++) {
+      data.add(new XYChart.Data<>(i, historicalPrices.get(i).doubleValue()));
+    }
+    series.getData().setAll(data);
   }
 
   private ParallelTransition buildOpenAnimation() {
