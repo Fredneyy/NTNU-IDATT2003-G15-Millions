@@ -2,6 +2,8 @@ package ntnu.idatt2003.group15.view;
 
 import javafx.animation.ParallelTransition;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -11,33 +13,46 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 
+import java.util.Objects;
+
 public class ExceptionDialog extends BaseDialog {
 
+  private StackPane root;
   private final StackPane dialogPane;
   private final StackPane overlay;
-  private final GaussianBlur gaussianBlur;
+  private final Button closeButton = new Button("X");
+  private final ParallelTransition closeAnimation;
 
-  public ExceptionDialog(Duration animationDuration, double blurAmount) {
+  public ExceptionDialog(Duration animationDuration) {
 
     super(animationDuration);
 
-    dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3);
-    dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3);
+    dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
+    dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);
 
     this.dialogPane = new StackPane();
     this.overlay = createOverlay();
     HBox closeButtonContainer = createCloseButtonAndContainer();
-    this.gaussianBlur = new GaussianBlur(blurAmount);
 
-    this.dialog.getChildren().addAll(closeButtonContainer, dialogPane);
+    closeButton.getStyleClass().add("close-button");
+    closeButton.setOnAction(_ -> close());
 
     titleLabel.getStyleClass().add("dialog-title-label");
     messageLabel.getStyleClass().add("dialog-message-label");
+
+    closeAnimation = createCloseAnimation();
+
+    dialog.getChildren().addAll(closeButtonContainer, dialogPane);
+  }
+
+  public void setText(String title, String message) {
+    titleLabel.setText(title);
+    messageLabel.setText(message);
   }
 
   @Override
-  public void show(StackPane root, String title, String message) {
-    prepareDialog(root, title, message);
+  public void show(StackPane root) {
+    this.root = Objects.requireNonNull(root);
     dialogPane.setAlignment(Pos.CENTER);
     VBox mainContainer = new VBox(10);
     VBox messageBox = new VBox();
@@ -54,7 +69,7 @@ public class ExceptionDialog extends BaseDialog {
     });
 
     if (!root.getChildren().contains(dialog)) {
-      root.getChildren().forEach(node -> node.setEffect(gaussianBlur));
+      blurBackground(root, true, 2);
       root.getChildren().addAll(overlay, dialog);
 
       ParallelTransition transition = new ParallelTransition(
@@ -68,19 +83,24 @@ public class ExceptionDialog extends BaseDialog {
 
   @Override
   public void close() {
-    if (root != null && root.getChildren().contains(overlay)) {
-      ParallelTransition closeAnimation = new ParallelTransition(
-          createFadeTransition(dialog, 1, 0),
-          createScaleTransition(dialog, 1.0, 0.1)
-      );
-
-      closeAnimation.setOnFinished(_ -> {
-        root.getChildren().removeAll(overlay, dialog);
-        root.getChildren().forEach(node -> node.setEffect(null));
-      });
-
+    if (root != null && root.getChildren().contains(overlay)
+    && root.getChildren().contains(dialog)) {
       closeAnimation.play();
     }
+  }
+
+  private ParallelTransition createCloseAnimation() {
+    ParallelTransition animation = new ParallelTransition(
+        createFadeTransition(dialog, 1, 0),
+        createScaleTransition(dialog, 1.0, 0.1)
+    );
+
+    animation.setOnFinished(_ -> {
+      root.getChildren().removeAll(overlay, dialog);
+      blurBackground(root, false, 0);
+    });
+
+    return animation;
   }
 
   private HBox createCloseButtonAndContainer() {

@@ -9,6 +9,7 @@ import ntnu.idatt2003.group15.controller.MainController;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.ExceptionDialog;
+import ntnu.idatt2003.group15.view.OnBoardingDialog;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -31,7 +32,9 @@ public class App extends Application {
         root =  new StackPane();
         Scene scene = new Scene(root);
         MainController mainController = new MainController(root, errorHandler, csvUtil, taskUtil);
+        OnBoardingDialog onBoardingDialog = new OnBoardingDialog(csvUtil, taskUtil);
         mainController.showMainMenu();
+        onBoardingDialog.show(root);
 
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/HeaderStyle.css")).toExternalForm());
@@ -40,6 +43,7 @@ public class App extends Application {
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/TabView.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/OnBoardStyle.css")).toExternalForm());
         root.getStyleClass().add("scene-root");
         stage.setFullScreen(true);
         stage.setScene(scene);
@@ -70,11 +74,14 @@ public class App extends Application {
         }
         csvUtil = new CsvUtil();
         errorHandler = this::exceptionPopUp;
-        exceptionDialog = new ExceptionDialog(Duration.millis(200), 2.0);
+        exceptionDialog = new ExceptionDialog(Duration.millis(200));
     }
 
+
+
     private void exceptionPopUp(Throwable e) {
-        exceptionDialog.show(root, e.getClass().getSimpleName(), e.getMessage());
+        exceptionDialog.setText(e.getClass().getSimpleName(), e.getMessage());
+        exceptionDialog.show(root);
     }
 
 }
