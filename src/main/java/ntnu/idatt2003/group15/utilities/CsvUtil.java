@@ -23,7 +23,11 @@ public class CsvUtil {
    */
   public List<String> readCsvFile(String filePath) throws FileReaderException {
     try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
-      return lines.map(line -> Arrays.asList(line.split(","))).flatMap(Collection::stream).toList();
+      return lines
+          .map(line -> Arrays.asList(line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")))
+          .flatMap(Collection::stream)
+          .map(s -> s.trim().replaceAll("^\"|\"$", ""))
+          .toList();
     } catch (Exception e) {
       throw new FileReaderException("Error reading file " + filePath, e);
     }

@@ -13,19 +13,15 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.util.Duration;
-import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.MainMenuController;
-import ntnu.idatt2003.group15.controller.PlayerController;
-import org.kordamp.ikonli.fontawesome.FontAwesome;
+import org.kordamp.ikonli.fontawesome6.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import ntnu.idatt2003.group15.utilities.*;
-import org.kordamp.ikonli.javafx.Icon;
 
 public class MainMenu {
 
@@ -102,7 +98,7 @@ public class MainMenu {
     quoteWrapper.getChildren().add(quoteLabel);
     tipContainer.getChildren().addAll(quoteWrapper, authorWrapper);
 
-    FontIcon icon = new FontIcon(FontAwesome.PLAY);
+    FontIcon icon = new FontIcon(FontAwesomeSolid.PLAY);
     icon.setIconColor(Paint.valueOf("White"));
     playButton.setGraphic(icon);
     VBox.setVgrow(playButton, Priority.ALWAYS);
@@ -311,7 +307,7 @@ public class MainMenu {
   }
 
   private VBox buildCard() {
-    FontIcon playIcon =  new FontIcon(FontAwesome.PLAY);
+    FontIcon playIcon =  new FontIcon(FontAwesomeSolid.PLAY);
     playIcon.getStyleClass().add("play-icon");
     Label sectionLabel = new Label("New Game");
     sectionLabel.getStyleClass().add("card-section-label");

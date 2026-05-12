@@ -1,0 +1,177 @@
+/* ============================================================
+   onboarding.css  –  Wizard / Onboarding screen stylesheet
+   Colour tokens inherited from the root theme defined in the
+   main application stylesheet.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   Scene background – deep radial gradient
+   ---------------------------------------------------------- */
+.onboarding-root {
+    -fx-background-color: radial-gradient(
+            center 50% 40%, radius 65%,
+            #0d1535 0%,
+            #080d1a 100%
+    );
+}
+
+/* ----------------------------------------------------------
+   Outer container card
+   ---------------------------------------------------------- */
+.onboarding-card {
+    -fx-background-color: #0f1729;
+    -fx-border-color: #1e2d4d;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 48 40 32 40;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 10, 0.65), 40, 0.12, 0, 10);
+}
+
+/* ----------------------------------------------------------
+   App icon  (ImageView or StackPane placed at the top)
+   ---------------------------------------------------------- */
+.onboarding-icon {
+    -fx-background-color: linear-gradient(to bottom right, #3fcf8e, #2dd4bf);
+    -fx-background-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(45, 212, 191, 0.45), 22, 0.30, 0, 5);
+    -fx-min-width:  80;
+    -fx-min-height: 80;
+    -fx-max-width:  80;
+    -fx-max-height: 80;
+}
+
+/* Glyph / SVG icon drawn inside the icon box */
+.onboarding-icon-glyph {
+    -fx-text-fill: white;
+    -fx-font-size: 2em;
+}
+
+/* ----------------------------------------------------------
+   Title label
+   ---------------------------------------------------------- */
+.onboarding-title {
+    -fx-text-fill: #e8eaf6;
+    -fx-font-size: 1.714em;          /* ~24 px at 14 px base */
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(92, 110, 245, 0.35), 12, 0.20, 0, 2);
+}
+
+/* ----------------------------------------------------------
+   Description / body label
+   ---------------------------------------------------------- */
+.onboarding-description {
+    -fx-text-fill: #8892b0;
+    -fx-font-size: 0.929em;          /* ~13 px */
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+    -fx-line-spacing: 3;
+}
+
+/* Highlight colour tokens used inline in the description */
+.onboarding-description .highlight-green {
+    -fx-fill: #3fcf8e;
+}
+
+.onboarding-description .highlight-red {
+    -fx-fill: #f0637a;
+}
+
+/* ----------------------------------------------------------
+   Step / progress dots
+   ---------------------------------------------------------- */
+.onboarding-progress-bar {
+    -fx-pref-height: 4;
+    -fx-pref-width: 140;
+    -fx-background-radius: 3;
+    -fx-border-radius: 3;
+}
+
+.onboarding-progress-bar .track {
+    -fx-background-color: #1e2d4d;
+    -fx-background-radius: 3;
+}
+
+.onboarding-progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #5c6ef5, #7c6ef5);
+    -fx-background-radius: 3;
+    -fx-background-insets: 0;
+}
+
+/* ----------------------------------------------------------
+   Navigation hyperlinks  ("< Back" and "Next >")
+   ---------------------------------------------------------- */
+.onboarding-nav-link {
+    -fx-text-fill: #8892b0;
+    -fx-font-size: 0.929em;
+    -fx-cursor: hand;
+    -fx-underline: false;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.onboarding-nav-link:hover {
+    -fx-text-fill: #e8eaf6;
+}
+
+.onboarding-nav-link:pressed {
+    -fx-text-fill: #5c6ef5;
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
+
+/* "Next" link gets accent colour to draw the eye */
+.onboarding-nav-link-next {
+    -fx-text-fill: #5c6ef5;
+    -fx-font-weight: bold;
+    -fx-font-size: 0.929em;
+    -fx-cursor: hand;
+    -fx-underline: false;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.onboarding-nav-link-next:hover {
+    -fx-text-fill: #7c6ef5;
+    -fx-effect: dropshadow(gaussian, rgba(92, 110, 245, 0.35), 8, 0.2, 0, 0);
+}
+
+.onboarding-nav-link-next:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-text-fill: #4b5de4;
+}
+
+/* Disabled "Back" on the first step */
+.onboarding-nav-link:disabled {
+    -fx-text-fill: #2a3d66;
+    -fx-cursor: default;
+}
+
+/* ----------------------------------------------------------
+   Separator rule (optional thin line above the nav row)
+   ---------------------------------------------------------- */
+.onboarding-separator .line {
+    -fx-border-color: #1e2d4d;
+    -fx-border-width: 1 0 0 0;
+}
+
+.onboarding-tip {
+    -fx-background-color: rgba(45, 212, 191, 0.07);
+    -fx-border-color: rgba(45, 212, 191, 0.28);
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 12 16 12 16;
+}
+
+.onboarding-tip-label {
+    -fx-text-fill: #2dd4bf;
+    -fx-font-size: 0.857em;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}

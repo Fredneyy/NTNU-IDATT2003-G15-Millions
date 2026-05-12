@@ -2,6 +2,8 @@ package ntnu.idatt2003.group15.view;
 
 import javafx.animation.ParallelTransition;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -16,28 +18,39 @@ public class ExceptionDialog extends BaseDialog {
   private final StackPane dialogPane;
   private final StackPane overlay;
   private final GaussianBlur gaussianBlur;
+  private final VBox content = new VBox();
+  private final Button closeButton = new Button("X");
 
   public ExceptionDialog(Duration animationDuration, double blurAmount) {
 
     super(animationDuration);
 
-    dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3);
-    dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3);
+    dialog.getChildren().setAll(content);
+
+    dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
+    dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);
 
     this.dialogPane = new StackPane();
     this.overlay = createOverlay();
     HBox closeButtonContainer = createCloseButtonAndContainer();
     this.gaussianBlur = new GaussianBlur(blurAmount);
 
-    this.dialog.getChildren().addAll(closeButtonContainer, dialogPane);
+    closeButton.getStyleClass().add("close-button");
+    closeButton.setOnAction(_ -> close());
+
+    content.getChildren().addAll(closeButtonContainer, dialogPane);
 
     titleLabel.getStyleClass().add("dialog-title-label");
     messageLabel.getStyleClass().add("dialog-message-label");
   }
 
+  public void setText(String title, String message) {
+    titleLabel.setText(title);
+    messageLabel.setText(message);
+  }
+
   @Override
-  public void show(StackPane root, String title, String message) {
-    prepareDialog(root, title, message);
+  public void show(StackPane root) {
     dialogPane.setAlignment(Pos.CENTER);
     VBox mainContainer = new VBox(10);
     VBox messageBox = new VBox();

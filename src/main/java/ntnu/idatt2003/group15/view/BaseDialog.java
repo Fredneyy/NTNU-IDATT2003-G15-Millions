@@ -13,37 +13,21 @@ import java.util.Objects;
 
 public abstract class BaseDialog {
 
-  protected final VBox dialog;
+  protected final StackPane dialog;
   protected StackPane root;
   protected final Duration animationDuration;
-  protected final Button closeButton;
-
-  protected final Label titleLabel;
-  protected final Label messageLabel;
+  protected final Label titleLabel = new Label();
+  protected final Label messageLabel = new Label();
 
   protected BaseDialog(Duration animationDuration) {
     this.animationDuration = animationDuration;
 
-    dialog = new VBox();
+    dialog = new StackPane();
     dialog.getStyleClass().add("pop-up-container");
     dialog.setPickOnBounds(false);
 
-    closeButton = new Button("X");
-    closeButton.setOnAction(_ -> close());
-    closeButton.getStyleClass().add("close-button");
-    closeButton.setPickOnBounds(false);
-
-    titleLabel = new Label();
-    messageLabel = new Label();
-    messageLabel.setWrapText(true);
-  }
-
-  protected void prepareDialog(StackPane root, String title, String message)
-      throws NullPointerException {
-    Objects.requireNonNull(root, "root must not be null");
-    this.root = root;
-    titleLabel.setText(title);
-    messageLabel.setText(message);
+    titleLabel.getStyleClass().add("dialog-title-label");
+    messageLabel.getStyleClass().add("dialog-message-label");
   }
 
   protected FadeTransition createFadeTransition(Node node, double from, double to) {
@@ -62,7 +46,7 @@ public abstract class BaseDialog {
     return scaleTransition;
   }
 
-  public abstract void show(StackPane root, String title, String message);
+  public abstract void show(StackPane root);
 
   public abstract void close();
 }

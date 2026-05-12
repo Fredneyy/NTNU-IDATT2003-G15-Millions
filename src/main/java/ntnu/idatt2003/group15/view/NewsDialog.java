@@ -3,6 +3,8 @@ package ntnu.idatt2003.group15.view;
 import javafx.animation.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
@@ -13,6 +15,10 @@ public class NewsDialog extends BaseDialog {
   private final ProgressBar progressBar;
   private final Duration displayDuration;
   private Timeline progressTimeline;
+  private final Label messageLabel = new Label();
+  private final Label titleLabel = new Label();
+  private final Button closeButton = new Button("X");
+  private final VBox content = new VBox();
 
   public NewsDialog(Duration animationDuration, Duration displayDuration) {
     super(animationDuration);
@@ -21,6 +27,8 @@ public class NewsDialog extends BaseDialog {
     dialog.getStyleClass().setAll("news-popup-container");
     dialog.setMinHeight(Region.USE_PREF_SIZE);
     dialog.setMaxHeight(Region.USE_PREF_SIZE);
+
+    dialog.getChildren().setAll(content);
 
     progressBar = new ProgressBar(1.0);
     progressBar.setMaxWidth(Double.MAX_VALUE);
@@ -41,6 +49,7 @@ public class NewsDialog extends BaseDialog {
     messageLabel.setMinHeight(Region.USE_PREF_SIZE);
 
     closeButton.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+    closeButton.setOnAction(_ -> close());
     
     VBox textContainer = new VBox(5, titleLabel, messageLabel);
     
@@ -49,13 +58,34 @@ public class NewsDialog extends BaseDialog {
     HBox.setHgrow(textContainer, Priority.ALWAYS);
     contentRow.getStyleClass().add("news-content-area");
 
-    dialog.getChildren().addAll(progressBar, contentRow);
+    content.getChildren().addAll(progressBar, contentRow);
+  }
+
+  public void setText(String title, String message) {
+    titleLabel.setText(title);
+    messageLabel.setText(message);
   }
 
   @Override
-  public void show(StackPane root, String title, String message) {
-    prepareDialog(root, title, message);
+  public void close() {
+    if (root != null && root.getChildren().contains(dialog)) {
+      if (progressTimeline != null) progressTimeline.stop();
 
+      TranslateTransition tt = new TranslateTransition(animationDuration, dialog);
+      tt.setToX(400);
+      tt.setInterpolator(Interpolator.EASE_IN);
+
+      FadeTransition ft = createFadeTransition(dialog, dialog.getOpacity(), 0);
+
+      ParallelTransition exit = new ParallelTransition(tt, ft);
+
+      exit.setOnFinished(_ -> root.getChildren().remove(dialog));
+      exit.play();
+    }
+  }
+
+  @Override
+  public void show(StackPane root) {
     if (!root.getChildren().contains(dialog)) {
       root.getChildren().add(dialog);
       StackPane.setAlignment(dialog, Pos.TOP_RIGHT);
@@ -98,23 +128,4 @@ public class NewsDialog extends BaseDialog {
 
     progressTimeline.play();
   }
-
-  @Override
-  public void close() {
-    if (root != null && root.getChildren().contains(dialog)) {
-      if (progressTimeline != null) progressTimeline.stop();
-
-      TranslateTransition tt = new TranslateTransition(animationDuration, dialog);
-      tt.setToX(400);
-      tt.setInterpolator(Interpolator.EASE_IN);
-
-      FadeTransition ft = createFadeTransition(dialog, dialog.getOpacity(), 0);
-
-      ParallelTransition exit = new ParallelTransition(tt, ft);
-
-      exit.setOnFinished(_ -> root.getChildren().remove(dialog));
-      exit.play();
-    }
-  }
-
 }
