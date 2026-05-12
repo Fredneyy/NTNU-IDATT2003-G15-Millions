@@ -14,7 +14,7 @@ import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainMenuController;
-import org.kordamp.ikonli.fontawesome6.FontAwesomeSolid;
+import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.math.BigDecimal;
@@ -98,7 +98,7 @@ public class MainMenu {
     quoteWrapper.getChildren().add(quoteLabel);
     tipContainer.getChildren().addAll(quoteWrapper, authorWrapper);
 
-    FontIcon icon = new FontIcon(FontAwesomeSolid.PLAY);
+    FontIcon icon = new FontIcon(FontAwesome.PLAY);
     icon.setIconColor(Paint.valueOf("White"));
     playButton.setGraphic(icon);
     VBox.setVgrow(playButton, Priority.ALWAYS);
@@ -307,7 +307,7 @@ public class MainMenu {
   }
 
   private VBox buildCard() {
-    FontIcon playIcon =  new FontIcon(FontAwesomeSolid.PLAY);
+    FontIcon playIcon =  new FontIcon(FontAwesome.PLAY);
     playIcon.getStyleClass().add("play-icon");
     Label sectionLabel = new Label("New Game");
     sectionLabel.getStyleClass().add("card-section-label");
