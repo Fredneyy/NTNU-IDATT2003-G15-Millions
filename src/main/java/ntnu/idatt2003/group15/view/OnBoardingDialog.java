@@ -47,6 +47,7 @@ public class OnBoardingDialog extends BaseDialog {
   private double progressStep;
   private int currentStep = 0;
   private final List<FontIcon> icons;
+  private final Hyperlink nextLabel;
 
 
   public OnBoardingDialog(CsvUtil csvUtil, TaskUtil taskUtil) throws NullPointerException {
@@ -85,7 +86,7 @@ public class OnBoardingDialog extends BaseDialog {
     backLabel.getStyleClass().add("onboarding-nav-link");
     backLabel.setOnAction(e -> previousSlide());
 
-    Hyperlink nextLabel = new Hyperlink("Next >");
+    nextLabel = new Hyperlink("Next >");
     nextLabel.getStyleClass().add("onboarding-nav-link-next");
     nextLabel.setOnAction(e -> nextSlide());
 
@@ -111,13 +112,17 @@ public class OnBoardingDialog extends BaseDialog {
 
   @Override
   public void close() {
-    root.getChildren().remove(dialog);
+    if (root != null && root.getChildren().contains(dialog)) {
+      root.getChildren().remove(dialog);
+      blurBackground(root, false, 0);
+    }
   }
 
   @Override
   public void show(StackPane root) {
     this.root = root;
     if (!root.getChildren().contains(dialog)) {
+      blurBackground(root, true, 2);
       root.getChildren().add(dialog);
     }
   }
@@ -125,6 +130,18 @@ public class OnBoardingDialog extends BaseDialog {
   private void updateIconBox(int step) {
     iconBox.getChildren().setAll(icons.get(step));
     iconBox.getStyleClass().setAll(ICON_STYLES[step]);
+  }
+
+  private void updateNextButton(boolean lastSlide) {
+    if (lastSlide) {
+      nextLabel.getStyleClass().setAll("onboarding-nav-finish");
+      nextLabel.setText("Let's Trade! 🚀");
+      nextLabel.setOnAction(e -> close());
+    } else {
+      nextLabel.getStyleClass().setAll("onboarding-nav-link-next");
+      nextLabel.setText("Next >");
+      nextLabel.setOnAction(e -> nextSlide());
+    }
   }
 
   private List<FontIcon> setUpIcons() {
@@ -147,6 +164,8 @@ public class OnBoardingDialog extends BaseDialog {
           titleLabel.setText(onboardingText.get(0));
           messageLabel.setText(onboardingText.get(1));
           progressStep = 1.0 / ((onboardingText.size() * 0.5) - 1);
+          // Fix 2: check on load in case there is only one slide
+          updateNextButton(onboardingText.size() / 2 == 1);
         },
         error -> close());
   }
@@ -173,7 +192,7 @@ public class OnBoardingDialog extends BaseDialog {
     double slideDistance = 40;
 
     FadeTransition fadeOut = createFadeTransition(textContainer, 1.0, 0.0);
-    TranslateTransition slideOut = createTranslateTransition(textContainer, 0, -1 * outDirection * slideDistance,  0, 0);
+    TranslateTransition slideOut = createTranslateTransition(textContainer, 0, -1 * outDirection * slideDistance, 0, 0);
 
     ParallelTransition out = new ParallelTransition(fadeOut, slideOut);
     out.setOnFinished(_ -> {
@@ -182,7 +201,6 @@ public class OnBoardingDialog extends BaseDialog {
       FadeTransition fadeIn = createFadeTransition(textContainer, 0.0, 1.0);
       TranslateTransition slideIn = createTranslateTransition(textContainer,
           outDirection * slideDistance, 0, 0, 0);
-
       new ParallelTransition(fadeIn, slideIn).play();
     });
 
@@ -202,6 +220,7 @@ public class OnBoardingDialog extends BaseDialog {
         messageLabel.setText(onboardingTextIterator.next());
         currentStep = Math.min(currentStep + 1, icons.size() - 1);
         updateIconBox(currentStep);
+        updateNextButton(currentStep == icons.size() - 1);
       });
     }
   }
@@ -219,6 +238,7 @@ public class OnBoardingDialog extends BaseDialog {
         titleLabel.setText(onboardingTextIterator.previous());
         currentStep = Math.max(currentStep - 1, 0);
         updateIconBox(currentStep);
+        updateNextButton(currentStep == icons.size() - 1);
       });
     }
   }

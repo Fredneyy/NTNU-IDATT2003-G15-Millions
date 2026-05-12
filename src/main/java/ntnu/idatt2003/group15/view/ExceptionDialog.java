@@ -20,11 +20,10 @@ public class ExceptionDialog extends BaseDialog {
   private StackPane root;
   private final StackPane dialogPane;
   private final StackPane overlay;
-  private final GaussianBlur gaussianBlur;
   private final Button closeButton = new Button("X");
   private final ParallelTransition closeAnimation;
 
-  public ExceptionDialog(Duration animationDuration, double blurAmount) {
+  public ExceptionDialog(Duration animationDuration) {
 
     super(animationDuration);
 
@@ -34,7 +33,6 @@ public class ExceptionDialog extends BaseDialog {
     this.dialogPane = new StackPane();
     this.overlay = createOverlay();
     HBox closeButtonContainer = createCloseButtonAndContainer();
-    this.gaussianBlur = new GaussianBlur(blurAmount);
 
     closeButton.getStyleClass().add("close-button");
     closeButton.setOnAction(_ -> close());
@@ -71,7 +69,7 @@ public class ExceptionDialog extends BaseDialog {
     });
 
     if (!root.getChildren().contains(dialog)) {
-      root.getChildren().forEach(node -> node.setEffect(gaussianBlur));
+      blurBackground(root, true, 2);
       root.getChildren().addAll(overlay, dialog);
 
       ParallelTransition transition = new ParallelTransition(
@@ -99,7 +97,7 @@ public class ExceptionDialog extends BaseDialog {
 
     animation.setOnFinished(_ -> {
       root.getChildren().removeAll(overlay, dialog);
-      root.getChildren().forEach(node -> node.setEffect(null));
+      blurBackground(root, false, 0);
     });
 
     return animation;

@@ -70,7 +70,7 @@ public class App extends Application {
         }
         csvUtil = new CsvUtil();
         errorHandler = this::exceptionPopUp;
-        exceptionDialog = new ExceptionDialog(Duration.millis(200), 2.0);
+        exceptionDialog = new ExceptionDialog(Duration.millis(200));
     }
 
 

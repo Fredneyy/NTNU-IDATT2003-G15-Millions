@@ -183,3 +183,31 @@
     -fx-text-alignment: center;
     -fx-alignment: center;
 }
+
+/* "Let's Trade!" finish button — shown on the last slide only */
+.onboarding-nav-finish {
+    -fx-background-color: linear-gradient(to bottom right, #3fcf8e, #2ecc71);
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-size: 1em;
+    -fx-background-radius: 50;
+    -fx-border-radius: 50;
+    -fx-padding: 10 28 10 28;
+    -fx-cursor: hand;
+    -fx-underline: false;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(63, 207, 142, 0.55), 16, 0.30, 0, 4);
+}
+
+.onboarding-nav-finish:hover {
+    -fx-background-color: linear-gradient(to bottom right, #4ade80, #3fcf8e);
+    -fx-effect: dropshadow(gaussian, rgba(63, 207, 142, 0.75), 22, 0.35, 0, 5);
+    -fx-scale-x: 1.04;
+    -fx-scale-y: 1.04;
+}
+
+.onboarding-nav-finish:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-effect: dropshadow(gaussian, rgba(63, 207, 142, 0.35), 8, 0.2, 0, 2);
+}

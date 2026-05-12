@@ -6,6 +6,7 @@ import javafx.animation.TranslateTransition;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -62,6 +63,14 @@ public abstract class BaseDialog {
     translateTransition.setFromY(fromY);
     translateTransition.setToY(toY);
     return translateTransition;
+  }
+
+  protected void blurBackground(StackPane root, boolean blur, int blurAmount) {
+    if (blur) {
+      root.getChildren().forEach(node -> node.setEffect(new GaussianBlur(blurAmount)));
+    } else {
+      root.getChildren().forEach(node -> node.setEffect(null));
+    }
   }
 
   public abstract void show(StackPane root);
