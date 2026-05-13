@@ -33,13 +33,14 @@ public class GameView {
     private final ObservableList<Share> portfolioShares = FXCollections.observableArrayList();
     private final PortfolioTableView portfolioTable = new PortfolioTableView(portfolioShares);
     private final StatsView statsView = new StatsView();
+    private final TradesView tradesView = new TradesView();
     private final TextField searchField = new TextField();
     private final HBox searchBar;
 
     private final VBox marketContent = new VBox(marketTable.getView());
     private final VBox portfolioContent = new VBox(portfolioTable.getView());
     private final VBox statsContent = new VBox(statsView.getView());
-    private final VBox tradesContent = new VBox(new Label("Trades"));
+    private final VBox tradesContent = new VBox(tradesView.getView());
     private final VBox newsContent = new VBox(new Label("News"));
 
     private final TabContainer tabContainer = new TabContainer(
@@ -73,6 +74,7 @@ public class GameView {
         seedDemoStocks();
         seedDemoPortfolio();
         seedDemoStats();
+        seedDemoTrades();
 
         VBox.setVgrow(tabContainer.getView(), Priority.ALWAYS);
 
@@ -269,6 +271,28 @@ public class GameView {
 
     public StatsView getStatsView() {
         return statsView;
+    }
+
+    public TradesView getTradesView() {
+        return tradesView;
+    }
+
+    /** Demo transactions to show off the Trades tab. Wire to TransactionArchive later. */
+    private void seedDemoTrades() {
+        java.time.Instant now = java.time.Instant.now();
+        java.time.Instant sevenMinAgo = now.minus(java.time.Duration.ofMinutes(7));
+        tradesView.setTrades(List.of(
+                new TradesView.TradeRecord(TradesView.TradeType.BUY,
+                        "NVDA", "NVIDIA Corporation",
+                        new BigDecimal("1"), new BigDecimal("492.77"), sevenMinAgo),
+                new TradesView.TradeRecord(TradesView.TradeType.BUY,
+                        "GOOGL", "Alphabet Inc.",
+                        new BigDecimal("1"), new BigDecimal("141.33"), sevenMinAgo),
+                new TradesView.TradeRecord(TradesView.TradeType.BUY,
+                        "AMZN", "Amazon.com Inc.",
+                        new BigDecimal("12"), new BigDecimal("153.92"), sevenMinAgo)
+        ));
+        tabContainer.setBadge("trades", "3");
     }
 
     /** Demo stats numbers — wire to a controller later. Mirrors the reference screenshot. */

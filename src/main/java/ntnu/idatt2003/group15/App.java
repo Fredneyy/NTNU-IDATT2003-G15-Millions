@@ -41,6 +41,7 @@ public class App extends Application {
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/MarketTableStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/StatsViewStyle.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/TradesViewStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
         root.getStyleClass().add("scene-root");
         stage.setFullScreen(true);
