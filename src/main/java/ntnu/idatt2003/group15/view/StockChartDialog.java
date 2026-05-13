@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class StockChartDialog extends BaseDialog {
 
@@ -68,8 +67,12 @@ public class StockChartDialog extends BaseDialog {
     dialog.layout();
 
     openAnimation  = buildOpenAnimation();
-    closeAnimation = buildCloseAnimation();
-
+    closeAnimation = createCloseAnimation(  _ -> {
+        root.getChildren().remove(dialog);
+        dialog.setOpacity(1);
+        dialog.setScaleX(1);
+        dialog.setScaleY(1);
+      });
   }
 
   public void show(StackPane root, Stock stockData) {
@@ -276,18 +279,5 @@ public class StockChartDialog extends BaseDialog {
     FadeTransition fade = createFadeTransition(dialog,  Duration.millis(300), 0, 1);
     ScaleTransition scale = createScaleTransition(dialog,  Duration.millis(300), 0.92, 1.0);
     return new ParallelTransition(fade, scale);
-  }
-
-  private ParallelTransition buildCloseAnimation() {
-    FadeTransition fade = createFadeTransition(dialog,  Duration.millis(300), 1, 0);
-    ScaleTransition scale = createScaleTransition(dialog,  Duration.millis(300), 1.0, 0.92);
-    ParallelTransition pt = new ParallelTransition(fade, scale);
-    pt.setOnFinished(_ -> {
-      root.getChildren().remove(dialog);
-      dialog.setOpacity(1);
-      dialog.setScaleX(1);
-      dialog.setScaleY(1);
-    });
-    return pt;
   }
 }

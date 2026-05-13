@@ -1,9 +1,12 @@
 package ntnu.idatt2003.group15;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainController;
 import ntnu.idatt2003.group15.model.Stock;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
@@ -35,14 +38,6 @@ public class App extends Application {
         Scene scene = new Scene(root);
         MainController mainController = new MainController(root, errorHandler, csvUtil, taskUtil);
         mainController.showMainMenu();
-        BuyStockDialog buyStockDialog = new BuyStockDialog();
-        StockChartDialog stockChartDialog = new StockChartDialog();
-        Stock stock =  new Stock("AAPL", "Apple", BigDecimal.valueOf(200));
-        for (int i = 0; i < 100; i++) {
-            stock.addNewSalesPrice(BigDecimal.valueOf(i + 1));
-        }
-        stockChartDialog.show(root, stock);
-        //buyStockDialog.show(root, new Stock("AAPL", "Apple inc", BigDecimal.valueOf(3991.3)));
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/SettingsStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/TabView.css")).toExternalForm());

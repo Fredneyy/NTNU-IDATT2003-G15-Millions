@@ -1,5 +1,6 @@
 package ntnu.idatt2003.group15.view;
 
+import javafx.animation.ParallelTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,6 +10,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -20,7 +22,6 @@ public class BuyStockDialog extends BaseDialog {
 
   private final Label stockSymbol = new Label();
   private final Label stockName = new Label();
-  private final Label stockPrice = new Label();
   private final HBox header = new HBox();
   private final Button closeButton = new Button();
   private final Label currentPrice = new Label();
@@ -31,25 +32,33 @@ public class BuyStockDialog extends BaseDialog {
   private final TextField quantity = new TextField();
   private final Button buyButton = new Button();
   private StackPane root;
+  private final ParallelTransition closeAnimation;
+  private final ParallelTransition openAnimation;
 
   public BuyStockDialog() {
     super();
 
-    dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 2.0);
+    dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 2.5);
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 5.0);
     dialog.getStyleClass().setAll("stock-dialog-card", "buy-stock-dialog");
 
     VBox body = new VBox(buildHeader(), buildBuyMenu());
     body.getStyleClass().add("buy-dialog-body");
     dialog.getChildren().add(body);
+
+    closeAnimation = createCloseAnimation(_ -> root.getChildren().remove(dialog));
+    openAnimation = createOpenAnimation();
   }
 
   public void show(StackPane root, Stock stock) {
     this.root = Objects.requireNonNull(root);
-    Stock stock1 = Objects.requireNonNull(stock);
-    populateDetails(stock);
+    populateDetails(Objects.requireNonNull(stock));
     if (!root.getChildren().contains(dialog)) {
+      dialog.setOpacity(0);
+      dialog.setScaleX(0.1);
+      dialog.setScaleY(0.1);
       root.getChildren().add(dialog);
+      openAnimation.play();
     }
   }
 
@@ -70,7 +79,9 @@ public class BuyStockDialog extends BaseDialog {
 
   @Override
   public void close() {
-
+    if (root != null) {
+      closeAnimation.play();
+    }
   }
 
   private VBox buildBuyMenu() {
@@ -145,8 +156,10 @@ public class BuyStockDialog extends BaseDialog {
 
     closeButton.getStyleClass().setAll("close-button", "buy-close-button");
     closeButton.setOnAction(_ -> close());
-    closeButton.setMaxHeight(Region.USE_PREF_SIZE);
-    closeButton.setGraphic(FontIcon.of(MaterialDesignC.CLOSE));
+    FontIcon closeIcon = FontIcon.of(MaterialDesignC.CLOSE);
+    closeIcon.setIconColor(Color.WHITE);
+    closeButton.setGraphic(closeIcon);
+    closeButton.setAlignment(Pos.CENTER);
 
     header.getChildren().setAll(headerVBox, closeButton);
     header.getStyleClass().add("buy-header");

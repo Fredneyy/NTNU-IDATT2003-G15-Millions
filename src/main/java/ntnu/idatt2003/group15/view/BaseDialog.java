@@ -1,8 +1,11 @@
 package ntnu.idatt2003.group15.view;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
@@ -13,6 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public abstract class BaseDialog {
 
@@ -39,6 +43,28 @@ public abstract class BaseDialog {
     HBox.setHgrow(titleLabel, Priority.ALWAYS);
     HBox.setHgrow(messageLabel, Priority.ALWAYS);
     HBox.setHgrow(dialog, Priority.ALWAYS);
+  }
+
+  protected ParallelTransition createCloseAnimation(EventHandler<ActionEvent> onFinished) {
+    ParallelTransition animation = new ParallelTransition(
+        createFadeTransition(dialog, Duration.millis(300), 1, 0),
+        createScaleTransition(dialog,  Duration.millis(300), 1.0, 0.1)
+    );
+    animation.setOnFinished(e -> {
+      if (onFinished != null) onFinished.handle(e);
+      dialog.setOpacity(1);
+      dialog.setScaleX(1);
+      dialog.setScaleY(1);
+    });
+    return animation;
+  }
+
+  protected ParallelTransition createOpenAnimation() {
+    ParallelTransition animation = new ParallelTransition(
+        createFadeTransition(dialog, Duration.millis(300), 0, 1),
+        createScaleTransition(dialog,  Duration.millis(300), 0.1, 1)
+    );
+    return animation;
   }
 
   protected FadeTransition createFadeTransition(Node node, Duration duration,  double from, double to) {

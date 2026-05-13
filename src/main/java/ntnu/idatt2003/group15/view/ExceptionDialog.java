@@ -37,8 +37,10 @@ public class ExceptionDialog extends BaseDialog {
     titleLabel.getStyleClass().add("dialog-title-label");
     messageLabel.getStyleClass().add("dialog-message-label");
 
-    closeAnimation = createCloseAnimation();
-
+    closeAnimation = createCloseAnimation(_ -> {
+      root.getChildren().removeAll(overlay, dialog);
+      blurBackground(root, false, 0);}
+    );
     dialog.getChildren().addAll(closeButtonContainer, dialogPane);
   }
 
@@ -84,20 +86,6 @@ public class ExceptionDialog extends BaseDialog {
     && root.getChildren().contains(dialog)) {
       closeAnimation.play();
     }
-  }
-
-  private ParallelTransition createCloseAnimation() {
-    ParallelTransition animation = new ParallelTransition(
-        createFadeTransition(dialog, Duration.millis(300), 1, 0),
-        createScaleTransition(dialog,  Duration.millis(300), 1.0, 0.1)
-    );
-
-    animation.setOnFinished(_ -> {
-      root.getChildren().removeAll(overlay, dialog);
-      blurBackground(root, false, 0);
-    });
-
-    return animation;
   }
 
   private HBox createCloseButtonAndContainer() {
