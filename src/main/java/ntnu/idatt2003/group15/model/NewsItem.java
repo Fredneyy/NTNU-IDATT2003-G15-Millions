@@ -8,13 +8,13 @@ import java.time.Instant;
 public record NewsItem(
     NewsDialog.Sentiment sentiment,
     String symbol,
-    BigDecimal changePercent,  // one-time price shock when the news fires (e.g. +20%)
-    BigDecimal drift,          // ongoing drift used by the GBM tick (e.g. 0.08 = +8%/period)
+    BigDecimal changePercent,
+    BigDecimal drift,
     String title,
     String message,
-    BigDecimal volatility,    // e.g. 1.6 → renders as 1.6x
-    int durationUpdates,      // e.g. 16 → "Volatility increased for 16 updates"
-    String type,              // e.g. "Earnings Miss"
+    BigDecimal volatility,
+    int durationUpdates,
+    String type,
     Instant when
 ) {
   /** Footer text shown in the popup. Derived from the structured fields. */

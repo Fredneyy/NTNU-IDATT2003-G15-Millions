@@ -18,18 +18,14 @@ import ntnu.idatt2003.group15.utilities.InputValidator;
  * Represents a tradable company stock and its recorded price history.
  */
 public class Stock {
-  /** Default per-tick drift used when no override is provided. */
-  private static final double DEFAULT_DRIFT = 0.0;
-  /** Default per-tick σ used when no override is provided. */
-  private static final double DEFAULT_VOLATILITY = 0.25;
 
   private final StringProperty symbol;
   private final StringProperty company;
   private final ObservableList<BigDecimal> prices;
   private final ObservableList<StockSectors> categories;
   private final ObjectBinding<BigDecimal> priceBinding;
-  private double drift = DEFAULT_DRIFT;
-  private double volatility = DEFAULT_VOLATILITY;
+  private double drift;
+  private double volatility;
 
   /**
    * Constructs a new  instance ready for market operations.
@@ -38,9 +34,12 @@ public class Stock {
    * @param company the name of the stock
    * @param salesPrice the price of the stock
    */
-  public Stock(String symbol, String company, BigDecimal salesPrice)
+  public Stock(String symbol, String company, BigDecimal salesPrice, double drift, double volatility, List<StockSectors> categories)
       throws NullPointerException, BlankArgumentException, IllegalArgumentException {
     Objects.requireNonNull(symbol, "Company cannot be null");
+    this.categories = FXCollections.observableArrayList(categories);
+    this.drift = drift;
+    this.volatility = volatility;
     if (symbol.isBlank()) {
       throw new BlankArgumentException("Symbol cannot be blank");
     }
@@ -53,7 +52,6 @@ public class Stock {
     }
     this.symbol = new SimpleStringProperty(symbol);
     this.company = new SimpleStringProperty(company);
-    this.categories = FXCollections.observableArrayList();
     this.prices = FXCollections.observableArrayList();
     this.prices.add(salesPrice);
     this.priceBinding = Bindings.createObjectBinding(() -> {

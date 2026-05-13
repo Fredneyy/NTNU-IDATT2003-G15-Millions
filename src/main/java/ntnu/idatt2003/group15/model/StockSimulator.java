@@ -141,11 +141,6 @@ public class StockSimulator {
     return true;
   }
 
-  /** Whether the given stock currently has an active news-driven volatility window. */
-  public boolean hasActiveNews(Stock stock) {
-    return stock != null && activeNews.containsKey(stock.getSymbol());
-  }
-
   private BigDecimal gbmStep(BigDecimal currentPrice, double drift, double volatility) {
     double z = random.nextGaussian();
     double exponent = (drift - 0.5 * volatility * volatility) * dt
