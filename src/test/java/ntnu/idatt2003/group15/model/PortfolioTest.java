@@ -80,6 +80,65 @@ class PortfolioTest {
       assertEquals(BigDecimal.valueOf(1000), totalValue);
     }
 
+    @Test
+    void investedPropertyIsZeroForEmptyPortfolio() {
+      assertEquals(0, BigDecimal.ZERO.compareTo(portfolio.getInvestedProperty().getValue()));
+    }
+
+    @Test
+    void investedPropertyReflectsCostBasis() {
+      portfolio.addShare(share); // 100 shares at price 10 = 1000
+      assertEquals(0,
+          BigDecimal.valueOf(1000).compareTo(portfolio.getInvestedProperty().getValue()));
+    }
+
+    @Test
+    void investedPropertyStaysAtCostBasisWhenPriceChanges() {
+      portfolio.addShare(share);
+      stock.addNewSalesPrice(BigDecimal.valueOf(20));
+      // cost basis locked at purchase price; should still be 1000
+      assertEquals(0,
+          BigDecimal.valueOf(1000).compareTo(portfolio.getInvestedProperty().getValue()));
+    }
+
+    @Test
+    void unrealizedPnlIsZeroWhenPriceUnchanged() {
+      portfolio.addShare(share);
+      assertEquals(0,
+          BigDecimal.ZERO.compareTo(portfolio.getUnrealizedPnlProperty().getValue()));
+    }
+
+    @Test
+    void unrealizedPnlReflectsPriceIncrease() {
+      portfolio.addShare(share);
+      stock.addNewSalesPrice(BigDecimal.valueOf(15)); // +5 per share, 100 shares -> +500
+      assertEquals(0,
+          BigDecimal.valueOf(500).compareTo(portfolio.getUnrealizedPnlProperty().getValue()));
+    }
+
+    @Test
+    void unrealizedPnlReflectsPriceDecrease() {
+      portfolio.addShare(share);
+      stock.addNewSalesPrice(BigDecimal.valueOf(8)); // -2 per share, 100 shares -> -200
+      assertEquals(0,
+          BigDecimal.valueOf(-200).compareTo(portfolio.getUnrealizedPnlProperty().getValue()));
+    }
+
+    @Test
+    void unrealizedPnlPercentIsZeroForEmptyPortfolio() {
+      assertEquals(0,
+          BigDecimal.ZERO.compareTo(portfolio.getUnrealizedPnlPercentProperty().getValue()));
+    }
+
+    @Test
+    void unrealizedPnlPercentReflectsGains() {
+      portfolio.addShare(share);
+      stock.addNewSalesPrice(BigDecimal.valueOf(15)); // +50% on cost basis
+      assertEquals(0,
+          new BigDecimal("50.00")
+              .compareTo(portfolio.getUnrealizedPnlPercentProperty().getValue()));
+    }
+
   }
 
   @Nested

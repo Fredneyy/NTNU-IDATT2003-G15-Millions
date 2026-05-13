@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -19,6 +22,7 @@ public class Stock {
   private final StringProperty company;
   private final ObservableList<BigDecimal> prices;
   private final ObservableList<String> categories;
+  private final ObjectBinding<BigDecimal> priceBinding;
 
   /**
    * Constructs a new  instance ready for market operations.
@@ -45,6 +49,13 @@ public class Stock {
     this.categories = FXCollections.observableArrayList();
     this.prices = FXCollections.observableArrayList();
     this.prices.add(salesPrice);
+    this.priceBinding = Bindings.createObjectBinding(() -> {
+      if (prices.isEmpty()) {
+        return BigDecimal.ZERO;
+      } else {
+        return prices.getLast();
+      }
+    }, prices);
   }
 
   /**
@@ -117,11 +128,12 @@ public class Stock {
   }
 
   /**
-   * Returns the historical prices of the stock.
+   * Returns the historical prices of the stock as a live observable list.
+   * Listeners attached to the returned list will fire on every new price.
    *
-   * @return a {@code List} containing every price of the stock
+   * @return the observable list of prices for the stock
    */
-  public List<BigDecimal> getHistoricalPrices() {
+  public ObservableList<BigDecimal> getHistoricalPrices() {
     return prices;
   }
 
@@ -186,6 +198,14 @@ public class Stock {
    */
   public ObservableList<String> getCategories() {
     return categories;
+  }
+
+  /**
+   * Returns the latest price object binding
+   * @return object binding for the latest price
+   */
+  public ObjectBinding<BigDecimal> getPriceBinding() {
+    return priceBinding;
   }
 
   /**

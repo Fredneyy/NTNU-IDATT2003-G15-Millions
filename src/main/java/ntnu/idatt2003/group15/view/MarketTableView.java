@@ -3,6 +3,7 @@ package ntnu.idatt2003.group15.view;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -41,12 +42,12 @@ public class MarketTableView {
     /** Pluggable lookups: a controller can supply real portfolio/event sources later. */
     private Function<Stock, Integer> ownedLookup = _ -> 0;
     private Function<Stock, EventStatus> eventLookup = _ -> EventStatus.NONE;
+    private final Consumer<Stock> onBuyPressed;
+    private final Consumer<Stock> onChartPressed;
 
-    public MarketTableView() {
-        this(FXCollections.observableArrayList());
-    }
-
-    public MarketTableView(ObservableList<Stock> stocks) {
+    public MarketTableView(ObservableList<Stock> stocks, Consumer<Stock> onBuyPressed,  Consumer<Stock> onChartPressed) {
+        this.onBuyPressed = onBuyPressed;
+        this.onChartPressed = onChartPressed;
         this.stocks = stocks;
         this.filteredStocks = new FilteredList<>(stocks, _ -> true);
 
@@ -87,8 +88,7 @@ public class MarketTableView {
         styleCellsAs(companyCol, "col-company");
 
         TableColumn<Stock, BigDecimal> priceCol = new TableColumn<>("Price");
-        priceCol.setCellValueFactory(c ->
-                new ReadOnlyObjectWrapper<>(c.getValue().getSalesPrice()));
+        priceCol.setCellValueFactory(c -> c.getValue().getPriceBinding());
         priceCol.setCellFactory(_ -> moneyCell());
         styleCellsAs(priceCol, "col-price");
 
@@ -325,7 +325,7 @@ public class MarketTableView {
     private Integer lookupOwned(Stock s) { return ownedLookup.apply(s); }
     private EventStatus lookupEvent(Stock s) { return eventLookup.apply(s); }
 
-    private static TableCell<Stock, Stock> buyButtonCell() {
+    private TableCell<Stock, Stock> buyButtonCell() {
         return new TableCell<>() {
             private final Button graphButton = new Button();
             private final Button buyButton = new Button("Buy");
@@ -333,9 +333,21 @@ public class MarketTableView {
             {
                 graphButton.setGraphic(new FontIcon(FontAwesome.AREA_CHART));
                 graphButton.getStyleClass().add("market-graph-button");
+                graphButton.setOnAction(_ -> {
+                    Stock stock = getItem();
+                    if (stock != null && onChartPressed != null) {
+                        onChartPressed.accept(stock);
+                    }
+                });
 
                 buyButton.setGraphic(new FontIcon(FontAwesome.SHOPPING_CART));
                 buyButton.getStyleClass().add("market-buy-button");
+                buyButton.setOnAction(_ -> {
+                    Stock stock = getItem();
+                    if (stock != null && onBuyPressed != null) {
+                        onBuyPressed.accept(stock);
+                    }
+                });
 
                 wrapper.getStyleClass().add("market-action-cell");
                 wrapper.setSpacing(8);
