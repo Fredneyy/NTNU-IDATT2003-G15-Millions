@@ -10,6 +10,7 @@ import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.BuyStockDialog;
 import ntnu.idatt2003.group15.view.ExceptionDialog;
+import ntnu.idatt2003.group15.view.StockChartDialog;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -35,7 +36,13 @@ public class App extends Application {
         MainController mainController = new MainController(root, errorHandler, csvUtil, taskUtil);
         mainController.showMainMenu();
         BuyStockDialog buyStockDialog = new BuyStockDialog();
-        buyStockDialog.show(root, new Stock("AAPL", "Apple inc", BigDecimal.valueOf(3991.3)));
+        StockChartDialog stockChartDialog = new StockChartDialog();
+        Stock stock =  new Stock("AAPL", "Apple", BigDecimal.valueOf(200));
+        for (int i = 0; i < 100; i++) {
+            stock.addNewSalesPrice(BigDecimal.valueOf(i + 1));
+        }
+        stockChartDialog.show(root, stock);
+        //buyStockDialog.show(root, new Stock("AAPL", "Apple inc", BigDecimal.valueOf(3991.3)));
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/SettingsStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/TabView.css")).toExternalForm());

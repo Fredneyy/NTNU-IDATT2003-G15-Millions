@@ -63,8 +63,6 @@ public class OnBoardingDialog extends BaseDialog {
     progressBar = setUpProgressBar();
     closeAnimation = createCloseAnimation();
 
-    dialog.getStylesheets().add(
-        Objects.requireNonNull(getClass().getResource("/style/OnBoardStyle.css")).toExternalForm());
     dialog.getStyleClass().setAll("onboarding-card");
     dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);

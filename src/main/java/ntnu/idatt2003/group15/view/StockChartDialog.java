@@ -51,8 +51,6 @@ public class StockChartDialog extends BaseDialog {
     double maxH = Screen.getPrimary().getVisualBounds().getHeight() * 0.55;
     dialog.setMaxWidth(maxW);
     dialog.setMaxHeight(maxH);
-    dialog.getStylesheets().add(
-        Objects.requireNonNull(getClass().getResource("/style/StockChartDialog.css")).toExternalForm());
     dialog.getStyleClass().setAll("stock-dialog-card");
 
     configureChart();

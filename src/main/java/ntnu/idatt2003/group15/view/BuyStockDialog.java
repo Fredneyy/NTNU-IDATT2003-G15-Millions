@@ -1,6 +1,5 @@
 package ntnu.idatt2003.group15.view;
 
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,7 +12,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 
 import java.util.Objects;
