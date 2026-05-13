@@ -168,45 +168,41 @@ public class MainMenu {
 
   private void loadQuotes() {
     taskUtil.runTaskAsync(() -> {
-      List<String> rawQuotes = csvUtil.readCsvFile("src/main/resources/storage/mainmenu.csv");
-      List<List<String>> quotes = new ArrayList<>();
-      for (int i = 2; i < rawQuotes.size(); i += 2) {
-        List<String> embeddedQuotes = new ArrayList<>();
-        embeddedQuotes.add(rawQuotes.get(i));
-        embeddedQuotes.add(rawQuotes.get(i + 1));
-        quotes.add(embeddedQuotes);
-      }
-      Collections.shuffle(quotes);
-      return quotes.stream().flatMap(List::stream).toList();
+      List<List<String>> rawQuotes = new ArrayList<>(
+          csvUtil.readCsvFile("src/main/resources/storage/mainmenu.csv")
+      );
+      rawQuotes.removeFirst();
+      Collections.shuffle(rawQuotes);
+      return rawQuotes;
     }, result -> {
       startQuoteAnimation(result, tipContainer, quoteLabel, authorLabel);
       tipContainer.setVisible(true);
     }, errorHandler);
   }
 
-  private void startQuoteAnimation(List<String> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel) {
+  private void startQuoteAnimation(List<List<String>> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel) {
     AtomicInteger index = new AtomicInteger(2);
 
     if (quotes.isEmpty()) {
       qouteLabel.setText("Millions the game");
       authorLabel.setText("Master the game");
     } else {
-      qouteLabel.setText(quotes.get(index.getAndIncrement()));
-      authorLabel.setText(quotes.get(index.getAndIncrement()));
+      qouteLabel.setText(quotes.get(index.getAndIncrement()).getFirst());
+      authorLabel.setText(quotes.get(index.getAndIncrement()).getLast());
 
       scheduleAnimation(quotes, tipContainer, qouteLabel, authorLabel, index);
     }
   }
 
-  private void scheduleAnimation(List<String> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel, AtomicInteger index) {
+  private void scheduleAnimation(List<List<String>> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel, AtomicInteger index) {
     if (index.get() == quotes.size()) {
       index.set(2);
     }
-    double durationDouble = quotes.get(index.get()).split(" ").length * 0.5;
+    double durationDouble = quotes.get(index.get()).getFirst().split(" ").length * 0.5;
     Duration duration = Duration.seconds(durationDouble);
 
-    qouteLabel.setText(quotes.get(index.getAndIncrement()));
-    authorLabel.setText(quotes.get(index.getAndIncrement()));
+    qouteLabel.setText(quotes.get(index.getAndIncrement()).getFirst());
+    authorLabel.setText(quotes.get(index.getAndIncrement()).getLast());
 
     ParallelTransition fadeInTransitions = new ParallelTransition();
     TranslateTransition translateIn = new TranslateTransition(Duration.millis(800), tipContainer);
@@ -270,8 +266,8 @@ public class MainMenu {
 
   private void animateCircle(Circle circle, Random random) {
     double duration = 4 + random.nextDouble() * 6;
-    double drift    = 80 + random.nextDouble() * 120;
-    double wobble   = random.nextGaussian() * 35;
+    double drift = 80 + random.nextDouble() * 120;
+    double wobble = random.nextGaussian() * 35;
 
     FadeTransition fade = new FadeTransition(Duration.seconds(duration), circle);
     fade.setFromValue(0.5 + random.nextDouble() * 0.3);
@@ -398,10 +394,5 @@ public class MainMenu {
     shakeAnimation.playFromStart();
     textField.setStyle("-fx-border-color: #f0637a;");
     textField.focusedProperty().addListener((_, _, _) -> textField.setStyle(""));
-  }
-
-  public boolean isPlaying() {
-    boolean isPlaying = false;
-    return isPlaying;
   }
 }

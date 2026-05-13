@@ -45,7 +45,6 @@ public class App extends Application {
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/BuyStockDialogStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/OnBoardStyle.css")).toExternalForm());
         root.getStyleClass().add("scene-root");
-        stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
     }
