@@ -59,49 +59,182 @@
     -fx-spacing: 12;
 }
 
-.news-popup-container {
+/* ==========================================================================
+   Rich news popup — sentiment-themed border + header strip.
+   ========================================================================== */
+
+.news-popup {
     -fx-background-color: #0f1729;
-    -fx-border-color: #1e2d4d;
-    -fx-border-width: 1;
-    -fx-background-radius: 12;
-    -fx-border-radius: 12;
+    -fx-background-radius: 14;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 14;
     -fx-effect: dropshadow(gaussian, rgba(0,0,10,0.6), 24, 0.1, 0, 6);
-    -fx-min-width: 320;
-    -fx-max-width: 320;
+    -fx-min-width: 420;
+    -fx-max-width: 460;
     -fx-padding: 0;
+    -fx-spacing: 0;
 }
 
-.news-content-area {
-    -fx-padding: 16;
+/* Default (neutral) border + header tint */
+.news-popup            { -fx-border-color: #1e2d4d; }
+.news-popup .news-popup-header        { -fx-background-color: rgba(92, 110, 245, 0.12); }
+.news-popup .news-popup-header-icon   { -fx-icon-color: -stock-accent-blue; }
+.news-popup .news-popup-header-title  { -fx-text-fill: -stock-accent-blue; }
+.news-popup .news-popup-progress .bar { -fx-background-color: -stock-accent-blue; }
+
+/* Bullish (green) */
+.news-popup.sentiment-bullish              { -fx-border-color: rgba(63, 207, 142, 0.55); }
+.news-popup.sentiment-bullish .news-popup-header        { -fx-background-color: rgba(63, 207, 142, 0.14); }
+.news-popup.sentiment-bullish .news-popup-header-icon   { -fx-icon-color: -stock-accent-green; }
+.news-popup.sentiment-bullish .news-popup-header-title  { -fx-text-fill: -stock-accent-green; }
+.news-popup.sentiment-bullish .news-popup-trend-box     { -fx-background-color: rgba(63, 207, 142, 0.18); }
+.news-popup.sentiment-bullish .news-popup-trend-icon    { -fx-icon-color: -stock-accent-green; }
+.news-popup.sentiment-bullish .news-popup-percent       { -fx-text-fill: -stock-accent-green; }
+.news-popup.sentiment-bullish .news-popup-sentiment-chip {
+    -fx-text-fill: -stock-accent-green;
+    -fx-background-color: rgba(63, 207, 142, 0.16);
+}
+.news-popup.sentiment-bullish .news-popup-progress .bar { -fx-background-color: -stock-accent-green; }
+
+/* Bearish (red) */
+.news-popup.sentiment-bearish              { -fx-border-color: rgba(240, 99, 122, 0.55); }
+.news-popup.sentiment-bearish .news-popup-header        { -fx-background-color: rgba(240, 99, 122, 0.14); }
+.news-popup.sentiment-bearish .news-popup-header-icon   { -fx-icon-color: #f0637a; }
+.news-popup.sentiment-bearish .news-popup-header-title  { -fx-text-fill: #f0637a; }
+.news-popup.sentiment-bearish .news-popup-trend-box     { -fx-background-color: rgba(240, 99, 122, 0.18); }
+.news-popup.sentiment-bearish .news-popup-trend-icon    { -fx-icon-color: #f0637a; }
+.news-popup.sentiment-bearish .news-popup-percent       { -fx-text-fill: #f0637a; }
+.news-popup.sentiment-bearish .news-popup-sentiment-chip {
+    -fx-text-fill: #f0637a;
+    -fx-background-color: rgba(240, 99, 122, 0.16);
+}
+.news-popup.sentiment-bearish .news-popup-progress .bar { -fx-background-color: #f0637a; }
+
+/* Header strip */
+.news-popup-header {
+    -fx-padding: 12 16;
+    -fx-background-radius: 14 14 0 0;
 }
 
-.news-progress-bar {
-    -fx-pref-height: 4;
-    -fx-background-radius: 12 12 0 0;
-    -fx-background-insets: 0;
-    -fx-padding: 0;
+.news-popup-header-icon {
+    -fx-icon-size: 16;
 }
 
-.news-progress-bar .track {
+.news-popup-header-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1;
+}
+
+.news-popup-close {
     -fx-background-color: transparent;
-    -fx-background-radius: 12 12 0 0;
-    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-padding: 4 6;
+    -fx-cursor: hand;
 }
 
-.news-progress-bar .bar {
-    -fx-background-color: linear-gradient(to right, #5c6ef5, #2dd4bf);
-    -fx-background-radius: 12 12 0 0;  /* match container top radius */
-    -fx-background-insets: 0;
+.news-popup-close:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-background-radius: 6;
 }
 
-.news-title-label {
-    -fx-text-fill: #e8eaf6;
-    -fx-font-size: 1.143em;
+.news-popup-close-icon {
+    -fx-icon-color: -stock-text-secondary;
+    -fx-icon-size: 14;
+}
+
+.news-popup-close:hover .news-popup-close-icon {
+    -fx-icon-color: -stock-text-primary;
+}
+
+/* Body */
+.news-popup-body {
+    -fx-padding: 16 18 14 18;
+}
+
+.news-popup-trend-box {
+    -fx-background-radius: 10;
+    -fx-min-width: 44;
+    -fx-min-height: 44;
+    -fx-max-width: 44;
+    -fx-max-height: 44;
+    -fx-alignment: center;
+}
+
+.news-popup-trend-icon {
+    -fx-icon-size: 20;
+}
+
+.news-popup-symbol-badge {
+    -fx-background-color: -stock-accent-blue;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10;
+    -fx-background-radius: 6;
+    -fx-letter-spacing: 0.5;
+}
+
+.news-popup-percent {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-font-variant-numeric: tabular-nums;
+}
+
+.news-popup-title {
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
-.news-message-label {
-    -fx-text-fill: #8892b0;
-    -fx-font-size: 0.929em;
-    -fx-wrap-text: true;
+.news-popup-message {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-font-size: 13px;
 }
+
+/* Footer */
+.news-popup-footer {
+    -fx-padding: 0 18 14 18;
+}
+
+.news-popup-divider {
+    -fx-min-height: 1;
+    -fx-max-height: 1;
+    -fx-background-color: rgba(31, 42, 68, 0.7);
+    -fx-padding: 0 -18;  /* extend divider edge-to-edge inside the dialog */
+}
+
+.news-popup-footer-text {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-font-size: 12px;
+}
+
+.news-popup-sentiment-chip {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 12;
+    -fx-background-radius: 6;
+    -fx-letter-spacing: 0.5;
+}
+
+/* Progress bar pinned to the bottom */
+.news-popup-progress {
+    -fx-pref-height: 4;
+    -fx-padding: 0;
+    -fx-background-radius: 0 0 14 14;
+}
+
+.news-popup-progress .track {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0 0 14 14;
+    -fx-background-insets: 0;
+}
+
+.news-popup-progress .bar {
+    -fx-background-radius: 0 0 14 14;
+    -fx-background-insets: 0;
+}
+
+/* Keep old class names working for any code still referencing them */
+.news-title-label    { -fx-text-fill: #e8eaf6; -fx-font-size: 1.143em; -fx-font-weight: bold; }
+.news-message-label  { -fx-text-fill: #8892b0; -fx-font-size: 0.929em; -fx-wrap-text: true; }
