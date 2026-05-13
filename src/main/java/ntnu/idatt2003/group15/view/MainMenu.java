@@ -13,19 +13,15 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.util.Duration;
-import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.MainMenuController;
-import ntnu.idatt2003.group15.controller.PlayerController;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import ntnu.idatt2003.group15.utilities.*;
-import org.kordamp.ikonli.javafx.Icon;
 
 public class MainMenu {
 
@@ -40,7 +36,6 @@ public class MainMenu {
   private final TranslateTransition shakeAnimationNameField;
   private final TranslateTransition shakeAnimationStartMoneyField;
   Random random = new Random();
-  private boolean isPlaying = false;
   Consumer<Throwable> errorHandler;
   CsvUtil csvUtil;
   TaskUtil taskUtil;
@@ -77,6 +72,8 @@ public class MainMenu {
   }
 
   private void buildUI() {
+    view.getStylesheets().add(
+        Objects.requireNonNull(getClass().getResource("/style/MainMenuStyle.css")).toExternalForm());
     view.setAlignment(Pos.CENTER);
 
     VBox center = new VBox(24);
@@ -354,7 +351,12 @@ public class MainMenu {
     fadeOut.setFromValue(1);
     fadeOut.setToValue(0);
     ParallelTransition parallelTransition = new ParallelTransition(st, fadeOut);
-    parallelTransition.setOnFinished(_ -> root.getChildren().remove(view));
+    parallelTransition.setOnFinished(_ -> {
+      root.getChildren().remove(view);
+      view.setScaleX(1);
+      view.setScaleY(1);
+      view.setOpacity(1);
+    });
     parallelTransition.play();
   }
 
@@ -385,9 +387,7 @@ public class MainMenu {
     shakeAnimation.setByX(8);
     shakeAnimation.setCycleCount(6);
     shakeAnimation.setAutoReverse(true);
-    shakeAnimation.setOnFinished(_ -> {
-      textField.setTranslateX(0);
-    });
+    shakeAnimation.setOnFinished(_ -> textField.setTranslateX(0));
     return shakeAnimation;
   }
 
@@ -396,5 +396,10 @@ public class MainMenu {
     shakeAnimation.playFromStart();
     textField.setStyle("-fx-border-color: #f0637a;");
     textField.focusedProperty().addListener((_, _, _) -> textField.setStyle(""));
+  }
+
+  public boolean isPlaying() {
+    boolean isPlaying = false;
+    return isPlaying;
   }
 }

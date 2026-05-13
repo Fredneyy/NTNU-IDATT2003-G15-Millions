@@ -36,7 +36,7 @@ public class MainController {
   private void startGame(ExchangeController exchangeController, PlayerController playerController) {
     this.playerController = playerController;
     this.exchangeController = exchangeController;
-    GameView gameView = new GameView(playerController.getName());
+    GameView gameView = new GameView(playerController.getName(), this::showMainMenu);
     root.getChildren().setAll(gameView.getView());
   }
 

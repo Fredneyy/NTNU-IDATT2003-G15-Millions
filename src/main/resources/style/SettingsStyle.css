@@ -5,19 +5,19 @@
 
 /* ---------- Color & size tokens (via .root so they cascade) ---------- */
 .root {
-    -fx-bg-deep:        #0b1220;   /* page background (behind the card) */
-    -fx-bg-card:        #111a2e;   /* main card background */
-    -fx-bg-inner:       #0f1828;   /* inner panels (stat cards) */
-    -fx-bg-tip:         #15233f;   /* pro tip footer background */
-    -fx-border-subtle:  #1f2a44;   /* hairline borders */
-    -fx-border-tip:     #2a3a64;   /* slightly brighter border for the tip box */
+    -set-bg-deep:        #0b1220;   /* page background (behind the card) */
+    -set-bg-card:        #111a2e;   /* main card background */
+    -set-bg-inner:       #0f1828;   /* inner panels (stat cards) */
+    -set-bg-tip:         #15233f;   /* pro tip footer background */
+    -set-border-subtle:  #1f2a44;   /* hairline borders */
+    -set-border-tip:     #2a3a64;   /* slightly brighter border for the tip box */
 
-    -fx-accent-blue:    #3b82f6;   /* primary blue (slider, badge, icons) */
-    -fx-accent-blue-2:  #60a5fa;   /* lighter blue for value text */
+    -set-accent-blue:    #3b82f6;   /* primary blue (slider, badge, icons) */
+    -set-accent-blue-2:  #60a5fa;   /* lighter blue for value text */
 
-    -fx-text-strong:    #ffffff;
-    -fx-text-muted:     #94a3b8;
-    -fx-text-faint:     #64748b;
+    -set-text-strong:    #ffffff;
+    -set-text-muted:     #94a3b8;
+    -set-text-faint:     #64748b;
 }
 
 /* ---------- Root container ---------- */
@@ -28,9 +28,9 @@
 
 /* ---------- Main card ---------- */
 .settings-card {
-    -fx-background-color: -fx-bg-card;
+    -fx-background-color: -set-bg-card;
     -fx-background-radius: 16;
-    -fx-border-color: -fx-border-subtle;
+    -fx-border-color: -set-border-subtle;
     -fx-border-radius: 16;
     -fx-border-width: 1;
     -fx-padding: 24;
@@ -60,7 +60,7 @@
 
 /* Ikonli FontIcon — settings header glyph */
 .settings-icon {
-    -fx-icon-color: -fx-accent-blue;
+    -fx-icon-color: -set-accent-blue;
     -fx-icon-size: 22;
 }
 
@@ -69,18 +69,18 @@
 }
 
 .settings-title {
-    -fx-text-fill: -fx-text-strong;
+    -fx-text-fill: -set-text-strong;
     -fx-font-size: 22px;
     -fx-font-weight: bold;
 }
 
 .settings-subtitle {
-    -fx-text-fill: -fx-text-muted;
+    -fx-text-fill: -set-text-muted;
     -fx-font-size: 13px;
 }
 
 .settings-difficulty-badge {
-    -fx-text-fill: -fx-accent-blue-2;
+    -fx-text-fill: -set-accent-blue-2;
     -fx-font-size: 22px;
     -fx-font-weight: bold;
 }
@@ -95,12 +95,12 @@
 }
 
 .settings-slider-label {
-    -fx-text-fill: -fx-text-strong;
+    -fx-text-fill: -set-text-strong;
     -fx-font-size: 14px;
 }
 
 .settings-slider-value {
-    -fx-text-fill: -fx-text-muted;
+    -fx-text-fill: -set-text-muted;
     -fx-font-size: 14px;
 }
 
@@ -112,7 +112,7 @@
 }
 
 .settings-slider .thumb {
-    -fx-background-color: -fx-accent-blue;
+    -fx-background-color: -set-accent-blue;
     -fx-background-radius: 50%;
     -fx-pref-width: 16;
     -fx-pref-height: 16;
@@ -120,7 +120,7 @@
 }
 
 .settings-slider .thumb:hover {
-    -fx-background-color: -fx-accent-blue-2;
+    -fx-background-color: -set-accent-blue-2;
 }
 
 .settings-slider-scale {
@@ -128,13 +128,13 @@
 }
 
 .settings-slider-scale-label {
-    -fx-text-fill: -fx-text-faint;
+    -fx-text-fill: -set-text-faint;
     -fx-font-size: 12px;
 }
 
 /* ---------- Divider ---------- */
 .settings-divider {
-    -fx-background-color: -fx-border-subtle;
+    -fx-background-color: -set-border-subtle;
     -fx-min-height: 1;
     -fx-max-height: 1;
     -fx-pref-height: 1;
@@ -146,9 +146,9 @@
 }
 
 .settings-stat-card {
-    -fx-background-color: -fx-bg-inner;
+    -fx-background-color: -set-bg-inner;
     -fx-background-radius: 12;
-    -fx-border-color: -fx-border-subtle;
+    -fx-border-color: -set-border-subtle;
     -fx-border-radius: 12;
     -fx-border-width: 1;
     -fx-padding: 16 18;
@@ -156,21 +156,21 @@
 }
 
 .settings-stat-label {
-    -fx-text-fill: -fx-text-muted;
+    -fx-text-fill: -set-text-muted;
     -fx-font-size: 13px;
 }
 
 .settings-stat-value {
-    -fx-text-fill: -fx-text-strong;
+    -fx-text-fill: -set-text-strong;
     -fx-font-size: 22px;
     -fx-font-weight: bold;
 }
 
 /* ---------- Pro tip footer ---------- */
 .settings-tip-box {
-    -fx-background-color: -fx-bg-tip;
+    -fx-background-color: -set-bg-tip;
     -fx-background-radius: 10;
-    -fx-border-color: -fx-border-tip;
+    -fx-border-color: -set-border-tip;
     -fx-border-radius: 10;
     -fx-border-width: 1;
     -fx-padding: 12 16;
@@ -180,7 +180,7 @@
 
 /* Ikonli FontIcon — lightning bolt next to the pro tip */
 .settings-tip-icon {
-    -fx-icon-color: -fx-accent-blue-2;
+    -fx-icon-color: -set-accent-blue-2;
     -fx-icon-size: 16;
 }
 

@@ -1,9 +1,6 @@
 package ntnu.idatt2003.group15.view;
 
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
@@ -26,18 +23,13 @@ public class SettingsView {
     private boolean open = false;
     private double naturalHeight = 0;
 
-    // --- Header ---
-    private final StackPane iconBox = new StackPane();
-    private final FontIcon icon = new FontIcon(FontAwesome.SLIDERS);
-    private final Label title = new Label("Difficulty Settings");
+  private final Label title = new Label("Difficulty Settings");
     private final Label subtitle = new Label("Adjust market volatility and event frequency");
     private final VBox titleBox = new VBox(title, subtitle);
-    private final HBox iconAndTitle = new HBox(iconBox, titleBox);
-    private final Label difficultyValueLabel = new Label("Normal");
+  private final Label difficultyValueLabel = new Label("Normal");
     private final Region headerSpacer = new Region();
-    private final HBox headerContent = new HBox(iconAndTitle, headerSpacer, difficultyValueLabel);
 
-    // --- Slider section ---
+  // --- Slider section ---
     private final Label sliderLabel = new Label("Market Difficulty");
     private final Label sliderValueLabel = new Label("1.0x");
     private final Region sliderHeaderSpacer = new Region();
@@ -65,9 +57,8 @@ public class SettingsView {
     private final VBox eventFrequencyCard = buildStatCard("Event Frequency", "Normal");
     private final VBox priceVolatilityCard = buildStatCard("Price Volatility", "100%");
     private final VBox maxEventChanceCard = buildStatCard("Max Event Chance", "12.0%");
-    private final HBox statsRow = new HBox(eventFrequencyCard, priceVolatilityCard, maxEventChanceCard);
 
-    // Keep references to the value labels so you can update them later
+  // Keep references to the value labels so you can update them later
     private final Label eventFrequencyValue;
     private final Label priceVolatilityValue;
     private final Label maxEventChanceValue;
@@ -92,7 +83,10 @@ public class SettingsView {
         HBox.setHgrow(tipLabel, javafx.scene.layout.Priority.ALWAYS);
         tipLabel.setMaxWidth(Double.MAX_VALUE);
 
-        iconBox.getChildren().add(icon);
+      FontIcon icon = new FontIcon(FontAwesome.SLIDERS);
+      // --- Header ---
+      StackPane iconBox = new StackPane();
+      iconBox.getChildren().add(icon);
 
         // Let spacers push content apart in HBoxes
         HBox.setHgrow(headerSpacer, javafx.scene.layout.Priority.ALWAYS);
@@ -109,6 +103,8 @@ public class SettingsView {
         maxEventChanceCard.setMaxWidth(Double.MAX_VALUE);
 
         // Style class hooks for your CSS
+        view.getStylesheets().add(
+            Objects.requireNonNull(getClass().getResource("/style/SettingsStyle.css")).toExternalForm());
         view.getStyleClass().add("settings-view");
         card.getStyleClass().add("settings-card");
 
@@ -117,9 +113,11 @@ public class SettingsView {
         title.getStyleClass().add("settings-title");
         subtitle.getStyleClass().add("settings-subtitle");
         titleBox.getStyleClass().add("settings-title-box");
-        iconAndTitle.getStyleClass().add("settings-icon-and-title");
+      HBox iconAndTitle = new HBox(iconBox, titleBox);
+      iconAndTitle.getStyleClass().add("settings-icon-and-title");
         difficultyValueLabel.getStyleClass().add("settings-difficulty-badge");
-        headerContent.getStyleClass().add("settings-header");
+      HBox headerContent = new HBox(iconAndTitle, headerSpacer, difficultyValueLabel);
+      headerContent.getStyleClass().add("settings-header");
 
         sliderLabel.getStyleClass().add("settings-slider-label");
         sliderValueLabel.getStyleClass().add("settings-slider-value");
@@ -133,7 +131,8 @@ public class SettingsView {
 
         divider.getStyleClass().add("settings-divider");
 
-        statsRow.getStyleClass().add("settings-stats-row");
+      HBox statsRow = new HBox(eventFrequencyCard, priceVolatilityCard, maxEventChanceCard);
+      statsRow.getStyleClass().add("settings-stats-row");
 
         tipIcon.getStyleClass().add("settings-tip-icon");
         tipLabel.getStyleClass().add("settings-tip-label");
@@ -141,10 +140,10 @@ public class SettingsView {
 
         // Compose the card
         card.getChildren().addAll(
-                headerContent,
+            headerContent,
                 sliderSection,
                 divider,
-                statsRow,
+            statsRow,
                 tipBox
         );
 
@@ -161,34 +160,33 @@ public class SettingsView {
     }
 
     public void toggle() {
+        KeyValue heightKv;
+        KeyValue opacityKv;
+
         if (open) {
-            naturalHeight = view.getHeight();
+            heightKv  = new KeyValue(view.prefHeightProperty(), 0, Interpolator.EASE_IN);
+            opacityKv = new KeyValue(view.opacityProperty(), 0, Interpolator.EASE_IN);
             Timeline tl = new Timeline(
-                    new KeyFrame(Duration.ZERO,
-                            new KeyValue(view.prefHeightProperty(), naturalHeight)),
-                    new KeyFrame(Duration.millis(280),
-                            new KeyValue(view.prefHeightProperty(), 0, Interpolator.EASE_IN))
+                new KeyFrame(Duration.ZERO),
+                new KeyFrame(Duration.millis(250), heightKv, opacityKv)
             );
             tl.setOnFinished(_ -> {
                 view.setManaged(false);
                 view.setVisible(false);
+                view.setOpacity(1);       // reset for next open
+                view.setPrefHeight(naturalHeight);  // reset for next open
             });
             tl.play();
         } else {
+            view.setOpacity(0);
+            view.setPrefHeight(0);
             view.setManaged(true);
             view.setVisible(true);
-            if (naturalHeight == 0) {
-                view.setPrefHeight(Region.USE_COMPUTED_SIZE);
-                view.applyCss();
-                view.layout();
-                naturalHeight = view.prefHeight(-1);
-            }
-            view.setPrefHeight(0);
+            heightKv  = new KeyValue(view.prefHeightProperty(), naturalHeight, Interpolator.EASE_OUT);
+            opacityKv = new KeyValue(view.opacityProperty(), 1, Interpolator.EASE_OUT);
             Timeline tl = new Timeline(
-                    new KeyFrame(Duration.ZERO,
-                            new KeyValue(view.prefHeightProperty(), 0)),
-                    new KeyFrame(Duration.millis(280),
-                            new KeyValue(view.prefHeightProperty(), naturalHeight, Interpolator.EASE_OUT))
+                new KeyFrame(Duration.ZERO),
+                new KeyFrame(Duration.millis(250), heightKv, opacityKv)
             );
             tl.setOnFinished(_ -> view.setPrefHeight(Region.USE_COMPUTED_SIZE));
             tl.play();

@@ -5,27 +5,27 @@
    ========================================================= */
 
 .root {
-    -fx-stats-bg:           #111a2e;
-    -fx-stats-border:       #1f2a44;
+    -stats-bg:           #111a2e;
+    -stats-border:       #1f2a44;
 
-    -fx-stats-text-strong:  #ffffff;
-    -fx-stats-text-muted:   #94a3b8;
-    -fx-stats-text-faint:   #64748b;
+    -stats-text-strong:  #ffffff;
+    -stats-text-muted:   #94a3b8;
+    -stats-text-faint:   #64748b;
 
-    -fx-stats-positive:     #22c55e;  /* green */
-    -fx-stats-negative:     #ef4444;  /* red */
+    -stats-positive:     #22c55e;  /* green */
+    -stats-negative:     #ef4444;  /* red */
 
-    -fx-tone-blue:          #3b82f6;
-    -fx-tone-green:         #22c55e;
-    -fx-tone-purple:        #a855f7;
-    -fx-tone-red:           #ef4444;
+    -tone-blue:          #3b82f6;
+    -tone-green:         #22c55e;
+    -tone-purple:        #a855f7;
+    -tone-red:           #ef4444;
 }
 
 /* ---------- Container ---------- */
 .stats-overview {
-    -fx-background-color: -fx-stats-bg;
+    -fx-background-color: -stats-bg;
     -fx-background-radius: 16;
-    -fx-border-color: -fx-stats-border;
+    -fx-border-color: -stats-border;
     -fx-border-radius: 16;
     -fx-border-width: 1;
     -fx-padding: 24;
@@ -70,19 +70,19 @@
     -fx-icon-size: 20;
 }
 
-.stat-icon--blue   { -fx-icon-color: -fx-tone-blue; }
-.stat-icon--green  { -fx-icon-color: -fx-tone-green; }
-.stat-icon--purple { -fx-icon-color: -fx-tone-purple; }
-.stat-icon--red    { -fx-icon-color: -fx-tone-red; }
+.stat-icon--blue   { -fx-icon-color: -tone-blue; }
+.stat-icon--green  { -fx-icon-color: -tone-green; }
+.stat-icon--purple { -fx-icon-color: -tone-purple; }
+.stat-icon--red    { -fx-icon-color: -tone-red; }
 .stat-icon--neutral,
 .stat-icon--positive,
 .stat-icon--negative {
-    -fx-icon-color: -fx-stats-text-muted;
+    -fx-icon-color: -stats-text-muted;
 }
 
 /* ---------- Card label (the small text next to the icon) ---------- */
 .stat-card-label {
-    -fx-text-fill: -fx-stats-text-muted;
+    -fx-text-fill: -stats-text-muted;
     -fx-font-size: 14px;
 }
 
@@ -92,23 +92,23 @@
     -fx-font-weight: bold;
 }
 
-.stat-card-value--neutral   { -fx-text-fill: -fx-stats-text-strong; }
+.stat-card-value--neutral   { -fx-text-fill: -stats-text-strong; }
 .stat-card-value--positive,
-.stat-card-value--green     { -fx-text-fill: -fx-stats-positive; }
+.stat-card-value--green     { -fx-text-fill: -stats-positive; }
 .stat-card-value--negative,
-.stat-card-value--red       { -fx-text-fill: -fx-stats-negative; }
-.stat-card-value--blue      { -fx-text-fill: -fx-tone-blue; }
-.stat-card-value--purple    { -fx-text-fill: -fx-tone-purple; }
+.stat-card-value--red       { -fx-text-fill: -stats-negative; }
+.stat-card-value--blue      { -fx-text-fill: -tone-blue; }
+.stat-card-value--purple    { -fx-text-fill: -tone-purple; }
 
 /* ---------- Subline ---------- */
 .stat-card-subline {
     -fx-font-size: 12px;
 }
 
-.stat-card-subline--neutral  { -fx-text-fill: -fx-stats-text-muted; }
+.stat-card-subline--neutral  { -fx-text-fill: -stats-text-muted; }
 .stat-card-subline--positive,
-.stat-card-subline--green    { -fx-text-fill: -fx-stats-positive; }
+.stat-card-subline--green    { -fx-text-fill: -stats-positive; }
 .stat-card-subline--negative,
-.stat-card-subline--red      { -fx-text-fill: -fx-stats-negative; }
-.stat-card-subline--blue     { -fx-text-fill: -fx-tone-blue; }
-.stat-card-subline--purple   { -fx-text-fill: -fx-tone-purple; }
+.stat-card-subline--red      { -fx-text-fill: -stats-negative; }
+.stat-card-subline--blue     { -fx-text-fill: -tone-blue; }
+.stat-card-subline--purple   { -fx-text-fill: -tone-purple; }
