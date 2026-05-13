@@ -17,9 +17,11 @@ class ExchangeTest {
 
   @BeforeEach
   void setUp() {
-    pgtStock = new Stock("PGT", "Porsgrunn toaletter", BigDecimal.valueOf(1000));
+    pgtStock = new Stock("PGT", "Porsgrunn toaletter", BigDecimal.valueOf(1000), 0.0, 0.0,
+        List.of(StockSectors.INDUSTRIALS));
     List<Stock> stocks = List.of(
-            new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(50)),
+            new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(50), 0.0, 0.0,
+                List.of(StockSectors.TECHNOLOGY)),
         pgtStock
       );
     exchange = new Exchange("FREX", stocks);
@@ -48,7 +50,8 @@ class ExchangeTest {
 
       @Test
       void getStock () {
-        Stock porsgrunn = new Stock("PGT", "Porsgrunn toaletter", BigDecimal.valueOf(1000));
+        Stock porsgrunn = new Stock("PGT", "Porsgrunn toaletter", BigDecimal.valueOf(1000), 0.0, 0.0,
+            List.of(StockSectors.INDUSTRIALS));
         assertEquals(porsgrunn, exchange.getStock("PGT"));
     }
 

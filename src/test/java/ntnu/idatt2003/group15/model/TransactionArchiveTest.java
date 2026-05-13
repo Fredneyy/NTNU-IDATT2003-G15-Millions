@@ -19,7 +19,8 @@ class TransactionArchiveTest {
 
   @BeforeEach
   void setUpShared() {
-    stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100));
+    stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100), 0.0, 0.0,
+        List.of(StockSectors.TECHNOLOGY));
     share = new Share(stock, BigDecimal.valueOf(10), BigDecimal.valueOf(1000));
     purchase = new Purchase(share, 1);
     sale = new Sale(share, 2);

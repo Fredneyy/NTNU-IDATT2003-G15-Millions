@@ -19,9 +19,10 @@ class StockTest {
     @DisplayName("Positive Stock Tests")
     class positiveStockTests {
         private Stock appleStock;
+        private final List<StockSectors> categories = List.of(StockSectors.TECHNOLOGY);
         @BeforeEach
         void setUp() {
-            appleStock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100));
+            appleStock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
             appleStock.addNewSalesPrice(BigDecimal.valueOf(50));
         }
 
@@ -65,7 +66,7 @@ class StockTest {
         @Test
         void getLatestPriceChange() {
             assertEquals(BigDecimal.valueOf(-50), appleStock.getLatestPriceChange());
-            appleStock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100));
+            appleStock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
             assertEquals(BigDecimal.ZERO, appleStock.getLatestPriceChange());
         }
 
@@ -76,9 +77,9 @@ class StockTest {
 
         @Test
         void setAndGetCategories() {
-            List<String> categories = List.of("String");
-            appleStock.setCategories(categories);
-            assertEquals(categories, appleStock.getCategories());
+            List<StockSectors> newCategories = List.of(StockSectors.ENERGY);
+            appleStock.setCategories(newCategories);
+            assertEquals(newCategories, appleStock.getCategories());
         }
 
     }
@@ -87,46 +88,47 @@ class StockTest {
     @DisplayName("Negative Stock Tests")
     class negativeStockTests {
         private Stock appleStock;
+        private final List<StockSectors> categories = List.of(StockSectors.TECHNOLOGY);
         @BeforeEach
         void setUp() {
-            appleStock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100));
+            appleStock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
         }
 
         @Test
         void nullOrEmptySymbol() {
             assertThrows(NullPointerException.class, () -> {
-                new Stock(null, "Apple Inc", BigDecimal.valueOf(100));
+                new Stock(null, "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
             });
             assertThrows(BlankArgumentException.class, () -> {
-                new Stock("", "Apple Inc", BigDecimal.valueOf(100));
+                new Stock("", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
             });
         }
 
         @Test
         void nullOrEmptyCompany() {
             assertThrows(NullPointerException.class, () -> {
-                new Stock("AAPL", null, BigDecimal.valueOf(100));
+                new Stock("AAPL", null, BigDecimal.valueOf(100), 0.0, 0.0, categories);
             });
             assertThrows(BlankArgumentException.class, () -> {
-                new Stock("AAPL", "", BigDecimal.valueOf(100));
+                new Stock("AAPL", "", BigDecimal.valueOf(100), 0.0, 0.0, categories);
             });
         }
 
         @Test
         void nullSalesPrice() {
             assertThrows(NullPointerException.class, () -> {
-                new Stock("AAPL", "Apple Inc", null);
+                new Stock("AAPL", "Apple Inc", null, 0.0, 0.0, categories);
             });
         }
 
         @Test
         void zeroOrNegativeSalesPrice() {
             assertThrows(IllegalArgumentException.class, () -> {
-                new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(0));
+                new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(0), 0.0, 0.0, categories);
             });
 
             assertThrows(IllegalArgumentException.class, () -> {
-                new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(-100));
+                new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(-100), 0.0, 0.0, categories);
             });
         }
 

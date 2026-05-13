@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,7 +69,8 @@ class PlayerTest {
 
     @Test
     void netWorthPropertyIncludesPortfolioMarketValue() {
-      Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(10));
+      Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(10), 0.0, 0.0,
+          List.of(StockSectors.TECHNOLOGY));
       Share share = new Share(stock, BigDecimal.valueOf(50), stock.getSalesPrice());
       player.getPortfolio().addShare(share);
       // 1000 cash + 50 * 10 market value = 1500

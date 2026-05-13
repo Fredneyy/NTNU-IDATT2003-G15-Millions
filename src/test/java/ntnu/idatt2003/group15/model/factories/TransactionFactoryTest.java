@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,7 +23,8 @@ class TransactionFactoryTest {
 
     @BeforeEach
     void setUp() {
-        testStock = new Stock("EQNR", "Equinor ASA", BigDecimal.valueOf(100));
+        testStock = new Stock("EQNR", "Equinor ASA", BigDecimal.valueOf(100), 0.0, 0.0,
+            List.of(ntnu.idatt2003.group15.model.StockSectors.ENERGY));
         testShare = new Share(testStock, BigDecimal.valueOf(3), BigDecimal.valueOf(100));
         testWeek = 10;
     }

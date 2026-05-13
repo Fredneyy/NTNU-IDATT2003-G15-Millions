@@ -22,7 +22,8 @@ class PortfolioTest {
 
     @BeforeEach
     void setUp() {
-      stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(10));
+      stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(10), 0.0, 0.0,
+          List.of(StockSectors.TECHNOLOGY));
       share = new Share(stock, BigDecimal.valueOf(100), stock.getSalesPrice());
       portfolio = new Portfolio();
     }
@@ -181,7 +182,8 @@ class PortfolioTest {
 
     @Test
     void removeShareNotInPortfolio() {
-      Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(10));
+      Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(10), 0.0, 0.0,
+          List.of(StockSectors.TECHNOLOGY));
       Share share = new Share(stock, BigDecimal.valueOf(100), stock.getSalesPrice());
       assertFalse(portfolio.removeShare(share));
     }
