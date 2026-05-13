@@ -3,8 +3,8 @@ package ntnu.idatt2003.group15.view;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.function.Function;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -17,7 +17,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Polyline;
 import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -29,12 +28,19 @@ import org.kordamp.ikonli.javafx.FontIcon;
  */
 public class MarketTableView {
 
+    /** Status of an upcoming/active price event on a stock. */
+    public enum EventStatus { NONE, POSITIVE, NEGATIVE }
+
     private final VBox view = new VBox();
     private final Label title = new Label("Live Market");
     private final Label subtitle = new Label("Real-time stock prices");
     private final TableView<Stock> table = new TableView<>();
     private final FilteredList<Stock> filteredStocks;
     private final ObservableList<Stock> stocks;
+
+    /** Pluggable lookups: a controller can supply real portfolio/event sources later. */
+    private Function<Stock, Integer> ownedLookup = _ -> 0;
+    private Function<Stock, EventStatus> eventLookup = _ -> EventStatus.NONE;
 
     public MarketTableView() {
         this(FXCollections.observableArrayList());
@@ -71,8 +77,9 @@ public class MarketTableView {
 
     @SuppressWarnings("unchecked")
     private void buildTable() {
-        TableColumn<Stock, String> symbolCol = new TableColumn<>("Symbol");
-        symbolCol.setCellValueFactory(c -> c.getValue().symbolProperty());
+        TableColumn<Stock, Stock> symbolCol = new TableColumn<>("Symbol");
+        symbolCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+        symbolCol.setCellFactory(_ -> symbolCell());
         styleCellsAs(symbolCol, "col-symbol");
 
         TableColumn<Stock, String> companyCol = new TableColumn<>("Company");
@@ -85,38 +92,35 @@ public class MarketTableView {
         priceCol.setCellFactory(_ -> moneyCell());
         styleCellsAs(priceCol, "col-price");
 
-        TableColumn<Stock, BigDecimal> changeCol = new TableColumn<>("Change");
-        changeCol.setCellValueFactory(c ->
-                new ReadOnlyObjectWrapper<>(c.getValue().getLatestPriceChange()));
-        changeCol.setCellFactory(_ -> signedMoneyCell());
+        TableColumn<Stock, Stock> changeCol = new TableColumn<>("Change");
+        changeCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+        changeCol.setCellFactory(_ -> combinedChangeCell());
         styleCellsAs(changeCol, "col-change");
 
-        TableColumn<Stock, BigDecimal> changePctCol = new TableColumn<>("Change %");
-        changePctCol.setCellValueFactory(c ->
-                new ReadOnlyObjectWrapper<>(c.getValue().getLatestPriceChangeRelative()));
-        changePctCol.setCellFactory(_ -> percentCell());
-        styleCellsAs(changePctCol, "col-change-pct");
+        TableColumn<Stock, Stock> volatilityCol = new TableColumn<>("Volatility");
+        volatilityCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+        volatilityCol.setCellFactory(_ -> volatilityCell());
+        styleCellsAs(volatilityCol, "col-volatility");
 
-        TableColumn<Stock, String> categoryCol = new TableColumn<>("Category");
-        categoryCol.setCellValueFactory(c ->
-                new ReadOnlyStringWrapper(String.join(", ", c.getValue().getCategories())));
-        styleCellsAs(categoryCol, "col-category");
+        TableColumn<Stock, Stock> ownedCol = new TableColumn<>("Owned");
+        ownedCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+        ownedCol.setCellFactory(_ -> ownedCell(this::lookupOwned));
+        styleCellsAs(ownedCol, "col-owned");
 
-        TableColumn<Stock, Stock> graphCol = new TableColumn<>("Graph");
-        graphCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
-        graphCol.setCellFactory(_ -> sparklineCell());
-        graphCol.setSortable(false);
-        styleCellsAs(graphCol, "col-graph");
+        TableColumn<Stock, Stock> statusCol = new TableColumn<>("Status");
+        statusCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+        statusCol.setCellFactory(_ -> statusCell(this::lookupEvent));
+        styleCellsAs(statusCol, "col-status");
 
-        TableColumn<Stock, Stock> actionCol = new TableColumn<>("");
+        TableColumn<Stock, Stock> actionCol = new TableColumn<>("Action");
         actionCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
         actionCol.setCellFactory(_ -> buyButtonCell());
         actionCol.setSortable(false);
         styleCellsAs(actionCol, "col-action");
 
         table.getColumns().setAll(
-                symbolCol, companyCol, priceCol, changeCol, changePctCol,
-                categoryCol, graphCol, actionCol);
+                symbolCol, companyCol, priceCol, changeCol,
+                volatilityCol, ownedCol, statusCol, actionCol);
 
         table.setItems(filteredStocks);
         table.setPlaceholder(new Label("No stocks match your filter."));
@@ -142,43 +146,184 @@ public class MarketTableView {
         };
     }
 
-    private static TableCell<Stock, BigDecimal> signedMoneyCell() {
+    /** Symbol cell: gradient avatar with the first two letters + symbol text. */
+    private static TableCell<Stock, Stock> symbolCell() {
         return new TableCell<>() {
+            private final Label avatarLabel = new Label();
+            private final StackPane avatar = new StackPane(avatarLabel);
+            private final Label symbolLabel = new Label();
+            private final HBox wrapper = new HBox(avatar, symbolLabel);
+            {
+                avatar.getStyleClass().add("symbol-avatar");
+                avatarLabel.getStyleClass().add("symbol-avatar-text");
+                symbolLabel.getStyleClass().add("symbol-text");
+                wrapper.getStyleClass().add("symbol-cell");
+                wrapper.setSpacing(12);
+            }
+
             @Override
-            protected void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                getStyleClass().removeAll("cell-positive", "cell-negative");
-                if (empty || value == null) {
-                    setText(null);
+            protected void updateItem(Stock stock, boolean empty) {
+                super.updateItem(stock, empty);
+                if (empty || stock == null) {
+                    setGraphic(null);
                     return;
                 }
-                int sign = value.signum();
-                BigDecimal abs = value.abs().setScale(2, RoundingMode.HALF_UP);
-                String prefix = sign >= 0 ? "+$" : "-$";
-                setText(prefix + abs.toPlainString());
-                getStyleClass().add(sign >= 0 ? "cell-positive" : "cell-negative");
+                String sym = stock.getSymbol();
+                avatarLabel.setText(sym.length() >= 2 ? sym.substring(0, 2) : sym);
+                symbolLabel.setText(sym);
+                setGraphic(wrapper);
             }
         };
     }
 
-    private static TableCell<Stock, BigDecimal> percentCell() {
+    /** Combined change cell: trend arrow + signed $ amount + (% in parentheses). */
+    private static TableCell<Stock, Stock> combinedChangeCell() {
         return new TableCell<>() {
+            private final FontIcon arrow = new FontIcon();
+            private final Label amount = new Label();
+            private final Label percent = new Label();
+            private final HBox wrapper = new HBox(arrow, amount, percent);
+            {
+                wrapper.getStyleClass().add("change-cell");
+                amount.getStyleClass().add("change-amount");
+                percent.getStyleClass().add("change-percent");
+                wrapper.setSpacing(6);
+            }
+
             @Override
-            protected void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                getStyleClass().removeAll("cell-positive", "cell-negative");
-                if (empty || value == null) {
-                    setText(null);
+            protected void updateItem(Stock stock, boolean empty) {
+                super.updateItem(stock, empty);
+                wrapper.getStyleClass().removeAll("change-cell--positive", "change-cell--negative");
+                if (empty || stock == null) {
+                    setGraphic(null);
                     return;
                 }
-                BigDecimal pct = value.movePointRight(2).setScale(2, RoundingMode.HALF_UP);
-                int sign = pct.signum();
-                String prefix = sign >= 0 ? "+" : "";
-                setText(prefix + pct.toPlainString() + "%");
-                getStyleClass().add(sign >= 0 ? "cell-positive" : "cell-negative");
+                BigDecimal delta = stock.getLatestPriceChange();
+                BigDecimal pct = stock.getLatestPriceChangeRelative().movePointRight(2);
+                int sign = delta.signum();
+                String tone = sign >= 0 ? "change-cell--positive" : "change-cell--negative";
+                wrapper.getStyleClass().add(tone);
+
+                arrow.setIconCode(sign >= 0 ? FontAwesome.LINE_CHART : FontAwesome.AREA_CHART);
+                amount.setText((sign >= 0 ? "+" : "-") + "$"
+                        + delta.abs().setScale(2, RoundingMode.HALF_UP).toPlainString());
+                percent.setText("(" + (sign >= 0 ? "+" : "")
+                        + pct.setScale(2, RoundingMode.HALF_UP).toPlainString() + "%)");
+                setGraphic(wrapper);
             }
         };
     }
+
+    /** Volatility cell: derives LOW/MED/HIGH from price history. */
+    private static TableCell<Stock, Stock> volatilityCell() {
+        return new TableCell<>() {
+            private final Label badge = new Label();
+            { badge.getStyleClass().add("volatility-badge"); }
+
+            @Override
+            protected void updateItem(Stock stock, boolean empty) {
+                super.updateItem(stock, empty);
+                badge.getStyleClass().removeAll(
+                        "volatility-badge--low",
+                        "volatility-badge--med",
+                        "volatility-badge--high");
+                if (empty || stock == null) {
+                    setGraphic(null);
+                    return;
+                }
+                double v = computeVolatility(stock.getHistoricalPrices());
+                String label;
+                String toneClass;
+                if (v < 0.02) {
+                    label = "LOW";
+                    toneClass = "volatility-badge--low";
+                } else if (v < 0.06) {
+                    label = "MED";
+                    toneClass = "volatility-badge--med";
+                } else {
+                    label = "HIGH";
+                    toneClass = "volatility-badge--high";
+                }
+                badge.setText(label);
+                badge.getStyleClass().add(toneClass);
+                setGraphic(badge);
+            }
+
+            private double computeVolatility(List<BigDecimal> prices) {
+                if (prices == null || prices.size() < 2) return 0;
+                double mean = prices.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0);
+                if (mean == 0) return 0;
+                double variance = prices.stream()
+                        .mapToDouble(p -> Math.pow(p.doubleValue() - mean, 2))
+                        .average().orElse(0);
+                return Math.sqrt(variance) / mean; // coefficient of variation
+            }
+        };
+    }
+
+    /** Owned cell: shows shares owned or em-dash when zero. */
+    private static TableCell<Stock, Stock> ownedCell(Function<Stock, Integer> lookup) {
+        return new TableCell<>() {
+            @Override
+            protected void updateItem(Stock stock, boolean empty) {
+                super.updateItem(stock, empty);
+                getStyleClass().removeAll("cell-muted", "cell-owned");
+                if (empty || stock == null) {
+                    setText(null);
+                    return;
+                }
+                Integer count = lookup.apply(stock);
+                if (count == null || count <= 0) {
+                    setText("—");
+                    getStyleClass().add("cell-muted");
+                } else {
+                    setText(String.valueOf(count));
+                    getStyleClass().add("cell-owned");
+                }
+            }
+        };
+    }
+
+    /** Status cell: warning + EVENT text when stock has an active event. */
+    private static TableCell<Stock, Stock> statusCell(Function<Stock, EventStatus> lookup) {
+        return new TableCell<>() {
+            private final FontIcon warning = new FontIcon(FontAwesome.EXCLAMATION_TRIANGLE);
+            private final Label text = new Label("EVENT");
+            private final HBox badge = new HBox(warning, text);
+            {
+                badge.getStyleClass().add("status-badge");
+                badge.setSpacing(6);
+                text.getStyleClass().add("status-badge-text");
+            }
+
+            @Override
+            protected void updateItem(Stock stock, boolean empty) {
+                super.updateItem(stock, empty);
+                badge.getStyleClass().removeAll("status-badge--positive", "status-badge--negative");
+                getStyleClass().removeAll("cell-muted");
+                if (empty || stock == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                EventStatus status = lookup.apply(stock);
+                if (status == null || status == EventStatus.NONE) {
+                    setText("—");
+                    setGraphic(null);
+                    getStyleClass().add("cell-muted");
+                    return;
+                }
+                badge.getStyleClass().add(
+                        status == EventStatus.POSITIVE
+                                ? "status-badge--positive" : "status-badge--negative");
+                setText(null);
+                setGraphic(badge);
+            }
+        };
+    }
+
+    private Integer lookupOwned(Stock s) { return ownedLookup.apply(s); }
+    private EventStatus lookupEvent(Stock s) { return eventLookup.apply(s); }
 
     private static TableCell<Stock, Stock> buyButtonCell() {
         return new TableCell<>() {
@@ -204,53 +349,6 @@ public class MarketTableView {
         };
     }
 
-    private static TableCell<Stock, Stock> sparklineCell() {
-        return new TableCell<>() {
-            private final Polyline line = new Polyline();
-            private final StackPane wrapper = new StackPane(line);
-            {
-                line.getStyleClass().add("sparkline");
-                wrapper.getStyleClass().add("sparkline-wrapper");
-                wrapper.setMinSize(80, 28);
-                wrapper.setPrefSize(80, 28);
-                wrapper.setMaxSize(80, 28);
-            }
-
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                if (empty || stock == null) {
-                    setGraphic(null);
-                    return;
-                }
-                renderLine(stock.getHistoricalPrices());
-                line.getStyleClass().removeAll("sparkline-positive", "sparkline-negative");
-                line.getStyleClass().add(
-                        stock.getLatestPriceChange().signum() >= 0
-                                ? "sparkline-positive" : "sparkline-negative");
-                setGraphic(wrapper);
-            }
-
-            private void renderLine(List<BigDecimal> prices) {
-                line.getPoints().clear();
-                if (prices == null || prices.size() < 2) return;
-
-                double w = 80, h = 24, padX = 2, padY = 2;
-                double minP = prices.stream().mapToDouble(BigDecimal::doubleValue).min().orElse(0);
-                double maxP = prices.stream().mapToDouble(BigDecimal::doubleValue).max().orElse(1);
-                double range = Math.max(maxP - minP, 1e-9);
-                int n = prices.size();
-
-                for (int i = 0; i < n; i++) {
-                    double x = padX + (w - 2 * padX) * i / (n - 1);
-                    double normY = (prices.get(i).doubleValue() - minP) / range;
-                    double y = h - padY - (h - 2 * padY) * normY; // flip Y so higher = up
-                    line.getPoints().addAll(x, y);
-                }
-            }
-        };
-    }
-
     /** Filter table rows by symbol/company substring (case insensitive). Empty resets. */
     public void setSearchFilter(String query) {
         if (query == null || query.isBlank()) {
@@ -266,4 +364,16 @@ public class MarketTableView {
     public VBox getView() { return view; }
     public TableView<Stock> getTable() { return table; }
     public ObservableList<Stock> getStocks() { return stocks; }
+
+    /** Plug in the source of "shares owned" per stock (typically from PortfolioController). */
+    public void setOwnedLookup(Function<Stock, Integer> lookup) {
+        this.ownedLookup = lookup == null ? _ -> 0 : lookup;
+        table.refresh();
+    }
+
+    /** Plug in the source of event status per stock. */
+    public void setEventLookup(Function<Stock, EventStatus> lookup) {
+        this.eventLookup = lookup == null ? _ -> EventStatus.NONE : lookup;
+        table.refresh();
+    }
 }

@@ -13,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import ntnu.idatt2003.group15.model.Share;
 import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -29,11 +30,13 @@ public class GameView {
     private final StatisticsOverview statisticsOverview = new StatisticsOverview();
     private final ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
     private final MarketTableView marketTable = new MarketTableView(marketStocks);
+    private final ObservableList<Share> portfolioShares = FXCollections.observableArrayList();
+    private final PortfolioTableView portfolioTable = new PortfolioTableView(portfolioShares);
     private final TextField searchField = new TextField();
     private final HBox searchBar;
 
     private final VBox marketContent = new VBox(marketTable.getView());
-    private final VBox portfolioContent = new VBox(new Label("Portfolio"));
+    private final VBox portfolioContent = new VBox(portfolioTable.getView());
     private final VBox statsContent = new VBox(new Label("Stats"));
     private final VBox tradesContent = new VBox(new Label("Trades"));
     private final VBox newsContent = new VBox(new Label("News"));
@@ -61,8 +64,13 @@ public class GameView {
         searchBar = buildSearchBar();
         styleTabContent(marketContent, portfolioContent, statsContent, tradesContent, newsContent);
         VBox.setVgrow(marketTable.getView(), Priority.ALWAYS);
-        searchField.textProperty().addListener((_, _, q) -> marketTable.setSearchFilter(q));
+        VBox.setVgrow(portfolioTable.getView(), Priority.ALWAYS);
+        searchField.textProperty().addListener((_, _, q) -> {
+            marketTable.setSearchFilter(q);
+            portfolioTable.setSearchFilter(q);
+        });
         seedDemoStocks();
+        seedDemoPortfolio();
 
         VBox.setVgrow(tabContainer.getView(), Priority.ALWAYS);
 
@@ -202,16 +210,59 @@ public class GameView {
     private void seedDemoStocks() {
         Stock aapl = stockWithHistory("AAPL", "Apple Inc.", List.of("Tech"),
                 170.10, 172.45, 175.80, 174.20, 177.10, 178.42, 182.16);
+        Stock googl = stockWithHistory("GOOGL", "Alphabet Inc.", List.of("Tech"),
+                144.20, 142.80, 138.50, 130.20, 122.40, 118.30, 115.65);
         Stock msft = stockWithHistory("MSFT", "Microsoft Corp.", List.of("Tech", "Cloud"),
-                420.30, 418.40, 415.60, 414.10, 412.50, 410.10, 408.20);
+                420.30, 425.40, 430.60, 435.10, 440.50, 442.10, 444.92);
         Stock nvda = stockWithHistory("NVDA", "NVIDIA Corp.", List.of("Tech", "AI"),
                 810.00, 830.20, 845.50, 855.10, 865.10, 880.40, 892.40);
         Stock tsla = stockWithHistory("TSLA", "Tesla Inc.", List.of("Auto", "EV"),
                 265.20, 258.10, 252.50, 248.40, 251.30, 244.20, 239.90);
+        Stock amzn = stockWithHistory("AMZN", "Amazon.com Inc.", List.of("Tech", "Retail"),
+                136.20, 135.50, 134.40, 135.10, 134.99, 135.30, 134.99);
         Stock jpm = stockWithHistory("JPM", "JPMorgan Chase", List.of("Finance"),
                 193.40, 195.10, 196.80, 197.50, 198.75, 200.10, 201.10);
 
-        marketStocks.setAll(aapl, msft, nvda, tsla, jpm);
+        // Demo plug-ins for the new Owned and Status columns. Replace with controller
+        // hooks once PortfolioController / event sources are available.
+        java.util.Map<String, Integer> owned = java.util.Map.of("AAPL", 12, "NVDA", 3);
+        java.util.Map<String, MarketTableView.EventStatus> events = java.util.Map.of(
+                "GOOGL", MarketTableView.EventStatus.NEGATIVE,
+                "MSFT",  MarketTableView.EventStatus.POSITIVE,
+                "AMZN",  MarketTableView.EventStatus.NEGATIVE);
+        marketTable.setOwnedLookup(s -> owned.getOrDefault(s.getSymbol(), 0));
+        marketTable.setEventLookup(s ->
+                events.getOrDefault(s.getSymbol(), MarketTableView.EventStatus.NONE));
+
+        marketStocks.setAll(aapl, googl, msft, nvda, tsla, amzn, jpm);
+    }
+
+    /** Demo positions for the portfolio tab. Replace with PortfolioController data later. */
+    private void seedDemoPortfolio() {
+        if (marketStocks.isEmpty()) return;
+        portfolioShares.clear();
+        for (Stock s : marketStocks) {
+            switch (s.getSymbol()) {
+                case "AMZN" -> portfolioShares.add(new Share(s, new BigDecimal("12"), s.getSalesPrice()));
+                case "GOOGL" -> portfolioShares.add(new Share(s, new BigDecimal("1"), s.getSalesPrice()));
+                case "NVDA" -> portfolioShares.add(new Share(s, new BigDecimal("1"), s.getSalesPrice()));
+                default -> { /* not owned */ }
+            }
+        }
+        portfolioTable.setEventLookup(stock -> {
+            switch (stock.getSymbol()) {
+                case "AMZN": return MarketTableView.EventStatus.POSITIVE;
+                default:     return MarketTableView.EventStatus.NONE;
+            }
+        });
+    }
+
+    public PortfolioTableView getPortfolioTable() {
+        return portfolioTable;
+    }
+
+    public void setPortfolioShares(List<Share> shares) {
+        portfolioShares.setAll(shares);
     }
 
     private static Stock stockWithHistory(String symbol, String company,
