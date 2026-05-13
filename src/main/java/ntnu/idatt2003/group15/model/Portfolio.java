@@ -5,24 +5,45 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 /**
  * Manages a collection of stock holdings for a specific player.
  */
 public class Portfolio {
-  private final ObservableList<Share> shares = FXCollections.observableArrayList(
-      share -> new Observable[] { share.getStock().getPriceBinding() }
-  );
+  // Structural-only observable list. Price-tick observation is wired separately so cost-basis
+  // bindings (invested, %P/L denominator) don't churn on every market update.
+  private final ObservableList<Share> shares = FXCollections.observableArrayList();
 
-  private final ObjectBinding<BigDecimal> totalMarketValueBinding =
-      Bindings.createObjectBinding(this::computeTotalMarketValue, shares);
+  // Market value reacts to BOTH structural changes (shares add/remove) AND price ticks on any
+  // currently-held share's stock. Price-binding dependencies are added/removed dynamically.
+  private final ObjectBinding<BigDecimal> totalMarketValueBinding = new ObjectBinding<>() {
+    {
+      bind(shares);
+      shares.addListener((ListChangeListener<Share>) change -> {
+        while (change.next()) {
+          for (Share removed : change.getRemoved()) {
+            unbind(removed.getStock().getPriceBinding());
+          }
+          for (Share added : change.getAddedSubList()) {
+            bind(added.getStock().getPriceBinding());
+          }
+        }
+      });
+    }
 
+    @Override
+    protected BigDecimal computeValue() {
+      return computeTotalMarketValue();
+    }
+  };
+
+  // Cost basis is purely structural: only invalidates on add/remove, never on price ticks.
   private final ObjectBinding<BigDecimal> investedBinding =
       Bindings.createObjectBinding(this::computeInvested, shares);
 
