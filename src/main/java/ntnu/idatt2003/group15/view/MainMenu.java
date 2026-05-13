@@ -8,7 +8,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
@@ -16,7 +15,6 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainMenuController;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
-
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,6 +27,7 @@ public class MainMenu {
   private final TextField nameField = new TextField();
   private final TextField startingMoneyField = new TextField();
   private final Button playButton = new Button();
+  private final FontIcon playIcon = new FontIcon(FontAwesome.PLAY);
   private final Label quoteLabel;
   private final Label authorLabel;
   private final VBox tipContainer = new VBox();
@@ -78,7 +77,7 @@ public class MainMenu {
 
     VBox center = new VBox(24);
     center.setAlignment(Pos.CENTER);
-    center.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 4);
+    center.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 4.0);
     tipContainer.setSpacing(5);
     tipContainer.setMinHeight(90);
     tipContainer.getStyleClass().add("tip-banner");
@@ -99,9 +98,7 @@ public class MainMenu {
     quoteWrapper.getChildren().add(quoteLabel);
     tipContainer.getChildren().addAll(quoteWrapper, authorWrapper);
 
-    FontIcon icon = new FontIcon(FontAwesome.PLAY);
-    icon.setIconColor(Paint.valueOf("White"));
-    playButton.setGraphic(icon);
+    playButton.setGraphic(playIcon);
     VBox.setVgrow(playButton, Priority.ALWAYS);
 
 
@@ -368,6 +365,8 @@ public class MainMenu {
   }
 
   private void handlePlay() {
+    if (playButton.isDisabled()) return;
+
     String name = nameField.getText().trim();
     String startingMoney = startingMoneyField.getText();
     if (name.isBlank()) {
@@ -377,8 +376,11 @@ public class MainMenu {
       shakeField(startingMoneyField, shakeAnimationStartMoneyField);
     }
     if (!name.isBlank() && InputValidator.isInt(startingMoney)) {
-      mainMenuController.startGame(name, BigDecimal.valueOf(Long.parseLong(startingMoney)));
-      close();
+        try {
+          mainMenuController.startGame(name, BigDecimal.valueOf(Long.parseLong(startingMoney)));
+        } catch (RuntimeException ex) {
+          errorHandler.accept(ex);
+        }
     }
   }
 

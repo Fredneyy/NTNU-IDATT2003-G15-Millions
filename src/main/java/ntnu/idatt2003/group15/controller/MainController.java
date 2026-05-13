@@ -10,6 +10,7 @@ import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;
+import ntnu.idatt2003.group15.view.OnBoardingDialog;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -54,14 +55,10 @@ public class MainController {
     List<Stock> stocks = exchangeController.getAllStocks();
     gameView.setMarketStocks(stocks);
     root.getChildren().setAll(gameView.getView());
-    // Start the news loop after the game view is in place — root.setAll() above
-    // would otherwise wipe the NewsContainer node we mount.
+    OnBoardingDialog onBoardingDialog = new OnBoardingDialog(csvUtil, taskUtil);
+    onBoardingDialog.show(root);
     newsController.start();
-    // Mirror every emitted news event into the "Market News Feed" tab.
-    // NEUTRAL items (like the welcome dialog) are filtered out by prependEvent.
     newsController.setOnNewsEmitted(item -> gameView.getNewsFeedView().prependEvent(item));
-    newsController.push("Welcome to Millions!",
-        "Your stock market simulation experience starts here.");
     startPriceTicker(stocks);
   }
 

@@ -1,22 +1,14 @@
 package ntnu.idatt2003.group15;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainController;
-import ntnu.idatt2003.group15.model.Stock;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
-import ntnu.idatt2003.group15.view.BuyStockDialog;
 import ntnu.idatt2003.group15.view.ExceptionDialog;
-import ntnu.idatt2003.group15.view.NewsDialog;
-import ntnu.idatt2003.group15.view.StockChartDialog;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -51,6 +43,7 @@ public class App extends Application {
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/StatisticsOverview.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/StockChartDialog.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/BuyStockDialogStyle.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/OnBoardStyle.css")).toExternalForm());
         root.getStyleClass().add("scene-root");
         stage.setFullScreen(true);
         stage.setScene(scene);

@@ -4,6 +4,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
@@ -18,6 +19,7 @@ import ntnu.idatt2003.group15.utilities.TaskUtil;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -34,6 +36,7 @@ public class OnBoardingDialog extends BaseDialog {
       "onboarding-icon-zap"
   };
 
+  private final StackPane overlay = new StackPane();
   private final ProgressBar progressBar;
   private final VBox textContainer;
   private final StackPane iconBox;
@@ -61,13 +64,20 @@ public class OnBoardingDialog extends BaseDialog {
     loadText();
     icons = setUpIcons();
     progressBar = setUpProgressBar();
-    closeAnimation = createCloseAnimation();
+    closeAnimation = createCloseAnimation(_ -> {
+      root.getChildren().removeAll(overlay,dialog);
+      blurBackground(root, false, 0);
+    });
 
     dialog.getStyleClass().setAll("onboarding-card");
     dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);
     dialog.setMinHeight(Region.USE_COMPUTED_SIZE);
     dialog.setMinWidth(Region.USE_COMPUTED_SIZE);
+
+    overlay.setMinHeight(Screen.getPrimary().getVisualBounds().getHeight());
+    overlay.setMinWidth(Screen.getPrimary().getVisualBounds().getWidth());
+    overlay.setOnMouseClicked(Event::consume);
 
     titleLabel.getStyleClass().add("onboarding-title");
 
@@ -124,8 +134,8 @@ public class OnBoardingDialog extends BaseDialog {
   public void show(StackPane root) {
     this.root = root;
     if (!root.getChildren().contains(dialog)) {
-      blurBackground(root, true, 2);
-      root.getChildren().add(dialog);
+      blurBackground(root, true, 4);
+      root.getChildren().addAll(overlay, dialog);
     }
   }
 
@@ -144,17 +154,6 @@ public class OnBoardingDialog extends BaseDialog {
       nextLabel.setText("Next >");
       nextLabel.setOnAction(_ -> nextSlide());
     }
-  }
-
-  private ParallelTransition createCloseAnimation() {
-    ScaleTransition scaleTransition = createScaleTransition(dialog,  Duration.millis(300), 1, 0);
-    FadeTransition fadeTransition = createFadeTransition(dialog,  Duration.millis(300), 1, 0);
-    ParallelTransition parallelTransition = new ParallelTransition(scaleTransition, fadeTransition);
-    parallelTransition.setOnFinished(_ -> {
-      root.getChildren().remove(dialog);
-      blurBackground(root, false, 0);
-    });
-    return parallelTransition;
   }
 
   private List<FontIcon> setUpIcons() {

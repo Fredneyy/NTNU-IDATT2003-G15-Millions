@@ -123,7 +123,9 @@ public class BuyStockDialog extends BaseDialog {
     ObjectBinding<BigDecimal> maxBuyable = Bindings.createObjectBinding(() -> {
       BigDecimal cash = cashProperty.getValue();
       BigDecimal p = price.getValue();
-      if (cash == null || p == null || p.signum() == 0) return BigDecimal.ZERO;
+      if (cash == null || p == null || p.signum() == 0) {
+        return BigDecimal.ZERO;
+      }
       return cash.divide(p, 0, RoundingMode.DOWN).max(BigDecimal.ZERO);
     }, cashProperty, price);
 
