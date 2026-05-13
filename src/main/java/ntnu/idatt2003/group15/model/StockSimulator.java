@@ -2,6 +2,7 @@ package ntnu.idatt2003.group15.model;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
@@ -110,20 +111,32 @@ public class StockSimulator {
   }
 
   /**
-   * Apply a news item to a stock: shocks the price by {@code item.changePercent()}
-   * immediately (pushed as a new sales price) and queues an elevated-volatility
-   * window of {@code item.durationUpdates()} ticks scaled by {@code item.volatility()}.
+   * Apply a news item to every stock in the news item's sector: each affected
+   * stock is shocked by {@code item.changePercent()} (pushed as a new sales
+   * price) and registered with an elevated-volatility window of
+   * {@code item.durationUpdates()} ticks scaled by {@code item.volatility()}.
    *
-   * @return {@code true} if the news applied, {@code false} otherwise
+   * <p>If {@code item.sector()} is null, this is a no-op.
+   *
+   * @return the number of stocks affected
    */
-  public boolean applyNews(NewsItem item, Stock stock) {
+  public int applyNews(NewsItem item, List<Stock> stocks) {
     Objects.requireNonNull(item, "news item cannot be null.");
-    Objects.requireNonNull(stock, "stock cannot be null.");
-    String symbol = item.symbol();
-    if (symbol == null || !symbol.equalsIgnoreCase(stock.getSymbol())) {
-      return false;
-    }
+    Objects.requireNonNull(stocks, "stocks cannot be null.");
+    StockSectors sector = item.sector();
+    if (sector == null) return 0;
 
+    int affected = 0;
+    for (Stock stock : stocks) {
+      if (stock.getCategories().contains(sector)) {
+        shockAndQueue(item, stock);
+        affected++;
+      }
+    }
+    return affected;
+  }
+
+  private void shockAndQueue(NewsItem item, Stock stock) {
     BigDecimal changePercent = item.changePercent();
     if (changePercent != null && changePercent.signum() != 0) {
       BigDecimal factor = BigDecimal.ONE.add(changePercent.movePointLeft(2));
@@ -138,7 +151,6 @@ public class StockSimulator {
       activeNews.put(stock.getSymbol(),
           new ActiveNews(volMultiplier.doubleValue(), item.durationUpdates()));
     }
-    return true;
   }
 
   private BigDecimal gbmStep(BigDecimal currentPrice, double drift, double volatility) {

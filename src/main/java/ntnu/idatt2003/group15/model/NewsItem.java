@@ -7,7 +7,7 @@ import java.time.Instant;
 
 public record NewsItem(
     NewsDialog.Sentiment sentiment,
-    String symbol,
+    StockSectors sector,
     BigDecimal changePercent,
     BigDecimal drift,
     String title,

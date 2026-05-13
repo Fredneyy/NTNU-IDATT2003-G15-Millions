@@ -104,8 +104,8 @@ public class NewsFeedView {
             iconBox.getStyleClass().addAll("news-row-icon-box",
                     bullish ? "news-row-icon-box--bullish" : "news-row-icon-box--bearish");
 
-            // Top badges row: SYMBOL  ±X.X%  [BULLISH | BEARISH]  ............ clock + ago
-            Label symbolBadge = new Label(ev.symbol() == null ? "" : ev.symbol());
+            // Top badges row: SECTOR  ±X.X%  [BULLISH | BEARISH]  ............ clock + ago
+            Label symbolBadge = new Label(ev.sector() == null ? "" : ev.sector().getLabel());
             symbolBadge.getStyleClass().addAll("news-badge", "news-badge--symbol");
 
             BigDecimal rawPct = ev.changePercent() == null ? BigDecimal.ZERO : ev.changePercent();

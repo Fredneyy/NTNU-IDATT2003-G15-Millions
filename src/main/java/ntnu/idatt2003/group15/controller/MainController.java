@@ -14,10 +14,7 @@ import ntnu.idatt2003.group15.view.OnBoardingDialog;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.function.Consumer;
 
 public class MainController {
@@ -29,7 +26,6 @@ public class MainController {
   private final NewsController newsController;
   private Timeline priceTicker;
   private StockSimulator simulator;
-  private Map<String, Stock> stocksBySymbol;
   private Consumer<Throwable> errorHandler;
 
 
@@ -84,11 +80,10 @@ public class MainController {
     newsController.start();
     newsController.setOnNewsEmitted(item -> {
       gameView.getNewsFeedView().prependEvent(item);
-      // Route headline-style events through the simulator: any stock matching
-      // the item's symbol gets shocked + an elevated-volatility window.
-      Stock target = item.symbol() == null ? null : stocksBySymbol.get(item.symbol().toUpperCase());
-      if (target != null) {
-        simulator.applyNews(item, target);
+      // Route headline-style events through the simulator: every stock in the
+      // item's sector gets shocked + an elevated-volatility window.
+      if (item.sector() != null && simulator != null) {
+        simulator.applyNews(item, stocks);
       }
     });
   }
@@ -96,8 +91,6 @@ public class MainController {
   private void startPriceTicker(List<Stock> stocks) {
     stopPriceTicker();
     simulator = new StockSimulator(1.0 / 52.0); // ~1 trading week per tick
-    stocksBySymbol = new HashMap<>();
-    for (Stock s : stocks) stocksBySymbol.put(s.getSymbol().toUpperCase(), s);
 
     priceTicker = new Timeline(new KeyFrame(Duration.seconds(1), _ -> {
       for (Stock stock : stocks) {
@@ -117,7 +110,6 @@ public class MainController {
       priceTicker = null;
     }
     simulator = null;
-    stocksBySymbol = null;
   }
 
 }

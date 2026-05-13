@@ -58,7 +58,7 @@ public class NewsController {
 
         NewsDialog dialog = new NewsDialog(ITEM_LIFETIME);
         dialog.setSentiment(stamped.sentiment());
-        dialog.setSymbol(stamped.symbol());
+        dialog.setSymbol(stamped.sector() == null ? null : stamped.sector().getLabel());
         dialog.setChangePercent(stamped.changePercent());
         dialog.setText(stamped.title(), stamped.message());
         dialog.setFooter(stamped.footerText());
@@ -70,7 +70,7 @@ public class NewsController {
     private static NewsItem ensureStamped(NewsItem item) {
         if (item.when() != null) return item;
         return new NewsItem(
-            item.sentiment(), item.symbol(), item.changePercent(), item.drift(),
+            item.sentiment(), item.sector(), item.changePercent(), item.drift(),
             item.title(), item.message(), item.volatility(),
             item.durationUpdates(), item.type(), Instant.now()
         );
