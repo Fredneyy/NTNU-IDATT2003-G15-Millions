@@ -30,7 +30,9 @@ public class GameView {
     private final SettingsView settingsView;
     private final StatisticsOverview statisticsOverview = new StatisticsOverview();
     private final ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
-    private final MarketTableView marketTable = new MarketTableView(marketStocks);
+    private final BuyStockDialog buyStockDialog = new BuyStockDialog();
+    private final StockChartDialog stockChartDialog = new StockChartDialog();
+    private final MarketTableView marketTable;
     private final ObservableList<Share> portfolioShares = FXCollections.observableArrayList();
     private final PortfolioTableView portfolioTable = new PortfolioTableView(portfolioShares);
     private final StatsView statsView = new StatsView();
@@ -39,21 +41,27 @@ public class GameView {
     private final TextField searchField = new TextField();
     private final HBox searchBar;
 
-    private final VBox marketContent = new VBox(marketTable.getView());
+    private final VBox marketContent;
     private final VBox portfolioContent = new VBox(portfolioTable.getView());
     private final VBox statsContent = new VBox(statsView.getView());
     private final VBox tradesContent = new VBox(tradesView.getView());
     private final VBox newsContent = new VBox(newsFeedView.getView());
 
-    private final TabContainer tabContainer = new TabContainer(
+    private final TabContainer tabContainer;
+    public GameView(String playerName, Runnable runnableExit) {
+        marketTable = new MarketTableView(marketStocks, stock -> {
+          buyStockDialog.show(view, stock);
+        }, stock -> {
+          stockChartDialog.show(view, stock);
+        });
+        marketContent = new VBox(marketTable.getView());
+        tabContainer = new TabContainer(
             new TabContainer.Tab("market",    "Market",    FontAwesome.LINE_CHART,  marketContent),
             new TabContainer.Tab("portfolio", "Portfolio", FontAwesome.BRIEFCASE,   portfolioContent),
             new TabContainer.Tab("stats",     "Stats",     FontAwesome.BAR_CHART,   statsContent),
             new TabContainer.Tab("trades",    "Trades",    FontAwesome.CLOCK_O,     tradesContent),
             new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent, "1")
-    );
-
-    public GameView(String playerName, Runnable runnableExit) {
+        );
         headerView = new HeaderView(runnableExit);
         settingsView = new SettingsView(view);
         headerView.setPlayerName(playerName);
@@ -238,7 +246,8 @@ public class GameView {
         marketTable.setEventLookup(s ->
                 events.getOrDefault(s.getSymbol(), MarketTableView.EventStatus.NONE));
 
-        marketStocks.setAll(aapl, googl, msft, nvda, tsla, amzn, jpm);
+        marketStocks.addAll(aapl, googl, msft, nvda, tsla, amzn, jpm);
+        marketStocks.addAll(aapl, googl, msft, nvda, tsla, amzn, jpm);
     }
 
     /** Demo positions for the portfolio tab. Replace with PortfolioController data later. */
