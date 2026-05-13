@@ -1,0 +1,163 @@
+/* =========================================================
+   NewsFeedView stylesheet
+   ========================================================= */
+
+.news-card {
+    -fx-background-color: -stock-bg-card;
+    -fx-background-radius: 14;
+    -fx-border-color: -stock-bg-card-border;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 0;
+}
+
+/* ---------- Header ---------- */
+.news-header {
+    -fx-padding: 22 28 18 28;
+    -fx-border-color: transparent transparent -stock-bg-card-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.news-header-title {
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.news-header-subtitle {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-font-size: 13px;
+}
+
+/* ---------- Scroll wrapper ---------- */
+.news-body {
+    -fx-padding: 0;
+}
+
+.news-scroll {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.news-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.news-rows {
+    -fx-spacing: 0;
+    -fx-padding: 0;
+}
+
+/* ---------- Single news row ---------- */
+.news-row {
+    -fx-spacing: 0;
+    -fx-padding: 0;
+}
+
+.news-row-content {
+    -fx-padding: 18 28;
+}
+
+.news-row-divider {
+    -fx-min-height: 1;
+    -fx-max-height: 1;
+    -fx-background-color: rgba(31, 42, 68, 0.6);
+}
+
+/* Square icon tile (red bearish / green bullish) */
+.news-row-icon-box {
+    -fx-background-radius: 10;
+    -fx-min-width: 44;
+    -fx-min-height: 44;
+    -fx-max-width: 44;
+    -fx-max-height: 44;
+    -fx-alignment: center;
+}
+
+.news-row-icon-box--bullish { -fx-background-color: rgba(63, 207, 142, 0.18); }
+.news-row-icon-box--bearish { -fx-background-color: rgba(240, 99, 122, 0.18); }
+
+.news-row-icon { -fx-icon-size: 20; }
+.news-row-icon-box--bullish .news-row-icon { -fx-icon-color: -stock-accent-green; }
+.news-row-icon-box--bearish .news-row-icon { -fx-icon-color: #f0637a; }
+
+/* ---------- Top row (badges + ago) ---------- */
+.news-row-top {
+    -fx-alignment: center-left;
+}
+
+.news-row-percent {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-font-variant-numeric: tabular-nums;
+}
+
+.news-row-percent--bullish { -fx-text-fill: -stock-accent-green; }
+.news-row-percent--bearish { -fx-text-fill: #f0637a; }
+
+.news-row-clock {
+    -fx-icon-color: -stock-text-muted;
+    -fx-icon-size: 12;
+}
+
+.news-row-ago {
+    -fx-text-fill: -stock-text-muted;
+    -fx-font-size: 12px;
+}
+
+/* ---------- Badges (symbol + sentiment) ---------- */
+.news-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10;
+    -fx-background-radius: 6;
+    -fx-letter-spacing: 0.5;
+    -fx-text-fill: white;
+}
+
+.news-badge--symbol {
+    -fx-background-color: -stock-accent-blue;
+}
+
+.news-badge--bullish {
+    -fx-text-fill: -stock-accent-green;
+    -fx-background-color: rgba(63, 207, 142, 0.14);
+}
+
+.news-badge--bearish {
+    -fx-text-fill: #f0637a;
+    -fx-background-color: rgba(240, 99, 122, 0.14);
+}
+
+/* ---------- Headline + description ---------- */
+.news-row-title {
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.news-row-description {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-font-size: 13px;
+}
+
+/* ---------- Meta row ---------- */
+.news-row-meta {
+    -fx-alignment: center-left;
+    -fx-padding: 8 0 0 0;
+    -fx-border-color: rgba(31, 42, 68, 0.6) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.news-meta-label {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-font-size: 13px;
+}
+
+.news-meta-value {
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-font-variant-numeric: tabular-nums;
+}

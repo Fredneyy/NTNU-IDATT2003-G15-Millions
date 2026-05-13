@@ -34,6 +34,7 @@ public class GameView {
     private final PortfolioTableView portfolioTable = new PortfolioTableView(portfolioShares);
     private final StatsView statsView = new StatsView();
     private final TradesView tradesView = new TradesView();
+    private final NewsFeedView newsFeedView = new NewsFeedView();
     private final TextField searchField = new TextField();
     private final HBox searchBar;
 
@@ -41,7 +42,7 @@ public class GameView {
     private final VBox portfolioContent = new VBox(portfolioTable.getView());
     private final VBox statsContent = new VBox(statsView.getView());
     private final VBox tradesContent = new VBox(tradesView.getView());
-    private final VBox newsContent = new VBox(new Label("News"));
+    private final VBox newsContent = new VBox(newsFeedView.getView());
 
     private final TabContainer tabContainer = new TabContainer(
             new TabContainer.Tab("market",    "Market",    FontAwesome.LINE_CHART,  marketContent),
@@ -75,6 +76,7 @@ public class GameView {
         seedDemoPortfolio();
         seedDemoStats();
         seedDemoTrades();
+        seedDemoNews();
 
         VBox.setVgrow(tabContainer.getView(), Priority.ALWAYS);
 
@@ -275,6 +277,39 @@ public class GameView {
 
     public TradesView getTradesView() {
         return tradesView;
+    }
+
+    public NewsFeedView getNewsFeedView() {
+        return newsFeedView;
+    }
+
+    /** Demo market events to show off the News tab. Wire to PriceEvent source later. */
+    private void seedDemoNews() {
+        java.time.Instant now = java.time.Instant.now();
+        newsFeedView.setEvents(List.of(
+                new NewsFeedView.NewsRecord(
+                        NewsFeedView.Sentiment.BEARISH,
+                        "AMZN",
+                        new BigDecimal("-8.0"),
+                        "Amazon.com Inc.: Earnings Miss Expectations",
+                        "Quarterly results fall short of analyst predictions, citing market headwinds.",
+                        new BigDecimal("1.6"), 22, "Earnings Miss", now),
+                new NewsFeedView.NewsRecord(
+                        NewsFeedView.Sentiment.BULLISH,
+                        "SOFI",
+                        new BigDecimal("25.0"),
+                        "SoFi Technologies: Revolutionary Product Announced",
+                        "Company unveils groundbreaking technology that could transform the industry.",
+                        new BigDecimal("1.8"), 19, "Breakthrough", now),
+                new NewsFeedView.NewsRecord(
+                        NewsFeedView.Sentiment.BULLISH,
+                        "NFLX",
+                        new BigDecimal("12.0"),
+                        "Netflix Inc.: Strategic Partnership Formed",
+                        "New alliance opens fresh revenue streams in emerging markets.",
+                        new BigDecimal("1.2"), 14, "Partnership", now)
+        ));
+        tabContainer.setBadge("news", "3");
     }
 
     /** Demo transactions to show off the Trades tab. Wire to TransactionArchive later. */
