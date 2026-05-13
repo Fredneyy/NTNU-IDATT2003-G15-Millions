@@ -18,11 +18,18 @@ import ntnu.idatt2003.group15.utilities.InputValidator;
  * Represents a tradable company stock and its recorded price history.
  */
 public class Stock {
+  /** Default per-tick drift used when no override is provided. */
+  private static final double DEFAULT_DRIFT = 0.0;
+  /** Default per-tick σ used when no override is provided. */
+  private static final double DEFAULT_VOLATILITY = 0.25;
+
   private final StringProperty symbol;
   private final StringProperty company;
   private final ObservableList<BigDecimal> prices;
   private final ObservableList<StockSectors> categories;
   private final ObjectBinding<BigDecimal> priceBinding;
+  private double drift = DEFAULT_DRIFT;
+  private double volatility = DEFAULT_VOLATILITY;
 
   /**
    * Constructs a new  instance ready for market operations.
@@ -74,6 +81,26 @@ public class Stock {
    */
   public StringProperty companyProperty() {
     return company;
+  }
+
+  /** Steady-state drift used by the price simulator when no news is active. */
+  public double getDrift() {
+    return drift;
+  }
+
+  /** Set the steady-state drift used by the price simulator. */
+  public void setDrift(double drift) {
+    this.drift = drift;
+  }
+
+  /** Steady-state σ (volatility) used by the price simulator when no news is active. */
+  public double getVolatility() {
+    return volatility;
+  }
+
+  /** Set the steady-state σ used by the price simulator. */
+  public void setVolatility(double volatility) {
+    this.volatility = volatility;
   }
 
   /**

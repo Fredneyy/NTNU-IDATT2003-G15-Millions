@@ -42,9 +42,6 @@ public class PortfolioTableView {
     private final PortfolioController portfolioController;
     private final FilteredList<Share> filtered;
 
-    /** Pluggable lookup for active price events — controllers can supply real data later. */
-    private Function<Stock, MarketTableView.EventStatus> eventLookup = _ -> MarketTableView.EventStatus.NONE;
-
     public PortfolioTableView(PortfolioController portfolioController) {
         this.portfolioController = Objects.requireNonNull(portfolioController);
         this.filtered = new FilteredList<>(portfolioController.getListProperty(), _ -> true);
@@ -130,16 +127,6 @@ public class PortfolioTableView {
         changeCol.setCellFactory(_ -> combinedChangeCell());
         styleCellsAs(changeCol, "col-change");
 
-        TableColumn<Share, Stock> volatilityCol = new TableColumn<>("Volatility");
-        volatilityCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getStock()));
-        volatilityCol.setCellFactory(_ -> volatilityCell());
-        styleCellsAs(volatilityCol, "col-volatility");
-
-        TableColumn<Share, Stock> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getStock()));
-        statusCol.setCellFactory(_ -> statusCell(this::lookupEvent));
-        styleCellsAs(statusCol, "col-status");
-
         TableColumn<Share, Share> actionCol = new TableColumn<>("Action");
         actionCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
         actionCol.setCellFactory(_ -> sellButtonCell());
@@ -148,7 +135,7 @@ public class PortfolioTableView {
 
         table.getColumns().setAll(
                 symbolCol, companyCol, qtyCol, priceCol, totalCol,
-                changeCol, volatilityCol, statusCol, actionCol);
+                changeCol, actionCol);
         table.setItems(filtered);
         table.setPlaceholder(new Label("You don't own any shares yet."));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
@@ -261,84 +248,6 @@ public class PortfolioTableView {
         };
     }
 
-    private static TableCell<Share, Stock> volatilityCell() {
-        return new TableCell<>() {
-            private final Label badge = new Label();
-            { badge.getStyleClass().add("volatility-badge"); }
-
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                badge.getStyleClass().removeAll(
-                        "volatility-badge--low",
-                        "volatility-badge--med",
-                        "volatility-badge--high");
-                if (empty || stock == null) {
-                    setGraphic(null);
-                    return;
-                }
-                double v = computeVolatility(stock.getHistoricalPrices());
-                String label;
-                String tone;
-                if (v < 0.02) { label = "LOW";  tone = "volatility-badge--low"; }
-                else if (v < 0.06) { label = "MED";  tone = "volatility-badge--med"; }
-                else { label = "HIGH"; tone = "volatility-badge--high"; }
-                badge.setText(label);
-                badge.getStyleClass().add(tone);
-                setGraphic(badge);
-            }
-
-            private double computeVolatility(List<BigDecimal> prices) {
-                if (prices == null || prices.size() < 2) return 0;
-                double mean = prices.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0);
-                if (mean == 0) return 0;
-                double variance = prices.stream()
-                        .mapToDouble(p -> Math.pow(p.doubleValue() - mean, 2))
-                        .average().orElse(0);
-                return Math.sqrt(variance) / mean;
-            }
-        };
-    }
-
-    private static TableCell<Share, Stock> statusCell(Function<Stock, MarketTableView.EventStatus> lookup) {
-        return new TableCell<>() {
-            private final FontIcon warning = new FontIcon(FontAwesome.EXCLAMATION_TRIANGLE);
-            private final Label text = new Label("EVENT");
-            private final HBox badge = new HBox(warning, text);
-            {
-                badge.getStyleClass().add("status-badge");
-                badge.setSpacing(6);
-                text.getStyleClass().add("status-badge-text");
-            }
-
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                badge.getStyleClass().removeAll("status-badge--positive", "status-badge--negative");
-                getStyleClass().removeAll("cell-muted");
-                if (empty || stock == null) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-                MarketTableView.EventStatus status = lookup.apply(stock);
-                if (status == null || status == MarketTableView.EventStatus.NONE) {
-                    setText("—");
-                    setGraphic(null);
-                    getStyleClass().add("cell-muted");
-                    return;
-                }
-                badge.getStyleClass().add(
-                        status == MarketTableView.EventStatus.POSITIVE
-                                ? "status-badge--positive" : "status-badge--negative");
-                setText(null);
-                setGraphic(badge);
-            }
-        };
-    }
-
-    private MarketTableView.EventStatus lookupEvent(Stock s) { return eventLookup.apply(s); }
-
     private static TableCell<Share, Share> sellButtonCell() {
         return new TableCell<>() {
             private final Button graphButton = new Button();
@@ -362,7 +271,6 @@ public class PortfolioTableView {
         };
     }
 
-    // ----- Public API -----
 
     public VBox getView() { return view; }
     public TableView<Share> getTable() { return table; }
@@ -378,10 +286,5 @@ public class PortfolioTableView {
         filtered.setPredicate(s ->
                 s.getStock().getSymbol().toLowerCase().contains(q)
                         || s.getStock().getCompany().toLowerCase().contains(q));
-    }
-
-    public void setEventLookup(Function<Stock, MarketTableView.EventStatus> lookup) {
-        this.eventLookup = lookup == null ? _ -> MarketTableView.EventStatus.NONE : lookup;
-        table.refresh();
     }
 }

@@ -328,7 +328,7 @@ public class MainMenu {
     HBox inputRow = new HBox(10, inputFields,  playButton);
     inputRow.setAlignment(Pos.CENTER_LEFT);
 
-    Label footer = new Label("Start with $10,000  •  Real-time Events");
+    Label footer = new Label("Have Fun!");
     footer.getStyleClass().add("footer-label");
 
     VBox card = new VBox(16, sectionBox, inputRow, footer);

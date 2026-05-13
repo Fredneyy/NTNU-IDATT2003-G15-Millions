@@ -3,10 +3,11 @@ package ntnu.idatt2003.group15.view;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Button;
@@ -18,6 +19,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import ntnu.idatt2003.group15.controller.PortfolioController;
+import ntnu.idatt2003.group15.model.Share;
 import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -38,14 +41,18 @@ public class MarketTableView {
     private final TableView<Stock> table = new TableView<>();
     private final FilteredList<Stock> filteredStocks;
     private final ObservableList<Stock> stocks;
+    private final PortfolioController portfolioController;
 
-    /** Pluggable lookups: a controller can supply real portfolio/event sources later. */
-    private Function<Stock, Integer> ownedLookup = _ -> 0;
+    /** Pluggable lookup for event status — controllers can supply real data later. */
     private Function<Stock, EventStatus> eventLookup = _ -> EventStatus.NONE;
     private final Consumer<Stock> onBuyPressed;
     private final Consumer<Stock> onChartPressed;
 
-    public MarketTableView(ObservableList<Stock> stocks, Consumer<Stock> onBuyPressed,  Consumer<Stock> onChartPressed) {
+    public MarketTableView(ObservableList<Stock> stocks,
+                           PortfolioController portfolioController,
+                           Consumer<Stock> onBuyPressed,
+                           Consumer<Stock> onChartPressed) {
+        this.portfolioController = Objects.requireNonNull(portfolioController);
         this.onBuyPressed = onBuyPressed;
         this.onChartPressed = onChartPressed;
         this.stocks = stocks;
@@ -93,18 +100,22 @@ public class MarketTableView {
         styleCellsAs(priceCol, "col-price");
 
         TableColumn<Stock, Stock> changeCol = new TableColumn<>("Change");
-        changeCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+        changeCol.setCellValueFactory(c -> {
+            Stock s = c.getValue();
+            return Bindings.createObjectBinding(() -> s, s.getPriceBinding());
+        });
         changeCol.setCellFactory(_ -> combinedChangeCell());
         styleCellsAs(changeCol, "col-change");
 
-        TableColumn<Stock, Stock> volatilityCol = new TableColumn<>("Volatility");
-        volatilityCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
-        volatilityCol.setCellFactory(_ -> volatilityCell());
-        styleCellsAs(volatilityCol, "col-volatility");
-
-        TableColumn<Stock, Stock> ownedCol = new TableColumn<>("Owned");
-        ownedCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
-        ownedCol.setCellFactory(_ -> ownedCell(this::lookupOwned));
+        ObservableList<Share> portfolioShares = portfolioController.getListProperty();
+        TableColumn<Stock, BigDecimal> ownedCol = new TableColumn<>("Owned");
+        ownedCol.setCellValueFactory(c -> {
+            Stock s = c.getValue();
+            return Bindings.createObjectBinding(
+                () -> totalOwnedFor(s, portfolioShares),
+                portfolioShares);
+        });
+        ownedCol.setCellFactory(_ -> ownedCell());
         styleCellsAs(ownedCol, "col-owned");
 
         TableColumn<Stock, Stock> statusCol = new TableColumn<>("Status");
@@ -119,8 +130,7 @@ public class MarketTableView {
         styleCellsAs(actionCol, "col-action");
 
         table.getColumns().setAll(
-                symbolCol, companyCol, priceCol, changeCol,
-                volatilityCol, ownedCol, statusCol, actionCol);
+                symbolCol, companyCol, priceCol, changeCol, ownedCol, statusCol, actionCol);
 
         table.setItems(filteredStocks);
         table.setPlaceholder(new Label("No stocks match your filter."));
@@ -214,74 +224,33 @@ public class MarketTableView {
         };
     }
 
-    /** Volatility cell: derives LOW/MED/HIGH from price history. */
-    private static TableCell<Stock, Stock> volatilityCell() {
-        return new TableCell<>() {
-            private final Label badge = new Label();
-            { badge.getStyleClass().add("volatility-badge"); }
-
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                badge.getStyleClass().removeAll(
-                        "volatility-badge--low",
-                        "volatility-badge--med",
-                        "volatility-badge--high");
-                if (empty || stock == null) {
-                    setGraphic(null);
-                    return;
-                }
-                double v = computeVolatility(stock.getHistoricalPrices());
-                String label;
-                String toneClass;
-                if (v < 0.02) {
-                    label = "LOW";
-                    toneClass = "volatility-badge--low";
-                } else if (v < 0.06) {
-                    label = "MED";
-                    toneClass = "volatility-badge--med";
-                } else {
-                    label = "HIGH";
-                    toneClass = "volatility-badge--high";
-                }
-                badge.setText(label);
-                badge.getStyleClass().add(toneClass);
-                setGraphic(badge);
-            }
-
-            private double computeVolatility(List<BigDecimal> prices) {
-                if (prices == null || prices.size() < 2) return 0;
-                double mean = prices.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0);
-                if (mean == 0) return 0;
-                double variance = prices.stream()
-                        .mapToDouble(p -> Math.pow(p.doubleValue() - mean, 2))
-                        .average().orElse(0);
-                return Math.sqrt(variance) / mean; // coefficient of variation
-            }
-        };
-    }
-
-    /** Owned cell: shows shares owned or em-dash when zero. */
-    private static TableCell<Stock, Stock> ownedCell(Function<Stock, Integer> lookup) {
+    /** Owned cell: shows total quantity held or em-dash when none. */
+    private static TableCell<Stock, BigDecimal> ownedCell() {
         return new TableCell<>() {
             @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
+            protected void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
                 getStyleClass().removeAll("cell-muted", "cell-owned");
-                if (empty || stock == null) {
-                    setText(null);
-                    return;
-                }
-                Integer count = lookup.apply(stock);
-                if (count == null || count <= 0) {
-                    setText("—");
-                    getStyleClass().add("cell-muted");
+                if (empty || value == null || value.signum() <= 0) {
+                    setText(empty ? null : "—");
+                    if (!empty) getStyleClass().add("cell-muted");
                 } else {
-                    setText(String.valueOf(count));
+                    setText(value.stripTrailingZeros().toPlainString());
                     getStyleClass().add("cell-owned");
                 }
             }
         };
+    }
+
+    private static BigDecimal totalOwnedFor(Stock stock, List<Share> shares) {
+        BigDecimal total = BigDecimal.ZERO;
+        String symbol = stock.getSymbol();
+        for (Share share : shares) {
+            if (share.getStock().getSymbol().equalsIgnoreCase(symbol)) {
+                total = total.add(share.getQuantity());
+            }
+        }
+        return total;
     }
 
     /** Status cell: warning + EVENT text when stock has an active event. */
@@ -322,7 +291,6 @@ public class MarketTableView {
         };
     }
 
-    private Integer lookupOwned(Stock s) { return ownedLookup.apply(s); }
     private EventStatus lookupEvent(Stock s) { return eventLookup.apply(s); }
 
     private TableCell<Stock, Stock> buyButtonCell() {
@@ -376,12 +344,6 @@ public class MarketTableView {
     public VBox getView() { return view; }
     public TableView<Stock> getTable() { return table; }
     public ObservableList<Stock> getStocks() { return stocks; }
-
-    /** Plug in the source of "shares owned" per stock (typically from PortfolioController). */
-    public void setOwnedLookup(Function<Stock, Integer> lookup) {
-        this.ownedLookup = lookup == null ? _ -> 0 : lookup;
-        table.refresh();
-    }
 
     /** Plug in the source of event status per stock. */
     public void setEventLookup(Function<Stock, EventStatus> lookup) {

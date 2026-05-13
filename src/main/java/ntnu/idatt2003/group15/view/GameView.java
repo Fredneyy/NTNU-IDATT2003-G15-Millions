@@ -58,11 +58,14 @@ public class GameView {
         exchangeController.cashProperty(),
         exchangeController::buy);
 
-    portfolioTable = new PortfolioTableView(
-        new PortfolioController(playerController.getPortfolio()));
+    PortfolioController portfolioController =
+        new PortfolioController(playerController.getPortfolio());
+
+    portfolioTable = new PortfolioTableView(portfolioController);
     portfolioContent = new VBox(portfolioTable.getView());
 
     marketTable = new MarketTableView(marketStocks,
+        portfolioController,
         stock -> buyStockDialog.show(view, stock),
         stock -> stockChartDialog.show(view, stock));
     marketContent = new VBox(marketTable.getView());
@@ -222,15 +225,6 @@ public class GameView {
   }
 
   public StackPane getView() { return view; }
-  public HeaderView getHeaderView() { return headerView; }
-  public SettingsView getSettingsView() { return settingsView; }
-  public StatisticsOverview getStatisticsOverview() { return statisticsOverview; }
-  public TabContainer getTabContainer() { return tabContainer; }
-  public TextField getSearchField() { return searchField; }
-  public MarketTableView getMarketTable() { return marketTable; }
-  public PortfolioTableView getPortfolioTable() { return portfolioTable; }
-  public StatsView getStatsView() { return statsView; }
-  public TradesView getTradesView() { return tradesView; }
   public NewsFeedView getNewsFeedView() { return newsFeedView; }
 
   public void setMarketStocks(List<Stock> stocks) { marketStocks.setAll(stocks); }

@@ -36,35 +36,35 @@ public class NewsController {
 
     /** Dummy headlines that cycle indefinitely. */
     private final List<NewsItem> dummies = List.of(
-            new NewsItem(NewsDialog.Sentiment.BULLISH, "HOOD", new BigDecimal("20.0"),
+            new NewsItem(NewsDialog.Sentiment.BULLISH, "HOOD", new BigDecimal("20.0"), null,
                     "Robinhood Markets: Major Scientific Breakthrough",
                     "Research team achieves milestone that analysts call \"game-changing.\"",
                     new BigDecimal("1.6"), 16, "Breakthrough", null),
-            new NewsItem(NewsDialog.Sentiment.BEARISH, "NFLX", new BigDecimal("-11.0"),
+            new NewsItem(NewsDialog.Sentiment.BEARISH, "NFLX", new BigDecimal("-11.0"), null,
                     "Netflix Inc.: Launch Disaster",
                     "Highly anticipated product plagued by defects and poor reviews.",
                     new BigDecimal("1.4"), 19, "Product Issue", null),
-            new NewsItem(NewsDialog.Sentiment.BEARISH, "AMZN", new BigDecimal("-8.0"),
+            new NewsItem(NewsDialog.Sentiment.BEARISH, "AMZN", new BigDecimal("-8.0"), null,
                     "Amazon.com Inc.: Earnings Miss Expectations",
                     "Quarterly results fall short of analyst predictions, citing market headwinds.",
                     new BigDecimal("1.6"), 22, "Earnings Miss", null),
-            new NewsItem(NewsDialog.Sentiment.BULLISH, "SOFI", new BigDecimal("25.0"),
+            new NewsItem(NewsDialog.Sentiment.BULLISH, "SOFI", new BigDecimal("25.0"), null,
                     "SoFi Technologies: Revolutionary Product Announced",
                     "Company unveils groundbreaking technology that could transform the industry.",
                     new BigDecimal("1.8"), 18, "Breakthrough", null),
-            new NewsItem(NewsDialog.Sentiment.BULLISH, "NVDA", new BigDecimal("4.5"),
+            new NewsItem(NewsDialog.Sentiment.BULLISH, "NVDA", new BigDecimal("4.5"), null,
                     "NVIDIA: Next-Gen GPU Reveal Ahead of Schedule",
                     "Performance benchmarks leak online, exceeding analyst expectations.",
                     new BigDecimal("1.2"), 11, "Product Launch", null),
-            new NewsItem(NewsDialog.Sentiment.BEARISH, "TSLA", new BigDecimal("-6.2"),
+            new NewsItem(NewsDialog.Sentiment.BEARISH, "TSLA", new BigDecimal("-6.2"), null,
                     "Tesla Inc.: Delivery Numbers Disappoint",
                     "Quarterly delivery figures fall short of consensus, raising demand concerns.",
                     new BigDecimal("1.3"), 14, "Earnings Miss", null),
-            new NewsItem(NewsDialog.Sentiment.BEARISH, "GOOGL", new BigDecimal("-20.0"),
+            new NewsItem(NewsDialog.Sentiment.BEARISH, "GOOGL", new BigDecimal("-20.0"), null,
                     "Alphabet Inc.: Antitrust Ruling Forces Spin-off",
                     "Court orders ad business to be divested within 18 months.",
                     new BigDecimal("1.9"), 25, "Regulatory", null),
-            new NewsItem(NewsDialog.Sentiment.BULLISH, "MSFT", new BigDecimal("3.8"),
+            new NewsItem(NewsDialog.Sentiment.BULLISH, "MSFT", new BigDecimal("3.8"), null,
                     "Microsoft: Multi-Year Defense Contract Secured",
                     "Azure wins flagship cloud deal valued at $12 billion over five years.",
                     new BigDecimal("1.1"), 9, "Partnership", null)
@@ -113,7 +113,7 @@ public class NewsController {
         // Stamp emission time so feed listeners can render "X seconds ago".
         NewsItem stamped = item.when() != null
                 ? item
-                : new NewsItem(item.sentiment(), item.symbol(), item.changePercent(),
+                : new NewsItem(item.sentiment(), item.symbol(), item.changePercent(), item.drift(),
                         item.title(), item.message(), item.volatility(),
                         item.durationUpdates(), item.type(), Instant.now());
 
