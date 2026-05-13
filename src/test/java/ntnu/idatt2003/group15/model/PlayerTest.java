@@ -54,6 +54,68 @@ class PlayerTest {
       assertEquals(BigDecimal.valueOf(1000), player.getNetWorth());
     }
 
+    @Test
+    void cashPropertyReflectsMoney() {
+      assertEquals(BigDecimal.valueOf(1000), player.getCashProperty().getValue());
+      player.addMoney(BigDecimal.valueOf(250));
+      assertEquals(BigDecimal.valueOf(1250), player.getCashProperty().getValue());
+    }
+
+    @Test
+    void netWorthPropertyEqualsStartingMoneyWithEmptyPortfolio() {
+      assertEquals(BigDecimal.valueOf(1000), player.getNetWorthProperty().getValue());
+    }
+
+    @Test
+    void netWorthPropertyIncludesPortfolioMarketValue() {
+      Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(10));
+      Share share = new Share(stock, BigDecimal.valueOf(50), stock.getSalesPrice());
+      player.getPortfolio().addShare(share);
+      // 1000 cash + 50 * 10 market value = 1500
+      assertEquals(0,
+          BigDecimal.valueOf(1500).compareTo(player.getNetWorthProperty().getValue()));
+    }
+
+    @Test
+    void netWorthPropertyReactsToMoneyChanges() {
+      player.withdrawMoney(BigDecimal.valueOf(400));
+      assertEquals(BigDecimal.valueOf(600), player.getNetWorthProperty().getValue());
+    }
+
+    @Test
+    void netWorthChangeIsZeroAtStart() {
+      assertEquals(0, BigDecimal.ZERO.compareTo(player.getNetWorthChangeProperty().getValue()));
+    }
+
+    @Test
+    void netWorthChangeReflectsGains() {
+      player.addMoney(BigDecimal.valueOf(500));
+      assertEquals(0,
+          BigDecimal.valueOf(500).compareTo(player.getNetWorthChangeProperty().getValue()));
+    }
+
+    @Test
+    void netWorthChangePercentIsZeroAtStart() {
+      assertEquals(0,
+          BigDecimal.ZERO.compareTo(player.getNetWorthChangePercentProperty().getValue()));
+    }
+
+    @Test
+    void netWorthChangePercentReflectsGains() {
+      player.addMoney(BigDecimal.valueOf(250)); // +25% on 1000
+      assertEquals(0,
+          new BigDecimal("25.00")
+              .compareTo(player.getNetWorthChangePercentProperty().getValue()));
+    }
+
+    @Test
+    void netWorthChangePercentIsZeroWhenStartingMoneyZero() {
+      Player broke = new Player("broke", BigDecimal.ZERO);
+      broke.addMoney(BigDecimal.valueOf(100));
+      assertEquals(0,
+          BigDecimal.ZERO.compareTo(broke.getNetWorthChangePercentProperty().getValue()));
+    }
+
   }
 
   @Nested

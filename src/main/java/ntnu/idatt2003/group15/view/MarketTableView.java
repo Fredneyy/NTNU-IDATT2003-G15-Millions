@@ -88,8 +88,7 @@ public class MarketTableView {
         styleCellsAs(companyCol, "col-company");
 
         TableColumn<Stock, BigDecimal> priceCol = new TableColumn<>("Price");
-        priceCol.setCellValueFactory(c ->
-                new ReadOnlyObjectWrapper<>(c.getValue().getSalesPrice()));
+        priceCol.setCellValueFactory(c -> c.getValue().getPriceBinding());
         priceCol.setCellFactory(_ -> moneyCell());
         styleCellsAs(priceCol, "col-price");
 

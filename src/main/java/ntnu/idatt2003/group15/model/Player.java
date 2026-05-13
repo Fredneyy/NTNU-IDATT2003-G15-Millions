@@ -1,9 +1,13 @@
 package ntnu.idatt2003.group15.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 
 /**
@@ -17,6 +21,9 @@ public class Player {
   private final Portfolio portfolio = new Portfolio();
   private final TransactionArchive transactionArchive = new TransactionArchive();
   private ObjectProperty<PlayerStatus> status;
+  private final ObjectBinding<BigDecimal> netWorthBinding;
+  private final ObjectBinding<BigDecimal> netWorthChangeBinding;
+  private final ObjectBinding<BigDecimal> netWorthChangePercentBinding;
 
   /**
    * Initializes a new player with a name and starting balance.
@@ -36,6 +43,40 @@ public class Player {
     this.startingMoney = startingMoney;
     this.money = new SimpleObjectProperty<>(startingMoney);
     this.status = new SimpleObjectProperty<>(PlayerStatus.NOVICE);
+
+    ObservableValue<BigDecimal> marketValue = portfolio.getTotalMarketValueProperty();
+    this.netWorthBinding = Bindings.createObjectBinding(
+        () -> money.get().add(marketValue.getValue()),
+        money, marketValue);
+    this.netWorthChangeBinding = Bindings.createObjectBinding(
+        () -> netWorthBinding.get().subtract(startingMoney),
+        netWorthBinding);
+    this.netWorthChangePercentBinding = Bindings.createObjectBinding(() -> {
+      if (startingMoney.signum() == 0) return BigDecimal.ZERO;
+      return netWorthChangeBinding.get()
+          .divide(startingMoney, 4, RoundingMode.HALF_UP)
+          .movePointRight(2);
+    }, netWorthChangeBinding);
+  }
+
+  /** Observable cash balance, exposed as a read-only view of the money property. */
+  public ObservableValue<BigDecimal> getCashProperty() {
+    return money;
+  }
+
+  /** Observable net worth: cash + portfolio market value. */
+  public ObservableValue<BigDecimal> getNetWorthProperty() {
+    return netWorthBinding;
+  }
+
+  /** Observable change in net worth from starting balance. */
+  public ObservableValue<BigDecimal> getNetWorthChangeProperty() {
+    return netWorthChangeBinding;
+  }
+
+  /** Observable net worth change as a percent of the starting balance. */
+  public ObservableValue<BigDecimal> getNetWorthChangePercentProperty() {
+    return netWorthChangePercentBinding;
   }
 
   /**
