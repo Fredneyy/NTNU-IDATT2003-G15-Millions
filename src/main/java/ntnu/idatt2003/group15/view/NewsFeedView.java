@@ -97,6 +97,12 @@ public class NewsFeedView {
     public ObservableList<NewsRecord> getEvents() { return events; }
     public void setEvents(List<NewsRecord> records) { events.setAll(records); }
 
+    /** Insert a single new event at the top of the feed (newest first). */
+    public void prependEvent(NewsRecord record) {
+        if (record == null) return;
+        events.add(0, record);
+    }
+
     // ----- Row layout -----
 
     private static final class NewsRow {
