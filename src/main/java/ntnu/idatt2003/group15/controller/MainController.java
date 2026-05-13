@@ -30,21 +30,48 @@ public class MainController {
   private Timeline priceTicker;
   private StockSimulator simulator;
   private Map<String, Stock> stocksBySymbol;
+  private Consumer<Throwable> errorHandler;
 
 
   public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
-    MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", List.of()), this::startGame);
-    mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
-    newsController = new NewsController(root);
     this.csvUtil = csvUtil;
     this.taskUtil = taskUtil;
+    this.errorHandler = errorHandler;
     this.root = root;
+
+    MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", loadStocks()), this::startGame);
+    mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
+    newsController = new NewsController(root);
   }
 
   public void showMainMenu() {
     newsController.stop();
     stopPriceTicker();
     root.getChildren().setAll(mainMenu.getView());
+  }
+
+  private List<Stock> loadStocks() {
+    List<List<String>> rawStockValues = new ArrayList<>(
+        csvUtil.readCsvFile("src/main/resources/storage/stocks.csv")
+    );
+    rawStockValues.removeFirst();
+    List<Stock> stocks = new ArrayList<>();
+    for (List<String> stockvalue : rawStockValues) {
+      String[] sectorsStrings = stockvalue.getLast().split("\\|");
+      List<StockSectors> sectors = new ArrayList<>();
+      for (String sector : sectorsStrings) {
+        sectors.add(StockSectors.fromLabel(sector));
+      }
+      stocks.add(new Stock(
+          stockvalue.getFirst(),
+          stockvalue.get(1),
+          BigDecimal.valueOf(Double.parseDouble(stockvalue.get(2))),
+          Double.parseDouble(stockvalue.get(3)),
+          Double.parseDouble(stockvalue.get(4)),
+          sectors)
+      );
+    }
+    return stocks;
   }
 
   private void startGame(ExchangeController exchangeController, PlayerController playerController) {
