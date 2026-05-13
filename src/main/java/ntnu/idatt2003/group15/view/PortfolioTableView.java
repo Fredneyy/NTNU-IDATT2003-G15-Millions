@@ -3,10 +3,11 @@ package ntnu.idatt2003.group15.view;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Pos;
@@ -20,6 +21,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.Share;
 import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
@@ -27,8 +29,8 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 /**
  * Card-styled portfolio table. Each row is one {@link Share} holding. Header
- * shows the position count and aggregate market value. Action column has a
- * Sell button instead of Buy.
+ * shows the position count and aggregate market value, both bound live to the
+ * {@link PortfolioController}. Action column has a Sell button instead of Buy.
  */
 public class PortfolioTableView {
 
@@ -37,19 +39,15 @@ public class PortfolioTableView {
     private final Label countLabel = new Label("0 positions");
     private final Label totalValueLabel = new Label("$0.00");
     private final TableView<Share> table = new TableView<>();
+    private final PortfolioController portfolioController;
     private final FilteredList<Share> filtered;
-    private final ObservableList<Share> shares;
 
     /** Pluggable lookup for active price events — controllers can supply real data later. */
     private Function<Stock, MarketTableView.EventStatus> eventLookup = _ -> MarketTableView.EventStatus.NONE;
 
-    public PortfolioTableView() {
-        this(FXCollections.observableArrayList());
-    }
-
-    public PortfolioTableView(ObservableList<Share> shares) {
-        this.shares = shares;
-        this.filtered = new FilteredList<>(shares, _ -> true);
+    public PortfolioTableView(PortfolioController portfolioController) {
+        this.portfolioController = Objects.requireNonNull(portfolioController);
+        this.filtered = new FilteredList<>(portfolioController.getListProperty(), _ -> true);
 
         buildTable();
         bindHeaderSummary();
@@ -83,20 +81,14 @@ public class PortfolioTableView {
     }
 
     private void bindHeaderSummary() {
+        ObservableList<Share> shares = portfolioController.getListProperty();
         countLabel.textProperty().bind(Bindings.createStringBinding(
                 () -> shares.size() + (shares.size() == 1 ? " position" : " positions"),
                 shares));
-        totalValueLabel.textProperty().bind(Bindings.createStringBinding(
-                () -> "$" + totalValue().setScale(2, RoundingMode.HALF_UP).toPlainString(),
-                shares));
-    }
 
-    private BigDecimal totalValue() {
-        BigDecimal sum = BigDecimal.ZERO;
-        for (Share s : shares) {
-            sum = sum.add(s.getStock().getSalesPrice().multiply(s.getQuantity()));
-        }
-        return sum;
+        ObservableValue<BigDecimal> totalValue = portfolioController.totalMarketValueProperty();
+        totalValueLabel.textProperty().bind(Bindings.createStringBinding(
+                () -> formatMoney(totalValue.getValue()), totalValue));
     }
 
     @SuppressWarnings("unchecked")
@@ -116,22 +108,25 @@ public class PortfolioTableView {
         styleCellsAs(qtyCol, "col-quantity");
 
         TableColumn<Share, BigDecimal> priceCol = new TableColumn<>("Price");
-        priceCol.setCellValueFactory(c ->
-                new ReadOnlyObjectWrapper<>(c.getValue().getStock().getSalesPrice()));
+        priceCol.setCellValueFactory(c -> c.getValue().getStock().getPriceBinding());
         priceCol.setCellFactory(_ -> moneyCell());
         styleCellsAs(priceCol, "col-price");
 
         TableColumn<Share, BigDecimal> totalCol = new TableColumn<>("Total Value");
         totalCol.setCellValueFactory(c -> {
             Share s = c.getValue();
-            return new ReadOnlyObjectWrapper<>(
-                    s.getStock().getSalesPrice().multiply(s.getQuantity()));
+            return Bindings.createObjectBinding(
+                    () -> s.getStock().getSalesPrice().multiply(s.getQuantity()),
+                    s.getStock().getPriceBinding());
         });
         totalCol.setCellFactory(_ -> moneyCell());
         styleCellsAs(totalCol, "col-total");
 
         TableColumn<Share, Share> changeCol = new TableColumn<>("Change");
-        changeCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+        changeCol.setCellValueFactory(c -> {
+            Share s = c.getValue();
+            return Bindings.createObjectBinding(() -> s, s.getStock().getPriceBinding());
+        });
         changeCol.setCellFactory(_ -> combinedChangeCell());
         styleCellsAs(changeCol, "col-change");
 
@@ -162,6 +157,11 @@ public class PortfolioTableView {
 
     private static <S, T> void styleCellsAs(TableColumn<S, T> column, String styleClass) {
         column.getStyleClass().add(styleClass);
+    }
+
+    private static String formatMoney(BigDecimal v) {
+        if (v == null) return "$0.00";
+        return "$" + v.setScale(2, RoundingMode.HALF_UP).toPlainString();
     }
 
     // ----- Cell factories (mirror MarketTableView, adapted for Share rows) -----
@@ -366,7 +366,7 @@ public class PortfolioTableView {
 
     public VBox getView() { return view; }
     public TableView<Share> getTable() { return table; }
-    public ObservableList<Share> getShares() { return shares; }
+    public ObservableList<Share> getShares() { return portfolioController.getListProperty(); }
 
     /** Filter rows by symbol or company substring (case insensitive). Empty resets. */
     public void setSearchFilter(String query) {

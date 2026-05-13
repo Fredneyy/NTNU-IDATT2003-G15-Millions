@@ -18,7 +18,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.PlayerController;
-import ntnu.idatt2003.group15.model.Share;
+import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -36,8 +36,7 @@ public class GameView {
   private final BuyStockDialog buyStockDialog;
   private final StockChartDialog stockChartDialog = new StockChartDialog();
   private final MarketTableView marketTable;
-  private final ObservableList<Share> portfolioShares = FXCollections.observableArrayList();
-  private final PortfolioTableView portfolioTable = new PortfolioTableView(portfolioShares);
+  private final PortfolioTableView portfolioTable;
   private final StatsView statsView = new StatsView();
   private final TradesView tradesView = new TradesView();
   private final NewsFeedView newsFeedView = new NewsFeedView();
@@ -45,7 +44,7 @@ public class GameView {
   private final HBox searchBar;
 
   private final VBox marketContent;
-  private final VBox portfolioContent = new VBox(portfolioTable.getView());
+  private final VBox portfolioContent;
   private final PlayerController playerController;
   private final ExchangeController exchangeController;
 
@@ -58,6 +57,10 @@ public class GameView {
     buyStockDialog = new BuyStockDialog(
         exchangeController.cashProperty(),
         exchangeController::buy);
+
+    portfolioTable = new PortfolioTableView(
+        new PortfolioController(playerController.getPortfolio()));
+    portfolioContent = new VBox(portfolioTable.getView());
 
     marketTable = new MarketTableView(marketStocks,
         stock -> buyStockDialog.show(view, stock),
@@ -231,5 +234,4 @@ public class GameView {
   public NewsFeedView getNewsFeedView() { return newsFeedView; }
 
   public void setMarketStocks(List<Stock> stocks) { marketStocks.setAll(stocks); }
-  public void setPortfolioShares(List<Share> shares) { portfolioShares.setAll(shares); }
 }
