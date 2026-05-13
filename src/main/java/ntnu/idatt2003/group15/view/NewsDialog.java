@@ -16,6 +16,9 @@ public class NewsDialog extends BaseDialog {
   private Timeline progressTimeline;
   private final Button closeButton = new Button("X");
 
+  /** When set, close() removes from this stack instead of the legacy root StackPane. */
+  private NewsContainer container;
+
   public NewsDialog(Duration displayDuration) {
     super();
     this.displayDuration = displayDuration;
@@ -62,20 +65,30 @@ public class NewsDialog extends BaseDialog {
 
   @Override
   public void close() {
+    // Container path: animate out and remove from the stack.
+    if (container != null) {
+      if (progressTimeline != null) progressTimeline.stop();
+      ParallelTransition exit = buildExitAnimation();
+      exit.setOnFinished(_ -> container.remove(dialog));
+      exit.play();
+      return;
+    }
+    // Legacy path: dialog was attached directly to the root StackPane.
     if (root != null && root.getChildren().contains(dialog)) {
       if (progressTimeline != null) progressTimeline.stop();
-
-      TranslateTransition tt = new TranslateTransition(Duration.millis(200), dialog);
-      tt.setToX(400);
-      tt.setInterpolator(Interpolator.EASE_IN);
-
-      FadeTransition ft = createFadeTransition(dialog, Duration.millis(300), dialog.getOpacity(), 0);
-
-      ParallelTransition exit = new ParallelTransition(tt, ft);
-
+      ParallelTransition exit = buildExitAnimation();
       exit.setOnFinished(_ -> root.getChildren().remove(dialog));
       exit.play();
     }
+  }
+
+  private ParallelTransition buildExitAnimation() {
+    TranslateTransition tt = new TranslateTransition(Duration.millis(200), dialog);
+    tt.setToX(400);
+    tt.setInterpolator(Interpolator.EASE_IN);
+
+    FadeTransition ft = createFadeTransition(dialog, Duration.millis(300), dialog.getOpacity(), 0);
+    return new ParallelTransition(tt, ft);
   }
 
   @Override
@@ -88,6 +101,15 @@ public class NewsDialog extends BaseDialog {
       playEntranceAnimation();
       startProgressTimer();
     }
+  }
+
+  /** Show this dialog as the newest notification inside a {@link NewsContainer}. */
+  public void showIn(NewsContainer container) {
+    if (container == null) return;
+    this.container = container;
+    container.pushTop(dialog);
+    playEntranceAnimation();
+    startProgressTimer();
   }
 
   private void playEntranceAnimation() {

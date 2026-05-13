@@ -13,6 +13,7 @@ import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.BuyStockDialog;
 import ntnu.idatt2003.group15.view.ExceptionDialog;
+import ntnu.idatt2003.group15.view.NewsDialog;
 import ntnu.idatt2003.group15.view.StockChartDialog;
 
 import java.math.BigDecimal;

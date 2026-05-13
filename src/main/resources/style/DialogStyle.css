@@ -54,6 +54,11 @@
     -fx-effect: dropshadow(gaussian, rgba(92,110,245,0.25), 6, 0.1, 0, 1);
 }
 
+/* Top-right stack of news popups; children are .news-popup-container cards. */
+.news-container {
+    -fx-spacing: 12;
+}
+
 .news-popup-container {
     -fx-background-color: #0f1729;
     -fx-border-color: #1e2d4d;

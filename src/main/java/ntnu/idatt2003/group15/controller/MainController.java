@@ -19,17 +19,20 @@ public class MainController {
   private ExchangeController exchangeController;
   private PlayerController playerController;
   private final MainMenuController mainMenuController;
+  private final NewsController newsController;
 
 
   public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
     mainMenuController = new MainMenuController(new Exchange("OSEBX", new ArrayList<>()), this::startGame);
     mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
+    newsController = new NewsController(root);
     this.csvUtil = csvUtil;
     this.taskUtil = taskUtil;
     this.root = root;
   }
 
   public void showMainMenu() {
+    newsController.stop();
     root.getChildren().setAll(mainMenu.getView());
   }
 
@@ -38,6 +41,11 @@ public class MainController {
     this.exchangeController = exchangeController;
     GameView gameView = new GameView(playerController.getName(), this::showMainMenu);
     root.getChildren().setAll(gameView.getView());
+    // Start the news loop after the game view is in place — root.setAll() above
+    // would otherwise wipe the NewsContainer node we mount.
+    newsController.start();
+    newsController.push("Welcome to Millions!",
+        "Your stock market simulation experience starts here.");
   }
 
 }
