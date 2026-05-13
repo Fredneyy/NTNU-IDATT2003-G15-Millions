@@ -1,8 +1,15 @@
 package ntnu.idatt2003.group15.controller;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 import ntnu.idatt2003.group15.model.Exchange;
+import ntnu.idatt2003.group15.model.PriceEvent;
+import ntnu.idatt2003.group15.model.StandardPriceEvent;
 import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.model.StockSimulator;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.GameView;
@@ -10,7 +17,10 @@ import ntnu.idatt2003.group15.view.MainMenu;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.function.Consumer;
 
 public class MainController {
@@ -22,6 +32,7 @@ public class MainController {
   private ExchangeController exchangeController;
   private PlayerController playerController;
   private final MainMenuController mainMenuController;
+  private Timeline priceTicker;
 
 
   public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
@@ -33,6 +44,7 @@ public class MainController {
   }
 
   public void showMainMenu() {
+    stopPriceTicker();
     root.getChildren().setAll(mainMenu.getView());
   }
 
@@ -40,8 +52,45 @@ public class MainController {
     this.playerController = playerController;
     this.exchangeController = exchangeController;
     GameView gameView = new GameView(playerController, exchangeController, this::showMainMenu);
-    gameView.setMarketStocks(exchangeController.getAllStocks());
+    List<Stock> stocks = exchangeController.getAllStocks();
+    gameView.setMarketStocks(stocks);
     root.getChildren().setAll(gameView.getView());
+    startPriceTicker(stocks);
+  }
+
+  private void startPriceTicker(List<Stock> stocks) {
+    stopPriceTicker();
+    StockSimulator simulator = new StockSimulator(1.0 / 52.0); // ~1 trading week per tick
+    Map<Stock, PriceEvent> events = randomEventsFor(stocks);
+    priceTicker = new Timeline(new KeyFrame(Duration.seconds(1), _ -> {
+      for (Stock stock : stocks) {
+        BigDecimal next = simulator.nextPrice(events.get(stock), stock.getSalesPrice());
+        if (next.signum() > 0) {
+          stock.addNewSalesPrice(next);
+        }
+      }
+    }));
+    priceTicker.setCycleCount(Animation.INDEFINITE);
+    priceTicker.play();
+  }
+
+  private void stopPriceTicker() {
+    if (priceTicker != null) {
+      priceTicker.stop();
+      priceTicker = null;
+    }
+  }
+
+  private static Map<Stock, PriceEvent> randomEventsFor(List<Stock> stocks) {
+    Random rng = new Random();
+    Map<Stock, PriceEvent> map = new HashMap<>();
+    for (Stock stock : stocks) {
+      // drift roughly in [-0.05, 0.15]; volatility in [0.15, 0.55]
+      double drift = -0.05 + rng.nextDouble() * 0.20;
+      double volatility = 0.15 + rng.nextDouble() * 0.40;
+      map.put(stock, new StandardPriceEvent(drift, volatility));
+    }
+    return map;
   }
 
   private static List<Stock> seedStocks() {

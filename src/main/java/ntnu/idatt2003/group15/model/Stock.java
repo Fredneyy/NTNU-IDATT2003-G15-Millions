@@ -55,7 +55,7 @@ public class Stock {
       } else {
         return prices.getLast();
       }
-    });
+    }, prices);
   }
 
   /**
@@ -128,11 +128,12 @@ public class Stock {
   }
 
   /**
-   * Returns the historical prices of the stock.
+   * Returns the historical prices of the stock as a live observable list.
+   * Listeners attached to the returned list will fire on every new price.
    *
-   * @return a {@code List} containing every price of the stock
+   * @return the observable list of prices for the stock
    */
-  public List<BigDecimal> getHistoricalPrices() {
+  public ObservableList<BigDecimal> getHistoricalPrices() {
     return prices;
   }
 
