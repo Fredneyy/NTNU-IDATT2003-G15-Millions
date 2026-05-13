@@ -37,7 +37,7 @@ class ExchangeTest {
 
       @Test
       void getWeek () {
-        assertEquals(1, exchange.getWeek());
+        assertEquals(1, exchange.getWeekProperty().get());
     }
 
       @Test

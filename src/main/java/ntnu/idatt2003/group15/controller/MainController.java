@@ -25,14 +25,11 @@ public class MainController {
   private final StackPane root;
   private final NewsController newsController;
   private Timeline priceTicker;
-  private StockSimulator simulator;
-  private Consumer<Throwable> errorHandler;
 
 
   public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
     this.csvUtil = csvUtil;
     this.taskUtil = taskUtil;
-    this.errorHandler = errorHandler;
     this.root = root;
 
     MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", loadStocks()), this::startGame);
@@ -80,26 +77,19 @@ public class MainController {
     newsController.start();
     newsController.setOnNewsEmitted(item -> {
       gameView.getNewsFeedView().prependEvent(item);
-      // Route headline-style events through the simulator: every stock in the
+      // Route headline-style events through the exchange: every stock in the
       // item's sector gets shocked + an elevated-volatility window.
-      if (item.sector() != null && simulator != null) {
-        simulator.applyNews(item, stocks);
+      if (item.sector() != null) {
+        exchangeController.applyNews(item);
       }
     });
+    startPriceTicker(exchangeController);
   }
 
-  private void startPriceTicker(List<Stock> stocks) {
+  private void startPriceTicker(ExchangeController exchangeController) {
     stopPriceTicker();
-    simulator = new StockSimulator(1.0 / 52.0); // ~1 trading week per tick
-
-    priceTicker = new Timeline(new KeyFrame(Duration.seconds(1), _ -> {
-      for (Stock stock : stocks) {
-        BigDecimal next = simulator.nextPrice(stock);
-        if (next.signum() > 0) {
-          stock.addNewSalesPrice(next);
-        }
-      }
-    }));
+    priceTicker = new Timeline(new KeyFrame(
+        Duration.seconds(5), _ -> exchangeController.advanceWeek()));
     priceTicker.setCycleCount(Animation.INDEFINITE);
     priceTicker.play();
   }
@@ -109,7 +99,6 @@ public class MainController {
       priceTicker.stop();
       priceTicker = null;
     }
-    simulator = null;
   }
 
 }

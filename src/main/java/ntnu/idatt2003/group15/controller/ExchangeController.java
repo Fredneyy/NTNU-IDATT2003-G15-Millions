@@ -1,5 +1,6 @@
 package ntnu.idatt2003.group15.controller;
 
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.Exchange;
@@ -77,8 +78,8 @@ public class ExchangeController {
      *
      * @return the current week number
      */
-    public int getWeek() {
-        return exchange.getWeek();
+    public ObservableIntegerValue getWeek() {
+        return exchange.getWeekProperty();
     }
 
     /**
@@ -172,5 +173,10 @@ public class ExchangeController {
      */
     public void advanceWeek() {
         exchange.advance();
+    }
+
+    /** Apply a news headline to every stock in the item's sector. */
+    public void applyNews(ntnu.idatt2003.group15.model.NewsItem item) {
+        exchange.applyNews(item);
     }
 }

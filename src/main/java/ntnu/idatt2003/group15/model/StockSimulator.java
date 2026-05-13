@@ -12,7 +12,6 @@ import java.util.Random;
  *
  * <p>A baseline {@code NewsItem} per stock supplies the steady-state drift
  * ({@code item.drift()}) and volatility (raw σ). News headlines pushed through
- * {@link #applyNews(NewsItem, Stock)} cause an immediate price shock equal to
  * {@code changePercent} and an elevated-volatility window that lasts
  * {@code durationUpdates} ticks with σ multiplied by {@code item.volatility()}.
  */
@@ -117,23 +116,18 @@ public class StockSimulator {
    * {@code item.durationUpdates()} ticks scaled by {@code item.volatility()}.
    *
    * <p>If {@code item.sector()} is null, this is a no-op.
-   *
-   * @return the number of stocks affected
    */
-  public int applyNews(NewsItem item, List<Stock> stocks) {
+  public void applyNews(NewsItem item, List<Stock> stocks) {
     Objects.requireNonNull(item, "news item cannot be null.");
     Objects.requireNonNull(stocks, "stocks cannot be null.");
     StockSectors sector = item.sector();
-    if (sector == null) return 0;
+    if (sector == null) return;
 
-    int affected = 0;
     for (Stock stock : stocks) {
       if (stock.getCategories().contains(sector)) {
         shockAndQueue(item, stock);
-        affected++;
       }
     }
-    return affected;
   }
 
   private void shockAndQueue(NewsItem item, Stock stock) {
