@@ -5,17 +5,11 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
-import ntnu.idatt2003.group15.model.Exchange;
-import ntnu.idatt2003.group15.model.PriceEvent;
-import ntnu.idatt2003.group15.model.StandardPriceEvent;
-import ntnu.idatt2003.group15.model.Stock;
-import ntnu.idatt2003.group15.model.StockSimulator;
+import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;
-import ntnu.idatt2003.group15.view.NewsDialog;
-import ntnu.idatt2003.group15.view.NewsFeedView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -64,35 +58,11 @@ public class MainController {
     // would otherwise wipe the NewsContainer node we mount.
     newsController.start();
     // Mirror every emitted news event into the "Market News Feed" tab.
-    newsController.setOnNewsEmitted(item -> {
-      NewsFeedView.NewsRecord record = toFeedRecord(item);
-      if (record != null) gameView.getNewsFeedView().prependEvent(record);
-    });
+    // NEUTRAL items (like the welcome dialog) are filtered out by prependEvent.
+    newsController.setOnNewsEmitted(item -> gameView.getNewsFeedView().prependEvent(item));
     newsController.push("Welcome to Millions!",
         "Your stock market simulation experience starts here.");
     startPriceTicker(stocks);
-  }
-
-  /** Convert a controller-emitted {@link NewsController.NewsItem} into a feed row.
-   *  Returns {@code null} for plain INFO items (like the welcome dialog) which
-   *  shouldn't show up as a market event. */
-  private static NewsFeedView.NewsRecord toFeedRecord(NewsController.NewsItem item) {
-    NewsFeedView.Sentiment sentiment = switch (item.sentiment()) {
-      case BULLISH -> NewsFeedView.Sentiment.BULLISH;
-      case BEARISH -> NewsFeedView.Sentiment.BEARISH;
-      case NEUTRAL -> null;
-    };
-    if (sentiment == null) return null;
-    return new NewsFeedView.NewsRecord(
-        sentiment,
-        item.symbol() == null ? "" : item.symbol(),
-        item.changePercent() == null ? BigDecimal.ZERO : item.changePercent(),
-        item.title(),
-        item.message(),
-        item.volatility() == null ? BigDecimal.ZERO : item.volatility(),
-        item.durationUpdates(),
-        item.type() == null ? "" : item.type(),
-        item.when());
   }
 
   private void startPriceTicker(List<Stock> stocks) {

@@ -21,7 +21,7 @@ public class Stock {
   private final StringProperty symbol;
   private final StringProperty company;
   private final ObservableList<BigDecimal> prices;
-  private final ObservableList<String> categories;
+  private final ObservableList<StockSectors> categories;
   private final ObjectBinding<BigDecimal> priceBinding;
 
   /**
@@ -81,7 +81,7 @@ public class Stock {
    *
    * @param categories the categories of the stock
    */
-  public void setCategories(List<String> categories) {
+  public void setCategories(List<StockSectors> categories) {
     this.categories.clear();
     this.categories.addAll(categories);
   }
@@ -196,7 +196,7 @@ public class Stock {
    *
    * @return categories property
    */
-  public ObservableList<String> getCategories() {
+  public ObservableList<StockSectors> getCategories() {
     return categories;
   }
 

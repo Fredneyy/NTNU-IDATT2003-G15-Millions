@@ -8,6 +8,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import ntnu.idatt2003.group15.model.NewsItem;
 import ntnu.idatt2003.group15.view.NewsContainer;
 import ntnu.idatt2003.group15.view.NewsDialog;
 
@@ -25,31 +26,6 @@ import ntnu.idatt2003.group15.view.NewsDialog;
  * pull from {@code Exchange} / {@code PriceEvent} streams.
  */
 public class NewsController {
-
-    /** Rich payload for one news notification. */
-    public record NewsItem(
-            NewsDialog.Sentiment sentiment,
-            String symbol,
-            BigDecimal changePercent,
-            String title,
-            String message,
-            BigDecimal volatility,    // e.g. 1.6 → renders as 1.6x
-            int durationUpdates,      // e.g. 16 → "Volatility increased for 16 updates"
-            String type,              // e.g. "Earnings Miss"
-            Instant when
-    ) {
-        /** Footer text shown in the popup. Derived from the structured fields. */
-        public String footerText() {
-            if (durationUpdates <= 0) return null;
-            return "Volatility increased for " + durationUpdates + " updates";
-        }
-
-        /** Plain informational item (e.g. the welcome message). Skipped by feed listeners. */
-        public static NewsItem info(String title, String message) {
-            return new NewsItem(NewsDialog.Sentiment.NEUTRAL, null, null,
-                    title, message, null, 0, null, Instant.now());
-        }
-    }
 
     private static final Duration TICK_INTERVAL = Duration.minutes(1);
     /** How long each individual notification stays visible. */
