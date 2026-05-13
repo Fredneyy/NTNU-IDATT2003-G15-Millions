@@ -1,0 +1,305 @@
+/* =========================================================
+   StatsView stylesheet
+   Top: row of four KPI cards.
+   Bottom: Performance Summary card with three numeric columns.
+   ========================================================= */
+
+.stats-view {
+    -fx-background-color: transparent;
+}
+
+/* ---------- KPI card row ---------- */
+.stats-kpi-row {
+    -fx-spacing: 16;
+}
+
+.kpi-card {
+    -fx-background-color: -stock-bg-card;
+    -fx-background-radius: 14;
+    -fx-border-color: -stock-bg-card-border;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 20 22;
+}
+
+.kpi-top {
+    -fx-alignment: center-left;
+}
+
+.kpi-icon-box {
+    -fx-background-radius: 10;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+    -fx-max-width: 40;
+    -fx-max-height: 40;
+    -fx-alignment: center;
+}
+
+.kpi-icon-box--blue    { -fx-background-color: rgba(92, 110, 245, 0.18); }
+.kpi-icon-box--green   { -fx-background-color: rgba(63, 207, 142, 0.18); }
+.kpi-icon-box--purple  { -fx-background-color: rgba(124, 110, 245, 0.20); }
+.kpi-icon-box--gold    { -fx-background-color: rgba(245, 177, 58, 0.20); }
+.kpi-icon-box--neutral { -fx-background-color: rgba(148, 163, 184, 0.18); }
+
+.kpi-icon-box--blue   .kpi-icon { -fx-icon-color: -stock-accent-blue; }
+.kpi-icon-box--green  .kpi-icon { -fx-icon-color: -stock-accent-green; }
+.kpi-icon-box--purple .kpi-icon { -fx-icon-color: -stock-accent-purple; }
+.kpi-icon-box--gold   .kpi-icon { -fx-icon-color: #f5b13a; }
+
+.kpi-icon {
+    -fx-icon-size: 18;
+}
+
+.kpi-label {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-font-size: 13px;
+}
+
+.kpi-value {
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-font-variant-numeric: tabular-nums;
+}
+
+/* Value colour tones (applied on the value Label via .tone-*) */
+.kpi-value.tone-neutral  { -fx-text-fill: -stock-text-primary; }
+.kpi-value.tone-positive,
+.kpi-value.tone-green    { -fx-text-fill: -stock-accent-green; }
+.kpi-value.tone-negative,
+.kpi-value.tone-red      { -fx-text-fill: #f0637a; }
+.kpi-value.tone-blue     { -fx-text-fill: -stock-accent-blue; }
+.kpi-value.tone-purple   { -fx-text-fill: -stock-accent-purple; }
+.kpi-value.tone-gold     { -fx-text-fill: #f5b13a; }
+
+/* Subline trend labels: green up arrows, red down arrows */
+.kpi-trend {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.kpi-trend--positive { -fx-text-fill: -stock-accent-green; }
+.kpi-trend--negative { -fx-text-fill: #f0637a; }
+
+.kpi-sub {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-font-size: 12px;
+}
+
+/* ---------- Performance Summary card ---------- */
+.perf-summary-card {
+    -fx-background-color: -stock-bg-card;
+    -fx-background-radius: 14;
+    -fx-border-color: -stock-bg-card-border;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 24 28;
+}
+
+.perf-summary-header {
+    -fx-alignment: center-left;
+}
+
+.perf-summary-icon {
+    -fx-icon-color: -stock-accent-blue;
+    -fx-icon-size: 20;
+}
+
+.perf-summary-title {
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.perf-summary-columns {
+    -fx-spacing: 20;
+}
+
+.perf-summary-col {
+    -fx-spacing: 6;
+}
+
+.perf-summary-label {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-font-size: 13px;
+}
+
+.perf-summary-big {
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-font-variant-numeric: tabular-nums;
+}
+
+.perf-summary-big.tone-positive,
+.perf-summary-big.tone-green   { -fx-text-fill: -stock-accent-green; }
+.perf-summary-big.tone-negative,
+.perf-summary-big.tone-red     { -fx-text-fill: #f0637a; }
+.perf-summary-big.tone-blue    { -fx-text-fill: -stock-accent-blue; }
+.perf-summary-big.tone-purple  { -fx-text-fill: -stock-accent-purple; }
+.perf-summary-big.tone-neutral { -fx-text-fill: -stock-text-primary; }
+
+.perf-summary-sub {
+    -fx-text-fill: -stock-accent-green;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-variant-numeric: tabular-nums;
+}
+
+.perf-summary-sub.tone-positive,
+.perf-summary-sub.tone-green   { -fx-text-fill: -stock-accent-green; }
+.perf-summary-sub.tone-negative,
+.perf-summary-sub.tone-red     { -fx-text-fill: #f0637a; }
+.perf-summary-sub.tone-blue    { -fx-text-fill: -stock-accent-blue; }
+
+.perf-summary-mostTraded {
+    -fx-text-fill: -stock-accent-blue;
+}
+
+/* ---------- Current Holdings Performance card ---------- */
+.holdings-card {
+    -fx-background-color: -stock-bg-card;
+    -fx-background-radius: 14;
+    -fx-border-color: -stock-bg-card-border;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 0;
+}
+
+.holdings-header {
+    -fx-padding: 20 24;
+    -fx-alignment: center-left;
+    -fx-border-color: transparent transparent -stock-bg-card-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.holdings-icon {
+    -fx-icon-color: -stock-accent-blue;
+    -fx-icon-size: 18;
+}
+
+.holdings-title {
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* Inner TableView: stripped down, no row hover, no select state */
+.holdings-table {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-table-cell-border-color: transparent;
+}
+
+.holdings-table .column-header-background,
+.holdings-table .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent -stock-bg-card-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.holdings-table .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 14 18;
+}
+
+.holdings-table .column-header .label {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-alignment: center-left;
+}
+
+.holdings-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.holdings-table .table-row-cell:empty {
+    -fx-background-color: transparent;
+}
+
+/* Hover/select muted so it feels like a static stats list, not interactive */
+.holdings-table .table-row-cell:hover,
+.holdings-table .table-row-cell:selected,
+.holdings-table .table-row-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+}
+
+.holdings-table .table-cell {
+    -fx-text-fill: -stock-text-primary;
+    -fx-padding: 16 18;
+    -fx-font-size: 14px;
+    -fx-alignment: center-left;
+    -fx-border-color: transparent;
+    -fx-font-variant-numeric: tabular-nums;
+}
+
+/* Stacked symbol + company cell */
+.holdings-symbol-cell {
+    -fx-spacing: 2;
+}
+
+.holdings-row-symbol {
+    -fx-text-fill: -stock-text-primary;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.holdings-row-company {
+    -fx-text-fill: -stock-text-secondary;
+    -fx-font-size: 12px;
+}
+
+/* Numeric columns: centered headers, right-aligned data */
+.holdings-table .col-h-qty .table-cell,
+.holdings-table .col-h-avgbuy .table-cell,
+.holdings-table .col-h-current .table-cell,
+.holdings-table .col-h-value .table-cell,
+.holdings-table .col-h-pl .table-cell {
+    -fx-alignment: center-right;
+}
+
+.holdings-table .col-h-qty .column-header .label,
+.holdings-table .col-h-avgbuy .column-header .label,
+.holdings-table .col-h-current .column-header .label,
+.holdings-table .col-h-value .column-header .label,
+.holdings-table .col-h-pl .column-header .label {
+    -fx-alignment: center-right;
+    -fx-text-alignment: right;
+}
+
+.holdings-table .col-h-value .table-cell {
+    -fx-font-weight: bold;
+}
+
+/* P/L cell: 2-line right-aligned, coloured by sign */
+.holdings-pl-cell {
+    -fx-alignment: center-right;
+    -fx-spacing: 2;
+}
+
+.holdings-pl-amount {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-font-variant-numeric: tabular-nums;
+}
+
+.holdings-pl-percent {
+    -fx-font-size: 12px;
+    -fx-font-variant-numeric: tabular-nums;
+    -fx-opacity: 0.85;
+}
+
+.holdings-pl-cell.pl--positive .holdings-pl-amount,
+.holdings-pl-cell.pl--positive .holdings-pl-percent {
+    -fx-text-fill: -stock-accent-green;
+}
+
+.holdings-pl-cell.pl--negative .holdings-pl-amount,
+.holdings-pl-cell.pl--negative .holdings-pl-percent {
+    -fx-text-fill: #f0637a;
+}

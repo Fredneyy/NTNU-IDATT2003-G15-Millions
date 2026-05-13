@@ -32,12 +32,13 @@ public class GameView {
     private final MarketTableView marketTable = new MarketTableView(marketStocks);
     private final ObservableList<Share> portfolioShares = FXCollections.observableArrayList();
     private final PortfolioTableView portfolioTable = new PortfolioTableView(portfolioShares);
+    private final StatsView statsView = new StatsView();
     private final TextField searchField = new TextField();
     private final HBox searchBar;
 
     private final VBox marketContent = new VBox(marketTable.getView());
     private final VBox portfolioContent = new VBox(portfolioTable.getView());
-    private final VBox statsContent = new VBox(new Label("Stats"));
+    private final VBox statsContent = new VBox(statsView.getView());
     private final VBox tradesContent = new VBox(new Label("Trades"));
     private final VBox newsContent = new VBox(new Label("News"));
 
@@ -71,6 +72,7 @@ public class GameView {
         });
         seedDemoStocks();
         seedDemoPortfolio();
+        seedDemoStats();
 
         VBox.setVgrow(tabContainer.getView(), Priority.ALWAYS);
 
@@ -241,11 +243,13 @@ public class GameView {
     private void seedDemoPortfolio() {
         if (marketStocks.isEmpty()) return;
         portfolioShares.clear();
+        // Use realistic avg-buy prices that differ from current prices so the holdings
+        // P/L cells in StatsView render colored gains/losses.
         for (Stock s : marketStocks) {
             switch (s.getSymbol()) {
-                case "AMZN" -> portfolioShares.add(new Share(s, new BigDecimal("12"), s.getSalesPrice()));
-                case "GOOGL" -> portfolioShares.add(new Share(s, new BigDecimal("1"), s.getSalesPrice()));
-                case "NVDA" -> portfolioShares.add(new Share(s, new BigDecimal("1"), s.getSalesPrice()));
+                case "AMZN"  -> portfolioShares.add(new Share(s, new BigDecimal("12"), new BigDecimal("153.92")));
+                case "GOOGL" -> portfolioShares.add(new Share(s, new BigDecimal("1"),  new BigDecimal("141.33")));
+                case "NVDA"  -> portfolioShares.add(new Share(s, new BigDecimal("1"),  new BigDecimal("492.77")));
                 default -> { /* not owned */ }
             }
         }
@@ -255,10 +259,27 @@ public class GameView {
                 default:     return MarketTableView.EventStatus.NONE;
             }
         });
+        // Mirror the same positions in the Stats tab's holdings table
+        statsView.setHoldings(portfolioShares);
     }
 
     public PortfolioTableView getPortfolioTable() {
         return portfolioTable;
+    }
+
+    public StatsView getStatsView() {
+        return statsView;
+    }
+
+    /** Demo stats numbers — wire to a controller later. Mirrors the reference screenshot. */
+    private void seedDemoStats() {
+        statsView.setTotalTrades(3, 3, 0);
+        statsView.setRealizedPL("+$0.00", StatsView.Tone.POSITIVE);
+        statsView.setUnrealizedPL("+$474.86", StatsView.Tone.PURPLE);
+        statsView.setWinRate("0.0%", 0, 0);
+        statsView.setTotalReturn("+$474.86", "(+4.75%)", StatsView.Tone.POSITIVE);
+        statsView.setAvgTradeSize("$827.05");
+        statsView.setMostTraded("NVDA");
     }
 
     public void setPortfolioShares(List<Share> shares) {
