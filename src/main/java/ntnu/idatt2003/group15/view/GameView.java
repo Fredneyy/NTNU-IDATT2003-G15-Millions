@@ -10,6 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
+import java.util.Objects;
 import java.util.Set;
 
 public class GameView {
@@ -17,9 +18,8 @@ public class GameView {
     private static final Set<String> TABS_WITH_SEARCH = Set.of("market", "portfolio");
 
     private final StackPane view = new StackPane();
-    private final VBox layout = new VBox();
 
-    private final HeaderView headerView = new HeaderView();
+  private final HeaderView headerView;
     private final SettingsView settingsView;
     private final StatisticsOverview statisticsOverview = new StatisticsOverview();
     private final TextField searchField = new TextField();
@@ -39,14 +39,11 @@ public class GameView {
             new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent, "1")
     );
 
-    public GameView() {
-        this("");
-    }
-
-    public GameView(String playerName) {
+    public GameView(String playerName, Runnable runnableExit) {
+        headerView = new HeaderView(runnableExit);
         settingsView = new SettingsView(view);
         headerView.setPlayerName(playerName);
-
+        view.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
         HBox header = headerView.createHeader();
         headerView.getSettingsButton().setOnAction(_ -> settingsView.toggle());
 
@@ -63,7 +60,8 @@ public class GameView {
 
         wireSearchBarToTabs();
 
-        layout.getStyleClass().add("game-layout");
+      VBox layout = new VBox();
+      layout.getStyleClass().add("game-layout");
         layout.setFillWidth(false);
         layout.setAlignment(Pos.TOP_CENTER);
         layout.getChildren().addAll(
@@ -77,7 +75,6 @@ public class GameView {
         view.getChildren().add(layout);
     }
 
-    /** Place the search bar at the top of market/portfolio tab content; hide on the rest. */
     private void wireSearchBarToTabs() {
         // Initial state: TabContainer auto-selects the first tab on construction,
         // but our listener attaches after that, so seed the initial placement manually.
@@ -105,7 +102,7 @@ public class GameView {
     private void placeSearchBarIn(VBox target) {
         if (target == null) return;
         if (!target.getChildren().contains(searchBar)) {
-            target.getChildren().add(0, searchBar);
+            target.getChildren().addFirst(searchBar);
         }
     }
 

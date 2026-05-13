@@ -4,7 +4,6 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.HBox;
@@ -26,6 +25,8 @@ public abstract class BaseDialog {
   protected BaseDialog(Duration animationDuration) {
     this.animationDuration = animationDuration;
 
+    dialog.getStylesheets().add(
+        Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
     dialog.getStyleClass().add("pop-up-container");
     dialog.setPickOnBounds(false);
 
@@ -58,12 +59,12 @@ public abstract class BaseDialog {
     return scaleTransition;
   }
 
-  protected TranslateTransition createTranslateTransition(Node node, double fromX, double toX, double fromY, double toY) {
+  protected TranslateTransition createTranslateTransition(Node node, double fromX, double toX) {
     TranslateTransition translateTransition = new TranslateTransition(animationDuration, node);
     translateTransition.setFromX(fromX);
     translateTransition.setToX(toX);
-    translateTransition.setFromY(fromY);
-    translateTransition.setToY(toY);
+    translateTransition.setFromY(0);
+    translateTransition.setToY(0);
     return translateTransition;
   }
 

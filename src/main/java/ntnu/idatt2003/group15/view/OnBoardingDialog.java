@@ -63,6 +63,8 @@ public class OnBoardingDialog extends BaseDialog {
     progressBar = setUpProgressBar();
     closeAnimation = createCloseAnimation();
 
+    dialog.getStylesheets().add(
+        Objects.requireNonNull(getClass().getResource("/style/OnBoardStyle.css")).toExternalForm());
     dialog.getStyleClass().setAll("onboarding-card");
     dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);
@@ -87,11 +89,11 @@ public class OnBoardingDialog extends BaseDialog {
 
     Hyperlink backLabel = new Hyperlink("< Back");
     backLabel.getStyleClass().add("onboarding-nav-link");
-    backLabel.setOnAction(e -> previousSlide());
+    backLabel.setOnAction(_ -> previousSlide());
 
     nextLabel = new Hyperlink("Next >");
     nextLabel.getStyleClass().add("onboarding-nav-link-next");
-    nextLabel.setOnAction(e -> nextSlide());
+    nextLabel.setOnAction(_ -> nextSlide());
 
     Region footerSpacer = new Region();
     HBox.setHgrow(footerSpacer, Priority.ALWAYS);
@@ -138,11 +140,11 @@ public class OnBoardingDialog extends BaseDialog {
     if (lastSlide) {
       nextLabel.getStyleClass().setAll("onboarding-nav-finish");
       nextLabel.setText("Let's Trade! 🚀");
-      nextLabel.setOnAction(e -> close());
+      nextLabel.setOnAction(_ -> close());
     } else {
       nextLabel.getStyleClass().setAll("onboarding-nav-link-next");
       nextLabel.setText("Next >");
-      nextLabel.setOnAction(e -> nextSlide());
+      nextLabel.setOnAction(_ -> nextSlide());
     }
   }
 
@@ -150,7 +152,7 @@ public class OnBoardingDialog extends BaseDialog {
     ScaleTransition scaleTransition = createScaleTransition(dialog, 1, 0);
     FadeTransition fadeTransition = createFadeTransition(dialog, 1, 0);
     ParallelTransition parallelTransition = new ParallelTransition(scaleTransition, fadeTransition);
-    parallelTransition.setOnFinished(e -> {
+    parallelTransition.setOnFinished(_ -> {
       root.getChildren().remove(dialog);
       blurBackground(root, false, 0);
     });
@@ -168,19 +170,15 @@ public class OnBoardingDialog extends BaseDialog {
   }
 
   private void loadText() {
-    taskUtil.runTaskAsync(() -> {
-          List<String> rawData = csvUtil.readCsvFile("src/main/resources/storage/onboarding.csv");
-          return rawData;
-        }, result -> {
-          this.onboardingText = (List<String>) result;
+    taskUtil.runTaskAsync(() -> csvUtil.readCsvFile("src/main/resources/storage/onboarding.csv"), result -> {
+          this.onboardingText = result;
           onboardingTextIterator = this.onboardingText.listIterator();
           titleLabel.setText(onboardingText.get(0));
           messageLabel.setText(onboardingText.get(1));
           progressStep = 1.0 / ((onboardingText.size() * 0.5) - 1);
-          // Fix 2: check on load in case there is only one slide
           updateNextButton(onboardingText.size() / 2 == 1);
         },
-        error -> close());
+        _ -> close());
   }
 
   private ProgressBar setUpProgressBar() {
@@ -205,7 +203,7 @@ public class OnBoardingDialog extends BaseDialog {
     double slideDistance = 40;
 
     FadeTransition fadeOut = createFadeTransition(textContainer, 1.0, 0.0);
-    TranslateTransition slideOut = createTranslateTransition(textContainer, 0, -1 * outDirection * slideDistance, 0, 0);
+    TranslateTransition slideOut = createTranslateTransition(textContainer, 0, -1 * outDirection * slideDistance);
 
     ParallelTransition out = new ParallelTransition(fadeOut, slideOut);
     out.setOnFinished(_ -> {
@@ -213,7 +211,7 @@ public class OnBoardingDialog extends BaseDialog {
       textContainer.setTranslateX(outDirection * slideDistance);
       FadeTransition fadeIn = createFadeTransition(textContainer, 0.0, 1.0);
       TranslateTransition slideIn = createTranslateTransition(textContainer,
-          outDirection * slideDistance, 0, 0, 0);
+          outDirection * slideDistance, 0);
       new ParallelTransition(fadeIn, slideIn).play();
     });
 

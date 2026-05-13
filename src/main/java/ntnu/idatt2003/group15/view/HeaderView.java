@@ -12,11 +12,18 @@ import javafx.scene.text.TextFlow;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.util.Objects;
+
 public class HeaderView {
 
     private Button settingsBtn;
     private Text playerNameText;
     private String playerName = "";
+    private final Runnable exit;
+
+    public HeaderView(Runnable runnableExit) {
+        this.exit = Objects.requireNonNull(runnableExit);
+    }
 
     public Button getSettingsButton() {
         return settingsBtn;
@@ -31,6 +38,8 @@ public class HeaderView {
 
     public HBox createHeader() {
         HBox header = new HBox();
+        header.getStylesheets().add(
+            Objects.requireNonNull(getClass().getResource("/style/HeaderStyle.css")).toExternalForm());
         header.getStyleClass().add("header-bar");
 
         // --- Left Side: Logo and Title ---
@@ -46,11 +55,9 @@ public class HeaderView {
 
         // Title and Status
         VBox titleBox = new VBox(-2);
-        Text stockText = new Text("Stock");
+        Text stockText = new Text("Millions");
         stockText.getStyleClass().add("brand-text-main");
-        Text rushText = new Text("Rush");
-        rushText.getStyleClass().addAll("brand-text-main", "brand-text-accent");
-        TextFlow brandFlow = new TextFlow(stockText, rushText);
+        TextFlow brandFlow = new TextFlow(stockText);
 
         Text statusText = new Text("Playing as ");
         statusText.getStyleClass().add("status-label");
@@ -84,7 +91,7 @@ public class HeaderView {
         Button exitBtn = new Button();
         exitBtn.setGraphic(new FontIcon(FontAwesome.SIGN_OUT));
         exitBtn.getStyleClass().addAll("action-button", "icon-only-button");
-
+        exitBtn.setOnAction(_ -> exit.run());
         actionContainer.getChildren().addAll(saveBtn, settingsBtn, resetBtn, exitBtn);
 
         header.getChildren().addAll(logoContainer, spacer, actionContainer);
