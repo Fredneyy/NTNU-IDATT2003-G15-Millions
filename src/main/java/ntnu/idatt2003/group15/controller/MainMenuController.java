@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
-import javafx.beans.property.SimpleObjectProperty;
 import ntnu.idatt2003.group15.model.Exchange;
 import ntnu.idatt2003.group15.model.Player;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
@@ -32,11 +31,12 @@ public class MainMenuController {
   }
 
   /**
-   * Creates a new {@link Player} with the given name and the default starting balance,
-   * then returns an {@link ExchangeController} scoped to that player.
+   * Creates a new {@link Player} with the given name and starting balance, then notifies
+   * the registered consumer with an {@link ExchangeController} and {@link PlayerController}
+   * scoped to that player.
    *
    * @param name the name entered by the user
-   * @return an {@link ExchangeController} ready for the game session
+   * @param startingMoney the starting balance, or {@code null} to use the default
    * @throws NullPointerException   if name is null
    * @throws BlankArgumentException if name is blank
    */
@@ -47,7 +47,7 @@ public class MainMenuController {
     }
     Player player = new Player(name, startingMoney);
     PlayerController playerController = createPlayerController(player);
-    onGameStartConsumer.accept(new  ExchangeController(exchange, player), playerController);
+    onGameStartConsumer.accept(new ExchangeController(exchange, player), playerController);
   }
 
   /**

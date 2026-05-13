@@ -3,6 +3,8 @@ package ntnu.idatt2003.group15.view;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
@@ -41,7 +43,9 @@ public class StockChartDialog extends BaseDialog {
   private final AreaChart<Number, Number> chart = new AreaChart<>(xAxis, yAxis);
   private final XYChart.Series<Number, Number> series = new XYChart.Series<>();
 
-  private List<BigDecimal> historicalPrices;
+  private ObservableList<BigDecimal> historicalPrices;
+  private Stock currentStock;
+  private ListChangeListener<BigDecimal> pricesListener;
 
   public StockChartDialog() {
     super();
@@ -99,31 +103,55 @@ public class StockChartDialog extends BaseDialog {
 
   @Override
   public void close() {
+    detachPricesListener();
     if (root != null && root.getChildren().contains(dialog)) {
       closeAnimation.play();
     }
   }
 
   private void populate(Stock stockData) {
+    detachPricesListener();
+    currentStock = stockData;
     historicalPrices = stockData.getHistoricalPrices();
+
     symbolLabel.setText(stockData.getSymbol());
     companyLabel.setText(stockData.getCompany());
 
-    currentPriceLabel.setText(String.format("$%.2f", stockData.getSalesPrice()));
+    refreshLiveLabels();
+    updateChart(stockData);
 
-    String sign = stockData.getLatestPriceChange().compareTo(BigDecimal.ZERO) > 0 ? "+" : "";
-    lastRelativeChange.setText(String.format("%s%.2f%%", sign, stockData.getLatestPriceChangeRelative()));
+    pricesListener = _ -> {
+      refreshLiveLabels();
+      updateChart(currentStock);
+    };
+    historicalPrices.addListener(pricesListener);
+  }
+
+  private void refreshLiveLabels() {
+    if (currentStock == null) return;
+    currentPriceLabel.setText(String.format("$%.2f", currentStock.getSalesPrice()));
+
+    BigDecimal absChange = currentStock.getLatestPriceChange();
+    BigDecimal relChange = currentStock.getLatestPriceChangeRelative();
+
+    String sign = absChange.compareTo(BigDecimal.ZERO) > 0 ? "+" : "";
+    lastRelativeChange.setText(String.format("%s%.2f%%", sign, relChange));
     lastRelativeChange.getStyleClass().setAll("stock-stat-value",
-        stockData.getLatestPriceChange().compareTo(BigDecimal.ZERO) > 0 ? "value-positive" : "value-negative");
+        absChange.compareTo(BigDecimal.ZERO) >= 0 ? "value-positive" : "value-negative");
 
-    String ssign = stockData.getLatestPriceChangeRelative().compareTo(BigDecimal.ZERO) > 0 ? "+" : "";
-    lastAbsoluteChangeLabel.setText(String.format("%s%.2f", ssign, stockData.getLatestPriceChange()));
+    String ssign = relChange.compareTo(BigDecimal.ZERO) > 0 ? "+" : "";
+    lastAbsoluteChangeLabel.setText(String.format("%s%.2f", ssign, absChange));
     lastAbsoluteChangeLabel.getStyleClass().setAll("stock-stat-value",
-        stockData.getLatestPriceChangeRelative().compareTo(BigDecimal.ZERO) > 0 ? "value-positive" : "value-negative");
+        relChange.compareTo(BigDecimal.ZERO) >= 0 ? "value-positive" : "value-negative");
 
     dataPointsLabel.setText(String.valueOf(historicalPrices.size()));
+  }
 
-    updateChart(stockData);
+  private void detachPricesListener() {
+    if (historicalPrices != null && pricesListener != null) {
+      historicalPrices.removeListener(pricesListener);
+    }
+    pricesListener = null;
   }
 
   private HBox buildHeader() {

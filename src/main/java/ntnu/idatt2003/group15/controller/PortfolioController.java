@@ -3,6 +3,8 @@ package ntnu.idatt2003.group15.controller;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.Portfolio;
 import ntnu.idatt2003.group15.model.Share;
@@ -29,6 +31,10 @@ public class PortfolioController {
 
   public List<Share> getShares() {
     return portfolio.getShares();
+  }
+
+  public ObservableValue<BigDecimal> totalMarketValueProperty() {
+    return portfolio.getTotalMarketValueProperty();
   }
 
   public List<Share> getShares(String symbol) {

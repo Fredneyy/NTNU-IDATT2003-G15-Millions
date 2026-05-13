@@ -1,5 +1,6 @@
 package ntnu.idatt2003.group15.controller;
 
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.Exchange;
 import ntnu.idatt2003.group15.model.Player;
@@ -19,14 +20,47 @@ public class ExchangeController {
     private final Player player;
 
     /**
-     * Constructs a controller bound to the given exchange and player.
+     * Constructs a controller bound to the given exchange and player. The player is needed
+     * to expose session-level observables (net worth, cash, P/L, etc.) that the view binds to.
      *
      * @param exchange the exchange to operate on
-     * @param player   the player performing actions on the exchange
+     * @param player the player whose session-level stats this controller exposes
      */
     public ExchangeController(Exchange exchange, Player player) {
-        this.exchange = exchange;
-        this.player = player;
+        this.exchange = Objects.requireNonNull(exchange, "Exchange cannot be null");
+        this.player = Objects.requireNonNull(player, "Player cannot be null");
+    }
+
+    public ObservableValue<BigDecimal> netWorthProperty() {
+        return player.getNetWorthProperty();
+    }
+
+    public ObservableValue<BigDecimal> cashProperty() {
+        return player.getCashProperty();
+    }
+
+    public ObservableValue<BigDecimal> portfolioValueProperty() {
+        return player.getPortfolio().getTotalMarketValueProperty();
+    }
+
+    public ObservableValue<BigDecimal> investedProperty() {
+        return player.getPortfolio().getInvestedProperty();
+    }
+
+    public ObservableValue<BigDecimal> unrealizedPnlProperty() {
+        return player.getPortfolio().getUnrealizedPnlProperty();
+    }
+
+    public ObservableValue<BigDecimal> unrealizedPnlPercentProperty() {
+        return player.getPortfolio().getUnrealizedPnlPercentProperty();
+    }
+
+    public ObservableValue<BigDecimal> netWorthChangeProperty() {
+        return player.getNetWorthChangeProperty();
+    }
+
+    public ObservableValue<BigDecimal> netWorthChangePercentProperty() {
+        return player.getNetWorthChangePercentProperty();
     }
 
     /**
@@ -95,10 +129,18 @@ public class ExchangeController {
      * @param quantity the number of shares to buy
      * @throws NullPointerException if stock or quantity is null
      */
-    public void buy(Stock stock, BigDecimal quantity) {
+    public void buy(Stock stock, BigDecimal quantity, Player player) {
         Objects.requireNonNull(stock, "Stock cannot be null");
         Objects.requireNonNull(quantity, "Quantity cannot be null");
         exchange.buy(stock.getSymbol(), quantity, player);
+    }
+
+    /**
+     * Purchases the given quantity of a stock at its current market price for the
+     * player bound to this controller.
+     */
+    public void buy(Stock stock, BigDecimal quantity) {
+        buy(stock, quantity, player);
     }
 
     /**
@@ -108,7 +150,7 @@ public class ExchangeController {
      * @throws NullPointerException     if share is null
      * @throws IllegalArgumentException if the player does not own the share
      */
-    public void sell(Share share) {
+    public void sell(Share share, Player player) {
         Objects.requireNonNull(share, "Share cannot be null");
         if (!player.getPortfolio().contains(share)) {
             throw new IllegalArgumentException("Player does not own this share");
@@ -121,7 +163,7 @@ public class ExchangeController {
      *
      * @return the player's portfolio shares as an observable list
      */
-    public ObservableList<Share> getPortfolioShares() {
+    public ObservableList<Share> getPortfolioShares(Player player) {
         return player.getPortfolio().getListProperty();
     }
 

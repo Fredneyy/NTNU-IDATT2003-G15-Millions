@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.view;
 
-import javafx.scene.Node;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -14,75 +15,50 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * A row of stat cards: icon + label + big value + sub line.
- * Cards are added via {@link #addCard(StatCard)} and values can be updated
- * at runtime via {@link #setValue(String, String)} and
- * {@link #setSubline(String, String, Tone)}.
+ * A row of stat cards: icon + label + big value.
+ * All dynamic fields are observables, so cards update live as their sources change.
  */
 public class StatisticsOverview {
 
-    /** Visual tone applied to the value/subline text and the icon background. */
-    public enum Tone {
-        NEUTRAL,  // white value, muted subline
-        POSITIVE, // green
-        NEGATIVE, // red
-        BLUE,
-        GREEN,
-        PURPLE,
-        RED
-    }
+    private static final String STYLESHEET =
+        Objects.requireNonNull(
+            StatisticsOverview.class.getResource("/style/StatisticsOverview.css")).toExternalForm();
 
-    /** Data model for one stat card. */
-    public static class StatCard {
-        private final String id;
-        private final String label;
-        private final Ikon icon;
-        private final Tone iconTone;       // controls the icon background color
-        private final String value;
-        private final String subline;
-        private final Tone valueTone;            // controls value text color
-        private final Tone sublineTone;          // controls subline text color
-
-        public StatCard(String id,
-                        String label,
-                        Ikon icon,
-                        Tone iconTone,
-                        String value,
-                        String subline,
-                        Tone valueTone,
-                        Tone sublineTone) {
-            this.id = Objects.requireNonNull(id);
-            this.label = Objects.requireNonNull(label);
-            this.icon = icon;
-            this.iconTone = iconTone == null ? Tone.NEUTRAL : iconTone;
-            this.value = value == null ? "" : value;
-            this.subline = subline == null ? "" : subline;
-            this.valueTone = valueTone == null ? Tone.NEUTRAL : valueTone;
-            this.sublineTone = sublineTone == null ? Tone.NEUTRAL : sublineTone;
+    /** Data model for one stat card. All dynamic fields are observables. */
+    public record StatCard(
+        String id,
+        String label,
+        Ikon icon,
+        ObservableValue<String> value
+    ) {
+        public StatCard {
+            Objects.requireNonNull(id);
+            Objects.requireNonNull(label);
+            value = value == null ? new SimpleStringProperty("") : value;
         }
-
-        public String getId() { return id; }
-        public String getLabel() { return label; }
-        public Ikon getIcon() { return icon; }
-        public Tone getIconTone() { return iconTone; }
-        public String getValue() { return value; }
-        public String getSubline() { return subline; }
-        public Tone getValueTone() { return valueTone; }
-        public Tone getSublineTone() { return sublineTone; }
     }
 
-    /** Holds the live nodes per card so values can be updated later. */
+    /** Holds the live nodes per card so they can be referenced later. */
     private static class CardNodes {
         final VBox root;
         final Label valueLabel;
-        final Label sublineLabel;
         final StatCard model;
 
-        CardNodes(VBox root, Label valueLabel, Label sublineLabel, StatCard model) {
+        CardNodes(VBox root, Label valueLabel, StatCard model) {
             this.root = root;
             this.valueLabel = valueLabel;
-            this.sublineLabel = sublineLabel;
             this.model = model;
+
+            applySign(valueLabel, valueLabel.getText());
+            valueLabel.textProperty().addListener((obs, oldText, newText) -> applySign(valueLabel, newText));
+        }
+
+        private static void applySign(Label label, String text) {
+            label.getStyleClass().removeAll("stat-positive", "stat-negative");
+            if (text == null || text.isBlank()) return;
+            char first = text.charAt(0);
+            if (first == '+') label.getStyleClass().add("stat-positive");
+            else if (first == '-') label.getStyleClass().add("stat-negative");
         }
     }
 
@@ -91,9 +67,9 @@ public class StatisticsOverview {
 
     public StatisticsOverview() {
         view.getStyleClass().add("stats-overview");
+        view.getStylesheets().add(STYLESHEET);
     }
 
-    /** Convenience: build with an initial set of cards. */
     public StatisticsOverview(StatCard... initialCards) {
         this();
         for (StatCard c : initialCards) addCard(c);
@@ -101,90 +77,40 @@ public class StatisticsOverview {
 
     public void addCard(StatCard card) {
         Objects.requireNonNull(card);
-        if (cards.containsKey(card.getId())) {
-            throw new IllegalArgumentException("Stat card id already exists: " + card.getId());
+        if (cards.containsKey(card.id())) {
+            throw new IllegalArgumentException("Stat card id already exists: " + card.id());
         }
 
         VBox cardRoot = new VBox();
         cardRoot.getStyleClass().add("stat-card");
 
-        // ---- Header row (icon + label) ----
         StackPane iconBox = new StackPane();
-        iconBox.getStyleClass().addAll("stat-icon-box", toneClass("stat-icon-box", card.getIconTone()));
+        iconBox.getStyleClass().add("stat-icon-box");
 
-        if (card.getIcon() != null) {
-            FontIcon icon = new FontIcon(card.getIcon());
-            icon.getStyleClass().addAll("stat-icon", toneClass("stat-icon", card.getIconTone()));
+        if (card.icon() != null) {
+            FontIcon icon = new FontIcon(card.icon());
+            icon.getStyleClass().add("stat-icon");
             iconBox.getChildren().add(icon);
         }
 
-        Label labelLabel = new Label(card.getLabel());
+        Label labelLabel = new Label(card.label());
         labelLabel.getStyleClass().add("stat-card-label");
 
         HBox header = new HBox(iconBox, labelLabel);
         header.getStyleClass().add("stat-card-header");
 
-        // ---- Value ----
-        Label valueLabel = new Label(card.getValue());
-        valueLabel.getStyleClass().addAll("stat-card-value", toneClass("stat-card-value", card.getValueTone()));
+        Label valueLabel = new Label();
+        valueLabel.textProperty().bind(card.value());
+        valueLabel.getStyleClass().add("stat-card-value");
 
-        // ---- Subline ----
-        Label sublineLabel = new Label(card.getSubline());
-        sublineLabel.getStyleClass().addAll("stat-card-subline", toneClass("stat-card-subline", card.getSublineTone()));
-
-        cardRoot.getChildren().addAll(header, valueLabel, sublineLabel);
+        cardRoot.getChildren().addAll(header, valueLabel);
 
         HBox.setHgrow(cardRoot, Priority.ALWAYS);
         cardRoot.setMaxWidth(Double.MAX_VALUE);
 
-        cards.put(card.getId(), new CardNodes(cardRoot, valueLabel, sublineLabel, card));
+        cards.put(card.id(), new CardNodes(cardRoot, valueLabel, card));
         view.getChildren().add(cardRoot);
     }
 
-    /** Update the main value of a card by id. */
-    public void setValue(String cardId, String newValue) {
-        CardNodes nodes = cards.get(cardId);
-        if (nodes == null) return;
-        nodes.valueLabel.setText(newValue == null ? "" : newValue);
-    }
-
-    /** Update the main value AND its tone (e.g. switch to red on negative). */
-    public void setValue(String cardId, String newValue, Tone tone) {
-        CardNodes nodes = cards.get(cardId);
-        if (nodes == null) return;
-        nodes.valueLabel.setText(newValue == null ? "" : newValue);
-        retoneStyleClasses(nodes.valueLabel, "stat-card-value", tone);
-    }
-
-    /** Update the subline text. */
-    public void setSubline(String cardId, String newSubline) {
-        CardNodes nodes = cards.get(cardId);
-        if (nodes == null) return;
-        nodes.sublineLabel.setText(newSubline == null ? "" : newSubline);
-    }
-
-    /** Update the subline text AND its tone. */
-    public void setSubline(String cardId, String newSubline, Tone tone) {
-        CardNodes nodes = cards.get(cardId);
-        if (nodes == null) return;
-        nodes.sublineLabel.setText(newSubline == null ? "" : newSubline);
-        retoneStyleClasses(nodes.sublineLabel, "stat-card-subline", tone);
-    }
-
     public HBox getView() { return view; }
-
-    // ---- internals ----
-
-    private static String toneClass(String base, Tone tone) {
-        return base + "--" + tone.name().toLowerCase();
-    }
-
-    /**
-     * Remove any old "{base}--xxx" class on the node and add the new one
-     * for the given tone, so tone changes don't pile up classes.
-     */
-    private static void retoneStyleClasses(Node node, String base, Tone tone) {
-        node.getStyleClass().removeIf(c -> c.startsWith(base + "--"));
-        node.getStyleClass().add(toneClass(base, tone));
-    }
 }

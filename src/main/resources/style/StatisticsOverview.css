@@ -1,7 +1,6 @@
 /* =========================================================
    StatisticsOverview stylesheet
-   Row of stat cards with colored icon tiles, big value text,
-   and a muted (or tinted) subline.
+   Row of stat cards with icon tile, big value text, and subline.
    ========================================================= */
 
 .root {
@@ -12,13 +11,8 @@
     -stats-text-muted:   #94a3b8;
     -stats-text-faint:   #64748b;
 
-    -stats-positive:     #22c55e;  /* green */
-    -stats-negative:     #ef4444;  /* red */
-
-    -tone-blue:          #3b82f6;
-    -tone-green:         #22c55e;
-    -tone-purple:        #a855f7;
-    -tone-red:           #ef4444;
+    -stats-positive:     #22c55e;
+    -stats-negative:     #ef4444;
 }
 
 /* ---------- Container ---------- */
@@ -33,7 +27,7 @@
     -fx-alignment: center-left;
 }
 
-/* ---------- Individual stat card (just a column, no own background) ---------- */
+/* ---------- Individual stat card ---------- */
 .stat-card {
     -fx-spacing: 8;
     -fx-alignment: top-left;
@@ -46,6 +40,7 @@
 
 /* ---------- Icon tile ---------- */
 .stat-icon-box {
+    -fx-background-color: rgba(148, 163, 184, 0.18);
     -fx-background-radius: 10;
     -fx-min-width: 40;
     -fx-min-height: 40;
@@ -54,33 +49,12 @@
     -fx-alignment: center;
 }
 
-/* Icon-tile background tints by tone */
-.stat-icon-box--blue   { -fx-background-color: rgba(59, 130, 246, 0.18); }
-.stat-icon-box--green  { -fx-background-color: rgba(34, 197, 94, 0.18); }
-.stat-icon-box--purple { -fx-background-color: rgba(168, 85, 247, 0.18); }
-.stat-icon-box--red    { -fx-background-color: rgba(239, 68, 68, 0.18); }
-.stat-icon-box--neutral,
-.stat-icon-box--positive,
-.stat-icon-box--negative {
-    -fx-background-color: rgba(148, 163, 184, 0.18);
-}
-
-/* The Ikonli FontIcon glyph itself */
 .stat-icon {
     -fx-icon-size: 20;
-}
-
-.stat-icon--blue   { -fx-icon-color: -tone-blue; }
-.stat-icon--green  { -fx-icon-color: -tone-green; }
-.stat-icon--purple { -fx-icon-color: -tone-purple; }
-.stat-icon--red    { -fx-icon-color: -tone-red; }
-.stat-icon--neutral,
-.stat-icon--positive,
-.stat-icon--negative {
     -fx-icon-color: -stats-text-muted;
 }
 
-/* ---------- Card label (the small text next to the icon) ---------- */
+/* ---------- Card label ---------- */
 .stat-card-label {
     -fx-text-fill: -stats-text-muted;
     -fx-font-size: 14px;
@@ -90,25 +64,15 @@
 .stat-card-value {
     -fx-font-size: 30px;
     -fx-font-weight: bold;
+    -fx-text-fill: -stats-text-strong;
 }
-
-.stat-card-value--neutral   { -fx-text-fill: -stats-text-strong; }
-.stat-card-value--positive,
-.stat-card-value--green     { -fx-text-fill: -stats-positive; }
-.stat-card-value--negative,
-.stat-card-value--red       { -fx-text-fill: -stats-negative; }
-.stat-card-value--blue      { -fx-text-fill: -tone-blue; }
-.stat-card-value--purple    { -fx-text-fill: -tone-purple; }
 
 /* ---------- Subline ---------- */
 .stat-card-subline {
     -fx-font-size: 12px;
+    -fx-text-fill: -stats-text-muted;
 }
 
-.stat-card-subline--neutral  { -fx-text-fill: -stats-text-muted; }
-.stat-card-subline--positive,
-.stat-card-subline--green    { -fx-text-fill: -stats-positive; }
-.stat-card-subline--negative,
-.stat-card-subline--red      { -fx-text-fill: -stats-negative; }
-.stat-card-subline--blue     { -fx-text-fill: -tone-blue; }
-.stat-card-subline--purple   { -fx-text-fill: -tone-purple; }
+/* ---------- Auto sign coloring (applied by CardNodes) ---------- */
+.stat-positive { -fx-text-fill: -stats-positive; }
+.stat-negative { -fx-text-fill: -stats-negative; }

@@ -1,17 +1,102 @@
 package ntnu.idatt2003.group15.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 /**
  * Manages a collection of stock holdings for a specific player.
  */
 public class Portfolio {
+  // Structural-only observable list. Price-tick observation is wired separately so cost-basis
+  // bindings (invested, %P/L denominator) don't churn on every market update.
   private final ObservableList<Share> shares = FXCollections.observableArrayList();
 
+  // Market value reacts to BOTH structural changes (shares add/remove) AND price ticks on any
+  // currently-held share's stock. Price-binding dependencies are added/removed dynamically.
+  private final ObjectBinding<BigDecimal> totalMarketValueBinding = new ObjectBinding<>() {
+    {
+      bind(shares);
+      shares.addListener((ListChangeListener<Share>) change -> {
+        while (change.next()) {
+          for (Share removed : change.getRemoved()) {
+            unbind(removed.getStock().getPriceBinding());
+          }
+          for (Share added : change.getAddedSubList()) {
+            bind(added.getStock().getPriceBinding());
+          }
+        }
+      });
+    }
+
+    @Override
+    protected BigDecimal computeValue() {
+      return computeTotalMarketValue();
+    }
+  };
+
+  // Cost basis is purely structural: only invalidates on add/remove, never on price ticks.
+  private final ObjectBinding<BigDecimal> investedBinding =
+      Bindings.createObjectBinding(this::computeInvested, shares);
+
+  private final ObjectBinding<BigDecimal> unrealizedPnlBinding =
+      Bindings.createObjectBinding(
+          () -> totalMarketValueBinding.get().subtract(investedBinding.get()),
+          totalMarketValueBinding, investedBinding);
+
+  private final ObjectBinding<BigDecimal> unrealizedPnlPercentBinding =
+      Bindings.createObjectBinding(() -> {
+        BigDecimal inv = investedBinding.get();
+        if (inv == null || inv.signum() == 0) return BigDecimal.ZERO;
+        return unrealizedPnlBinding.get()
+            .divide(inv, 4, RoundingMode.HALF_UP)
+            .movePointRight(2);
+      }, unrealizedPnlBinding, investedBinding);
+
+  /** Observable total market value. Updates when shares are added/removed or any stock price changes. */
+  public ObservableValue<BigDecimal> getTotalMarketValueProperty() {
+    return totalMarketValueBinding;
+  }
+
+  /** Observable total cost basis: sum of quantity * pricePerShare across all shares. */
+  public ObservableValue<BigDecimal> getInvestedProperty() {
+    return investedBinding;
+  }
+
+  /** Observable unrealized profit/loss: totalMarketValue - invested. */
+  public ObservableValue<BigDecimal> getUnrealizedPnlProperty() {
+    return unrealizedPnlBinding;
+  }
+
+  /** Observable unrealized P/L as a percent of invested cost basis. */
+  public ObservableValue<BigDecimal> getUnrealizedPnlPercentProperty() {
+    return unrealizedPnlPercentBinding;
+  }
+
+  private BigDecimal computeTotalMarketValue() {
+    SaleCalculator saleCalculator = new SaleCalculator();
+    BigDecimal totalValue = BigDecimal.ZERO;
+    for (Share currentShare : shares) {
+      totalValue = totalValue.add(saleCalculator.calculateGross(currentShare));
+    }
+    return totalValue;
+  }
+
+  private BigDecimal computeInvested() {
+    BigDecimal total = BigDecimal.ZERO;
+    for (Share currentShare : shares) {
+      total = total.add(currentShare.getPricePerShare().multiply(currentShare.getQuantity()));
+    }
+    return total;
+  }
   /**
    * Adds a purchased share to the portfolio holding.
    *
