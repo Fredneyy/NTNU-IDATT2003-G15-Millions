@@ -16,8 +16,8 @@ public class NewsDialog extends BaseDialog {
   private Timeline progressTimeline;
   private final Button closeButton = new Button("X");
 
-  public NewsDialog(Duration animationDuration, Duration displayDuration) {
-    super(animationDuration);
+  public NewsDialog(Duration displayDuration) {
+    super();
     this.displayDuration = displayDuration;
 
     dialog.getStyleClass().setAll("news-popup-container");
@@ -65,11 +65,11 @@ public class NewsDialog extends BaseDialog {
     if (root != null && root.getChildren().contains(dialog)) {
       if (progressTimeline != null) progressTimeline.stop();
 
-      TranslateTransition tt = new TranslateTransition(animationDuration, dialog);
+      TranslateTransition tt = new TranslateTransition(Duration.millis(200), dialog);
       tt.setToX(400);
       tt.setInterpolator(Interpolator.EASE_IN);
 
-      FadeTransition ft = createFadeTransition(dialog, dialog.getOpacity(), 0);
+      FadeTransition ft = createFadeTransition(dialog, Duration.millis(300), dialog.getOpacity(), 0);
 
       ParallelTransition exit = new ParallelTransition(tt, ft);
 
@@ -94,11 +94,11 @@ public class NewsDialog extends BaseDialog {
     dialog.setTranslateX(400);
     dialog.setOpacity(0);
 
-    TranslateTransition tt = new TranslateTransition(animationDuration, dialog);
+    TranslateTransition tt = new TranslateTransition(Duration.millis(300),  dialog);
     tt.setToX(0);
     tt.setInterpolator(Interpolator.EASE_OUT);
 
-    FadeTransition ft = createFadeTransition(dialog, 0, 1);
+    FadeTransition ft = createFadeTransition(dialog, Duration.millis(300), 0, 1);
 
     ParallelTransition entrance = new ParallelTransition(tt, ft);
     entrance.play();

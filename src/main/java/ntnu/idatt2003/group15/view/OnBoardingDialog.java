@@ -53,7 +53,7 @@ public class OnBoardingDialog extends BaseDialog {
 
 
   public OnBoardingDialog(CsvUtil csvUtil, TaskUtil taskUtil) throws NullPointerException {
-    super(Duration.millis(200));
+    super();
 
     this.csvUtil = Objects.requireNonNull(csvUtil);
     this.taskUtil = Objects.requireNonNull(taskUtil);
@@ -63,8 +63,6 @@ public class OnBoardingDialog extends BaseDialog {
     progressBar = setUpProgressBar();
     closeAnimation = createCloseAnimation();
 
-    dialog.getStylesheets().add(
-        Objects.requireNonNull(getClass().getResource("/style/OnBoardStyle.css")).toExternalForm());
     dialog.getStyleClass().setAll("onboarding-card");
     dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);
@@ -149,8 +147,8 @@ public class OnBoardingDialog extends BaseDialog {
   }
 
   private ParallelTransition createCloseAnimation() {
-    ScaleTransition scaleTransition = createScaleTransition(dialog, 1, 0);
-    FadeTransition fadeTransition = createFadeTransition(dialog, 1, 0);
+    ScaleTransition scaleTransition = createScaleTransition(dialog,  Duration.millis(300), 1, 0);
+    FadeTransition fadeTransition = createFadeTransition(dialog,  Duration.millis(300), 1, 0);
     ParallelTransition parallelTransition = new ParallelTransition(scaleTransition, fadeTransition);
     parallelTransition.setOnFinished(_ -> {
       root.getChildren().remove(dialog);
@@ -202,15 +200,15 @@ public class OnBoardingDialog extends BaseDialog {
   private void animateSlide(double outDirection, Runnable contentUpdate) {
     double slideDistance = 40;
 
-    FadeTransition fadeOut = createFadeTransition(textContainer, 1.0, 0.0);
-    TranslateTransition slideOut = createTranslateTransition(textContainer, 0, -1 * outDirection * slideDistance);
+    FadeTransition fadeOut = createFadeTransition(textContainer,  Duration.millis(300), 1.0, 0.0);
+    TranslateTransition slideOut = createTranslateTransition(textContainer,  Duration.millis(300), 0, -1 * outDirection * slideDistance);
 
     ParallelTransition out = new ParallelTransition(fadeOut, slideOut);
     out.setOnFinished(_ -> {
       contentUpdate.run();
       textContainer.setTranslateX(outDirection * slideDistance);
-      FadeTransition fadeIn = createFadeTransition(textContainer, 0.0, 1.0);
-      TranslateTransition slideIn = createTranslateTransition(textContainer,
+      FadeTransition fadeIn = createFadeTransition(textContainer,  Duration.millis(300), 0.0, 1.0);
+      TranslateTransition slideIn = createTranslateTransition(textContainer, Duration.millis(300),
           outDirection * slideDistance, 0);
       new ParallelTransition(fadeIn, slideIn).play();
     });

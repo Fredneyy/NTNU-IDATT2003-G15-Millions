@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class StockChartDialog extends BaseDialog {
 
@@ -45,14 +44,12 @@ public class StockChartDialog extends BaseDialog {
   private List<BigDecimal> historicalPrices;
 
   public StockChartDialog() {
-    super(Duration.millis(220));
+    super();
 
     double maxW = Screen.getPrimary().getVisualBounds().getWidth()  * 0.35;
     double maxH = Screen.getPrimary().getVisualBounds().getHeight() * 0.55;
     dialog.setMaxWidth(maxW);
     dialog.setMaxHeight(maxH);
-    dialog.getStylesheets().add(
-        Objects.requireNonNull(getClass().getResource("/style/StockChartDialog.css")).toExternalForm());
     dialog.getStyleClass().setAll("stock-dialog-card");
 
     configureChart();
@@ -70,8 +67,12 @@ public class StockChartDialog extends BaseDialog {
     dialog.layout();
 
     openAnimation  = buildOpenAnimation();
-    closeAnimation = buildCloseAnimation();
-
+    closeAnimation = createCloseAnimation(  _ -> {
+        root.getChildren().remove(dialog);
+        dialog.setOpacity(1);
+        dialog.setScaleX(1);
+        dialog.setScaleY(1);
+      });
   }
 
   public void show(StackPane root, Stock stockData) {
@@ -256,12 +257,12 @@ public class StockChartDialog extends BaseDialog {
       return;
     }
 
-    BigDecimal min     = stockData.getLowestPrice();
-    BigDecimal max     = stockData.getHighestPrice();
-    BigDecimal range   = max.subtract(min);
-    boolean    flat    = range.signum() == 0;
+    BigDecimal min = stockData.getLowestPrice();
+    BigDecimal max = stockData.getHighestPrice();
+    BigDecimal range = max.subtract(min);
+    boolean flat = range.signum() == 0;
     BigDecimal padding = flat ? BigDecimal.ONE : range.multiply(new BigDecimal("0.05"));
-    BigDecimal tick    = flat ? BigDecimal.ONE : range.divide(new BigDecimal("4"), 2, RoundingMode.HALF_UP);
+    BigDecimal tick = flat ? BigDecimal.ONE : range.divide(new BigDecimal("4"), 2, RoundingMode.HALF_UP);
 
     yAxis.setLowerBound(min.subtract(padding).doubleValue());
     yAxis.setUpperBound(max.add(padding).doubleValue());
@@ -275,21 +276,8 @@ public class StockChartDialog extends BaseDialog {
   }
 
   private ParallelTransition buildOpenAnimation() {
-    FadeTransition  fade  = createFadeTransition(dialog, 0, 1);
-    ScaleTransition scale = createScaleTransition(dialog, 0.92, 1.0);
+    FadeTransition fade = createFadeTransition(dialog,  Duration.millis(300), 0, 1);
+    ScaleTransition scale = createScaleTransition(dialog,  Duration.millis(300), 0.92, 1.0);
     return new ParallelTransition(fade, scale);
-  }
-
-  private ParallelTransition buildCloseAnimation() {
-    FadeTransition  fade  = createFadeTransition(dialog, 1, 0);
-    ScaleTransition scale = createScaleTransition(dialog, 1.0, 0.92);
-    ParallelTransition pt = new ParallelTransition(fade, scale);
-    pt.setOnFinished(_ -> {
-      root.getChildren().remove(dialog);
-      dialog.setOpacity(1);
-      dialog.setScaleX(1);
-      dialog.setScaleY(1);
-    });
-    return pt;
   }
 }

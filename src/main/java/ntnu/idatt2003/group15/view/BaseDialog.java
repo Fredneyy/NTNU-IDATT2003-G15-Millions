@@ -1,8 +1,11 @@
 package ntnu.idatt2003.group15.view;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
@@ -13,17 +16,16 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public abstract class BaseDialog {
 
   protected final VBox dialog = new VBox();
   protected StackPane root;
-  protected final Duration animationDuration;
   protected final Label titleLabel = new Label();
   protected final Label messageLabel = new Label();
 
-  protected BaseDialog(Duration animationDuration) {
-    this.animationDuration = animationDuration;
+  protected BaseDialog() {
 
     dialog.getStylesheets().add(
         Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
@@ -43,15 +45,37 @@ public abstract class BaseDialog {
     HBox.setHgrow(dialog, Priority.ALWAYS);
   }
 
-  protected FadeTransition createFadeTransition(Node node, double from, double to) {
-    FadeTransition fadeTransition = new FadeTransition(animationDuration, node);
+  protected ParallelTransition createCloseAnimation(EventHandler<ActionEvent> onFinished) {
+    ParallelTransition animation = new ParallelTransition(
+        createFadeTransition(dialog, Duration.millis(300), 1, 0),
+        createScaleTransition(dialog,  Duration.millis(300), 1.0, 0.1)
+    );
+    animation.setOnFinished(e -> {
+      if (onFinished != null) onFinished.handle(e);
+      dialog.setOpacity(1);
+      dialog.setScaleX(1);
+      dialog.setScaleY(1);
+    });
+    return animation;
+  }
+
+  protected ParallelTransition createOpenAnimation() {
+    ParallelTransition animation = new ParallelTransition(
+        createFadeTransition(dialog, Duration.millis(300), 0, 1),
+        createScaleTransition(dialog,  Duration.millis(300), 0.1, 1)
+    );
+    return animation;
+  }
+
+  protected FadeTransition createFadeTransition(Node node, Duration duration,  double from, double to) {
+    FadeTransition fadeTransition = new FadeTransition(duration, node);
     fadeTransition.setFromValue(from);
     fadeTransition.setToValue(to);
     return fadeTransition;
   }
 
-  protected ScaleTransition createScaleTransition(Node node, double from, double to) {
-    ScaleTransition scaleTransition = new ScaleTransition(animationDuration, node);
+  protected ScaleTransition createScaleTransition(Node node, Duration duration, double from, double to) {
+    ScaleTransition scaleTransition = new ScaleTransition(duration, node);
     scaleTransition.setFromX(from);
     scaleTransition.setFromY(from);
     scaleTransition.setToX(to);
@@ -59,8 +83,8 @@ public abstract class BaseDialog {
     return scaleTransition;
   }
 
-  protected TranslateTransition createTranslateTransition(Node node, double fromX, double toX) {
-    TranslateTransition translateTransition = new TranslateTransition(animationDuration, node);
+  protected TranslateTransition createTranslateTransition(Node node, Duration duration, double fromX, double toX) {
+    TranslateTransition translateTransition = new TranslateTransition(duration, node);
     translateTransition.setFromX(fromX);
     translateTransition.setToX(toX);
     translateTransition.setFromY(0);

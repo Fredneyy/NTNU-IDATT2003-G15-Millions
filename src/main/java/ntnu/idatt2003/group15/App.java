@@ -1,25 +1,22 @@
 package ntnu.idatt2003.group15;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainController;
-import ntnu.idatt2003.group15.controller.MainMenuController;
-import ntnu.idatt2003.group15.model.StandardPriceEvent;
 import ntnu.idatt2003.group15.model.Stock;
-import ntnu.idatt2003.group15.model.StockSimulator;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
+import ntnu.idatt2003.group15.view.BuyStockDialog;
 import ntnu.idatt2003.group15.view.ExceptionDialog;
-import ntnu.idatt2003.group15.view.OnBoardingDialog;
 import ntnu.idatt2003.group15.view.StockChartDialog;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.function.Consumer;
 
 /**
@@ -41,7 +38,6 @@ public class App extends Application {
         Scene scene = new Scene(root);
         MainController mainController = new MainController(root, errorHandler, csvUtil, taskUtil);
         mainController.showMainMenu();
-
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/SettingsStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/TabView.css")).toExternalForm());
@@ -53,6 +49,7 @@ public class App extends Application {
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/DialogStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/StatisticsOverview.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/StockChartDialog.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/BuyStockDialogStyle.css")).toExternalForm());
         root.getStyleClass().add("scene-root");
         stage.setFullScreen(true);
         stage.setScene(scene);
@@ -83,7 +80,7 @@ public class App extends Application {
         }
         csvUtil = new CsvUtil();
         errorHandler = this::exceptionPopUp;
-        exceptionDialog = new ExceptionDialog(Duration.millis(200));
+        exceptionDialog = new ExceptionDialog();
     }
 
 

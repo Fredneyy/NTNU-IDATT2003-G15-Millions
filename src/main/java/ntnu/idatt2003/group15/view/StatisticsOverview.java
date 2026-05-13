@@ -90,8 +90,6 @@ public class StatisticsOverview {
     private final Map<String, CardNodes> cards = new LinkedHashMap<>();
 
     public StatisticsOverview() {
-        view.getStylesheets().add(
-            Objects.requireNonNull(getClass().getResource("/style/StatisticsOverview.css")).toExternalForm());
         view.getStyleClass().add("stats-overview");
     }
 
