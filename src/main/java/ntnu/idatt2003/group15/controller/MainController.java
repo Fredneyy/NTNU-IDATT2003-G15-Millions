@@ -24,6 +24,7 @@ public class MainController {
   private final TaskUtil taskUtil;
   private final StackPane root;
   private final NewsController newsController;
+  private final GameSettings gameSettings = new GameSettings();
   private Timeline priceTicker;
 
   public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
@@ -33,7 +34,7 @@ public class MainController {
 
     MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", loadStocks()), this::startGame);
     mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
-    newsController = new NewsController(root);
+    newsController = new NewsController(root, gameSettings);
   }
 
   public void showMainMenu() {
@@ -67,9 +68,14 @@ public class MainController {
   }
 
   private void startGame(ExchangeController exchangeController, PlayerController playerController) {
-    GameView gameView = new GameView(playerController, exchangeController, this::showMainMenu);
+    GameView gameView = new GameView(playerController, exchangeController, gameSettings, this::showMainMenu);
     gameView.show(root);
     new OnBoardingDialog(csvUtil, taskUtil).show(root);
+
+    // Propagate the current volatility multiplier and keep it in sync as the user adjusts settings.
+    exchangeController.setVolatilityMultiplier(gameSettings.getVolatilityMultiplier());
+    gameSettings.volatilityMultiplierProperty().addListener(
+        (_, _, v) -> exchangeController.setVolatilityMultiplier(v.doubleValue()));
 
     newsController.start();
     newsController.setOnNewsEmitted(item -> {

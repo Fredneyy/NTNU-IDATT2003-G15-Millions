@@ -53,6 +53,11 @@ public class Exchange {
     return name;
   }
 
+  /** Apply a global volatility multiplier to all subsequent price ticks. */
+  public void setVolatilityMultiplier(double multiplier) {
+    simulator.setVolatilityMultiplier(multiplier);
+  }
+
   /**
    * Retrieves the current simulation week of the exchange.
    *

@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -18,6 +19,8 @@ import javafx.scene.layout.VBox;
 import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.PlayerController;
 import ntnu.idatt2003.group15.controller.PortfolioController;
+import ntnu.idatt2003.group15.controller.SettingsController;
+import ntnu.idatt2003.group15.model.GameSettings;
 import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
@@ -31,6 +34,7 @@ public class GameView {
   private StackPane root;
 
   private final SettingsView settingsView;
+  private final SettingsController settingsController;
   private final StatisticsOverview statisticsOverview = new StatisticsOverview();
   private final BuyStockDialog buyStockDialog;
   private final SellStockDialog sellStockDialog;
@@ -47,7 +51,8 @@ public class GameView {
 
   private final TabContainer tabContainer;
 
-  public GameView(PlayerController player, ExchangeController exchange, Runnable runnableExit) {
+  public GameView(PlayerController player, ExchangeController exchange,
+                  GameSettings settings, Runnable runnableExit) {
     PlayerController playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
     ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
@@ -92,6 +97,8 @@ public class GameView {
     );
     HeaderView headerView = new HeaderView(runnableExit);
     settingsView = new SettingsView(view);
+    settingsController = new SettingsController(settingsView,
+        Objects.requireNonNull(settings, "settings"));
     headerView.setPlayerName(player.getName());
     view.getStylesheets().add(Objects.requireNonNull(
         getClass().getResource("/style/RootStyle.css")).toExternalForm());
@@ -129,11 +136,21 @@ public class GameView {
     );
 
     view.getStyleClass().add("game-view");
-    view.getChildren().add(layout);
+    ScrollPane scroll = new ScrollPane(layout);
+    scroll.setFitToWidth(true);
+    scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+    scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    scroll.getStyleClass().add("game-scroll");
+    StackPane.setAlignment(scroll, Pos.TOP_CENTER);
+    view.getChildren().add(scroll);
   }
 
   public NewsFeedView getNewsFeedView() {
     return newsFeedView;
+  }
+
+  public SettingsController getSettingsController() {
+    return settingsController;
   }
 
 

@@ -31,9 +31,25 @@ public class StockSimulator {
   private final Random random = new Random();
   private final double dt;
   private final Map<String, ActiveNews> activeNews = new HashMap<>();
+  private double volatilityMultiplier = 1.0;
 
   public StockSimulator(double dt) {
     this.dt = dt;
+  }
+
+  /**
+   * Set a global volatility multiplier applied on top of every per-stock σ
+   * computed each tick. Defaults to {@code 1.0}.
+   */
+  public void setVolatilityMultiplier(double multiplier) {
+    if (multiplier <= 0) {
+      throw new IllegalArgumentException("multiplier must be > 0");
+    }
+    this.volatilityMultiplier = multiplier;
+  }
+
+  public double getVolatilityMultiplier() {
+    return volatilityMultiplier;
   }
 
   /**
@@ -148,9 +164,10 @@ public class StockSimulator {
   }
 
   private BigDecimal gbmStep(BigDecimal currentPrice, double drift, double volatility) {
+    double effectiveVol = volatility * volatilityMultiplier;
     double z = random.nextGaussian();
-    double exponent = (drift - 0.5 * volatility * volatility) * dt
-        + (volatility * Math.sqrt(dt) * z);
+    double exponent = (drift - 0.5 * effectiveVol * effectiveVol) * dt
+        + (effectiveVol * Math.sqrt(dt) * z);
     return currentPrice.multiply(BigDecimal.valueOf(Math.exp(exponent)));
   }
 
