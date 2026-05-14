@@ -2,7 +2,6 @@ package ntnu.idatt2003.group15.view;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javafx.beans.binding.Bindings;
@@ -28,31 +27,29 @@ public class GameView {
   private static final Set<String> TABS_WITH_SEARCH = Set.of("market", "portfolio");
 
   private final StackPane view = new StackPane();
+  private StackPane root;
 
-  private final HeaderView headerView;
   private final SettingsView settingsView;
   private final StatisticsOverview statisticsOverview = new StatisticsOverview();
-  private final ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
   private final BuyStockDialog buyStockDialog;
   private final StockChartDialog stockChartDialog = new StockChartDialog();
   private final MarketTableView marketTable;
   private final PortfolioTableView portfolioTable;
-  private final StatsView statsView = new StatsView();
-  private final TradesView tradesView = new TradesView();
   private final NewsFeedView newsFeedView = new NewsFeedView();
   private final TextField searchField = new TextField();
   private final HBox searchBar;
 
   private final VBox marketContent;
   private final VBox portfolioContent;
-  private final PlayerController playerController;
   private final ExchangeController exchangeController;
 
   private final TabContainer tabContainer;
 
   public GameView(PlayerController player, ExchangeController exchange, Runnable runnableExit) {
-    this.playerController = Objects.requireNonNull(player);
+    PlayerController playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
+    ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
+    marketStocks.addAll(exchangeController.getAllStocks());
 
     buyStockDialog = new BuyStockDialog(
         exchangeController.cashProperty(),
@@ -69,7 +66,9 @@ public class GameView {
         stock -> buyStockDialog.show(view, stock),
         stock -> stockChartDialog.show(view, stock));
     marketContent = new VBox(marketTable.getView());
+    StatsView statsView = new StatsView();
     VBox statsContent = new VBox(statsView.getView());
+    TradesView tradesView = new TradesView();
     VBox tradesContent = new VBox(tradesView.getView());
     VBox newsContent = new VBox(newsFeedView.getView());
     tabContainer = new TabContainer(
@@ -79,7 +78,7 @@ public class GameView {
         new TabContainer.Tab("trades",    "Trades",    FontAwesome.CLOCK_O,     tradesContent),
         new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent, "1")
     );
-    headerView = new HeaderView(runnableExit);
+    HeaderView headerView = new HeaderView(runnableExit);
     settingsView = new SettingsView(view);
     headerView.setPlayerName(player.getName());
     view.getStylesheets().add(Objects.requireNonNull(
@@ -119,6 +118,25 @@ public class GameView {
 
     view.getStyleClass().add("game-view");
     view.getChildren().add(layout);
+  }
+
+  public NewsFeedView getNewsFeedView() {
+    return newsFeedView;
+  }
+
+
+  public void show(StackPane root) {
+    if (root != null && !root.getChildren().contains(view)) {
+      this.root = root;
+      root.getChildren().add(view);
+    }
+  }
+
+
+  public void close() {
+    if (root != null) {
+      root.getChildren().remove(view);
+    }
   }
 
   private void addStatisticsCards() {
@@ -223,9 +241,4 @@ public class GameView {
     box.setAlignment(Pos.CENTER_LEFT);
     return box;
   }
-
-  public StackPane getView() { return view; }
-  public NewsFeedView getNewsFeedView() { return newsFeedView; }
-
-  public void setMarketStocks(List<Stock> stocks) { marketStocks.setAll(stocks); }
 }

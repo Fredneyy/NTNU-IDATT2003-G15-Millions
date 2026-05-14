@@ -21,7 +21,7 @@ public class Exchange {
   private static final double SIMULATOR_DT = 1.0 / 52.0;
 
   private final String name;
-  private IntegerProperty week = new SimpleIntegerProperty(1);
+  private final IntegerProperty week = new SimpleIntegerProperty(1);
   private final Map<String, Stock> stockMap;
   private final StockSimulator simulator = new StockSimulator(SIMULATOR_DT);
 

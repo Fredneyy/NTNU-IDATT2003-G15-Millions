@@ -26,7 +26,6 @@ public class MainController {
   private final NewsController newsController;
   private Timeline priceTicker;
 
-
   public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
     this.csvUtil = csvUtil;
     this.taskUtil = taskUtil;
@@ -69,16 +68,12 @@ public class MainController {
 
   private void startGame(ExchangeController exchangeController, PlayerController playerController) {
     GameView gameView = new GameView(playerController, exchangeController, this::showMainMenu);
-    List<Stock> stocks = exchangeController.getAllStocks();
-    gameView.setMarketStocks(stocks);
-    root.getChildren().setAll(gameView.getView());
-    OnBoardingDialog onBoardingDialog = new OnBoardingDialog(csvUtil, taskUtil);
-    onBoardingDialog.show(root);
+    gameView.show(root);
+    new OnBoardingDialog(csvUtil, taskUtil).show(root);
+
     newsController.start();
     newsController.setOnNewsEmitted(item -> {
       gameView.getNewsFeedView().prependEvent(item);
-      // Route headline-style events through the exchange: every stock in the
-      // item's sector gets shocked + an elevated-volatility window.
       if (item.sector() != null) {
         exchangeController.applyNews(item);
       }

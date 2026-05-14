@@ -374,6 +374,7 @@ public class MainMenu {
     if (!name.isBlank() && InputValidator.isInt(startingMoney)) {
         try {
           mainMenuController.startGame(name, BigDecimal.valueOf(Long.parseLong(startingMoney)));
+          close();
         } catch (RuntimeException ex) {
           errorHandler.accept(ex);
         }

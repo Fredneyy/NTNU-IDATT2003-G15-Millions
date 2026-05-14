@@ -16,7 +16,6 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.Objects;
-import java.util.function.Consumer;
 
 public abstract class BaseDialog {
 
