@@ -36,7 +36,7 @@ public class Stock {
    */
   public Stock(String symbol, String company, BigDecimal salesPrice, double drift, double volatility, List<StockSectors> categories)
       throws NullPointerException, BlankArgumentException, IllegalArgumentException {
-    Objects.requireNonNull(symbol, "Company cannot be null");
+    Objects.requireNonNull(symbol, "Symbol cannot be null");
     this.categories = FXCollections.observableArrayList(categories);
     this.drift = drift;
     this.volatility = volatility;
