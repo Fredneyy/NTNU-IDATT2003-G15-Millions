@@ -40,6 +40,9 @@ public class MainController {
   public void showMainMenu() {
     newsController.stop();
     stopPriceTicker();
+    // Clear any blur/effect that may have leaked onto the menu from an open
+    // dialog (e.g. logging out while the onboarding overlay is still up).
+    mainMenu.getView().setEffect(null);
     root.getChildren().setAll(mainMenu.getView());
   }
 
@@ -70,6 +73,9 @@ public class MainController {
   private void startGame(ExchangeController exchangeController, PlayerController playerController) {
     GameView gameView = new GameView(playerController, exchangeController, gameSettings, this::showMainMenu);
     gameView.show(root);
+    // Take the main menu out of the scene so it can't be blurred (or otherwise
+    // affected) by overlays drawn on top of the game view.
+    root.getChildren().remove(mainMenu.getView());
     new OnBoardingDialog(csvUtil, taskUtil).show(root);
 
     // Propagate the current volatility multiplier and keep it in sync as the user adjusts settings.
