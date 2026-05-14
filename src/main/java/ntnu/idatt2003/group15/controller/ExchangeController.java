@@ -180,6 +180,16 @@ public class ExchangeController {
         return player.getPortfolio().getListProperty();
     }
 
+    /** Commission rate the exchange charges on each transaction. */
+    public BigDecimal getCommission() {
+        return exchange.getCommission();
+    }
+
+    /** Tax rate the exchange applies to sale proceeds. */
+    public BigDecimal getTax() {
+        return exchange.getTax();
+    }
+
     /**
      * Advances the simulation by one week, triggering price updates across all listed stocks.
      */

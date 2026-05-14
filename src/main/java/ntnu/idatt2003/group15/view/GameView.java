@@ -18,6 +18,7 @@ import javafx.scene.layout.VBox;
 import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.PlayerController;
 import ntnu.idatt2003.group15.controller.PortfolioController;
+import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -62,7 +63,9 @@ public class GameView {
     sellStockDialog = new SellStockDialog(
         exchangeController.cashProperty(),
         portfolioController,
-        BigDecimal.ZERO,
+        new SaleCalculator(),
+        exchangeController.getCommission(),
+        exchangeController.getTax(),
         exchangeController::sell);
 
     portfolioTable = new PortfolioTableView(portfolioController,

@@ -24,6 +24,8 @@ public class Exchange {
   private final IntegerProperty week = new SimpleIntegerProperty(1);
   private final Map<String, Stock> stockMap;
   private final StockSimulator simulator = new StockSimulator(SIMULATOR_DT);
+  private final BigDecimal commission = new BigDecimal("0.01");
+  private final BigDecimal tax = new BigDecimal("0.22");
 
   /**
    * Initializes a new stock exchange with the given name and collection of initial stocks.
@@ -136,8 +138,18 @@ public class Exchange {
     Objects.requireNonNull(share, "Share cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
     Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, week.get());
-    tx.commit(player, BigDecimal.ZERO, BigDecimal.valueOf(0.25));
+    tx.commit(player, commission, tax);
     return tx;
+  }
+
+  /** Commission rate charged on each transaction. */
+  public BigDecimal getCommission() {
+    return commission;
+  }
+
+  /** Tax rate applied to net proceeds on sales. */
+  public BigDecimal getTax() {
+    return tax;
   }
 
   /**
