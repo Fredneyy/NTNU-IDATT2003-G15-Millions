@@ -188,7 +188,7 @@ public class MainMenu {
       authorLabel.setText("Master the game");
     } else {
       qouteLabel.setText(quotes.get(index.getAndIncrement()).getFirst());
-      authorLabel.setText(quotes.get(index.getAndIncrement()).getLast());
+      authorLabel.setText(quotes.get(index.get()).getLast());
 
       scheduleAnimation(quotes, tipContainer, qouteLabel, authorLabel, index);
     }
@@ -202,7 +202,7 @@ public class MainMenu {
     Duration duration = Duration.seconds(durationDouble);
 
     qouteLabel.setText(quotes.get(index.getAndIncrement()).getFirst());
-    authorLabel.setText(quotes.get(index.getAndIncrement()).getLast());
+    authorLabel.setText(quotes.get(index.get()).getLast());
 
     ParallelTransition fadeInTransitions = new ParallelTransition();
     TranslateTransition translateIn = new TranslateTransition(Duration.millis(800), tipContainer);
