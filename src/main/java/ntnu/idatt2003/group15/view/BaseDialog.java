@@ -98,9 +98,5 @@ public abstract class BaseDialog {
       root.getChildren().forEach(node -> node.setEffect(null));
     }
   }
-
-  public abstract void show(StackPane root);
-
-  public abstract void close();
 }
 

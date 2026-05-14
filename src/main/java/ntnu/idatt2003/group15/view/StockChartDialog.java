@@ -85,12 +85,6 @@ public class StockChartDialog extends BaseDialog {
     isNotInRoot(root);
   }
 
-  @Override
-  public void show(StackPane root) {
-    this.root = root;
-    isNotInRoot(root);
-  }
-
   private void isNotInRoot(StackPane root) {
     if (!root.getChildren().contains(dialog)) {
       root.getChildren().add(dialog);
@@ -101,7 +95,6 @@ public class StockChartDialog extends BaseDialog {
     }
   }
 
-  @Override
   public void close() {
     detachPricesListener();
     if (root != null && root.getChildren().contains(dialog)) {

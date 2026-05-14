@@ -115,14 +115,12 @@ public class OnBoardingDialog extends BaseDialog {
     dialog.getChildren().addAll(progressBar, content);
   }
 
-  @Override
   public void close() {
     if (root != null && root.getChildren().contains(dialog)) {
       closeAnimation.play();
     }
   }
 
-  @Override
   public void show(StackPane root) {
     this.root = root;
     if (!root.getChildren().contains(dialog)) {
@@ -180,8 +178,8 @@ public class OnBoardingDialog extends BaseDialog {
   private void renderStep(int step) {
     if (step < 0 || step >= onboardingText.size()) return;
     List<String> row = onboardingText.get(step);
-    titleLabel.setText(row.isEmpty() ? "" : row.get(0));
-    messageLabel.setText(row.size() < 2 ? "" : row.get(row.size() - 1));
+    titleLabel.setText(row.isEmpty() ? "" : row.getFirst());
+    messageLabel.setText(row.size() < 2 ? "" : row.getLast());
     updateIconBox(Math.min(step, icons.size() - 1));
     updateNextButton(step == onboardingText.size() - 1);
   }

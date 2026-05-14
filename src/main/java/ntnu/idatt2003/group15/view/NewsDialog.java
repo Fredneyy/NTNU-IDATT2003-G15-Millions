@@ -267,7 +267,6 @@ public class NewsDialog extends BaseDialog {
 
   // ---------- Lifecycle ----------
 
-  @Override
   public void close() {
     if (container != null) {
       if (progressTimeline != null) progressTimeline.stop();
@@ -293,7 +292,6 @@ public class NewsDialog extends BaseDialog {
     return new ParallelTransition(tt, ft);
   }
 
-  @Override
   public void show(StackPane root) {
     if (!root.getChildren().contains(dialog)) {
       this.root = root;
