@@ -1,5 +1,7 @@
 package ntnu.idatt2003.group15.view;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
@@ -10,8 +12,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -23,6 +27,7 @@ import ntnu.idatt2003.group15.controller.SettingsController;
 import ntnu.idatt2003.group15.model.GameSettings;
 import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.utilities.SaveGameUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -48,13 +53,16 @@ public class GameView {
   private final VBox marketContent;
   private final VBox portfolioContent;
   private final ExchangeController exchangeController;
+  private final PlayerController playerController;
+  private final GameSettings gameSettings;
 
   private final TabContainer tabContainer;
 
   public GameView(PlayerController player, ExchangeController exchange,
                   GameSettings settings, Runnable runnableExit) {
-    PlayerController playerController = Objects.requireNonNull(player);
+    this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
+    this.gameSettings = Objects.requireNonNull(settings, "settings");
     ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
     marketStocks.addAll(exchangeController.getAllStocks());
 
@@ -97,13 +105,13 @@ public class GameView {
     );
     HeaderView headerView = new HeaderView(runnableExit);
     settingsView = new SettingsView(view);
-    settingsController = new SettingsController(settingsView,
-        Objects.requireNonNull(settings, "settings"));
+    settingsController = new SettingsController(settingsView, gameSettings);
     headerView.setPlayerName(player.getName());
     view.getStylesheets().add(Objects.requireNonNull(
         getClass().getResource("/style/RootStyle.css")).toExternalForm());
     HBox header = headerView.createHeader();
     headerView.getSettingsButton().setOnAction(_ -> settingsView.toggle());
+    headerView.getSaveButton().setOnAction(_ -> saveGame());
 
     addStatisticsCards();
     searchBar = buildSearchBar();
@@ -166,6 +174,47 @@ public class GameView {
     if (root != null) {
       root.getChildren().remove(view);
     }
+  }
+
+  private void saveGame() {
+    FileChooser chooser = new FileChooser();
+    chooser.setTitle("Save Game");
+    chooser.getExtensionFilters().add(
+        new FileChooser.ExtensionFilter("Millions save file (*.json)", "*.json"));
+    String name = playerController.getName();
+    String suggested = (name == null || name.isBlank())
+        ? "millions-save.json"
+        : "millions-" + name.toLowerCase().replaceAll("\\s+", "-") + ".json";
+    chooser.setInitialFileName(suggested);
+
+    File target = chooser.showSaveDialog(view.getScene() == null ? null : view.getScene().getWindow());
+    if (target == null) return; // user cancelled
+    if (!target.getName().toLowerCase().endsWith(".json")) {
+      target = new File(target.getParentFile(), target.getName() + ".json");
+    }
+
+    try {
+      SaveGameUtil.save(target, playerController, exchangeController, gameSettings);
+      showInfo("Game saved", "Saved to:\n" + target.getAbsolutePath());
+    } catch (IOException ex) {
+      showError("Could not save game", ex.getMessage());
+    }
+  }
+
+  private static void showInfo(String header, String message) {
+    Alert a = new Alert(Alert.AlertType.INFORMATION);
+    a.setTitle("Millions");
+    a.setHeaderText(header);
+    a.setContentText(message);
+    a.showAndWait();
+  }
+
+  private static void showError(String header, String message) {
+    Alert a = new Alert(Alert.AlertType.ERROR);
+    a.setTitle("Millions");
+    a.setHeaderText(header);
+    a.setContentText(message);
+    a.showAndWait();
   }
 
   private void addStatisticsCards() {

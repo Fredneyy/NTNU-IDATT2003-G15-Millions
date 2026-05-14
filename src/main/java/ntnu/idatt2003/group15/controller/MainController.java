@@ -33,6 +33,8 @@ public class MainController {
     this.root = root;
 
     MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", loadStocks()), this::startGame);
+    mainMenuController.setGameSettings(gameSettings);
+    mainMenuController.setOnGameLoadConsumer(this::resumeGame);
     mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
     newsController = new NewsController(root, gameSettings);
   }
@@ -43,6 +45,7 @@ public class MainController {
     // Clear any blur/effect that may have leaked onto the menu from an open
     // dialog (e.g. logging out while the onboarding overlay is still up).
     mainMenu.getView().setEffect(null);
+    mainMenu.refreshContinueCard();
     root.getChildren().setAll(mainMenu.getView());
   }
 
@@ -71,12 +74,23 @@ public class MainController {
   }
 
   private void startGame(ExchangeController exchangeController, PlayerController playerController) {
+    enterGame(exchangeController, playerController, true);
+  }
+
+  private void resumeGame(ExchangeController exchangeController, PlayerController playerController) {
+    enterGame(exchangeController, playerController, false);
+  }
+
+  private void enterGame(ExchangeController exchangeController, PlayerController playerController,
+                         boolean showOnboarding) {
     GameView gameView = new GameView(playerController, exchangeController, gameSettings, this::showMainMenu);
     gameView.show(root);
     // Take the main menu out of the scene so it can't be blurred (or otherwise
     // affected) by overlays drawn on top of the game view.
     root.getChildren().remove(mainMenu.getView());
-    new OnBoardingDialog(csvUtil, taskUtil).show(root);
+    if (showOnboarding) {
+      new OnBoardingDialog(csvUtil, taskUtil).show(root);
+    }
 
     // Propagate the current volatility multiplier and keep it in sync as the user adjusts settings.
     exchangeController.setVolatilityMultiplier(gameSettings.getVolatilityMultiplier());

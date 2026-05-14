@@ -5,7 +5,12 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import ntnu.idatt2003.group15.model.Exchange;
+import ntnu.idatt2003.group15.model.GameSettings;
 import ntnu.idatt2003.group15.model.Player;
+import ntnu.idatt2003.group15.model.Portfolio;
+import ntnu.idatt2003.group15.model.SaveData;
+import ntnu.idatt2003.group15.model.Share;
+import ntnu.idatt2003.group15.model.Stock;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 
 /**
@@ -16,8 +21,10 @@ public class MainMenuController {
 
   private final BigDecimal DEFAULT_STARTING_MONEY = new BigDecimal("10000");
   private final BiConsumer<ExchangeController, PlayerController> onGameStartConsumer;
+  private BiConsumer<ExchangeController, PlayerController> onGameLoadConsumer;
 
   private final Exchange exchange;
+  private GameSettings gameSettings;
 
   /**
    * Constructs a main-menu controller bound to the given exchange.
@@ -28,6 +35,19 @@ public class MainMenuController {
   public MainMenuController(Exchange exchange, BiConsumer<ExchangeController, PlayerController> onGameStartConsumer) {
     this.exchange = Objects.requireNonNull(exchange, "Exchange cannot be null");
     this.onGameStartConsumer = onGameStartConsumer;
+  }
+
+  /** Optional settings hook; if set, {@link #loadGame(SaveData)} will restore difficulty into it. */
+  public void setGameSettings(GameSettings settings) {
+    this.gameSettings = settings;
+  }
+
+  /**
+   * Register a separate hand-off used by {@link #loadGame(SaveData)}. If unset,
+   * loaded games fall back to the new-game consumer.
+   */
+  public void setOnGameLoadConsumer(BiConsumer<ExchangeController, PlayerController> consumer) {
+    this.onGameLoadConsumer = consumer;
   }
 
   /**
@@ -80,5 +100,53 @@ public class MainMenuController {
    */
   public BigDecimal getDefaultStartingMoney() {
     return DEFAULT_STARTING_MONEY;
+  }
+
+  /**
+   * Restore a previously saved game: rebuild the player, override stock prices,
+   * restore the simulation week, then hand off to the start-game consumer.
+   *
+   * <p>Caller is responsible for applying difficulty/other settings.
+   */
+  public void loadGame(SaveData save) {
+    Objects.requireNonNull(save, "save");
+    String name = (save.playerName() == null || save.playerName().isBlank())
+        ? "Trader" : save.playerName();
+    BigDecimal cash = save.cash() == null ? DEFAULT_STARTING_MONEY : save.cash();
+    Player player = new Player(name, cash);
+
+    // Overlay saved stock prices onto the live exchange's stocks.
+    if (save.stockPrices() != null) {
+      for (var entry : save.stockPrices().entrySet()) {
+        if (!exchange.hasStock(entry.getKey())) continue;
+        Stock stock = exchange.getStock(entry.getKey());
+        BigDecimal price = entry.getValue();
+        if (price != null && price.signum() > 0) {
+          stock.addNewSalesPrice(price);
+        }
+      }
+    }
+
+    // Reattach owned share lots.
+    Portfolio portfolio = player.getPortfolio();
+    if (save.shares() != null) {
+      for (SaveData.ShareEntry s : save.shares()) {
+        if (!exchange.hasStock(s.symbol())) continue;
+        portfolio.addShare(new Share(exchange.getStock(s.symbol()), s.quantity(), s.pricePerShare()));
+      }
+    }
+
+    if (save.week() != null && save.week() > 0) {
+      exchange.setWeek(save.week());
+    }
+
+    if (gameSettings != null && save.difficulty() != null) {
+      gameSettings.setDifficulty(save.difficulty());
+    }
+
+    PlayerController playerController = createPlayerController(player);
+    BiConsumer<ExchangeController, PlayerController> handoff =
+        onGameLoadConsumer != null ? onGameLoadConsumer : onGameStartConsumer;
+    handoff.accept(new ExchangeController(exchange, player), playerController);
   }
 }
