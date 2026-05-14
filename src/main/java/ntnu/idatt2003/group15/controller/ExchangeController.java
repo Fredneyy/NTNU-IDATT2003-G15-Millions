@@ -3,10 +3,7 @@ package ntnu.idatt2003.group15.controller;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import ntnu.idatt2003.group15.model.Exchange;
-import ntnu.idatt2003.group15.model.Player;
-import ntnu.idatt2003.group15.model.Share;
-import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.model.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -176,7 +173,7 @@ public class ExchangeController {
     }
 
     /** Apply a news headline to every stock in the item's sector. */
-    public void applyNews(ntnu.idatt2003.group15.model.NewsItem item) {
+    public void applyNews(NewsItem item) {
         exchange.applyNews(item);
     }
 }
