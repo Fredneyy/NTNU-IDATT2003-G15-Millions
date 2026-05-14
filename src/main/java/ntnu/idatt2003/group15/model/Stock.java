@@ -18,11 +18,14 @@ import ntnu.idatt2003.group15.utilities.InputValidator;
  * Represents a tradable company stock and its recorded price history.
  */
 public class Stock {
+
   private final StringProperty symbol;
   private final StringProperty company;
   private final ObservableList<BigDecimal> prices;
-  private final ObservableList<String> categories;
+  private final ObservableList<StockSectors> categories;
   private final ObjectBinding<BigDecimal> priceBinding;
+  private double drift;
+  private double volatility;
 
   /**
    * Constructs a new  instance ready for market operations.
@@ -31,9 +34,12 @@ public class Stock {
    * @param company the name of the stock
    * @param salesPrice the price of the stock
    */
-  public Stock(String symbol, String company, BigDecimal salesPrice)
+  public Stock(String symbol, String company, BigDecimal salesPrice, double drift, double volatility, List<StockSectors> categories)
       throws NullPointerException, BlankArgumentException, IllegalArgumentException {
-    Objects.requireNonNull(symbol, "Company cannot be null");
+    Objects.requireNonNull(symbol, "Symbol cannot be null");
+    this.categories = FXCollections.observableArrayList(categories);
+    this.drift = drift;
+    this.volatility = volatility;
     if (symbol.isBlank()) {
       throw new BlankArgumentException("Symbol cannot be blank");
     }
@@ -46,7 +52,6 @@ public class Stock {
     }
     this.symbol = new SimpleStringProperty(symbol);
     this.company = new SimpleStringProperty(company);
-    this.categories = FXCollections.observableArrayList();
     this.prices = FXCollections.observableArrayList();
     this.prices.add(salesPrice);
     this.priceBinding = Bindings.createObjectBinding(() -> {
@@ -76,12 +81,32 @@ public class Stock {
     return company;
   }
 
+  /** Steady-state drift used by the price simulator when no news is active. */
+  public double getDrift() {
+    return drift;
+  }
+
+  /** Set the steady-state drift used by the price simulator. */
+  public void setDrift(double drift) {
+    this.drift = drift;
+  }
+
+  /** Steady-state σ (volatility) used by the price simulator when no news is active. */
+  public double getVolatility() {
+    return volatility;
+  }
+
+  /** Set the steady-state σ used by the price simulator. */
+  public void setVolatility(double volatility) {
+    this.volatility = volatility;
+  }
+
   /**
    * Updates the  to modify application state.
    *
    * @param categories the categories of the stock
    */
-  public void setCategories(List<String> categories) {
+  public void setCategories(List<StockSectors> categories) {
     this.categories.clear();
     this.categories.addAll(categories);
   }
@@ -196,7 +221,7 @@ public class Stock {
    *
    * @return categories property
    */
-  public ObservableList<String> getCategories() {
+  public ObservableList<StockSectors> getCategories() {
     return categories;
   }
 

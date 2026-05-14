@@ -3,10 +3,12 @@ package ntnu.idatt2003.group15.view;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Pos;
@@ -20,6 +22,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.Share;
 import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
@@ -27,8 +30,8 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 /**
  * Card-styled portfolio table. Each row is one {@link Share} holding. Header
- * shows the position count and aggregate market value. Action column has a
- * Sell button instead of Buy.
+ * shows the position count and aggregate market value, both bound live to the
+ * {@link PortfolioController}. Action column has a Sell button instead of Buy.
  */
 public class PortfolioTableView {
 
@@ -37,19 +40,18 @@ public class PortfolioTableView {
     private final Label countLabel = new Label("0 positions");
     private final Label totalValueLabel = new Label("$0.00");
     private final TableView<Share> table = new TableView<>();
+    private final PortfolioController portfolioController;
     private final FilteredList<Share> filtered;
-    private final ObservableList<Share> shares;
+    private final Consumer<Stock> onSellPressed;
+    private final Consumer<Stock> onChartPressed;
 
-    /** Pluggable lookup for active price events — controllers can supply real data later. */
-    private Function<Stock, MarketTableView.EventStatus> eventLookup = _ -> MarketTableView.EventStatus.NONE;
-
-    public PortfolioTableView() {
-        this(FXCollections.observableArrayList());
-    }
-
-    public PortfolioTableView(ObservableList<Share> shares) {
-        this.shares = shares;
-        this.filtered = new FilteredList<>(shares, _ -> true);
+    public PortfolioTableView(PortfolioController portfolioController,
+                              Consumer<Stock> onSellPressed,
+                              Consumer<Stock> onChartPressed) {
+        this.portfolioController = Objects.requireNonNull(portfolioController);
+        this.onSellPressed = onSellPressed;
+        this.onChartPressed = onChartPressed;
+        this.filtered = new FilteredList<>(portfolioController.getListProperty(), _ -> true);
 
         buildTable();
         bindHeaderSummary();
@@ -83,20 +85,14 @@ public class PortfolioTableView {
     }
 
     private void bindHeaderSummary() {
+        ObservableList<Share> shares = portfolioController.getListProperty();
         countLabel.textProperty().bind(Bindings.createStringBinding(
                 () -> shares.size() + (shares.size() == 1 ? " position" : " positions"),
                 shares));
-        totalValueLabel.textProperty().bind(Bindings.createStringBinding(
-                () -> "$" + totalValue().setScale(2, RoundingMode.HALF_UP).toPlainString(),
-                shares));
-    }
 
-    private BigDecimal totalValue() {
-        BigDecimal sum = BigDecimal.ZERO;
-        for (Share s : shares) {
-            sum = sum.add(s.getStock().getSalesPrice().multiply(s.getQuantity()));
-        }
-        return sum;
+        ObservableValue<BigDecimal> totalValue = portfolioController.totalMarketValueProperty();
+        totalValueLabel.textProperty().bind(Bindings.createStringBinding(
+                () -> formatMoney(totalValue.getValue()), totalValue));
     }
 
     @SuppressWarnings("unchecked")
@@ -116,44 +112,37 @@ public class PortfolioTableView {
         styleCellsAs(qtyCol, "col-quantity");
 
         TableColumn<Share, BigDecimal> priceCol = new TableColumn<>("Price");
-        priceCol.setCellValueFactory(c ->
-                new ReadOnlyObjectWrapper<>(c.getValue().getStock().getSalesPrice()));
+        priceCol.setCellValueFactory(c -> c.getValue().getStock().getPriceBinding());
         priceCol.setCellFactory(_ -> moneyCell());
         styleCellsAs(priceCol, "col-price");
 
         TableColumn<Share, BigDecimal> totalCol = new TableColumn<>("Total Value");
         totalCol.setCellValueFactory(c -> {
             Share s = c.getValue();
-            return new ReadOnlyObjectWrapper<>(
-                    s.getStock().getSalesPrice().multiply(s.getQuantity()));
+            return Bindings.createObjectBinding(
+                    () -> s.getStock().getSalesPrice().multiply(s.getQuantity()),
+                    s.getStock().getPriceBinding());
         });
         totalCol.setCellFactory(_ -> moneyCell());
         styleCellsAs(totalCol, "col-total");
 
         TableColumn<Share, Share> changeCol = new TableColumn<>("Change");
-        changeCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+        changeCol.setCellValueFactory(c -> {
+            Share s = c.getValue();
+            return Bindings.createObjectBinding(() -> s, s.getStock().getPriceBinding());
+        });
         changeCol.setCellFactory(_ -> combinedChangeCell());
         styleCellsAs(changeCol, "col-change");
 
-        TableColumn<Share, Stock> volatilityCol = new TableColumn<>("Volatility");
-        volatilityCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getStock()));
-        volatilityCol.setCellFactory(_ -> volatilityCell());
-        styleCellsAs(volatilityCol, "col-volatility");
-
-        TableColumn<Share, Stock> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getStock()));
-        statusCol.setCellFactory(_ -> statusCell(this::lookupEvent));
-        styleCellsAs(statusCol, "col-status");
-
         TableColumn<Share, Share> actionCol = new TableColumn<>("Action");
         actionCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
-        actionCol.setCellFactory(_ -> sellButtonCell());
+        actionCol.setCellFactory(_ -> sellButtonCell(onSellPressed, onChartPressed));
         actionCol.setSortable(false);
         styleCellsAs(actionCol, "col-action");
 
         table.getColumns().setAll(
                 symbolCol, companyCol, qtyCol, priceCol, totalCol,
-                changeCol, volatilityCol, statusCol, actionCol);
+                changeCol, actionCol);
         table.setItems(filtered);
         table.setPlaceholder(new Label("You don't own any shares yet."));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
@@ -164,7 +153,10 @@ public class PortfolioTableView {
         column.getStyleClass().add(styleClass);
     }
 
-    // ----- Cell factories (mirror MarketTableView, adapted for Share rows) -----
+    private static String formatMoney(BigDecimal v) {
+        if (v == null) return "$0.00";
+        return "$" + v.setScale(2, RoundingMode.HALF_UP).toPlainString();
+    }
 
     private static TableCell<Share, Share> symbolCell() {
         return new TableCell<>() {
@@ -261,85 +253,8 @@ public class PortfolioTableView {
         };
     }
 
-    private static TableCell<Share, Stock> volatilityCell() {
-        return new TableCell<>() {
-            private final Label badge = new Label();
-            { badge.getStyleClass().add("volatility-badge"); }
-
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                badge.getStyleClass().removeAll(
-                        "volatility-badge--low",
-                        "volatility-badge--med",
-                        "volatility-badge--high");
-                if (empty || stock == null) {
-                    setGraphic(null);
-                    return;
-                }
-                double v = computeVolatility(stock.getHistoricalPrices());
-                String label;
-                String tone;
-                if (v < 0.02) { label = "LOW";  tone = "volatility-badge--low"; }
-                else if (v < 0.06) { label = "MED";  tone = "volatility-badge--med"; }
-                else { label = "HIGH"; tone = "volatility-badge--high"; }
-                badge.setText(label);
-                badge.getStyleClass().add(tone);
-                setGraphic(badge);
-            }
-
-            private double computeVolatility(List<BigDecimal> prices) {
-                if (prices == null || prices.size() < 2) return 0;
-                double mean = prices.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0);
-                if (mean == 0) return 0;
-                double variance = prices.stream()
-                        .mapToDouble(p -> Math.pow(p.doubleValue() - mean, 2))
-                        .average().orElse(0);
-                return Math.sqrt(variance) / mean;
-            }
-        };
-    }
-
-    private static TableCell<Share, Stock> statusCell(Function<Stock, MarketTableView.EventStatus> lookup) {
-        return new TableCell<>() {
-            private final FontIcon warning = new FontIcon(FontAwesome.EXCLAMATION_TRIANGLE);
-            private final Label text = new Label("EVENT");
-            private final HBox badge = new HBox(warning, text);
-            {
-                badge.getStyleClass().add("status-badge");
-                badge.setSpacing(6);
-                text.getStyleClass().add("status-badge-text");
-            }
-
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                badge.getStyleClass().removeAll("status-badge--positive", "status-badge--negative");
-                getStyleClass().removeAll("cell-muted");
-                if (empty || stock == null) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-                MarketTableView.EventStatus status = lookup.apply(stock);
-                if (status == null || status == MarketTableView.EventStatus.NONE) {
-                    setText("—");
-                    setGraphic(null);
-                    getStyleClass().add("cell-muted");
-                    return;
-                }
-                badge.getStyleClass().add(
-                        status == MarketTableView.EventStatus.POSITIVE
-                                ? "status-badge--positive" : "status-badge--negative");
-                setText(null);
-                setGraphic(badge);
-            }
-        };
-    }
-
-    private MarketTableView.EventStatus lookupEvent(Stock s) { return eventLookup.apply(s); }
-
-    private static TableCell<Share, Share> sellButtonCell() {
+    private static TableCell<Share, Share> sellButtonCell(Consumer<Stock> onSell,
+                                                          Consumer<Stock> onChart) {
         return new TableCell<>() {
             private final Button graphButton = new Button();
             private final Button sellButton = new Button("Sell");
@@ -347,8 +262,16 @@ public class PortfolioTableView {
             {
                 graphButton.setGraphic(new FontIcon(FontAwesome.AREA_CHART));
                 graphButton.getStyleClass().add("market-graph-button");
+                graphButton.setOnAction(_ -> {
+                    Share s = getItem();
+                    if (s != null && onChart != null) onChart.accept(s.getStock());
+                });
 
                 sellButton.getStyleClass().add("market-sell-button");
+                sellButton.setOnAction(_ -> {
+                    Share s = getItem();
+                    if (s != null && onSell != null) onSell.accept(s.getStock());
+                });
 
                 wrapper.getStyleClass().add("market-action-cell");
                 wrapper.setSpacing(8);
@@ -362,11 +285,10 @@ public class PortfolioTableView {
         };
     }
 
-    // ----- Public API -----
 
     public VBox getView() { return view; }
     public TableView<Share> getTable() { return table; }
-    public ObservableList<Share> getShares() { return shares; }
+    public ObservableList<Share> getShares() { return portfolioController.getListProperty(); }
 
     /** Filter rows by symbol or company substring (case insensitive). Empty resets. */
     public void setSearchFilter(String query) {
@@ -378,10 +300,5 @@ public class PortfolioTableView {
         filtered.setPredicate(s ->
                 s.getStock().getSymbol().toLowerCase().contains(q)
                         || s.getStock().getCompany().toLowerCase().contains(q));
-    }
-
-    public void setEventLookup(Function<Stock, MarketTableView.EventStatus> lookup) {
-        this.eventLookup = lookup == null ? _ -> MarketTableView.EventStatus.NONE : lookup;
-        table.refresh();
     }
 }

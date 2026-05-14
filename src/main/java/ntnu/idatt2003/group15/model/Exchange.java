@@ -3,6 +3,11 @@ package ntnu.idatt2003.group15.model;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import com.sun.jdi.IntegerValue;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableIntegerValue;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 import ntnu.idatt2003.group15.model.factories.TransactionFactory;
 import ntnu.idatt2003.group15.model.factories.TransactionType;
@@ -12,9 +17,15 @@ import ntnu.idatt2003.group15.model.factories.TransactionType;
  * and their weekly trading values.
  */
 public class Exchange {
+  /** Simulator time step: one trading week per {@link #advance()} call. */
+  private static final double SIMULATOR_DT = 1.0 / 52.0;
+
   private final String name;
-  private int week = 1;
+  private final IntegerProperty week = new SimpleIntegerProperty(1);
   private final Map<String, Stock> stockMap;
+  private final StockSimulator simulator = new StockSimulator(SIMULATOR_DT);
+  private final BigDecimal commission = new BigDecimal("0.01");
+  private final BigDecimal tax = new BigDecimal("0.22");
 
   /**
    * Initializes a new stock exchange with the given name and collection of initial stocks.
@@ -31,7 +42,6 @@ public class Exchange {
     Objects.requireNonNull(stocks, "stocks cannot be null");
     this.name = name;
     this.stockMap = stocks.stream().collect(Collectors.toMap(Stock::getSymbol, stock -> stock));
-    Random random = new Random();
   }
 
   /**
@@ -48,7 +58,7 @@ public class Exchange {
    *
    * @return the current week
    */
-  public int getWeek() {
+  public ObservableIntegerValue getWeekProperty() {
     return week;
   }
 
@@ -112,7 +122,7 @@ public class Exchange {
     Objects.requireNonNull(player, "Player cannot be null");
     Stock stock = getStock(symbol);
     Share share = new Share(stock, quantity, stock.getSalesPrice());
-    Purchase tx = (Purchase) TransactionFactory.createTransaction(TransactionType.PURCHASE, share, getWeek());
+    Purchase tx = (Purchase) TransactionFactory.createTransaction(TransactionType.PURCHASE, share, week.get());
     tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
     return tx;
   }
@@ -127,16 +137,45 @@ public class Exchange {
   public Sale sell(Share share, Player player) throws NullPointerException {
     Objects.requireNonNull(share, "Share cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
-    Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, getWeek());
-    tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
+    Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, week.get());
+    tx.commit(player, commission, tax);
     return tx;
   }
 
+  /** Commission rate charged on each transaction. */
+  public BigDecimal getCommission() {
+    return commission;
+  }
+
+  /** Tax rate applied to net proceeds on sales. */
+  public BigDecimal getTax() {
+    return tax;
+  }
+
   /**
-   * Advances the calendar week, triggering price reevaluations across listed stocks.
+   * Advances the calendar week and ticks every listed stock through the simulator,
+   * pushing the new price onto the stock when positive. Any active news-driven
+   * volatility windows registered via {@link #applyNews(NewsItem)} decay one
+   * update per advance.
    */
   public void advance() {
-    this.week = getWeek() + 1;
+    week.set(week.get() + 1);
+    for (Stock stock : stockMap.values()) {
+      BigDecimal next = simulator.nextPrice(stock);
+      if (next.signum() > 0) {
+        stock.addNewSalesPrice(next);
+      }
+    }
+  }
+
+  /**
+   * Apply a news headline to every stock whose categories include
+   * {@code item.sector()}: each affected stock takes an immediate
+   * {@code changePercent} price shock and enters an elevated-volatility window.
+   */
+  public void applyNews(NewsItem item) {
+    Objects.requireNonNull(item, "news item cannot be null");
+    simulator.applyNews(item, List.copyOf(stockMap.values()));
   }
 
   /**
@@ -147,9 +186,7 @@ public class Exchange {
    */
   public List<Stock> getGainers(int limit) {
     List<Stock> list = new ArrayList<>();
-    stockMap.forEach((s, stock) -> {
-      list.add(stock);
-    });
+    stockMap.forEach((_, stock) -> list.add(stock));
 
     return list.stream()
         .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative).reversed())
@@ -165,7 +202,7 @@ public class Exchange {
    */
   public List<Stock> getLosers(int limit) {
     List<Stock> list = new ArrayList<>();
-    stockMap.forEach((s, stock) -> list.add(stock));
+    stockMap.forEach((_, stock) -> list.add(stock));
 
     return list.stream()
         .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative))

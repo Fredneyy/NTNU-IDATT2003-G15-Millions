@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,7 +16,8 @@ class TransactionTest {
 
   @BeforeEach
   void setUpShared() {
-    Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100));
+    Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100), 0.0, 0.0,
+        List.of(StockSectors.TECHNOLOGY));
     share = new Share(stock, BigDecimal.valueOf(10), BigDecimal.valueOf(100));
   }
 

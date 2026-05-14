@@ -16,12 +16,9 @@ import javafx.collections.ObservableList;
  * Manages a collection of stock holdings for a specific player.
  */
 public class Portfolio {
-  // Structural-only observable list. Price-tick observation is wired separately so cost-basis
-  // bindings (invested, %P/L denominator) don't churn on every market update.
+
   private final ObservableList<Share> shares = FXCollections.observableArrayList();
 
-  // Market value reacts to BOTH structural changes (shares add/remove) AND price ticks on any
-  // currently-held share's stock. Price-binding dependencies are added/removed dynamically.
   private final ObjectBinding<BigDecimal> totalMarketValueBinding = new ObjectBinding<>() {
     {
       bind(shares);

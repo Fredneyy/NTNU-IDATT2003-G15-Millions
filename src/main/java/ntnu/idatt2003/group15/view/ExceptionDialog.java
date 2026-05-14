@@ -49,7 +49,6 @@ public class ExceptionDialog extends BaseDialog {
     messageLabel.setText(message);
   }
 
-  @Override
   public void show(StackPane root) {
     this.root = Objects.requireNonNull(root);
     dialogPane.setAlignment(Pos.CENTER);
@@ -80,7 +79,6 @@ public class ExceptionDialog extends BaseDialog {
     dialog.requestFocus();
   }
 
-  @Override
   public void close() {
     if (root != null && root.getChildren().contains(overlay)
     && root.getChildren().contains(dialog)) {

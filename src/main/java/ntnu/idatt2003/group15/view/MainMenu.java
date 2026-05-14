@@ -8,7 +8,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
@@ -16,7 +15,6 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainMenuController;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
-
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,6 +27,7 @@ public class MainMenu {
   private final TextField nameField = new TextField();
   private final TextField startingMoneyField = new TextField();
   private final Button playButton = new Button();
+  private final FontIcon playIcon = new FontIcon(FontAwesome.PLAY);
   private final Label quoteLabel;
   private final Label authorLabel;
   private final VBox tipContainer = new VBox();
@@ -78,7 +77,7 @@ public class MainMenu {
 
     VBox center = new VBox(24);
     center.setAlignment(Pos.CENTER);
-    center.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 4);
+    center.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 4.0);
     tipContainer.setSpacing(5);
     tipContainer.setMinHeight(90);
     tipContainer.getStyleClass().add("tip-banner");
@@ -99,9 +98,7 @@ public class MainMenu {
     quoteWrapper.getChildren().add(quoteLabel);
     tipContainer.getChildren().addAll(quoteWrapper, authorWrapper);
 
-    FontIcon icon = new FontIcon(FontAwesome.PLAY);
-    icon.setIconColor(Paint.valueOf("White"));
-    playButton.setGraphic(icon);
+    playButton.setGraphic(playIcon);
     VBox.setVgrow(playButton, Priority.ALWAYS);
 
 
@@ -171,45 +168,41 @@ public class MainMenu {
 
   private void loadQuotes() {
     taskUtil.runTaskAsync(() -> {
-      List<String> rawQuotes = csvUtil.readCsvFile("src/main/resources/storage/mainmenu.csv");
-      List<List<String>> quotes = new ArrayList<>();
-      for (int i = 2; i < rawQuotes.size(); i += 2) {
-        List<String> embeddedQuotes = new ArrayList<>();
-        embeddedQuotes.add(rawQuotes.get(i));
-        embeddedQuotes.add(rawQuotes.get(i + 1));
-        quotes.add(embeddedQuotes);
-      }
-      Collections.shuffle(quotes);
-      return quotes.stream().flatMap(List::stream).toList();
+      List<List<String>> rawQuotes = new ArrayList<>(
+          csvUtil.readCsvFile("src/main/resources/storage/mainmenu.csv")
+      );
+      rawQuotes.removeFirst();
+      Collections.shuffle(rawQuotes);
+      return rawQuotes;
     }, result -> {
       startQuoteAnimation(result, tipContainer, quoteLabel, authorLabel);
       tipContainer.setVisible(true);
     }, errorHandler);
   }
 
-  private void startQuoteAnimation(List<String> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel) {
+  private void startQuoteAnimation(List<List<String>> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel) {
     AtomicInteger index = new AtomicInteger(2);
 
     if (quotes.isEmpty()) {
       qouteLabel.setText("Millions the game");
       authorLabel.setText("Master the game");
     } else {
-      qouteLabel.setText(quotes.get(index.getAndIncrement()));
-      authorLabel.setText(quotes.get(index.getAndIncrement()));
+      qouteLabel.setText(quotes.get(index.getAndIncrement()).getFirst());
+      authorLabel.setText(quotes.get(index.get()).getLast());
 
       scheduleAnimation(quotes, tipContainer, qouteLabel, authorLabel, index);
     }
   }
 
-  private void scheduleAnimation(List<String> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel, AtomicInteger index) {
+  private void scheduleAnimation(List<List<String>> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel, AtomicInteger index) {
     if (index.get() == quotes.size()) {
       index.set(2);
     }
-    double durationDouble = quotes.get(index.get()).split(" ").length * 0.5;
+    double durationDouble = quotes.get(index.get()).getFirst().split(" ").length * 0.5;
     Duration duration = Duration.seconds(durationDouble);
 
-    qouteLabel.setText(quotes.get(index.getAndIncrement()));
-    authorLabel.setText(quotes.get(index.getAndIncrement()));
+    qouteLabel.setText(quotes.get(index.getAndIncrement()).getFirst());
+    authorLabel.setText(quotes.get(index.get()).getLast());
 
     ParallelTransition fadeInTransitions = new ParallelTransition();
     TranslateTransition translateIn = new TranslateTransition(Duration.millis(800), tipContainer);
@@ -273,8 +266,8 @@ public class MainMenu {
 
   private void animateCircle(Circle circle, Random random) {
     double duration = 4 + random.nextDouble() * 6;
-    double drift    = 80 + random.nextDouble() * 120;
-    double wobble   = random.nextGaussian() * 35;
+    double drift = 80 + random.nextDouble() * 120;
+    double wobble = random.nextGaussian() * 35;
 
     FadeTransition fade = new FadeTransition(Duration.seconds(duration), circle);
     fade.setFromValue(0.5 + random.nextDouble() * 0.3);
@@ -331,7 +324,7 @@ public class MainMenu {
     HBox inputRow = new HBox(10, inputFields,  playButton);
     inputRow.setAlignment(Pos.CENTER_LEFT);
 
-    Label footer = new Label("Start with $10,000  •  Real-time Events");
+    Label footer = new Label("Have Fun!");
     footer.getStyleClass().add("footer-label");
 
     VBox card = new VBox(16, sectionBox, inputRow, footer);
@@ -368,6 +361,8 @@ public class MainMenu {
   }
 
   private void handlePlay() {
+    if (playButton.isDisabled()) return;
+
     String name = nameField.getText().trim();
     String startingMoney = startingMoneyField.getText();
     if (name.isBlank()) {
@@ -377,8 +372,12 @@ public class MainMenu {
       shakeField(startingMoneyField, shakeAnimationStartMoneyField);
     }
     if (!name.isBlank() && InputValidator.isInt(startingMoney)) {
-      mainMenuController.startGame(name, BigDecimal.valueOf(Long.parseLong(startingMoney)));
-      close();
+        try {
+          mainMenuController.startGame(name, BigDecimal.valueOf(Long.parseLong(startingMoney)));
+          close();
+        } catch (RuntimeException ex) {
+          errorHandler.accept(ex);
+        }
     }
   }
 
@@ -396,10 +395,5 @@ public class MainMenu {
     shakeAnimation.playFromStart();
     textField.setStyle("-fx-border-color: #f0637a;");
     textField.focusedProperty().addListener((_, _, _) -> textField.setStyle(""));
-  }
-
-  public boolean isPlaying() {
-    boolean isPlaying = false;
-    return isPlaying;
   }
 }

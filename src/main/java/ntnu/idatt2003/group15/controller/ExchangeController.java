@@ -1,11 +1,9 @@
 package ntnu.idatt2003.group15.controller;
 
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import ntnu.idatt2003.group15.model.Exchange;
-import ntnu.idatt2003.group15.model.Player;
-import ntnu.idatt2003.group15.model.Share;
-import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.model.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -77,8 +75,8 @@ public class ExchangeController {
      *
      * @return the current week number
      */
-    public int getWeek() {
-        return exchange.getWeek();
+    public ObservableIntegerValue getWeek() {
+        return exchange.getWeekProperty();
     }
 
     /**
@@ -159,6 +157,21 @@ public class ExchangeController {
     }
 
     /**
+     * Sells whole share lots of the given stock owned by this controller's player until at
+     * least {@code quantity} shares have been sold. The final lot may overshoot.
+     */
+    public void sell(Stock stock, BigDecimal quantity) {
+        Objects.requireNonNull(stock, "Stock cannot be null");
+        Objects.requireNonNull(quantity, "Quantity cannot be null");
+        BigDecimal remaining = quantity;
+        for (Share lot : List.copyOf(player.getPortfolio().getShares(stock.getSymbol()))) {
+            if (remaining.signum() <= 0) break;
+            exchange.sell(lot, player);
+            remaining = remaining.subtract(lot.getQuantity());
+        }
+    }
+
+    /**
      * Returns the observable list of shares held in the player's portfolio, suitable for UI binding.
      *
      * @return the player's portfolio shares as an observable list
@@ -167,10 +180,25 @@ public class ExchangeController {
         return player.getPortfolio().getListProperty();
     }
 
+    /** Commission rate the exchange charges on each transaction. */
+    public BigDecimal getCommission() {
+        return exchange.getCommission();
+    }
+
+    /** Tax rate the exchange applies to sale proceeds. */
+    public BigDecimal getTax() {
+        return exchange.getTax();
+    }
+
     /**
      * Advances the simulation by one week, triggering price updates across all listed stocks.
      */
     public void advanceWeek() {
         exchange.advance();
+    }
+
+    /** Apply a news headline to every stock in the item's sector. */
+    public void applyNews(NewsItem item) {
+        exchange.applyNews(item);
     }
 }

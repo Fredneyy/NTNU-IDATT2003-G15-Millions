@@ -19,6 +19,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import ntnu.idatt2003.group15.model.NewsItem;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -29,32 +30,17 @@ import org.kordamp.ikonli.javafx.FontIcon;
  */
 public class NewsFeedView {
 
-    public enum Sentiment { BULLISH, BEARISH }
-
-    /** View-model record decoupled from the domain {@code PriceEvent}. */
-    public record NewsRecord(
-            Sentiment sentiment,
-            String symbol,
-            BigDecimal changePercent,  // e.g. new BigDecimal("-8.0") for -8.0%
-            String title,
-            String description,
-            BigDecimal volatility,     // e.g. 1.6  → renders as 1.6x
-            int durationUpdates,
-            String type,               // e.g. "Earnings Miss"
-            Instant when
-    ) {}
-
     private final VBox view = new VBox();
     private final Label subtitle = new Label("0 events recorded");
     private final VBox rowsContainer = new VBox();
 
-    private final ObservableList<NewsRecord> events = FXCollections.observableArrayList();
+    private final ObservableList<NewsItem> events = FXCollections.observableArrayList();
 
     public NewsFeedView() {
         view.getStyleClass().add("news-card");
         view.getChildren().addAll(buildHeader(), buildBody());
 
-        events.addListener((ListChangeListener<NewsRecord>) _ -> rebuildRows());
+        events.addListener((ListChangeListener<NewsItem>) _ -> rebuildRows());
         subtitle.textProperty().bind(Bindings.createStringBinding(
                 () -> events.size() + (events.size() == 1
                         ? " event recorded"
@@ -94,13 +80,13 @@ public class NewsFeedView {
     }
 
     public VBox getView() { return view; }
-    public ObservableList<NewsRecord> getEvents() { return events; }
-    public void setEvents(List<NewsRecord> records) { events.setAll(records); }
+    public ObservableList<NewsItem> getEvents() { return events; }
+    public void setEvents(List<NewsItem> items) { events.setAll(items); }
 
-    /** Insert a single new event at the top of the feed (newest first). */
-    public void prependEvent(NewsRecord record) {
-        if (record == null) return;
-        events.add(0, record);
+    /** Insert a single new event at the top of the feed (newest first). NEUTRAL items are skipped. */
+    public void prependEvent(NewsItem item) {
+        if (item == null || item.sentiment() == NewsDialog.Sentiment.NEUTRAL) return;
+        events.add(0, item);
     }
 
     // ----- Row layout -----
@@ -108,8 +94,8 @@ public class NewsFeedView {
     private static final class NewsRow {
         final VBox root = new VBox();
 
-        NewsRow(NewsRecord ev, boolean withDivider) {
-            boolean bullish = ev.sentiment() == Sentiment.BULLISH;
+        NewsRow(NewsItem ev, boolean withDivider) {
+            boolean bullish = ev.sentiment() == NewsDialog.Sentiment.BULLISH;
 
             // Trend-arrow icon tile (green up / red down)
             FontIcon arrow = new FontIcon(bullish ? FontAwesome.LINE_CHART : FontAwesome.AREA_CHART);
@@ -118,11 +104,12 @@ public class NewsFeedView {
             iconBox.getStyleClass().addAll("news-row-icon-box",
                     bullish ? "news-row-icon-box--bullish" : "news-row-icon-box--bearish");
 
-            // Top badges row: SYMBOL  ±X.X%  [BULLISH | BEARISH]  ............ clock + ago
-            Label symbolBadge = new Label(ev.symbol());
+            // Top badges row: SECTOR  ±X.X%  [BULLISH | BEARISH]  ............ clock + ago
+            Label symbolBadge = new Label(ev.sector() == null ? "" : ev.sector().getLabel());
             symbolBadge.getStyleClass().addAll("news-badge", "news-badge--symbol");
 
-            BigDecimal pct = ev.changePercent().setScale(1, RoundingMode.HALF_UP);
+            BigDecimal rawPct = ev.changePercent() == null ? BigDecimal.ZERO : ev.changePercent();
+            BigDecimal pct = rawPct.setScale(1, RoundingMode.HALF_UP);
             String pctText = (pct.signum() >= 0 ? "+" : "") + pct.toPlainString() + "%";
             Label pctLabel = new Label(pctText);
             pctLabel.getStyleClass().addAll("news-row-percent",
@@ -151,19 +138,20 @@ public class NewsFeedView {
             topRow.setAlignment(Pos.CENTER_LEFT);
 
             // Headline + description
-            Label headline = new Label(ev.title());
+            Label headline = new Label(ev.title() == null ? "" : ev.title());
             headline.getStyleClass().add("news-row-title");
             headline.setWrapText(true);
 
-            Label description = new Label(ev.description());
+            Label description = new Label(ev.message() == null ? "" : ev.message());
             description.getStyleClass().add("news-row-description");
             description.setWrapText(true);
 
             // Meta row
+            BigDecimal vol = ev.volatility() == null ? BigDecimal.ZERO : ev.volatility();
             HBox meta = new HBox(
-                    metaPair("Volatility:", ev.volatility().stripTrailingZeros().toPlainString() + "x"),
+                    metaPair("Volatility:", vol.stripTrailingZeros().toPlainString() + "x"),
                     metaPair("Duration:", ev.durationUpdates() + " updates"),
-                    metaPair("Type:", ev.type())
+                    metaPair("Type:", ev.type() == null ? "" : ev.type())
             );
             meta.setSpacing(28);
             meta.getStyleClass().add("news-row-meta");

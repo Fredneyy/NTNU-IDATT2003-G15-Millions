@@ -2,8 +2,8 @@ package ntnu.idatt2003.group15.view;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
-import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
@@ -20,7 +20,6 @@ import org.kordamp.ikonli.materialdesign2.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Objects;
 
 public class OnBoardingDialog extends BaseDialog {
@@ -34,18 +33,14 @@ public class OnBoardingDialog extends BaseDialog {
       "onboarding-icon-zap"
   };
 
+  private final StackPane overlay = new StackPane();
   private final ProgressBar progressBar;
   private final VBox textContainer;
   private final StackPane iconBox;
   private final CsvUtil csvUtil;
   private final TaskUtil taskUtil;
-  private List<String> onboardingText;
-  private ParallelTransition transitionForward;
-  private ParallelTransition transitionBackward;
-  private ListIterator<String> onboardingTextIterator;
-  private boolean forwardIteration = false;
+  private List<List<String>> onboardingText = List.of();
   private StackPane root;
-  private double progressStep;
   private int currentStep = 0;
   private final List<FontIcon> icons;
   private final Hyperlink nextLabel;
@@ -61,13 +56,20 @@ public class OnBoardingDialog extends BaseDialog {
     loadText();
     icons = setUpIcons();
     progressBar = setUpProgressBar();
-    closeAnimation = createCloseAnimation();
+    closeAnimation = createCloseAnimation(_ -> {
+      root.getChildren().removeAll(overlay,dialog);
+      blurBackground(root, false, 0);
+    });
 
     dialog.getStyleClass().setAll("onboarding-card");
     dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);
     dialog.setMinHeight(Region.USE_COMPUTED_SIZE);
     dialog.setMinWidth(Region.USE_COMPUTED_SIZE);
+
+    overlay.setMinHeight(Screen.getPrimary().getVisualBounds().getHeight());
+    overlay.setMinWidth(Screen.getPrimary().getVisualBounds().getWidth());
+    overlay.setOnMouseClicked(Event::consume);
 
     titleLabel.getStyleClass().add("onboarding-title");
 
@@ -113,19 +115,17 @@ public class OnBoardingDialog extends BaseDialog {
     dialog.getChildren().addAll(progressBar, content);
   }
 
-  @Override
   public void close() {
     if (root != null && root.getChildren().contains(dialog)) {
       closeAnimation.play();
     }
   }
 
-  @Override
   public void show(StackPane root) {
     this.root = root;
     if (!root.getChildren().contains(dialog)) {
-      blurBackground(root, true, 2);
-      root.getChildren().add(dialog);
+      blurBackground(root, true, 4);
+      root.getChildren().addAll(overlay, dialog);
     }
   }
 
@@ -146,37 +146,42 @@ public class OnBoardingDialog extends BaseDialog {
     }
   }
 
-  private ParallelTransition createCloseAnimation() {
-    ScaleTransition scaleTransition = createScaleTransition(dialog,  Duration.millis(300), 1, 0);
-    FadeTransition fadeTransition = createFadeTransition(dialog,  Duration.millis(300), 1, 0);
-    ParallelTransition parallelTransition = new ParallelTransition(scaleTransition, fadeTransition);
-    parallelTransition.setOnFinished(_ -> {
-      root.getChildren().remove(dialog);
-      blurBackground(root, false, 0);
-    });
-    return parallelTransition;
-  }
-
   private List<FontIcon> setUpIcons() {
-    FontIcon rocket   = FontIcon.of(MaterialDesignR.ROCKET_LAUNCH, 48, Color.web("#e8eaf6"));
-    FontIcon trending = FontIcon.of(MaterialDesignT.TRENDING_UP,   48, Color.web("#e8eaf6"));
-    FontIcon cart     = FontIcon.of(MaterialDesignC.CART,           48, Color.web("#e8eaf6"));
-    FontIcon news     = FontIcon.of(MaterialDesignN.NEWSPAPER,      48, Color.web("#e8eaf6"));
-    FontIcon chart    = FontIcon.of(MaterialDesignC.CHART_BAR,      48, Color.web("#e8eaf6"));
-    FontIcon zap      = FontIcon.of(MaterialDesignL.LIGHTNING_BOLT, 48, Color.web("#e8eaf6"));
+    FontIcon rocket = FontIcon.of(MaterialDesignR.ROCKET_LAUNCH, 48, Color.web("#e8eaf6"));
+    FontIcon trending = FontIcon.of(MaterialDesignT.TRENDING_UP, 48, Color.web("#e8eaf6"));
+    FontIcon cart = FontIcon.of(MaterialDesignC.CART, 48, Color.web("#e8eaf6"));
+    FontIcon news = FontIcon.of(MaterialDesignN.NEWSPAPER, 48, Color.web("#e8eaf6"));
+    FontIcon chart = FontIcon.of(MaterialDesignC.CHART_BAR, 48, Color.web("#e8eaf6"));
+    FontIcon zap = FontIcon.of(MaterialDesignL.LIGHTNING_BOLT, 48, Color.web("#e8eaf6"));
     return new ArrayList<>(List.of(rocket, trending, cart, news, chart, zap));
   }
 
   private void loadText() {
     taskUtil.runTaskAsync(() -> csvUtil.readCsvFile("src/main/resources/storage/onboarding.csv"), result -> {
-          this.onboardingText = result;
-          onboardingTextIterator = this.onboardingText.listIterator();
-          titleLabel.setText(onboardingText.get(0));
-          messageLabel.setText(onboardingText.get(1));
-          progressStep = 1.0 / ((onboardingText.size() * 0.5) - 1);
-          updateNextButton(onboardingText.size() / 2 == 1);
+          this.onboardingText = result == null ? List.of() : result;
+          if (onboardingText.isEmpty()) {
+            close();
+            return;
+          }
+          currentStep = 0;
+          renderStep(currentStep);
+          progressBar.setProgress(progressFor(currentStep));
         },
         _ -> close());
+  }
+
+  private double progressFor(int step) {
+    int last = onboardingText.size() - 1;
+    return last <= 0 ? 1.0 : (double) step / last;
+  }
+
+  private void renderStep(int step) {
+    if (step < 0 || step >= onboardingText.size()) return;
+    List<String> row = onboardingText.get(step);
+    titleLabel.setText(row.isEmpty() ? "" : row.getFirst());
+    messageLabel.setText(row.size() < 2 ? "" : row.getLast());
+    updateIconBox(Math.min(step, icons.size() - 1));
+    updateNextButton(step == onboardingText.size() - 1);
   }
 
   private ProgressBar setUpProgressBar() {
@@ -217,38 +222,16 @@ public class OnBoardingDialog extends BaseDialog {
   }
 
   private void nextSlide() {
-    if (onboardingTextIterator.nextIndex() <= onboardingText.size() - 1) {
-      progressBar.setProgress(progressBar.getProgress() + progressStep);
-      animateSlide(1, () -> {
-        if (!forwardIteration) {
-          onboardingTextIterator.next();
-          onboardingTextIterator.next();
-        }
-        forwardIteration = true;
-        titleLabel.setText(onboardingTextIterator.next());
-        messageLabel.setText(onboardingTextIterator.next());
-        currentStep = Math.min(currentStep + 1, icons.size() - 1);
-        updateIconBox(currentStep);
-        updateNextButton(currentStep == icons.size() - 1);
-      });
-    }
+    if (currentStep >= onboardingText.size() - 1) return;
+    currentStep++;
+    progressBar.setProgress(progressFor(currentStep));
+    animateSlide(1, () -> renderStep(currentStep));
   }
 
   private void previousSlide() {
-    if (onboardingTextIterator.previousIndex() >= 1) {
-      progressBar.setProgress(progressBar.getProgress() - progressStep);
-      animateSlide(-1, () -> {
-        if (forwardIteration) {
-          onboardingTextIterator.previous();
-          onboardingTextIterator.previous();
-        }
-        forwardIteration = false;
-        messageLabel.setText(onboardingTextIterator.previous());
-        titleLabel.setText(onboardingTextIterator.previous());
-        currentStep = Math.max(currentStep - 1, 0);
-        updateIconBox(currentStep);
-        updateNextButton(currentStep == icons.size() - 1);
-      });
-    }
+    if (currentStep <= 0) return;
+    currentStep--;
+    progressBar.setProgress(progressFor(currentStep));
+    animateSlide(-1, () -> renderStep(currentStep));
   }
 }
