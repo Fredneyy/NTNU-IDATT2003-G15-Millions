@@ -32,6 +32,7 @@ public class GameView {
   private final SettingsView settingsView;
   private final StatisticsOverview statisticsOverview = new StatisticsOverview();
   private final BuyStockDialog buyStockDialog;
+  private final SellStockDialog sellStockDialog;
   private final StockChartDialog stockChartDialog = new StockChartDialog();
   private final MarketTableView marketTable;
   private final PortfolioTableView portfolioTable;
@@ -58,7 +59,15 @@ public class GameView {
     PortfolioController portfolioController =
         new PortfolioController(playerController.getPortfolio());
 
-    portfolioTable = new PortfolioTableView(portfolioController);
+    sellStockDialog = new SellStockDialog(
+        exchangeController.cashProperty(),
+        portfolioController,
+        BigDecimal.ZERO,
+        exchangeController::sell);
+
+    portfolioTable = new PortfolioTableView(portfolioController,
+        stock -> sellStockDialog.show(view, stock),
+        stock -> stockChartDialog.show(view, stock));
     portfolioContent = new VBox(portfolioTable.getView());
 
     marketTable = new MarketTableView(marketStocks,

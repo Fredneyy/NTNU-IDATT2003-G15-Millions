@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.Share;
 import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.model.TransactionCalculator;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -27,15 +28,21 @@ public class SellStockDialog extends TransactionDialog {
   private final Label netReceive = new Label();
 
   private final PortfolioController portfolioController;
-  private final BigDecimal feeRate;
+  private final TransactionCalculator calculator;
+  private final BigDecimal commissionRate;
+  private final BigDecimal taxRate;
 
   public SellStockDialog(ObservableValue<BigDecimal> cashProperty,
                          PortfolioController portfolioController,
-                         BigDecimal feeRate,
+                         TransactionCalculator calculator,
+                         BigDecimal commissionRate,
+                         BigDecimal taxRate,
                          BiConsumer<Stock, BigDecimal> onConfirm) {
     super(cashProperty, onConfirm);
     this.portfolioController = Objects.requireNonNull(portfolioController, "portfolioController cannot be null");
-    this.feeRate = Objects.requireNonNull(feeRate, "feeRate cannot be null");
+    this.calculator = Objects.requireNonNull(calculator, "calculator cannot be null");
+    this.commissionRate = Objects.requireNonNull(commissionRate, "commissionRate cannot be null");
+    this.taxRate = Objects.requireNonNull(taxRate, "taxRate cannot be null");
     assembleBody();
   }
 
@@ -124,26 +131,35 @@ public class SellStockDialog extends TransactionDialog {
     ownedLabel.textProperty().bind(Bindings.createStringBinding(
         () -> "Owned: " + ownedQty.get().toPlainString(), ownedQty));
 
-    ObjectBinding<BigDecimal> gross = Bindings.createObjectBinding(() -> {
-      BigDecimal p = price.getValue();
+    // Hypothetical share representing the intended sale; null when qty is non-positive
+    // since Share requires a strictly positive quantity.
+    ObjectBinding<Share> hypothetical = Bindings.createObjectBinding(() -> {
       BigDecimal q = qtyValue.get();
-      if (p == null || q == null) return BigDecimal.ZERO;
-      return p.multiply(q);
-    }, price, qtyValue);
+      BigDecimal p = price.getValue();
+      if (q == null || q.signum() <= 0 || p == null || p.signum() <= 0) return null;
+      return new Share(stock, q, p);
+    }, qtyValue, price);
+
+    ObjectBinding<BigDecimal> gross = Bindings.createObjectBinding(() -> {
+      Share s = hypothetical.get();
+      return s == null ? BigDecimal.ZERO : calculator.calculateGross(s);
+    }, hypothetical);
+
+    ObjectBinding<BigDecimal> net = Bindings.createObjectBinding(() -> {
+      Share s = hypothetical.get();
+      return s == null ? BigDecimal.ZERO : calculator.calculateTotal(s, commissionRate, taxRate);
+    }, hypothetical);
+
+    ObjectBinding<BigDecimal> fee = Bindings.createObjectBinding(
+        () -> gross.get().subtract(net.get()), gross, net);
 
     grossProceeds.textProperty().unbind();
     grossProceeds.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(gross.get()), gross));
 
-    ObjectBinding<BigDecimal> fee = Bindings.createObjectBinding(() ->
-        gross.get().multiply(feeRate), gross);
-
     feeAmount.textProperty().unbind();
     feeAmount.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(fee.get()), fee));
-
-    ObjectBinding<BigDecimal> net = Bindings.createObjectBinding(() ->
-        gross.get().subtract(fee.get()), gross, fee);
 
     netReceive.textProperty().unbind();
     netReceive.textProperty().bind(Bindings.createStringBinding(

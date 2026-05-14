@@ -157,6 +157,21 @@ public class ExchangeController {
     }
 
     /**
+     * Sells whole share lots of the given stock owned by this controller's player until at
+     * least {@code quantity} shares have been sold. The final lot may overshoot.
+     */
+    public void sell(Stock stock, BigDecimal quantity) {
+        Objects.requireNonNull(stock, "Stock cannot be null");
+        Objects.requireNonNull(quantity, "Quantity cannot be null");
+        BigDecimal remaining = quantity;
+        for (Share lot : List.copyOf(player.getPortfolio().getShares(stock.getSymbol()))) {
+            if (remaining.signum() <= 0) break;
+            exchange.sell(lot, player);
+            remaining = remaining.subtract(lot.getQuantity());
+        }
+    }
+
+    /**
      * Returns the observable list of shares held in the player's portfolio, suitable for UI binding.
      *
      * @return the player's portfolio shares as an observable list

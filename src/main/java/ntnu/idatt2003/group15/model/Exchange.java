@@ -136,7 +136,7 @@ public class Exchange {
     Objects.requireNonNull(share, "Share cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
     Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, week.get());
-    tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
+    tx.commit(player, BigDecimal.ZERO, BigDecimal.valueOf(0.25));
     return tx;
   }
 

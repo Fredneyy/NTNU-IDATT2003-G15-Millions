@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -41,9 +42,15 @@ public class PortfolioTableView {
     private final TableView<Share> table = new TableView<>();
     private final PortfolioController portfolioController;
     private final FilteredList<Share> filtered;
+    private final Consumer<Stock> onSellPressed;
+    private final Consumer<Stock> onChartPressed;
 
-    public PortfolioTableView(PortfolioController portfolioController) {
+    public PortfolioTableView(PortfolioController portfolioController,
+                              Consumer<Stock> onSellPressed,
+                              Consumer<Stock> onChartPressed) {
         this.portfolioController = Objects.requireNonNull(portfolioController);
+        this.onSellPressed = onSellPressed;
+        this.onChartPressed = onChartPressed;
         this.filtered = new FilteredList<>(portfolioController.getListProperty(), _ -> true);
 
         buildTable();
@@ -129,7 +136,7 @@ public class PortfolioTableView {
 
         TableColumn<Share, Share> actionCol = new TableColumn<>("Action");
         actionCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
-        actionCol.setCellFactory(_ -> sellButtonCell());
+        actionCol.setCellFactory(_ -> sellButtonCell(onSellPressed, onChartPressed));
         actionCol.setSortable(false);
         styleCellsAs(actionCol, "col-action");
 
@@ -150,8 +157,6 @@ public class PortfolioTableView {
         if (v == null) return "$0.00";
         return "$" + v.setScale(2, RoundingMode.HALF_UP).toPlainString();
     }
-
-    // ----- Cell factories (mirror MarketTableView, adapted for Share rows) -----
 
     private static TableCell<Share, Share> symbolCell() {
         return new TableCell<>() {
@@ -248,7 +253,8 @@ public class PortfolioTableView {
         };
     }
 
-    private static TableCell<Share, Share> sellButtonCell() {
+    private static TableCell<Share, Share> sellButtonCell(Consumer<Stock> onSell,
+                                                          Consumer<Stock> onChart) {
         return new TableCell<>() {
             private final Button graphButton = new Button();
             private final Button sellButton = new Button("Sell");
@@ -256,8 +262,16 @@ public class PortfolioTableView {
             {
                 graphButton.setGraphic(new FontIcon(FontAwesome.AREA_CHART));
                 graphButton.getStyleClass().add("market-graph-button");
+                graphButton.setOnAction(_ -> {
+                    Share s = getItem();
+                    if (s != null && onChart != null) onChart.accept(s.getStock());
+                });
 
                 sellButton.getStyleClass().add("market-sell-button");
+                sellButton.setOnAction(_ -> {
+                    Share s = getItem();
+                    if (s != null && onSell != null) onSell.accept(s.getStock());
+                });
 
                 wrapper.getStyleClass().add("market-action-cell");
                 wrapper.setSpacing(8);
