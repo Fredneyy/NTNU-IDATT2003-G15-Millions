@@ -4,9 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javafx.beans.binding.Bindings;
+import javafx.collections.ListChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,8 +31,10 @@ import ntnu.idatt2003.group15.controller.PlayerController;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.controller.SettingsController;
 import ntnu.idatt2003.group15.model.GameSettings;
+import ntnu.idatt2003.group15.model.Sale;
 import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.model.Transaction;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -95,6 +103,7 @@ public class GameView {
     VBox statsContent = new VBox(statsView.getView());
     TradesView tradesView = new TradesView();
     VBox tradesContent = new VBox(tradesView.getView());
+    bindTradesView(tradesView);
     VBox newsContent = new VBox(newsFeedView.getView());
     tabContainer = new TabContainer(
         new TabContainer.Tab("market",    "Market",    FontAwesome.LINE_CHART,  marketContent),
@@ -215,6 +224,44 @@ public class GameView {
     a.setHeaderText(header);
     a.setContentText(message);
     a.showAndWait();
+  }
+
+  /**
+   * Wire the {@link TradesView} to the player's transaction archive so every
+   * committed buy/sell appears in the ledger newest-first. Stamps each
+   * transaction with an {@link Instant} the first time it is observed so the
+   * "X ago" labels stay stable across rebuilds.
+   */
+  private void bindTradesView(TradesView tradesView) {
+    final Map<Transaction, Instant> seenAt = new IdentityHashMap<>();
+    var archive = playerController.getTransactionArchive().getTransactionsProperty();
+
+    Runnable rebuild = () -> {
+      List<TradesView.TradeRecord> records = new ArrayList<>(archive.size());
+      // Newest first: ledger style.
+      for (int i = archive.size() - 1; i >= 0; i--) {
+        Transaction tx = archive.get(i);
+        records.add(toRecord(tx, seenAt.computeIfAbsent(tx, _ -> Instant.now())));
+      }
+      tradesView.setTrades(records);
+    };
+
+    archive.addListener((ListChangeListener<Transaction>) _ -> rebuild.run());
+    rebuild.run();
+  }
+
+  private static TradesView.TradeRecord toRecord(Transaction tx, Instant when) {
+    TradesView.TradeType type = (tx instanceof Sale) ? TradesView.TradeType.SELL
+        : TradesView.TradeType.BUY;
+    Stock stock = tx.getShare().getStock();
+    return new TradesView.TradeRecord(
+        type,
+        stock.getSymbol(),
+        stock.getCompany(),
+        tx.getShare().getQuantity(),
+        tx.getShare().getPricePerShare(),
+        when
+    );
   }
 
   private void addStatisticsCards() {
