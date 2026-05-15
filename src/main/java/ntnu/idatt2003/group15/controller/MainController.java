@@ -24,6 +24,7 @@ public class MainController {
   private final TaskUtil taskUtil;
   private final StackPane root;
   private final NewsController newsController;
+  private final GameSettings gameSettings = new GameSettings();
   private Timeline priceTicker;
 
   public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
@@ -32,13 +33,19 @@ public class MainController {
     this.root = root;
 
     MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", loadStocks()), this::startGame);
+    mainMenuController.setGameSettings(gameSettings);
+    mainMenuController.setOnGameLoadConsumer(this::resumeGame);
     mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
-    newsController = new NewsController(root);
+    newsController = new NewsController(root, gameSettings);
   }
 
   public void showMainMenu() {
     newsController.stop();
     stopPriceTicker();
+    // Clear any blur/effect that may have leaked onto the menu from an open
+    // dialog (e.g. logging out while the onboarding overlay is still up).
+    mainMenu.getView().setEffect(null);
+    mainMenu.refreshContinueCard();
     root.getChildren().setAll(mainMenu.getView());
   }
 
@@ -67,9 +74,28 @@ public class MainController {
   }
 
   private void startGame(ExchangeController exchangeController, PlayerController playerController) {
-    GameView gameView = new GameView(playerController, exchangeController, this::showMainMenu);
+    enterGame(exchangeController, playerController, true);
+  }
+
+  private void resumeGame(ExchangeController exchangeController, PlayerController playerController) {
+    enterGame(exchangeController, playerController, false);
+  }
+
+  private void enterGame(ExchangeController exchangeController, PlayerController playerController,
+                         boolean showOnboarding) {
+    GameView gameView = new GameView(playerController, exchangeController, gameSettings, this::showMainMenu);
     gameView.show(root);
-    new OnBoardingDialog(csvUtil, taskUtil).show(root);
+    // Take the main menu out of the scene so it can't be blurred (or otherwise
+    // affected) by overlays drawn on top of the game view.
+    root.getChildren().remove(mainMenu.getView());
+    if (showOnboarding) {
+      new OnBoardingDialog(csvUtil, taskUtil).show(root);
+    }
+
+    // Propagate the current volatility multiplier and keep it in sync as the user adjusts settings.
+    exchangeController.setVolatilityMultiplier(gameSettings.getVolatilityMultiplier());
+    gameSettings.volatilityMultiplierProperty().addListener(
+        (_, _, v) -> exchangeController.setVolatilityMultiplier(v.doubleValue()));
 
     newsController.start();
     newsController.setOnNewsEmitted(item -> {

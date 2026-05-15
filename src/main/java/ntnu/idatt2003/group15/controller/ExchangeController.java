@@ -201,4 +201,9 @@ public class ExchangeController {
     public void applyNews(NewsItem item) {
         exchange.applyNews(item);
     }
+
+    /** Adjust the global volatility multiplier applied to every price tick. */
+    public void setVolatilityMultiplier(double multiplier) {
+        exchange.setVolatilityMultiplier(multiplier);
+    }
 }

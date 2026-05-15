@@ -8,26 +8,33 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import ntnu.idatt2003.group15.model.GameSettings;
 import ntnu.idatt2003.group15.model.NewsItem;
 import ntnu.idatt2003.group15.view.NewsContainer;
 import ntnu.idatt2003.group15.view.NewsDialog;
 
 public class NewsController {
 
-    private static final Duration TICK_INTERVAL = Duration.minutes(1);
     private static final Duration TICK_STDDEV = Duration.seconds(15);
     private static final Duration MIN_TICK = Duration.seconds(5);
     private static final Duration ITEM_LIFETIME = Duration.seconds(25);
+    private static final double DEFAULT_INTERVAL_SECONDS = 60.0;
 
     private final StackPane root;
     private final NewsContainer container = new NewsContainer();
     private final Random random = new Random();
+    private final GameSettings settings;
     private Timeline timer;
     private int index = 0;
     private Consumer<NewsItem> onEmitted = _ -> {};
 
     public NewsController(StackPane root) {
+        this(root, null);
+    }
+
+    public NewsController(StackPane root, GameSettings settings) {
         this.root = root;
+        this.settings = settings;
     }
 
     public void setOnNewsEmitted(Consumer<NewsItem> listener) {
@@ -81,7 +88,10 @@ public class NewsController {
      * TICK_INTERVAL with TICK_STDDEV spread, floored at MIN_TICK.
      */
     private void scheduleNext() {
-        double mean = TICK_INTERVAL.toMillis();
+        double intervalSeconds = settings != null
+            ? settings.getNewsIntervalSeconds()
+            : DEFAULT_INTERVAL_SECONDS;
+        double mean = Duration.seconds(intervalSeconds).toMillis();
         double stddev = TICK_STDDEV.toMillis();
         double jittered = mean + random.nextGaussian() * stddev;
         double clamped = Math.max(MIN_TICK.toMillis(), jittered);

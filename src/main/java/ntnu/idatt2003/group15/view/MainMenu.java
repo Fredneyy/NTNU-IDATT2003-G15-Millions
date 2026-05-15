@@ -2,20 +2,29 @@ package ntnu.idatt2003.group15.view;
 
 import javafx.animation.*;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
+import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainMenuController;
+import ntnu.idatt2003.group15.model.SaveData;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -39,6 +48,9 @@ public class MainMenu {
   CsvUtil csvUtil;
   TaskUtil taskUtil;
   private final MainMenuController mainMenuController;
+  private final VBox continuePlayingList = new VBox(8);
+  private final Label continuePlayingEmpty = new Label("No saved games yet.");
+  private VBox continueCard;
 
   public MainMenu(StackPane root, Consumer<Throwable> errorHandler,
                   CsvUtil csvUtil, TaskUtil taskUtil,
@@ -102,11 +114,15 @@ public class MainMenu {
     VBox.setVgrow(playButton, Priority.ALWAYS);
 
 
+    continueCard = buildContinueCard();
+    doRefreshContinueCard();
+
     center.getChildren().addAll(
         buildIcon(),
         buildTitleBlock(),
         tipContainer,
-        buildCard()
+        buildCard(),
+        continueCard
     );
 
     Pane particleLayer = new Pane();
@@ -114,7 +130,20 @@ public class MainMenu {
     particleLayer.getChildren().addAll(createBackgroundCircles());
     particleLayer.setMouseTransparent(true);
 
-    view.getChildren().addAll(particleLayer, center);
+    // Anchor the menu to the top so growing content (e.g. the Continue Playing
+    // card) pushes downward only, and overflow becomes scrollable.
+    StackPane centerHolder = new StackPane(center);
+    centerHolder.setAlignment(Pos.TOP_CENTER);
+    centerHolder.setPadding(new javafx.geometry.Insets(48, 0, 48, 0));
+
+    ScrollPane scroll = new ScrollPane(centerHolder);
+    scroll.setFitToWidth(true);
+    scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+    scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    scroll.getStyleClass().add("menu-scroll");
+    StackPane.setAlignment(scroll, Pos.TOP_CENTER);
+
+    view.getChildren().addAll(particleLayer, scroll);
   }
 
   private Pane buildIcon() {
@@ -317,21 +346,149 @@ public class MainMenu {
     HBox.setHgrow(startingMoneyField, Priority.ALWAYS);
 
     playButton.getStyleClass().add("button-primary");
-    playButton.setMinWidth(90);
+    playButton.setMaxWidth(Double.MAX_VALUE);
 
     VBox inputFields = new VBox(10, nameField, startingMoneyField);
     HBox.setHgrow(inputFields, Priority.ALWAYS);
-    HBox inputRow = new HBox(10, inputFields,  playButton);
-    inputRow.setAlignment(Pos.CENTER_LEFT);
 
     Label footer = new Label("Have Fun!");
     footer.getStyleClass().add("footer-label");
 
-    VBox card = new VBox(16, sectionBox, inputRow, footer);
+    VBox card = new VBox(16, sectionBox, inputFields, playButton, footer);
     card.getStyleClass().add("card");
     card.setAlignment(Pos.CENTER_LEFT);
 
     return card;
+  }
+
+  private VBox buildContinueCard() {
+    FontIcon uploadIcon = new FontIcon(FontAwesome.UPLOAD);
+    uploadIcon.getStyleClass().add("continue-icon");
+    Label sectionLabel = new Label("Continue Playing");
+    sectionLabel.getStyleClass().add("card-section-label");
+    HBox sectionBox = new HBox(8, uploadIcon, sectionLabel);
+    sectionBox.setAlignment(Pos.CENTER_LEFT);
+
+    continuePlayingList.setFillWidth(true);
+    continuePlayingEmpty.getStyleClass().add("continue-empty");
+    continuePlayingEmpty.setMaxWidth(Double.MAX_VALUE);
+    continuePlayingEmpty.setAlignment(Pos.CENTER);
+
+    FontIcon folderIcon = new FontIcon(FontAwesome.FOLDER_OPEN);
+    folderIcon.getStyleClass().add("load-save-icon");
+    Button loadOther = new Button("Load different save…");
+    loadOther.setGraphic(folderIcon);
+    loadOther.getStyleClass().add("load-save-button");
+    loadOther.setMaxWidth(Double.MAX_VALUE);
+    loadOther.setOnAction(_ -> loadFromFileChooser());
+
+    VBox card = new VBox(16, sectionBox, continuePlayingList, loadOther);
+    card.getStyleClass().add("card");
+    card.setAlignment(Pos.TOP_LEFT);
+    return card;
+  }
+
+  /** Re-read the save index and repopulate the Continue Playing card. */
+  public void refreshContinueCard() {
+    doRefreshContinueCard();
+  }
+
+  private void doRefreshContinueCard() {
+    List<SaveIndex.Entry> entries = SaveIndex.prune();
+    continuePlayingList.getChildren().clear();
+    if (entries.isEmpty()) {
+      continuePlayingList.getChildren().add(continuePlayingEmpty);
+      return;
+    }
+    for (SaveIndex.Entry entry : entries) {
+      continuePlayingList.getChildren().add(buildSaveRow(entry));
+    }
+  }
+
+  private HBox buildSaveRow(SaveIndex.Entry entry) {
+    String name = entry.playerName() == null || entry.playerName().isBlank() ? "Trader" : entry.playerName();
+
+    Label avatar = new Label(name.substring(0, 1).toUpperCase());
+    avatar.getStyleClass().add("save-avatar");
+    avatar.setMinSize(44, 44);
+    avatar.setPrefSize(44, 44);
+    avatar.setAlignment(Pos.CENTER);
+
+    Label nameLabel = new Label(name);
+    nameLabel.getStyleClass().add("save-name");
+
+    FontIcon dollarIcon = new FontIcon(FontAwesome.DOLLAR);
+    dollarIcon.getStyleClass().add("save-meta-icon");
+    Label cashLabel = new Label(formatMoney(entry.cash()));
+    cashLabel.getStyleClass().add("save-meta");
+
+    FontIcon clockIcon = new FontIcon(FontAwesome.CLOCK_O);
+    clockIcon.getStyleClass().add("save-meta-icon");
+    Label whenLabel = new Label(formatWhen(entry.savedAt()));
+    whenLabel.getStyleClass().add("save-meta");
+
+    HBox metaRow = new HBox(6, dollarIcon, cashLabel, new Label("·"), clockIcon, whenLabel);
+    metaRow.setAlignment(Pos.CENTER_LEFT);
+    metaRow.getStyleClass().add("save-meta-row");
+
+    VBox text = new VBox(2, nameLabel, metaRow);
+    HBox row = new HBox(14, avatar, text);
+    row.setAlignment(Pos.CENTER_LEFT);
+    row.getStyleClass().add("save-row");
+    row.setOnMouseClicked(_ -> loadFromPath(entry.path()));
+    return row;
+  }
+
+  private void loadFromFileChooser() {
+    FileChooser chooser = new FileChooser();
+    chooser.setTitle("Load Game");
+    chooser.getExtensionFilters().add(
+        new FileChooser.ExtensionFilter("Millions save file (*.json)", "*.json"));
+    File picked = chooser.showOpenDialog(view.getScene() == null ? null : view.getScene().getWindow());
+    if (picked != null) loadFromFile(picked);
+  }
+
+  private void loadFromPath(String absolutePath) {
+    if (absolutePath == null) return;
+    loadFromFile(new File(absolutePath));
+  }
+
+  private void loadFromFile(File file) {
+    if (!file.exists()) {
+      showError("Save not found", file.getAbsolutePath());
+      doRefreshContinueCard();
+      return;
+    }
+    try {
+      SaveData save = LoadGameUtil.load(file);
+      mainMenuController.loadGame(save);
+      close();
+    } catch (IOException | RuntimeException ex) {
+      showError("Could not load save", ex.getMessage() == null ? ex.toString() : ex.getMessage());
+    }
+  }
+
+  private static String formatMoney(BigDecimal v) {
+    if (v == null) return "$—";
+    NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+    nf.setMaximumFractionDigits(0);
+    return "$" + nf.format(v);
+  }
+
+  private static final DateTimeFormatter WHEN_FORMAT =
+      DateTimeFormatter.ofPattern("MMM d, yyyy, hh:mm a", Locale.US);
+
+  private static String formatWhen(java.time.Instant when) {
+    if (when == null) return "—";
+    return WHEN_FORMAT.format(when.atZone(ZoneId.systemDefault()));
+  }
+
+  private static void showError(String header, String message) {
+    Alert a = new Alert(Alert.AlertType.ERROR);
+    a.setTitle("Millions");
+    a.setHeaderText(header);
+    a.setContentText(message);
+    a.showAndWait();
   }
 
   private void close() {

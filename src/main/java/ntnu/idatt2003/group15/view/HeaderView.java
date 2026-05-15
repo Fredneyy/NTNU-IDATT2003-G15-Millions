@@ -17,6 +17,7 @@ import java.util.Objects;
 public class HeaderView {
 
     private Button settingsBtn;
+    private Button saveBtn;
     private Text playerNameText;
     private String playerName = "";
     private final Runnable exit;
@@ -27,6 +28,10 @@ public class HeaderView {
 
     public Button getSettingsButton() {
         return settingsBtn;
+    }
+
+    public Button getSaveButton() {
+        return saveBtn;
     }
 
     public void setPlayerName(String name) {
@@ -76,7 +81,7 @@ public class HeaderView {
         HBox actionContainer = new HBox(12);
         actionContainer.setAlignment(Pos.CENTER_RIGHT);
 
-        Button saveBtn = new Button();
+        saveBtn = new Button();
         saveBtn.setGraphic(new FontIcon(FontAwesome.FLOPPY_O));
         saveBtn.getStyleClass().add("action-button");
 
