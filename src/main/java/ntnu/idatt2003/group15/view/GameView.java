@@ -6,9 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javafx.beans.binding.Bindings;
@@ -230,20 +228,19 @@ public class GameView {
 
   /**
    * Wire the {@link TradesView} to the player's transaction archive so every
-   * committed buy/sell appears in the ledger newest-first. Stamps each
-   * transaction with an {@link Instant} the first time it is observed so the
-   * "X ago" labels stay stable across rebuilds.
+   * committed buy/sell appears in the ledger newest-first. Each transaction
+   * carries its own {@code committedAt} timestamp (persisted to save files), so
+   * "X ago" labels are stable across rebuilds and survive load.
    */
   private void bindTradesView(TradesView tradesView) {
-    final Map<Transaction, Instant> seenAt = new IdentityHashMap<>();
     var archive = playerController.getTransactionArchive().getTransactionsProperty();
 
     Runnable rebuild = () -> {
       List<TradesView.TradeRecord> records = new ArrayList<>(archive.size());
-      // Newest first: ledger style.
       for (int i = archive.size() - 1; i >= 0; i--) {
         Transaction tx = archive.get(i);
-        records.add(toRecord(tx, seenAt.computeIfAbsent(tx, _ -> Instant.now())));
+        Instant when = tx.getCommittedAt() != null ? tx.getCommittedAt() : Instant.now();
+        records.add(toRecord(tx, when));
       }
       tradesView.setTrades(records);
     };

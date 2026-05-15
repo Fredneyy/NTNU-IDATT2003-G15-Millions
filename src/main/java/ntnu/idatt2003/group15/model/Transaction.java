@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -11,6 +12,8 @@ public abstract class Transaction {
   private final int week;
   private final TransactionCalculator calculator;
   private boolean committed;
+  /** Wall-clock timestamp; defaults to creation time and survives save/load. */
+  private Instant committedAt = Instant.now();
 
   /**
    * Constructs a new  instance ready for market operations.
@@ -71,6 +74,16 @@ public abstract class Transaction {
    */
   protected void setCommitted(boolean committed) {
     this.committed = committed;
+  }
+
+  /** Returns when this transaction was first instantiated (committed). */
+  public Instant getCommittedAt() {
+    return committedAt;
+  }
+
+  /** Restore a wall-clock timestamp (used when rebuilding from a save file). */
+  protected void setCommittedAt(Instant committedAt) {
+    this.committedAt = Objects.requireNonNull(committedAt, "committedAt");
   }
 
   /**

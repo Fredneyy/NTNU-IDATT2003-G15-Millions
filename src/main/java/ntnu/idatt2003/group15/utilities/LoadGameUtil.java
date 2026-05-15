@@ -37,6 +37,7 @@ public final class LoadGameUtil {
 
     String name = asString(player.get("name"));
     BigDecimal cash = asDecimal(player.get("cash"));
+    BigDecimal startingMoney = asDecimal(player.get("startingMoney"));
     Double difficulty = settings == null ? null : asDouble(settings.get("difficulty"));
     Integer week = exchange == null ? null : asInt(exchange.get("week"));
     Instant savedAt = asInstant(root.get("savedAt"));
@@ -69,7 +70,27 @@ public final class LoadGameUtil {
       }
     }
 
-    return new SaveData(name, cash, difficulty, week, savedAt, shares, stockPrices);
+    List<SaveData.TxEntry> transactions = new ArrayList<>();
+    Object txList = player.get("transactions");
+    if (txList instanceof List<?> list) {
+      for (Object item : list) {
+        Map<String, Object> tx = asMap(item);
+        if (tx == null) continue;
+        String type = asString(tx.get("type"));
+        String symbol = asString(tx.get("symbol"));
+        BigDecimal qty = asDecimal(tx.get("quantity"));
+        BigDecimal pps = asDecimal(tx.get("pricePerShare"));
+        if (type == null || symbol == null || qty == null || pps == null) continue;
+        Integer txWeek = asInt(tx.get("week"));
+        Instant committedAt = asInstant(tx.get("committedAt"));
+        BigDecimal salePrice = asDecimal(tx.get("salePricePerShare"));
+        BigDecimal proceeds = asDecimal(tx.get("proceeds"));
+        transactions.add(new SaveData.TxEntry(
+            type, symbol, qty, pps, txWeek, committedAt, salePrice, proceeds));
+      }
+    }
+
+    return new SaveData(name, cash, startingMoney, difficulty, week, savedAt, shares, stockPrices, transactions);
   }
 
   // ---- coercion helpers ----

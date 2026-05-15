@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -15,6 +16,18 @@ public class Purchase extends Transaction {
    */
   public Purchase(Share share, int week) {
     super(share, week, new PurchaseCalculator());
+  }
+
+  /**
+   * Rebuilds a previously-committed purchase from a save file. The portfolio and
+   * cash are restored separately, so this does <strong>not</strong> mutate the player —
+   * the result is only suitable for adding to the transaction archive.
+   */
+  public static Purchase restored(Share lot, int week, Instant committedAt) {
+    Purchase p = new Purchase(lot, week);
+    if (committedAt != null) p.setCommittedAt(committedAt);
+    p.setCommitted(true);
+    return p;
   }
 
   /**

@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -20,6 +21,22 @@ public class Sale extends Transaction {
    */
   public Sale(Share share, int week) {
     super(share, week, new SaleCalculator());
+  }
+
+  /**
+   * Rebuilds a previously-committed sale from a save file. {@code lot} carries
+   * the original buy price (cost basis); {@code salePricePerShare} and
+   * {@code proceeds} replay what the player actually got at sale time, so the
+   * trade ledger and realized-P/L stay accurate post-load.
+   */
+  public static Sale restored(Share lot, int week, Instant committedAt,
+                              BigDecimal salePricePerShare, BigDecimal proceeds) {
+    Sale s = new Sale(lot, week);
+    if (committedAt != null) s.setCommittedAt(committedAt);
+    s.salePricePerShare = salePricePerShare;
+    s.proceeds = proceeds;
+    s.setCommitted(true);
+    return s;
   }
 
   /** Per-share market price at the moment of sale, or {@code null} if not yet committed. */
