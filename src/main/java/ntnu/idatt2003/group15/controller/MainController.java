@@ -99,7 +99,7 @@ public class MainController {
 
     newsController.start();
     newsController.setOnNewsEmitted(item -> {
-      gameView.getNewsFeedView().prependEvent(item);
+      gameView.onNewsEmitted(item);
       if (item.sector() != null) {
         exchangeController.applyNews(item);
       }

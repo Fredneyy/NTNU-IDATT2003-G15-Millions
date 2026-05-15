@@ -110,7 +110,7 @@ public class GameView {
         new TabContainer.Tab("portfolio", "Portfolio", FontAwesome.BRIEFCASE,   portfolioContent),
         new TabContainer.Tab("stats",     "Stats",     FontAwesome.BAR_CHART,   statsContent),
         new TabContainer.Tab("trades",    "Trades",    FontAwesome.CLOCK_O,     tradesContent),
-        new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent, "1")
+        new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent)
     );
     HeaderView headerView = new HeaderView(runnableExit);
     settingsView = new SettingsView(view);
@@ -160,6 +160,31 @@ public class GameView {
     scroll.getStyleClass().add("game-scroll");
     StackPane.setAlignment(scroll, Pos.TOP_CENTER);
     view.getChildren().add(scroll);
+
+    // Reset the News badge whenever the user actually opens the News tab.
+    tabContainer.selectedTabProperty().addListener((_, _, sel) -> {
+      if (sel != null && "news".equals(sel.getId())) clearNewsBadge();
+    });
+  }
+
+  /** Unread count behind the News tab badge; reset when the tab is opened. */
+  private int unreadNews = 0;
+
+  /**
+   * Forward a freshly-emitted news item into the feed and bump the unread
+   * counter on the News tab (unless that tab is already open).
+   */
+  public void onNewsEmitted(ntnu.idatt2003.group15.model.NewsItem item) {
+    newsFeedView.prependEvent(item);
+    TabContainer.Tab sel = tabContainer.selectedTabProperty().get();
+    if (sel != null && "news".equals(sel.getId())) return;
+    unreadNews++;
+    tabContainer.setBadge("news", unreadNews > 99 ? "99+" : Integer.toString(unreadNews));
+  }
+
+  private void clearNewsBadge() {
+    unreadNews = 0;
+    tabContainer.setBadge("news", null);
   }
 
   public NewsFeedView getNewsFeedView() {
