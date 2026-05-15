@@ -28,6 +28,10 @@ public class PlayerController {
     return player.getMoney();
   }
 
+  public BigDecimal getStartingMoney() {
+    return player.getStartingMoney();
+  }
+
   public void addMoney(BigDecimal amount) {
     player.addMoney(amount);
   }

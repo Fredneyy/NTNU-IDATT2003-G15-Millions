@@ -30,6 +30,7 @@ import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.PlayerController;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.controller.SettingsController;
+import ntnu.idatt2003.group15.controller.StatsController;
 import ntnu.idatt2003.group15.model.GameSettings;
 import ntnu.idatt2003.group15.model.Sale;
 import ntnu.idatt2003.group15.model.SaleCalculator;
@@ -101,6 +102,7 @@ public class GameView {
     marketContent = new VBox(marketTable.getView());
     StatsView statsView = new StatsView();
     VBox statsContent = new VBox(statsView.getView());
+    new StatsController(statsView, playerController, exchangeController);
     TradesView tradesView = new TradesView();
     VBox tradesContent = new VBox(tradesView.getView());
     bindTradesView(tradesView);
@@ -251,15 +253,22 @@ public class GameView {
   }
 
   private static TradesView.TradeRecord toRecord(Transaction tx, Instant when) {
-    TradesView.TradeType type = (tx instanceof Sale) ? TradesView.TradeType.SELL
-        : TradesView.TradeType.BUY;
+    boolean sell = tx instanceof Sale;
+    TradesView.TradeType type = sell ? TradesView.TradeType.SELL : TradesView.TradeType.BUY;
     Stock stock = tx.getShare().getStock();
+    // For sells, prefer the actual sale price captured at commit time; the lot's
+    // pricePerShare is the original *buy* price.
+    BigDecimal price = tx.getShare().getPricePerShare();
+    if (sell) {
+      BigDecimal sp = ((Sale) tx).getSalePricePerShare();
+      if (sp != null) price = sp;
+    }
     return new TradesView.TradeRecord(
         type,
         stock.getSymbol(),
         stock.getCompany(),
         tx.getShare().getQuantity(),
-        tx.getShare().getPricePerShare(),
+        price,
         when
     );
   }

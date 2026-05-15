@@ -59,6 +59,11 @@ public class Player {
     }, netWorthChangeBinding);
   }
 
+  /** The balance the player started the session with — anchor for total-return calculations. */
+  public BigDecimal getStartingMoney() {
+    return startingMoney;
+  }
+
   /** Observable cash balance, exposed as a read-only view of the money property. */
   public ObservableValue<BigDecimal> getCashProperty() {
     return money;
