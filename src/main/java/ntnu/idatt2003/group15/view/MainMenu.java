@@ -351,10 +351,7 @@ public class MainMenu {
     VBox inputFields = new VBox(10, nameField, startingMoneyField);
     HBox.setHgrow(inputFields, Priority.ALWAYS);
 
-    Label footer = new Label("Have Fun!");
-    footer.getStyleClass().add("footer-label");
-
-    VBox card = new VBox(16, sectionBox, inputFields, playButton, footer);
+    VBox card = new VBox(16, sectionBox, inputFields, playButton);
     card.getStyleClass().add("card");
     card.setAlignment(Pos.CENTER_LEFT);
 
@@ -400,8 +397,10 @@ public class MainMenu {
       continuePlayingList.getChildren().add(continuePlayingEmpty);
       return;
     }
-    for (SaveIndex.Entry entry : entries) {
-      continuePlayingList.getChildren().add(buildSaveRow(entry));
+    // Keep the menu compact: show at most the three most-recent saves.
+    int max = Math.min(3, entries.size());
+    for (int i = 0; i < max; i++) {
+      continuePlayingList.getChildren().add(buildSaveRow(entries.get(i)));
     }
   }
 
@@ -421,17 +420,28 @@ public class MainMenu {
     dollarIcon.getStyleClass().add("save-meta-icon");
     Label cashLabel = new Label(formatMoney(entry.cash()));
     cashLabel.getStyleClass().add("save-meta");
+    // Refuse to shrink past their natural size — otherwise the cash value gets
+    // chopped to "$8..." when the row is narrow.
+    cashLabel.setMinWidth(Region.USE_PREF_SIZE);
 
     FontIcon clockIcon = new FontIcon(FontAwesome.CLOCK_O);
     clockIcon.getStyleClass().add("save-meta-icon");
     Label whenLabel = new Label(formatWhen(entry.savedAt()));
     whenLabel.getStyleClass().add("save-meta");
+    whenLabel.setMinWidth(Region.USE_PREF_SIZE);
 
-    HBox metaRow = new HBox(6, dollarIcon, cashLabel, new Label("·"), clockIcon, whenLabel);
-    metaRow.setAlignment(Pos.CENTER_LEFT);
-    metaRow.getStyleClass().add("save-meta-row");
+    // Two stacked sub-rows keep both money and date fully visible even on
+    // narrow menu widths instead of cramming everything into one HBox.
+    HBox cashRow = new HBox(6, dollarIcon, cashLabel);
+    cashRow.setAlignment(Pos.CENTER_LEFT);
+    cashRow.getStyleClass().add("save-meta-row");
 
-    VBox text = new VBox(2, nameLabel, metaRow);
+    HBox whenRow = new HBox(6, clockIcon, whenLabel);
+    whenRow.setAlignment(Pos.CENTER_LEFT);
+    whenRow.getStyleClass().add("save-meta-row");
+
+    VBox text = new VBox(2, nameLabel, cashRow, whenRow);
+    HBox.setHgrow(text, Priority.ALWAYS);
     HBox row = new HBox(14, avatar, text);
     row.setAlignment(Pos.CENTER_LEFT);
     row.getStyleClass().add("save-row");

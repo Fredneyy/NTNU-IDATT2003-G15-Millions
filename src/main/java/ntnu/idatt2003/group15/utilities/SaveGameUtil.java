@@ -13,9 +13,12 @@ import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.PlayerController;
 import ntnu.idatt2003.group15.model.GameSettings;
 import ntnu.idatt2003.group15.model.Portfolio;
+import ntnu.idatt2003.group15.model.Purchase;
+import ntnu.idatt2003.group15.model.Sale;
 import ntnu.idatt2003.group15.model.Share;
 import ntnu.idatt2003.group15.model.Stock;
 import ntnu.idatt2003.group15.model.StockSectors;
+import ntnu.idatt2003.group15.model.Transaction;
 
 /**
  * Serializes the current game state (player, exchange, settings) to a JSON file
@@ -74,8 +77,39 @@ public final class SaveGameUtil {
     StringJoiner j = new StringJoiner(", ", "{", "}");
     j.add(field("name", quote(player.getName())));
     j.add(field("cash", number(player.getMoney())));
+    j.add(field("startingMoney", number(player.getStartingMoney())));
     j.add(field("netWorth", number(player.getNetWorth())));
     j.add(field("portfolio", portfolioJson(player.getPortfolio())));
+    j.add(field("transactions", transactionsJson(player)));
+    return j.toString();
+  }
+
+  private static String transactionsJson(PlayerController player) {
+    StringJoiner arr = new StringJoiner(", ", "[", "]");
+    for (Transaction tx : player.getTransactionArchive().getTransactionsProperty()) {
+      arr.add(transactionJson(tx));
+    }
+    return arr.toString();
+  }
+
+  private static String transactionJson(Transaction tx) {
+    StringJoiner j = new StringJoiner(", ", "{", "}");
+    boolean sell = tx instanceof Sale;
+    j.add(field("type", quote(sell ? "SELL" : "BUY")));
+    j.add(field("symbol", quote(tx.getShare().getStock().getSymbol())));
+    j.add(field("quantity", number(tx.getShare().getQuantity())));
+    j.add(field("pricePerShare", number(tx.getShare().getPricePerShare())));
+    j.add(field("week", number(tx.getWeek())));
+    j.add(field("committedAt",
+        tx.getCommittedAt() == null ? "null" : quote(tx.getCommittedAt().toString())));
+    if (sell) {
+      Sale s = (Sale) tx;
+      j.add(field("salePricePerShare", number(s.getSalePricePerShare())));
+      j.add(field("proceeds", number(s.getProceeds())));
+    } else if (!(tx instanceof Purchase)) {
+      // Forward-compat: unknown transaction subtype — note it but don't fail.
+      j.add(field("type", quote(tx.getClass().getSimpleName())));
+    }
     return j.toString();
   }
 

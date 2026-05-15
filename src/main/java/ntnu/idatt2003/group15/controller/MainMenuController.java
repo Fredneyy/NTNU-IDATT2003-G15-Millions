@@ -8,6 +8,8 @@ import ntnu.idatt2003.group15.model.Exchange;
 import ntnu.idatt2003.group15.model.GameSettings;
 import ntnu.idatt2003.group15.model.Player;
 import ntnu.idatt2003.group15.model.Portfolio;
+import ntnu.idatt2003.group15.model.Purchase;
+import ntnu.idatt2003.group15.model.Sale;
 import ntnu.idatt2003.group15.model.SaveData;
 import ntnu.idatt2003.group15.model.Share;
 import ntnu.idatt2003.group15.model.Stock;
@@ -113,7 +115,16 @@ public class MainMenuController {
     String name = (save.playerName() == null || save.playerName().isBlank())
         ? "Trader" : save.playerName();
     BigDecimal cash = save.cash() == null ? DEFAULT_STARTING_MONEY : save.cash();
-    Player player = new Player(name, cash);
+    // Preserve the original starting balance so Total Return / % stay anchored
+    // to the same number after reload. Older saves without this field fall back
+    // to the current cash (i.e. baseline = current — % shows as 0 until trades happen).
+    BigDecimal startingMoney = save.startingMoney() != null
+        ? save.startingMoney() : cash;
+    Player player = new Player(name, startingMoney);
+    // Player constructor seeds money = startingMoney; reconcile to saved cash.
+    BigDecimal diff = cash.subtract(startingMoney);
+    if (diff.signum() > 0) player.addMoney(diff);
+    else if (diff.signum() < 0) player.withdrawMoney(diff.negate());
 
     // Overlay saved stock prices onto the live exchange's stocks.
     if (save.stockPrices() != null) {
@@ -138,6 +149,26 @@ public class MainMenuController {
 
     if (save.week() != null && save.week() > 0) {
       exchange.setWeek(save.week());
+    }
+
+    // Replay the trade ledger directly into the archive — bypassing commit() so
+    // we don't double-move cash or duplicate portfolio lots (both already restored above).
+    if (save.transactions() != null) {
+      for (SaveData.TxEntry t : save.transactions()) {
+        if (!exchange.hasStock(t.symbol())) continue;
+        if (t.quantity() == null || t.quantity().signum() <= 0) continue;
+        if (t.pricePerShare() == null || t.pricePerShare().signum() <= 0) continue;
+        Share lot = new Share(exchange.getStock(t.symbol()), t.quantity(), t.pricePerShare());
+        int txWeek = t.week() == null ? 1 : t.week();
+        if ("SELL".equalsIgnoreCase(t.type())) {
+          player.getTransactionArchive().add(
+              Sale.restored(lot, txWeek, t.committedAt(),
+                  t.salePricePerShare(), t.proceeds()));
+        } else {
+          player.getTransactionArchive().add(
+              Purchase.restored(lot, txWeek, t.committedAt()));
+        }
+      }
     }
 
     if (gameSettings != null && save.difficulty() != null) {

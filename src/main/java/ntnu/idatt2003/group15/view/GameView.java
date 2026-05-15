@@ -4,9 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javafx.beans.binding.Bindings;
+import javafx.collections.ListChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,9 +28,12 @@ import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.PlayerController;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.controller.SettingsController;
+import ntnu.idatt2003.group15.controller.StatsController;
 import ntnu.idatt2003.group15.model.GameSettings;
+import ntnu.idatt2003.group15.model.Sale;
 import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.model.Transaction;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -93,15 +100,17 @@ public class GameView {
     marketContent = new VBox(marketTable.getView());
     StatsView statsView = new StatsView();
     VBox statsContent = new VBox(statsView.getView());
+    new StatsController(statsView, playerController, exchangeController);
     TradesView tradesView = new TradesView();
     VBox tradesContent = new VBox(tradesView.getView());
+    bindTradesView(tradesView);
     VBox newsContent = new VBox(newsFeedView.getView());
     tabContainer = new TabContainer(
         new TabContainer.Tab("market",    "Market",    FontAwesome.LINE_CHART,  marketContent),
         new TabContainer.Tab("portfolio", "Portfolio", FontAwesome.BRIEFCASE,   portfolioContent),
         new TabContainer.Tab("stats",     "Stats",     FontAwesome.BAR_CHART,   statsContent),
         new TabContainer.Tab("trades",    "Trades",    FontAwesome.CLOCK_O,     tradesContent),
-        new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent, "1")
+        new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent)
     );
     HeaderView headerView = new HeaderView(runnableExit);
     settingsView = new SettingsView(view);
@@ -151,6 +160,31 @@ public class GameView {
     scroll.getStyleClass().add("game-scroll");
     StackPane.setAlignment(scroll, Pos.TOP_CENTER);
     view.getChildren().add(scroll);
+
+    // Reset the News badge whenever the user actually opens the News tab.
+    tabContainer.selectedTabProperty().addListener((_, _, sel) -> {
+      if (sel != null && "news".equals(sel.getId())) clearNewsBadge();
+    });
+  }
+
+  /** Unread count behind the News tab badge; reset when the tab is opened. */
+  private int unreadNews = 0;
+
+  /**
+   * Forward a freshly-emitted news item into the feed and bump the unread
+   * counter on the News tab (unless that tab is already open).
+   */
+  public void onNewsEmitted(ntnu.idatt2003.group15.model.NewsItem item) {
+    newsFeedView.prependEvent(item);
+    TabContainer.Tab sel = tabContainer.selectedTabProperty().get();
+    if (sel != null && "news".equals(sel.getId())) return;
+    unreadNews++;
+    tabContainer.setBadge("news", unreadNews > 99 ? "99+" : Integer.toString(unreadNews));
+  }
+
+  private void clearNewsBadge() {
+    unreadNews = 0;
+    tabContainer.setBadge("news", null);
   }
 
   public NewsFeedView getNewsFeedView() {
@@ -215,6 +249,50 @@ public class GameView {
     a.setHeaderText(header);
     a.setContentText(message);
     a.showAndWait();
+  }
+
+  /**
+   * Wire the {@link TradesView} to the player's transaction archive so every
+   * committed buy/sell appears in the ledger newest-first. Each transaction
+   * carries its own {@code committedAt} timestamp (persisted to save files), so
+   * "X ago" labels are stable across rebuilds and survive load.
+   */
+  private void bindTradesView(TradesView tradesView) {
+    var archive = playerController.getTransactionArchive().getTransactionsProperty();
+
+    Runnable rebuild = () -> {
+      List<TradesView.TradeRecord> records = new ArrayList<>(archive.size());
+      for (int i = archive.size() - 1; i >= 0; i--) {
+        Transaction tx = archive.get(i);
+        Instant when = tx.getCommittedAt() != null ? tx.getCommittedAt() : Instant.now();
+        records.add(toRecord(tx, when));
+      }
+      tradesView.setTrades(records);
+    };
+
+    archive.addListener((ListChangeListener<Transaction>) _ -> rebuild.run());
+    rebuild.run();
+  }
+
+  private static TradesView.TradeRecord toRecord(Transaction tx, Instant when) {
+    boolean sell = tx instanceof Sale;
+    TradesView.TradeType type = sell ? TradesView.TradeType.SELL : TradesView.TradeType.BUY;
+    Stock stock = tx.getShare().getStock();
+    // For sells, prefer the actual sale price captured at commit time; the lot's
+    // pricePerShare is the original *buy* price.
+    BigDecimal price = tx.getShare().getPricePerShare();
+    if (sell) {
+      BigDecimal sp = ((Sale) tx).getSalePricePerShare();
+      if (sp != null) price = sp;
+    }
+    return new TradesView.TradeRecord(
+        type,
+        stock.getSymbol(),
+        stock.getCompany(),
+        tx.getShare().getQuantity(),
+        price,
+        when
+    );
   }
 
   private void addStatisticsCards() {
