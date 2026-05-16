@@ -57,7 +57,7 @@ public class Sale extends Transaction {
    */
   public BigDecimal getRealizedPnl() {
     if (proceeds == null) return BigDecimal.ZERO;
-    BigDecimal costBasis = getShare().getPricePerShare().multiply(getShare().getQuantity());
+    BigDecimal costBasis = getShare().pricePerShare().multiply(getShare().quantity());
     return proceeds.subtract(costBasis);
   }
 
@@ -76,7 +76,7 @@ public class Sale extends Transaction {
     Objects.requireNonNull(tax, "Tax cannot be null");
     // Snapshot the live market price and net proceeds *before* the portfolio mutates,
     // so the trade ledger and realized-P/L calculations can rely on immutable values.
-    this.salePricePerShare = getShare().getStock().getSalesPrice();
+    this.salePricePerShare = getShare().stock().getSalesPrice();
     this.proceeds = getCalculator().calculateTotal(getShare(), commission, tax);
     player.addMoney(this.proceeds);
     player.getPortfolio().removeShare(getShare());

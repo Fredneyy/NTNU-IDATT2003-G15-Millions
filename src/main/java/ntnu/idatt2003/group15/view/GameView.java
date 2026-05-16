@@ -277,10 +277,10 @@ public class GameView {
   private static TradesView.TradeRecord toRecord(Transaction tx, Instant when) {
     boolean sell = tx instanceof Sale;
     TradesView.TradeType type = sell ? TradesView.TradeType.SELL : TradesView.TradeType.BUY;
-    Stock stock = tx.getShare().getStock();
+    Stock stock = tx.getShare().stock();
     // For sells, prefer the actual sale price captured at commit time; the lot's
     // pricePerShare is the original *buy* price.
-    BigDecimal price = tx.getShare().getPricePerShare();
+    BigDecimal price = tx.getShare().pricePerShare();
     if (sell) {
       BigDecimal sp = ((Sale) tx).getSalePricePerShare();
       if (sp != null) price = sp;
@@ -289,7 +289,7 @@ public class GameView {
         type,
         stock.getSymbol(),
         stock.getCompany(),
-        tx.getShare().getQuantity(),
+        tx.getShare().quantity(),
         price,
         when
     );

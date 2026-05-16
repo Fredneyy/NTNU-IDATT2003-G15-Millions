@@ -25,10 +25,10 @@ public class Portfolio {
       shares.addListener((ListChangeListener<Share>) change -> {
         while (change.next()) {
           for (Share removed : change.getRemoved()) {
-            unbind(removed.getStock().getPriceBinding());
+            unbind(removed.stock().getPriceBinding());
           }
           for (Share added : change.getAddedSubList()) {
-            bind(added.getStock().getPriceBinding());
+            bind(added.stock().getPriceBinding());
           }
         }
       });
@@ -90,7 +90,7 @@ public class Portfolio {
   private BigDecimal computeInvested() {
     BigDecimal total = BigDecimal.ZERO;
     for (Share currentShare : shares) {
-      total = total.add(currentShare.getPricePerShare().multiply(currentShare.getQuantity()));
+      total = total.add(currentShare.pricePerShare().multiply(currentShare.quantity()));
     }
     return total;
   }
@@ -143,7 +143,7 @@ public class Portfolio {
   public List<Share> getShares(String symbol) throws NullPointerException {
     Objects.requireNonNull(symbol, "Symbol cannot be null");
     return shares.stream()
-        .filter(share -> share.getStock().getSymbol().equalsIgnoreCase(symbol))
+        .filter(share -> share.stock().getSymbol().equalsIgnoreCase(symbol))
         .toList();
   }
 

@@ -157,17 +157,15 @@ public class ExchangeController {
     }
 
     /**
-     * Sells whole share lots of the given stock owned by this controller's player until at
-     * least {@code quantity} shares have been sold. The final lot may overshoot.
+     * Sells whole share lots of the given stock owned by this controller's player
      */
-    public void sell(Stock stock, BigDecimal quantity) {
-        Objects.requireNonNull(stock, "Stock cannot be null");
+    public void sell(Share share, BigDecimal quantity) {
+        Objects.requireNonNull(share, "Stock cannot be null");
         Objects.requireNonNull(quantity, "Quantity cannot be null");
-        BigDecimal remaining = quantity;
-        for (Share lot : List.copyOf(player.getPortfolio().getShares(stock.getSymbol()))) {
-            if (remaining.signum() <= 0) break;
-            exchange.sell(lot, player);
-            remaining = remaining.subtract(lot.getQuantity());
+        if (share.quantity().compareTo(quantity) > 0) {
+            throw new IllegalArgumentException("Share quantity cannot be greater than stock quantity");
+        } else {
+            exchange.sell(share, player);
         }
     }
 

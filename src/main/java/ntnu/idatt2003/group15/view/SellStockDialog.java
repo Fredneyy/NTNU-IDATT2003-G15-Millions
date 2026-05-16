@@ -37,7 +37,7 @@ public class SellStockDialog extends TransactionDialog {
                          TransactionCalculator calculator,
                          BigDecimal commissionRate,
                          BigDecimal taxRate,
-                         BiConsumer<Stock, BigDecimal> onConfirm) {
+                         BiConsumer<Share, BigDecimal> onConfirm) {
     super(cashProperty, onConfirm);
     this.portfolioController = Objects.requireNonNull(portfolioController, "portfolioController cannot be null");
     this.calculator = Objects.requireNonNull(calculator, "calculator cannot be null");
@@ -122,8 +122,8 @@ public class SellStockDialog extends TransactionDialog {
     ObservableList<Share> shares = portfolioController.getListProperty();
     ObjectBinding<BigDecimal> ownedQty = Bindings.createObjectBinding(() ->
         shares.stream()
-            .filter(s -> s.getStock().getSymbol().equalsIgnoreCase(stock.getSymbol()))
-            .map(Share::getQuantity)
+            .filter(s -> s.stock().getSymbol().equalsIgnoreCase(stock.getSymbol()))
+            .map(Share::quantity)
             .reduce(BigDecimal.ZERO, BigDecimal::add),
         shares);
 

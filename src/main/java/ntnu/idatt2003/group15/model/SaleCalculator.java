@@ -16,8 +16,8 @@ public class SaleCalculator implements TransactionCalculator {
    */
   public BigDecimal calculateGross(Share share) throws NullPointerException {
     Objects.requireNonNull(share, "Share cannot be null");
-    BigDecimal salesPrice = share.getStock().getSalesPrice();
-    return salesPrice.multiply(share.getQuantity());
+    BigDecimal salesPrice = share.stock().getSalesPrice();
+    return salesPrice.multiply(share.quantity());
   }
 
   /**
@@ -29,7 +29,7 @@ public class SaleCalculator implements TransactionCalculator {
    */
   public BigDecimal calculateCommission(Share share, BigDecimal commission) {
     Objects.requireNonNull(share, "Share cannot be null");
-    return share.getPricePerShare().multiply(commission);
+    return share.pricePerShare().multiply(commission);
   }
 
   /**
