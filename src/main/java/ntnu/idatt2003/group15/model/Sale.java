@@ -74,8 +74,6 @@ public class Sale extends Transaction {
     Objects.requireNonNull(player, "Player cannot be null");
     Objects.requireNonNull(commission, "Commission cannot be null");
     Objects.requireNonNull(tax, "Tax cannot be null");
-    // Snapshot the live market price and net proceeds *before* the portfolio mutates,
-    // so the trade ledger and realized-P/L calculations can rely on immutable values.
     this.salePricePerShare = getShare().stock().getSalesPrice();
     this.proceeds = getCalculator().calculateTotal(getShare(), commission, tax);
     player.addMoney(this.proceeds);

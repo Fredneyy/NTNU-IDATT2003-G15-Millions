@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.controller.PortfolioController;
+import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Share;
 import ntnu.idatt2003.group15.model.Stock;
 import ntnu.idatt2003.group15.model.TransactionCalculator;
@@ -26,7 +27,7 @@ public class SellStockDialog extends TransactionDialog {
   private final Label netReceive = new Label();
 
   private final PortfolioController portfolioController;
-  private final TransactionCalculator calculator;
+  private final SaleCalculator calculator;
   private final BigDecimal commissionRate;
   private final BigDecimal taxRate;
   private final Consumer<Share> onConfirm;
@@ -34,7 +35,7 @@ public class SellStockDialog extends TransactionDialog {
 
   public SellStockDialog(ObservableValue<BigDecimal> cashProperty,
                          PortfolioController portfolioController,
-                         TransactionCalculator calculator,
+                         SaleCalculator calculator,
                          BigDecimal commissionRate,
                          BigDecimal taxRate,
                          Consumer<Share> onConfirm) {
@@ -129,12 +130,12 @@ public class SellStockDialog extends TransactionDialog {
       return calculator.calculateGross(share);
     }, share.stock().getPriceBinding());
 
-    ObjectBinding<BigDecimal> net = Bindings.createObjectBinding(() -> {
-      return calculator.calculateTotal(share, commissionRate, taxRate);
-    }, share.stock().getPriceBinding());
+    ObjectBinding<BigDecimal> net = Bindings.createObjectBinding(() ->
+      calculator.calculateTotal(share, commissionRate, taxRate)
+    , share.stock().getPriceBinding());
 
     ObjectBinding<BigDecimal> fee = Bindings.createObjectBinding(
-        () -> gross.get().subtract(net.get()), gross, net);
+        () -> calculator.calculateGross(share).subtract(calculator.calculateTotal(share, commissionRate, taxRate)));
 
     grossProceeds.textProperty().unbind();
     grossProceeds.textProperty().bind(Bindings.createStringBinding(
