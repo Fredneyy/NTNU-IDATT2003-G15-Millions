@@ -26,22 +26,22 @@ class ShareTest {
 
         @Test
         void getStock() {
-            assertEquals(stock, share.stock());
+            assertEquals(stock, share.getStock());
         }
 
         @Test
         void getQuantity() {
-            assertEquals(BigDecimal.valueOf(50), share.quantity());
+            assertEquals(BigDecimal.valueOf(50), share.getQuantity());
         }
 
         @Test
         void getPricePerShareTimesQuantity() {
-            assertEquals(0, share.pricePerShare().multiply(share.quantity()).compareTo(BigDecimal.valueOf(5000)));
+            assertEquals(0, share.getPricePerShare().multiply(share.getQuantity()).compareTo(BigDecimal.valueOf(5000)));
         }
 
         @Test
         void getPricePerShare() {
-            assertEquals(BigDecimal.valueOf(100), share.pricePerShare());
+            assertEquals(BigDecimal.valueOf(100), share.getPricePerShare());
         }
     }
 

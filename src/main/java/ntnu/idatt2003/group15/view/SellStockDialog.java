@@ -7,10 +7,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.Share;
 import ntnu.idatt2003.group15.model.Stock;
@@ -19,6 +16,7 @@ import ntnu.idatt2003.group15.model.TransactionCalculator;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class SellStockDialog extends TransactionDialog {
 
@@ -31,19 +29,35 @@ public class SellStockDialog extends TransactionDialog {
   private final TransactionCalculator calculator;
   private final BigDecimal commissionRate;
   private final BigDecimal taxRate;
+  private final Consumer<Share> onConfirm;
+  private Share share;
 
   public SellStockDialog(ObservableValue<BigDecimal> cashProperty,
                          PortfolioController portfolioController,
                          TransactionCalculator calculator,
                          BigDecimal commissionRate,
                          BigDecimal taxRate,
-                         BiConsumer<Share, BigDecimal> onConfirm) {
-    super(cashProperty, onConfirm);
+                         Consumer<Share> onConfirm) {
+    super(cashProperty);
+    this.onConfirm = Objects.requireNonNull(onConfirm);
     this.portfolioController = Objects.requireNonNull(portfolioController, "portfolioController cannot be null");
     this.calculator = Objects.requireNonNull(calculator, "calculator cannot be null");
     this.commissionRate = Objects.requireNonNull(commissionRate, "commissionRate cannot be null");
     this.taxRate = Objects.requireNonNull(taxRate, "taxRate cannot be null");
     assembleBody();
+  }
+
+  public void show(StackPane root, Share share) {
+    this.root = Objects.requireNonNull(root);
+    this.share = Objects.requireNonNull(share);
+    bindToStock(share);
+    if (!root.getChildren().contains(dialog)) {
+      dialog.setOpacity(0);
+      dialog.setScaleX(0.1);
+      dialog.setScaleY(0.1);
+      root.getChildren().add(dialog);
+      openAnimation.play();
+    }
   }
 
   @Override
@@ -56,18 +70,10 @@ public class SellStockDialog extends TransactionDialog {
 
     Label quantityLabel = new Label("Quantity");
     quantityLabel.getStyleClass().add("buy-section-label");
-    quantity.setPromptText("Input amount...");
-    quantity.getStyleClass().add("buy-quantity-input");
-    HBox.setHgrow(quantity, Priority.ALWAYS);
-
-    maxButton.getStyleClass().add("buy-max-button");
-
-    HBox inputHBox = new HBox(quantity, maxButton);
-    inputHBox.getStyleClass().add("buy-quantity-row");
 
     ownedLabel.getStyleClass().add("buy-max-hint");
 
-    VBox quantityContainer = new VBox(quantityLabel, inputHBox, ownedLabel);
+    VBox quantityContainer = new VBox(quantityLabel, ownedLabel);
     quantityContainer.getStyleClass().add("buy-quantity-container");
 
     HBox summaryHbox = buildSummaryBox();
@@ -105,50 +111,27 @@ public class SellStockDialog extends TransactionDialog {
     return row;
   }
 
-  @Override
-  protected void bindToStock(Stock stock) {
-    stockSymbol.setText("Sell " + stock.getSymbol());
-    stockName.setText(stock.getCompany());
+  protected void bindToStock(Share share) {
+    stockSymbol.setText("Sell " + share.stock().getSymbol());
+    stockName.setText(share.stock().getCompany());
     transactionButton.setText("$ Sell");
-    quantity.setText("");
     qtyValue.set(BigDecimal.ZERO);
 
-    ObservableValue<BigDecimal> price = stock.getPriceBinding();
+    ObservableValue<BigDecimal> price = share.stock().getPriceBinding();
 
     currentPrice.textProperty().unbind();
     currentPrice.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(price.getValue()), price));
 
-    ObservableList<Share> shares = portfolioController.getListProperty();
-    ObjectBinding<BigDecimal> ownedQty = Bindings.createObjectBinding(() ->
-        shares.stream()
-            .filter(s -> s.stock().getSymbol().equalsIgnoreCase(stock.getSymbol()))
-            .map(Share::quantity)
-            .reduce(BigDecimal.ZERO, BigDecimal::add),
-        shares);
-
-    ownedLabel.textProperty().unbind();
-    ownedLabel.textProperty().bind(Bindings.createStringBinding(
-        () -> "Owned: " + ownedQty.get().toPlainString(), ownedQty));
-
-    // Hypothetical share representing the intended sale; null when qty is non-positive
-    // since Share requires a strictly positive quantity.
-    ObjectBinding<Share> hypothetical = Bindings.createObjectBinding(() -> {
-      BigDecimal q = qtyValue.get();
-      BigDecimal p = price.getValue();
-      if (q == null || q.signum() <= 0 || p == null || p.signum() <= 0) return null;
-      return new Share(stock, q, p);
-    }, qtyValue, price);
+    ownedLabel.setText("%b".formatted(share.quantity()));
 
     ObjectBinding<BigDecimal> gross = Bindings.createObjectBinding(() -> {
-      Share s = hypothetical.get();
-      return s == null ? BigDecimal.ZERO : calculator.calculateGross(s);
-    }, hypothetical);
+      return calculator.calculateGross(share);
+    }, share.stock().getPriceBinding());
 
     ObjectBinding<BigDecimal> net = Bindings.createObjectBinding(() -> {
-      Share s = hypothetical.get();
-      return s == null ? BigDecimal.ZERO : calculator.calculateTotal(s, commissionRate, taxRate);
-    }, hypothetical);
+      return calculator.calculateTotal(share, commissionRate, taxRate);
+    }, share.stock().getPriceBinding());
 
     ObjectBinding<BigDecimal> fee = Bindings.createObjectBinding(
         () -> gross.get().subtract(net.get()), gross, net);
@@ -165,25 +148,9 @@ public class SellStockDialog extends TransactionDialog {
     netReceive.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(net.get()), net));
 
-    BooleanBinding cannotSell = Bindings.createBooleanBinding(() -> {
-      BigDecimal q = qtyValue.get();
-      BigDecimal owned = ownedQty.get();
-      return q == null || q.signum() <= 0 || owned == null || q.compareTo(owned) > 0;
-    }, qtyValue, ownedQty);
-
-    transactionButton.disableProperty().unbind();
-    transactionButton.disableProperty().bind(cannotSell);
-
     transactionButton.setOnAction(_ -> {
-      BigDecimal q = qtyValue.get();
-      if (q == null || q.signum() <= 0) return;
-      onConfirm.accept(stock, q);
+      onConfirm.accept(share);
       close();
-    });
-
-    maxButton.setOnAction(_ -> {
-      BigDecimal owned = ownedQty.get();
-      quantity.setText(owned == null ? "0" : owned.toPlainString());
     });
   }
 }

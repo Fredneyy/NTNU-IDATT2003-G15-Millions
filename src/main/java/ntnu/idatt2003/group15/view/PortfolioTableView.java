@@ -40,11 +40,11 @@ public class PortfolioTableView {
     private final TableView<Share> table = new TableView<>();
     private final PortfolioController portfolioController;
     private final FilteredList<Share> filtered;
-    private final Consumer<Stock> onSellPressed;
+    private final Consumer<Share> onSellPressed;
     private final Consumer<Stock> onChartPressed;
 
     public PortfolioTableView(PortfolioController portfolioController,
-                              Consumer<Stock> onSellPressed,
+                              Consumer<Share> onSellPressed,
                               Consumer<Stock> onChartPressed) {
         this.portfolioController = Objects.requireNonNull(portfolioController);
         this.onSellPressed = onSellPressed;
@@ -250,7 +250,7 @@ public class PortfolioTableView {
         };
     }
 
-    private static TableCell<Share, Share> sellButtonCell(Consumer<Stock> onSell,
+    private static TableCell<Share, Share> sellButtonCell(Consumer<Share> onSell,
                                                           Consumer<Stock> onChart) {
         return new TableCell<>() {
             private final Button graphButton = new Button();
@@ -267,7 +267,7 @@ public class PortfolioTableView {
                 sellButton.getStyleClass().add("market-sell-button");
                 sellButton.setOnAction(_ -> {
                     Share s = getItem();
-                    if (s != null && onSell != null) onSell.accept(s.stock());
+                    if (s != null && onSell != null) onSell.accept(s);
                 });
 
                 wrapper.getStyleClass().add("market-action-cell");

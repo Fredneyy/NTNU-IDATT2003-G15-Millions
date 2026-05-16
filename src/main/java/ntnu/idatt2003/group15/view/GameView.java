@@ -89,7 +89,7 @@ public class GameView {
         exchangeController::sell);
 
     portfolioTable = new PortfolioTableView(portfolioController,
-        stock -> sellStockDialog.show(view, stock),
+        share -> sellStockDialog.show(view, share),
         stock -> stockChartDialog.show(view, stock));
     portfolioContent = new VBox(portfolioTable.getView());
 

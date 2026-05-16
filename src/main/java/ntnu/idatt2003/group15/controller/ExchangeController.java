@@ -148,25 +148,12 @@ public class ExchangeController {
      * @throws NullPointerException     if share is null
      * @throws IllegalArgumentException if the player does not own the share
      */
-    public void sell(Share share, Player player) {
+    public void sell(Share share) {
         Objects.requireNonNull(share, "Share cannot be null");
         if (!player.getPortfolio().contains(share)) {
             throw new IllegalArgumentException("Player does not own this share");
         }
         exchange.sell(share, player);
-    }
-
-    /**
-     * Sells whole share lots of the given stock owned by this controller's player
-     */
-    public void sell(Share share, BigDecimal quantity) {
-        Objects.requireNonNull(share, "Stock cannot be null");
-        Objects.requireNonNull(quantity, "Quantity cannot be null");
-        if (share.quantity().compareTo(quantity) > 0) {
-            throw new IllegalArgumentException("Share quantity cannot be greater than stock quantity");
-        } else {
-            exchange.sell(share, player);
-        }
     }
 
     /**

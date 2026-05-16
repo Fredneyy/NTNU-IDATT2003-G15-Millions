@@ -42,8 +42,8 @@ class PortfolioTest {
     @Test
     void getShares() {
       portfolio.addShare(share);
-      assertEquals(share.stock().getCompany(),
-          portfolio.getShares().getFirst().stock().getCompany());
+      assertEquals(share.getStock().getCompany(),
+          portfolio.getShares().getFirst().getStock().getCompany());
     }
 
     @Test

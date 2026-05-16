@@ -21,7 +21,6 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 public abstract class TransactionDialog extends BaseDialog {
 
@@ -30,28 +29,21 @@ public abstract class TransactionDialog extends BaseDialog {
   protected final HBox header = new HBox();
   protected final Button closeButton = new Button();
   protected final Label currentPrice = new Label();
-  protected final TextField quantity = new TextField();
-  protected final Button maxButton = new Button("Max");
   protected final Button transactionButton = new Button();
 
   protected final ObservableValue<BigDecimal> cashProperty;
-  protected final BiConsumer<Stock, BigDecimal> onConfirm;
   protected final ObjectProperty<BigDecimal> qtyValue = new SimpleObjectProperty<>(BigDecimal.ZERO);
 
   protected ParallelTransition closeAnimation;
   protected ParallelTransition openAnimation;
 
-  protected TransactionDialog(ObservableValue<BigDecimal> cashProperty,
-                              BiConsumer<Stock, BigDecimal> onConfirm) {
+  protected TransactionDialog(ObservableValue<BigDecimal> cashProperty) {
     super();
     this.cashProperty = Objects.requireNonNull(cashProperty, "cashProperty cannot be null");
-    this.onConfirm = Objects.requireNonNull(onConfirm, "onConfirm cannot be null");
 
     dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 2.5);
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 5.0);
     dialog.getStyleClass().setAll("stock-dialog-card", "buy-stock-dialog");
-
-    quantity.textProperty().addListener((_, _, nv) -> qtyValue.set(parseQuantity(nv)));
 
     closeAnimation = createCloseAnimation(_ -> root.getChildren().remove(dialog));
     openAnimation = createOpenAnimation();
@@ -65,20 +57,6 @@ public abstract class TransactionDialog extends BaseDialog {
   }
 
   protected abstract VBox buildMenu();
-
-  protected abstract void bindToStock(Stock stock);
-
-  public void show(StackPane root, Stock stock) {
-    this.root = Objects.requireNonNull(root);
-    bindToStock(Objects.requireNonNull(stock));
-    if (!root.getChildren().contains(dialog)) {
-      dialog.setOpacity(0);
-      dialog.setScaleX(0.1);
-      dialog.setScaleY(0.1);
-      root.getChildren().add(dialog);
-      openAnimation.play();
-    }
-  }
 
   public void show(StackPane root) {
     this.root = Objects.requireNonNull(root);

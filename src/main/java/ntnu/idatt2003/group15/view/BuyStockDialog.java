@@ -6,15 +6,15 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.model.Stock;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public class BuyStockDialog extends TransactionDialog {
@@ -23,16 +23,33 @@ public class BuyStockDialog extends TransactionDialog {
   private final Label totalCost = new Label();
   private final Label availableCash = new Label();
   private final Label cashAfterTransaction = new Label();
+  private final TextField quantity = new TextField();
+  private final Button maxButton = new Button("Max");
+  private final BiConsumer<Stock, BigDecimal> onConfirm;
 
   private ChangeListener<BigDecimal> remainingSignListener;
   private ObservableValue<BigDecimal> remainingObservable;
 
   public BuyStockDialog(ObservableValue<BigDecimal> cashProperty,
                         BiConsumer<Stock, BigDecimal> onConfirm) {
-    super(cashProperty, onConfirm);
+    super(cashProperty);
+    this.onConfirm = Objects.requireNonNull(onConfirm);
     availableCash.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(cashProperty.getValue()), cashProperty));
     assembleBody();
+    quantity.textProperty().addListener((_, _, nv) -> qtyValue.set(parseQuantity(nv)));
+  }
+
+  public void show(StackPane root, Stock stock) {
+    this.root = Objects.requireNonNull(root);
+    bindToStock(Objects.requireNonNull(stock));
+    if (!root.getChildren().contains(dialog)) {
+      dialog.setOpacity(0);
+      dialog.setScaleX(0.1);
+      dialog.setScaleY(0.1);
+      root.getChildren().add(dialog);
+      openAnimation.play();
+    }
   }
 
   @Override
@@ -94,7 +111,6 @@ public class BuyStockDialog extends TransactionDialog {
     return row;
   }
 
-  @Override
   protected void bindToStock(Stock stock) {
     stockSymbol.setText("Buy " + stock.getSymbol());
     stockName.setText(stock.getCompany());
