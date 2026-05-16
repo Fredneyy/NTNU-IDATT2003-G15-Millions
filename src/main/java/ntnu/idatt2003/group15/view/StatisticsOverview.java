@@ -70,11 +70,6 @@ public class StatisticsOverview {
         view.getStylesheets().add(STYLESHEET);
     }
 
-    public StatisticsOverview(StatCard... initialCards) {
-        this();
-        for (StatCard c : initialCards) addCard(c);
-    }
-
     public void addCard(StatCard card) {
         Objects.requireNonNull(card);
         if (cards.containsKey(card.id())) {

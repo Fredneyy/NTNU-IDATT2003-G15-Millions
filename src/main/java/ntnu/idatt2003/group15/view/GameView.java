@@ -29,11 +29,7 @@ import ntnu.idatt2003.group15.controller.PlayerController;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.controller.SettingsController;
 import ntnu.idatt2003.group15.controller.StatsController;
-import ntnu.idatt2003.group15.model.GameSettings;
-import ntnu.idatt2003.group15.model.Sale;
-import ntnu.idatt2003.group15.model.SaleCalculator;
-import ntnu.idatt2003.group15.model.Stock;
-import ntnu.idatt2003.group15.model.Transaction;
+import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -320,6 +316,10 @@ public class GameView {
         "pnl", "Unrealized P/L", FontAwesome.LINE_CHART,
         signedMoney(pnl)
     ));
+    statisticsOverview.addCard(new StatisticsOverview.StatCard(
+        "Player", "Status", FontAwesome.STAR,
+        playerStatus(playerController.statusProperty())
+    ));
   }
 
   private static ObservableValue<String> money(ObservableValue<BigDecimal> source) {
@@ -328,6 +328,10 @@ public class GameView {
 
   private static ObservableValue<String> signedMoney(ObservableValue<BigDecimal> source) {
     return Bindings.createStringBinding(() -> formatSignedMoney(source.getValue()), source);
+  }
+
+  private static ObservableValue<String> playerStatus(ObservableValue<PlayerStatus> playerStatus) {
+    return Bindings.createStringBinding(playerStatus.getValue()::toString, playerStatus);
   }
 
   private static String formatMoney(BigDecimal v) {
