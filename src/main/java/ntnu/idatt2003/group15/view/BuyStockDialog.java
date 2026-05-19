@@ -23,8 +23,6 @@ public class BuyStockDialog extends TransactionDialog {
   private final Label totalCost = new Label();
   private final Label availableCash = new Label();
   private final Label cashAfterTransaction = new Label();
-  private final TextField quantity = new TextField();
-  private final Button maxButton = new Button("Max");
   private final BiConsumer<Stock, BigDecimal> onConfirm;
 
   private ChangeListener<BigDecimal> remainingSignListener;
@@ -37,7 +35,7 @@ public class BuyStockDialog extends TransactionDialog {
     availableCash.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(cashProperty.getValue()), cashProperty));
     assembleBody();
-    quantity.textProperty().addListener((_, _, nv) -> qtyValue.set(parseQuantity(nv)));
+    quantityField.textProperty().addListener((_, _, nv) -> qtyValue.set(parseQuantity(nv)));
   }
 
   public void show(StackPane root, Stock stock) {
@@ -62,13 +60,13 @@ public class BuyStockDialog extends TransactionDialog {
 
     Label quantityLabel = new Label("Quantity");
     quantityLabel.getStyleClass().add("buy-section-label");
-    quantity.setPromptText("Input amount...");
-    quantity.getStyleClass().add("buy-quantity-input");
-    HBox.setHgrow(quantity, Priority.ALWAYS);
+    quantityField.setPromptText("Input amount...");
+    quantityField.getStyleClass().add("buy-quantity-input");
+    HBox.setHgrow(quantityField, Priority.ALWAYS);
 
     maxButton.getStyleClass().add("buy-max-button");
 
-    HBox inputHBox = new HBox(quantity, maxButton);
+    HBox inputHBox = new HBox(quantityField, maxButton);
     inputHBox.getStyleClass().add("buy-quantity-row");
 
     maxStockAmountLabel.getStyleClass().add("buy-max-hint");
@@ -115,7 +113,7 @@ public class BuyStockDialog extends TransactionDialog {
     stockSymbol.setText("Buy " + stock.getSymbol());
     stockName.setText(stock.getCompany());
     transactionButton.setText("$ Buy");
-    quantity.setText("");
+    quantityField.setText("");
     qtyValue.set(BigDecimal.ZERO);
 
     ObservableValue<BigDecimal> price = stock.getPriceBinding();
@@ -177,7 +175,7 @@ public class BuyStockDialog extends TransactionDialog {
 
     maxButton.setOnAction(_ -> {
       BigDecimal m = maxBuyable.get();
-      quantity.setText(m == null ? "0" : m.toPlainString());
+      quantityField.setText(m == null ? "0" : m.toPlainString());
     });
 
     if (remainingObservable != null && remainingSignListener != null) {

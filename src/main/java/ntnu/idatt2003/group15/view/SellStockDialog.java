@@ -1,23 +1,17 @@
 package ntnu.idatt2003.group15.view;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Share;
-import ntnu.idatt2003.group15.model.Stock;
-import ntnu.idatt2003.group15.model.TransactionCalculator;
-
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class SellStockDialog extends TransactionDialog {
 
@@ -26,22 +20,20 @@ public class SellStockDialog extends TransactionDialog {
   private final Label feeAmount = new Label();
   private final Label netReceive = new Label();
 
-  private final PortfolioController portfolioController;
   private final SaleCalculator calculator;
   private final BigDecimal commissionRate;
   private final BigDecimal taxRate;
-  private final Consumer<Share> onConfirm;
-  private Share share;
+  private final BiConsumer<Share, BigDecimal> onConfirm;
 
   public SellStockDialog(ObservableValue<BigDecimal> cashProperty,
                          PortfolioController portfolioController,
                          SaleCalculator calculator,
                          BigDecimal commissionRate,
                          BigDecimal taxRate,
-                         Consumer<Share> onConfirm) {
+                         BiConsumer<Share, BigDecimal> onConfirm) {
     super(cashProperty);
     this.onConfirm = Objects.requireNonNull(onConfirm);
-    this.portfolioController = Objects.requireNonNull(portfolioController, "portfolioController cannot be null");
+    PortfolioController portfolioController1 = Objects.requireNonNull(portfolioController, "portfolioController cannot be null");
     this.calculator = Objects.requireNonNull(calculator, "calculator cannot be null");
     this.commissionRate = Objects.requireNonNull(commissionRate, "commissionRate cannot be null");
     this.taxRate = Objects.requireNonNull(taxRate, "taxRate cannot be null");
@@ -50,8 +42,7 @@ public class SellStockDialog extends TransactionDialog {
 
   public void show(StackPane root, Share share) {
     this.root = Objects.requireNonNull(root);
-    this.share = Objects.requireNonNull(share);
-    bindToStock(share);
+    bindToShare(share);
     if (!root.getChildren().contains(dialog)) {
       dialog.setOpacity(0);
       dialog.setScaleX(0.1);
@@ -112,7 +103,7 @@ public class SellStockDialog extends TransactionDialog {
     return row;
   }
 
-  protected void bindToStock(Share share) {
+  private void bindToShare(Share share) {
     stockSymbol.setText("Sell " + share.stock().getSymbol());
     stockName.setText(share.stock().getCompany());
     transactionButton.setText("$ Sell");
@@ -126,16 +117,15 @@ public class SellStockDialog extends TransactionDialog {
 
     ownedLabel.setText("%b".formatted(share.quantity()));
 
-    ObjectBinding<BigDecimal> gross = Bindings.createObjectBinding(() -> {
-      return calculator.calculateGross(share);
-    }, share.stock().getPriceBinding());
+    ObjectBinding<BigDecimal> gross = Bindings.createObjectBinding(() ->
+        calculator.calculateGross(share), share.stock().getPriceBinding());
 
     ObjectBinding<BigDecimal> net = Bindings.createObjectBinding(() ->
       calculator.calculateTotal(share, commissionRate, taxRate)
     , share.stock().getPriceBinding());
 
     ObjectBinding<BigDecimal> fee = Bindings.createObjectBinding(
-        () -> calculator.calculateGross(share).subtract(calculator.calculateTotal(share, commissionRate, taxRate)));
+        () -> gross.get().subtract(net.get()), share.stock().getPriceBinding());
 
     grossProceeds.textProperty().unbind();
     grossProceeds.textProperty().bind(Bindings.createStringBinding(
@@ -150,7 +140,7 @@ public class SellStockDialog extends TransactionDialog {
         () -> formatMoney(net.get()), net));
 
     transactionButton.setOnAction(_ -> {
-      onConfirm.accept(share);
+      onConfirm.accept(share, quantityField.getText());
       close();
     });
   }

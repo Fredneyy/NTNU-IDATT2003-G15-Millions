@@ -14,7 +14,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
-import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 
@@ -29,6 +28,8 @@ public abstract class TransactionDialog extends BaseDialog {
   protected final HBox header = new HBox();
   protected final Button closeButton = new Button();
   protected final Label currentPrice = new Label();
+  protected final TextField quantityField = new TextField();
+  protected final Button maxButton = new Button("Max");
   protected final Button transactionButton = new Button();
 
   protected final ObservableValue<BigDecimal> cashProperty;

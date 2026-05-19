@@ -148,12 +148,13 @@ public class ExchangeController {
      * @throws NullPointerException     if share is null
      * @throws IllegalArgumentException if the player does not own the share
      */
-    public void sell(Share share) {
+    public void sell(Share share, BigDecimal amount) {
         Objects.requireNonNull(share, "Share cannot be null");
+        Objects.requireNonNull(amount, "Amount cannot be null");
         if (!player.getPortfolio().contains(share)) {
             throw new IllegalArgumentException("Player does not own this share");
         }
-        exchange.sell(share, player);
+        exchange.sell(share, amount, player);
     }
 
     /**

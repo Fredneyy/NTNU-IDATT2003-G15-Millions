@@ -3,8 +3,6 @@ package ntnu.idatt2003.group15.model;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import com.sun.jdi.IntegerValue;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
@@ -25,7 +23,7 @@ public class Exchange {
   private final Map<String, Stock> stockMap;
   private final StockSimulator simulator = new StockSimulator(SIMULATOR_DT);
   private final BigDecimal commission = new BigDecimal("0.01");
-  private final BigDecimal tax = new BigDecimal("0.22");
+  private final BigDecimal tax = new BigDecimal("0.37");
 
   /**
    * Initializes a new stock exchange with the given name and collection of initial stocks.
@@ -144,9 +142,10 @@ public class Exchange {
    * @param player the player that sells
    * @return the {@code Sale}
    */
-  public Sale sell(Share share, Player player) throws NullPointerException {
+  public Sale sell(Share share, BigDecimal amount, Player player) throws NullPointerException, IllegalArgumentException{
     Objects.requireNonNull(share, "Share cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
+    Objects.requireNonNull(amount, "Amount cannot be null");
     Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, week.get());
     tx.commit(player, commission, tax);
     return tx;
