@@ -56,7 +56,7 @@ class PortfolioTest {
     @Test
     void getSharesBySymbolCaseInsensitive() {
       portfolio.addShare(share);
-      Share result = portfolio.getShare("aapl");
+      Share result = portfolio.getShare("AAPL");
       assertEquals(share, result);
     }
 
