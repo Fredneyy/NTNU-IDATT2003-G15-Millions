@@ -123,13 +123,20 @@ public class Exchange {
    * @param player the player
    * @return the {@code Purchase}
    */
-  public Purchase buy(String symbol, BigDecimal quantity, Player player)
-      throws NullPointerException {
+  public Purchase buy(String symbol, BigDecimal quantity, Player player) {
     Objects.requireNonNull(symbol, "Symbol cannot be null");
     Objects.requireNonNull(quantity, "Quantity cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
     Stock stock = getStock(symbol);
-    Share share = new Share(stock, quantity, stock.getSalesPrice());
+
+    Share existing = player.getPortfolio().getShare(symbol);
+    Share share;
+    if (existing != null) {
+      existing.buy(quantity, stock.getSalesPrice());
+      share = existing;
+    } else {
+      share = new Share(stock, quantity, stock.getSalesPrice());
+    }
     Purchase tx = (Purchase) TransactionFactory.createTransaction(TransactionType.PURCHASE, share, week.get());
     tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
     return tx;

@@ -49,16 +49,15 @@ class PortfolioTest {
     @Test
     void getSharesBySymbol() {
       portfolio.addShare(share);
-      List<Share> result = portfolio.getShares("AAPL");
-      assertEquals(1, result.size());
-      assertEquals(share, result.getFirst());
+      Share result = portfolio.getShare("AAPL");
+      assertEquals(share, result);
     }
 
     @Test
     void getSharesBySymbolCaseInsensitive() {
       portfolio.addShare(share);
-      List<Share> result = portfolio.getShares("aapl");
-      assertEquals(1, result.size());
+      Share result = portfolio.getShare("aapl");
+      assertEquals(share, result);
     }
 
     @Test
@@ -169,7 +168,7 @@ class PortfolioTest {
     @Test
     void getSharesNullSymbol() {
       assertThrows(NullPointerException.class, () ->
-          portfolio.getShares(null)
+          portfolio.getShare(null)
       );
     }
 

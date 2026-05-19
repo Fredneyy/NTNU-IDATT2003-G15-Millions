@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.view;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
@@ -10,6 +11,7 @@ import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Share;
 import java.math.BigDecimal;
+import java.util.Formatter;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -64,15 +66,29 @@ public class SellStockDialog extends TransactionDialog {
 
     amountLabel.setText("Owned: %s".formatted(share.quantity().toPlainString()));
 
-    ObjectBinding<BigDecimal> gross = Bindings.createObjectBinding(() ->
-        calculator.calculateGross(share), share.stock().getPriceBinding());
+    ObjectBinding<BigDecimal> gross = Bindings.createObjectBinding(() -> {
+          if (qtyValue.get().compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+          } else {
+            BigDecimal number = calculator.calculateGross(new Share(share.stock(), qtyValue.get().min(share.quantity()), share.pricePerShare()));
+            return Objects.requireNonNullElse(number, BigDecimal.ZERO);
+          }
+        }
+        , share.stock().getPriceBinding(), qtyValue);
 
-    ObjectBinding<BigDecimal> net = Bindings.createObjectBinding(() ->
-      calculator.calculateTotal(share, commissionRate, taxRate)
-    , share.stock().getPriceBinding());
+    ObjectBinding<BigDecimal> net = Bindings.createObjectBinding(() -> {
+          if (qtyValue.get().compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+          } else {
+            BigDecimal number = calculator.calculateTotal(
+                new Share(share.stock(),  qtyValue.get().min(share.quantity()), share.pricePerShare()), commissionRate, taxRate);
+            return Objects.requireNonNullElse(number, BigDecimal.ZERO);
+          }
+        }
+    , share.stock().getPriceBinding(), qtyValue);
 
     ObjectBinding<BigDecimal> fee = Bindings.createObjectBinding(
-        () -> gross.get().subtract(net.get()), share.stock().getPriceBinding());
+        () -> gross.get().subtract(net.get()), share.stock().getPriceBinding(), qtyValue);
 
     maxButton.setOnAction(_ -> {
       BigDecimal m = share.quantity();
@@ -91,8 +107,21 @@ public class SellStockDialog extends TransactionDialog {
     summaryLabel1.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(net.get()), net));
 
+    BooleanBinding cannotBuy = Bindings.createBooleanBinding(() -> {
+      BigDecimal q = qtyValue.get();
+      BigDecimal shareQ = share.quantity();
+      return q == null || q.signum() <= 0 || q.compareTo(shareQ) > 0;
+    }, qtyValue);
+
+    transactionButton.disableProperty().unbind();
+    transactionButton.disableProperty().bind(cannotBuy);
+
     transactionButton.setOnAction(_ -> {
-      onConfirm.accept(share, qtyValue.get());
+      BigDecimal q = qtyValue.get();
+      if (q == null || q.signum() <= 0) {
+        return;
+      }
+      onConfirm.accept(share, q);
       close();
     });
   }
