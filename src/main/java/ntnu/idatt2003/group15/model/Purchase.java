@@ -45,7 +45,9 @@ public class Purchase extends Transaction {
     Objects.requireNonNull(tax, "Tax cannot be null");
     BigDecimal buyAmount = getCalculator().calculateTotal(getShare(), commission, tax);
     player.withdrawMoney(buyAmount);
-    player.getPortfolio().addShare(getShare());
+    if (player.getPortfolio().getShare(getShare().stock().getSymbol()) == null) {
+      player.getPortfolio().addShare(getShare());
+    }
     player.getTransactionArchive().add(this);
     setCommitted(true);
   }

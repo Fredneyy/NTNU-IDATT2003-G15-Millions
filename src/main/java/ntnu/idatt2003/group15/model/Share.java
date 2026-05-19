@@ -87,10 +87,13 @@ public class Share {
    */
   public void buy(BigDecimal quantity, BigDecimal pricePerShare) {
     Objects.requireNonNull(pricePerShare, "Price per share cannot be null");
+    Objects.requireNonNull(quantity, "Quantity cannot be null");
     if (!InputValidator.isBigDecimalValuePositive(pricePerShare)) {
       throw new IllegalArgumentException("PricePerShare must be positive");
     }
-    validateQuantity(quantity);
+    if (!InputValidator.isBigDecimalValuePositive(quantity)) {
+      throw new IllegalArgumentException("Quantity must be positive");
+    }
     BigDecimal newPricePerShare = this.quantity.multiply(this.pricePerShare)
         .add(quantity.multiply(pricePerShare))
         .divide(this.quantity.add(quantity), 10, RoundingMode.HALF_EVEN);

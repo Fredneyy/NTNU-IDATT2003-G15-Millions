@@ -121,25 +121,20 @@ public class Exchange {
    * @param symbol the symbol of the stock
    * @param quantity the amount to purchase
    * @param player the player
-   * @return the {@code Purchase}
    */
-  public Purchase buy(String symbol, BigDecimal quantity, Player player) {
+  public void buy(String symbol, BigDecimal quantity, Player player) {
     Objects.requireNonNull(symbol, "Symbol cannot be null");
     Objects.requireNonNull(quantity, "Quantity cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
     Stock stock = getStock(symbol);
 
     Share existing = player.getPortfolio().getShare(symbol);
-    Share share;
+    Share share = new Share(stock, quantity, stock.getSalesPrice());
     if (existing != null) {
       existing.buy(quantity, stock.getSalesPrice());
-      share = existing;
-    } else {
-      share = new Share(stock, quantity, stock.getSalesPrice());
     }
     Purchase tx = (Purchase) TransactionFactory.createTransaction(TransactionType.PURCHASE, share, week.get());
     tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
-    return tx;
   }
 
   /**
@@ -148,7 +143,6 @@ public class Exchange {
    * @param share the share to sell
    * @param amount the amount to sell
    * @param player the player that sells
-   * @return the {@code Sale}
    */
   public void sell(Share share, BigDecimal amount, Player player) {
     Objects.requireNonNull(share, "Share cannot be null");

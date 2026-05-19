@@ -63,7 +63,7 @@ class ExchangeTest {
 
       @Test
       void buy () {
-        Purchase purchaseTx = exchange.buy("PGT", BigDecimal.valueOf(2), player);
+        exchange.buy("PGT", BigDecimal.valueOf(2), player);
 
         assertEquals(0, player.getMoney().compareTo(BigDecimal.valueOf(10000 - 2000)));
 
