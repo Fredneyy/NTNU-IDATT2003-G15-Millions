@@ -9,15 +9,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExchangeTest {
-  private Stock pgtStock;
   private Exchange exchange;
-  private Share txShare;
   private Player player;
 
 
   @BeforeEach
   void setUp() {
-    pgtStock = new Stock("PGT", "Porsgrunn toaletter", BigDecimal.valueOf(1000), 0.0, 0.0,
+    Stock pgtStock = new Stock("PGT", "Porsgrunn toaletter", BigDecimal.valueOf(1000), 0.0, 0.0,
         List.of(StockSectors.INDUSTRIALS));
     List<Stock> stocks = List.of(
             new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(50), 0.0, 0.0,
@@ -25,7 +23,7 @@ class ExchangeTest {
         pgtStock
       );
     exchange = new Exchange("FREX", stocks);
-    txShare = new Share(pgtStock, BigDecimal.valueOf(2), BigDecimal.valueOf(1000));
+    Share txShare = new Share(pgtStock, BigDecimal.valueOf(2), BigDecimal.valueOf(1000));
     player = new Player("Ole Theodor", BigDecimal.valueOf(10000));
   }
 

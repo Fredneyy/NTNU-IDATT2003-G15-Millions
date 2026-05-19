@@ -4,14 +4,11 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Share;
 import java.math.BigDecimal;
-import java.util.Formatter;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -30,7 +27,6 @@ public class SellStockDialog extends TransactionDialog {
                          BiConsumer<Share, BigDecimal> onConfirm) {
     super(cashProperty);
     this.onConfirm = Objects.requireNonNull(onConfirm);
-    PortfolioController portfolioController1 = Objects.requireNonNull(portfolioController, "portfolioController cannot be null");
     this.calculator = Objects.requireNonNull(calculator, "calculator cannot be null");
     this.commissionRate = Objects.requireNonNull(commissionRate, "commissionRate cannot be null");
     this.taxRate = Objects.requireNonNull(taxRate, "taxRate cannot be null");
