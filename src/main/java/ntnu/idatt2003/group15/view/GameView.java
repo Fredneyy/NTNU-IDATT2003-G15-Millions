@@ -331,7 +331,14 @@ public class GameView {
   }
 
   private static ObservableValue<String> playerStatus(ObservableValue<PlayerStatus> playerStatus) {
-    return Bindings.createStringBinding(playerStatus.getValue()::toString, playerStatus);
+    return Bindings.createStringBinding(() -> formatPlayerStatus(playerStatus.getValue()), playerStatus);
+  }
+
+  private static String formatPlayerStatus(PlayerStatus value) {
+    String stringValue = value.toString();
+    String firstLetter = stringValue.substring(0, 1).toUpperCase();
+    String restOfText = value.toString().substring(1).toLowerCase();
+    return firstLetter.concat(restOfText);
   }
 
   private static String formatMoney(BigDecimal v) {

@@ -15,11 +15,6 @@ import java.util.function.BiConsumer;
 
 public class SellStockDialog extends TransactionDialog {
 
-  private final Label ownedLabel = new Label("Owned: 0");
-  private final Label grossProceeds = new Label();
-  private final Label feeAmount = new Label();
-  private final Label netReceive = new Label();
-
   private final SaleCalculator calculator;
   private final BigDecimal commissionRate;
   private final BigDecimal taxRate;
@@ -38,6 +33,9 @@ public class SellStockDialog extends TransactionDialog {
     this.commissionRate = Objects.requireNonNull(commissionRate, "commissionRate cannot be null");
     this.taxRate = Objects.requireNonNull(taxRate, "taxRate cannot be null");
     assembleBody();
+    summaryTextLabel1.setText("You Receive");
+    summaryTextLabel2.setText("Fees and Taxes");
+    summaryTextLabel3.setText("Gross Proceeds");
   }
 
   public void show(StackPane root, Share share) {
@@ -52,57 +50,6 @@ public class SellStockDialog extends TransactionDialog {
     }
   }
 
-  @Override
-  protected VBox buildMenu() {
-    Label labelInfo = new Label("Current Price");
-    labelInfo.getStyleClass().add("buy-stat-title");
-    currentPrice.getStyleClass().add("buy-stat-price");
-    VBox priceContainer = new VBox(labelInfo, currentPrice);
-    priceContainer.getStyleClass().add("buy-card");
-
-    Label quantityLabel = new Label("Quantity");
-    quantityLabel.getStyleClass().add("buy-section-label");
-
-    ownedLabel.getStyleClass().add("buy-max-hint");
-
-    VBox quantityContainer = new VBox(quantityLabel, ownedLabel);
-    quantityContainer.getStyleClass().add("buy-quantity-container");
-
-    HBox summaryHbox = buildSummaryBox();
-
-    transactionButton.getStyleClass().add("buy-confirm-button");
-    transactionButton.setMaxWidth(Double.MAX_VALUE);
-
-    VBox container = new VBox(priceContainer, quantityContainer, summaryHbox, transactionButton);
-    container.getStyleClass().add("buy-content");
-    return container;
-  }
-
-  private HBox buildSummaryBox() {
-    Label grossTextLabel = new Label("Gross Proceeds");
-    Label feeTextLabel = new Label("Fee");
-    Label netTextLabel = new Label("You Receive");
-    grossTextLabel.getStyleClass().add("buy-cost-label");
-    feeTextLabel.getStyleClass().add("buy-cost-label");
-    netTextLabel.getStyleClass().add("buy-cost-label-major");
-    VBox labels = new VBox(grossTextLabel, feeTextLabel, netTextLabel);
-    labels.getStyleClass().add("buy-cost-labels");
-
-    Region spacer = new Region();
-    HBox.setHgrow(spacer, Priority.ALWAYS);
-
-    grossProceeds.getStyleClass().add("buy-cost-value");
-    feeAmount.getStyleClass().add("buy-cost-value");
-    netReceive.getStyleClass().addAll("buy-cost-value-major", "value-positive");
-    VBox values = new VBox(grossProceeds, feeAmount, netReceive);
-    values.getStyleClass().add("buy-cost-values");
-    values.setAlignment(Pos.CENTER_RIGHT);
-
-    HBox row = new HBox(labels, spacer, values);
-    row.getStyleClass().add("buy-cost-card");
-    return row;
-  }
-
   private void bindToShare(Share share) {
     stockSymbol.setText("Sell " + share.stock().getSymbol());
     stockName.setText(share.stock().getCompany());
@@ -115,7 +62,7 @@ public class SellStockDialog extends TransactionDialog {
     currentPrice.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(price.getValue()), price));
 
-    ownedLabel.setText("%b".formatted(share.quantity()));
+    amountLabel.setText("Owned: %s".formatted(share.quantity().toPlainString()));
 
     ObjectBinding<BigDecimal> gross = Bindings.createObjectBinding(() ->
         calculator.calculateGross(share), share.stock().getPriceBinding());
@@ -127,20 +74,25 @@ public class SellStockDialog extends TransactionDialog {
     ObjectBinding<BigDecimal> fee = Bindings.createObjectBinding(
         () -> gross.get().subtract(net.get()), share.stock().getPriceBinding());
 
-    grossProceeds.textProperty().unbind();
-    grossProceeds.textProperty().bind(Bindings.createStringBinding(
+    maxButton.setOnAction(_ -> {
+      BigDecimal m = share.quantity();
+      quantityField.setText(m.toPlainString());
+    });
+
+    summaryLabel3.textProperty().unbind();
+    summaryLabel3.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(gross.get()), gross));
 
-    feeAmount.textProperty().unbind();
-    feeAmount.textProperty().bind(Bindings.createStringBinding(
+    summaryLabel2.textProperty().unbind();
+    summaryLabel2.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(fee.get()), fee));
 
-    netReceive.textProperty().unbind();
-    netReceive.textProperty().bind(Bindings.createStringBinding(
+    summaryLabel1.textProperty().unbind();
+    summaryLabel1.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(net.get()), net));
 
     transactionButton.setOnAction(_ -> {
-      onConfirm.accept(share, quantityField.getText());
+      onConfirm.accept(share, qtyValue.get());
       close();
     });
   }

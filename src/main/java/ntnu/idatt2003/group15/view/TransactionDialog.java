@@ -8,10 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -31,6 +28,15 @@ public abstract class TransactionDialog extends BaseDialog {
   protected final TextField quantityField = new TextField();
   protected final Button maxButton = new Button("Max");
   protected final Button transactionButton = new Button();
+  protected final Label amountLabel = new Label();
+  protected final Label summaryLabel1 = new Label();
+  protected final Label summaryLabel2 = new Label();
+  protected final Label summaryLabel3 = new Label();
+  protected final Label summaryTextLabel1 = new Label();
+  protected final Label summaryTextLabel2 = new Label();
+  protected final Label summaryTextLabel3 = new Label();
+  protected final Label labelInfo = new Label("Current Price");
+
 
   protected final ObservableValue<BigDecimal> cashProperty;
   protected final ObjectProperty<BigDecimal> qtyValue = new SimpleObjectProperty<>(BigDecimal.ZERO);
@@ -46,6 +52,8 @@ public abstract class TransactionDialog extends BaseDialog {
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 5.0);
     dialog.getStyleClass().setAll("stock-dialog-card", "buy-stock-dialog");
 
+    quantityField.textProperty().addListener((_, _, nv) -> qtyValue.set(parseQuantity(nv)));
+
     closeAnimation = createCloseAnimation(_ -> root.getChildren().remove(dialog));
     openAnimation = createOpenAnimation();
   }
@@ -56,8 +64,6 @@ public abstract class TransactionDialog extends BaseDialog {
     body.getStyleClass().add("buy-dialog-body");
     dialog.getChildren().add(body);
   }
-
-  protected abstract VBox buildMenu();
 
   public void show(StackPane root) {
     this.root = Objects.requireNonNull(root);
@@ -107,4 +113,60 @@ public abstract class TransactionDialog extends BaseDialog {
     header.getStyleClass().add("buy-header");
     return header;
   }
+
+  protected VBox buildMenu() {
+    labelInfo.getStyleClass().add("buy-stat-title");
+    currentPrice.getStyleClass().add("buy-stat-price");
+    VBox priceContainer = new VBox(labelInfo, currentPrice);
+    priceContainer.getStyleClass().add("buy-card");
+
+    Label quantityLabel = new Label("Quantity");
+    quantityLabel.getStyleClass().add("buy-section-label");
+    quantityField.setPromptText("Input amount...");
+    quantityField.getStyleClass().add("buy-quantity-input");
+    HBox.setHgrow(quantityField, Priority.ALWAYS);
+
+    maxButton.getStyleClass().add("buy-max-button");
+
+    HBox inputHBox = new HBox(quantityField, maxButton);
+    inputHBox.getStyleClass().add("buy-quantity-row");
+
+    amountLabel.getStyleClass().add("buy-max-hint");
+
+    VBox quantityContainer = new VBox(quantityLabel, inputHBox, amountLabel);
+    quantityContainer.getStyleClass().add("buy-quantity-container");
+
+    HBox costHbox = buildCostBox();
+
+    transactionButton.getStyleClass().add("buy-confirm-button");
+    transactionButton.setMaxWidth(Double.MAX_VALUE);
+
+    VBox container = new VBox(priceContainer, quantityContainer, costHbox, transactionButton);
+    container.getStyleClass().add("buy-content");
+    return container;
+  }
+
+
+  private HBox buildCostBox() {
+    summaryTextLabel1.getStyleClass().add("buy-cost-label-major");
+    summaryTextLabel2.getStyleClass().add("buy-cost-label");
+    summaryTextLabel3.getStyleClass().add("buy-cost-label");
+    VBox costContainerText = new VBox(summaryTextLabel1, summaryTextLabel2, summaryTextLabel3);
+    costContainerText.getStyleClass().add("buy-cost-labels");
+
+    Region spacer = new Region();
+    HBox.setHgrow(spacer, Priority.ALWAYS);
+
+    summaryLabel1.getStyleClass().addAll("buy-cost-value-major");
+    summaryLabel2.getStyleClass().add("buy-cost-value");
+    summaryLabel3.getStyleClass().add("buy-cost-value");
+    VBox costContainer = new VBox(summaryLabel1, summaryLabel2, summaryLabel3);
+    costContainer.getStyleClass().add("buy-cost-values");
+    costContainer.setAlignment(Pos.CENTER_RIGHT);
+
+    HBox row = new HBox(costContainerText, spacer, costContainer);
+    row.getStyleClass().add("buy-cost-card");
+    return row;
+  }
+
 }

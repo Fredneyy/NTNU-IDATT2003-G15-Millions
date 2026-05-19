@@ -4,50 +4,98 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import ntnu.idatt2003.group15.utilities.InputValidator;
 
 /**
  * Represents an ownership stake in a company purchased at a specific price.
  */
-public record Share(Stock stock, BigDecimal quantity, BigDecimal pricePerShare) {
+public class Share {
+
+  private final Stock stock;
+  private BigDecimal quantity;
+  private BigDecimal pricePerShare;
+
+  private final ObjectProperty<BigDecimal> quantityProperty = new SimpleObjectProperty<>();
+
   /**
    * Constructs a share representing an ownership fraction at a fixed purchase price.
    *
    * @param stock         the stock
    * @param quantity      the amount of shares
    * @param pricePerShare the price per share
-   * @throws NullPointerException if any value is null
+   * @throws NullPointerException     if any value is null
    * @throws IllegalArgumentException if quantity or price is negative or 0
    */
-  public Share {
+  public Share(Stock stock, BigDecimal quantity, BigDecimal pricePerShare) {
     Objects.requireNonNull(stock, "Stock cannot be null");
+    this.stock = stock;
+    setQuantity(quantity);
+    setPricePerShare(pricePerShare);
+  }
+
+  public Stock stock() {
+    return stock;
+  }
+
+  public BigDecimal quantity() {
+    return quantity;
+  }
+
+  public BigDecimal pricePerShare() {
+    return pricePerShare;
+  }
+
+  public ObjectProperty<BigDecimal> quantityProperty() {
+    return quantityProperty;
+  }
+
+  private void setQuantity(BigDecimal quantity) {
     Objects.requireNonNull(quantity, "Quantity cannot be null");
-    Objects.requireNonNull(pricePerShare, "Price per share cannot be null");
     if (!InputValidator.isBigDecimalValuePositive(quantity)) {
       throw new IllegalArgumentException("Quantity must be positive");
     }
+    this.quantity = quantity;
+    this.quantityProperty.set(quantity);
+  }
+
+  private void setPricePerShare(BigDecimal pricePerShare) {
+    Objects.requireNonNull(pricePerShare, "Price per share cannot be null");
     if (!InputValidator.isBigDecimalValuePositive(pricePerShare)) {
       throw new IllegalArgumentException("PricePerShare must be positive");
     }
+    this.pricePerShare = pricePerShare;
   }
 
   /**
-   * Sell share. Generates a new share with quantity amount less
+   * Sell shares, reducing the held quantity.
    *
-   * @param quantity the quantity to subtract from the shares
-   * @return the share with new quantity
+   * @param quantity the quantity to sell
+   * @throws IllegalArgumentException if quantity exceeds held amount
    */
-  public Share sell(BigDecimal quantity) {
+  public void sell(BigDecimal quantity) {
     validateQuantity(quantity);
-    return new Share(stock, this.quantity.subtract(quantity), pricePerShare);
+    setQuantity(this.quantity.subtract(quantity));
   }
 
-  public Share buy(BigDecimal quantity, BigDecimal pricePerShare) {
+  /**
+   * Buy more shares, updating quantity and recalculating weighted average price.
+   *
+   * @param quantity      the quantity to buy
+   * @param pricePerShare the price per share of the new purchase
+   */
+  public void buy(BigDecimal quantity, BigDecimal pricePerShare) {
+    Objects.requireNonNull(pricePerShare, "Price per share cannot be null");
+    if (!InputValidator.isBigDecimalValuePositive(pricePerShare)) {
+      throw new IllegalArgumentException("PricePerShare must be positive");
+    }
     validateQuantity(quantity);
     BigDecimal newPricePerShare = this.quantity.multiply(this.pricePerShare)
         .add(quantity.multiply(pricePerShare))
         .divide(this.quantity.add(quantity), 10, RoundingMode.HALF_EVEN);
-    return new Share(stock, this.quantity.add(quantity), newPricePerShare);
+    setQuantity(this.quantity.add(quantity));
+    setPricePerShare(newPricePerShare);
   }
 
   private void validateQuantity(BigDecimal quantity) {

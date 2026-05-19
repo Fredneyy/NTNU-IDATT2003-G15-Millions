@@ -5,10 +5,6 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.model.Stock;
 
@@ -19,10 +15,6 @@ import java.util.function.BiConsumer;
 
 public class BuyStockDialog extends TransactionDialog {
 
-  private final Label maxStockAmountLabel = new Label("Max: 0");
-  private final Label totalCost = new Label();
-  private final Label availableCash = new Label();
-  private final Label cashAfterTransaction = new Label();
   private final BiConsumer<Stock, BigDecimal> onConfirm;
 
   private ChangeListener<BigDecimal> remainingSignListener;
@@ -32,10 +24,12 @@ public class BuyStockDialog extends TransactionDialog {
                         BiConsumer<Stock, BigDecimal> onConfirm) {
     super(cashProperty);
     this.onConfirm = Objects.requireNonNull(onConfirm);
-    availableCash.textProperty().bind(Bindings.createStringBinding(
+    summaryLabel2.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(cashProperty.getValue()), cashProperty));
     assembleBody();
-    quantityField.textProperty().addListener((_, _, nv) -> qtyValue.set(parseQuantity(nv)));
+    summaryTextLabel1.setText("Total Cost");
+    summaryTextLabel3.setText("Remaining");
+    summaryTextLabel2.setText("Available");
   }
 
   public void show(StackPane root, Stock stock) {
@@ -48,65 +42,6 @@ public class BuyStockDialog extends TransactionDialog {
       root.getChildren().add(dialog);
       openAnimation.play();
     }
-  }
-
-  @Override
-  protected VBox buildMenu() {
-    Label labelInfo = new Label("Current Price");
-    labelInfo.getStyleClass().add("buy-stat-title");
-    currentPrice.getStyleClass().add("buy-stat-price");
-    VBox priceContainer = new VBox(labelInfo, currentPrice);
-    priceContainer.getStyleClass().add("buy-card");
-
-    Label quantityLabel = new Label("Quantity");
-    quantityLabel.getStyleClass().add("buy-section-label");
-    quantityField.setPromptText("Input amount...");
-    quantityField.getStyleClass().add("buy-quantity-input");
-    HBox.setHgrow(quantityField, Priority.ALWAYS);
-
-    maxButton.getStyleClass().add("buy-max-button");
-
-    HBox inputHBox = new HBox(quantityField, maxButton);
-    inputHBox.getStyleClass().add("buy-quantity-row");
-
-    maxStockAmountLabel.getStyleClass().add("buy-max-hint");
-
-    VBox quantityContainer = new VBox(quantityLabel, inputHBox, maxStockAmountLabel);
-    quantityContainer.getStyleClass().add("buy-quantity-container");
-
-    HBox costHbox = buildCostBox();
-
-    transactionButton.getStyleClass().add("buy-confirm-button");
-    transactionButton.setMaxWidth(Double.MAX_VALUE);
-
-    VBox container = new VBox(priceContainer, quantityContainer, costHbox, transactionButton);
-    container.getStyleClass().add("buy-content");
-    return container;
-  }
-
-  private HBox buildCostBox() {
-    Label costTextLabel = new Label("Total Cost");
-    Label availableTextLabel = new Label("Available Cash");
-    Label remainingTextLabel = new Label("Remaining");
-    costTextLabel.getStyleClass().add("buy-cost-label-major");
-    availableTextLabel.getStyleClass().add("buy-cost-label");
-    remainingTextLabel.getStyleClass().add("buy-cost-label");
-    VBox costContainerText = new VBox(costTextLabel, availableTextLabel, remainingTextLabel);
-    costContainerText.getStyleClass().add("buy-cost-labels");
-
-    Region spacer = new Region();
-    HBox.setHgrow(spacer, Priority.ALWAYS);
-
-    totalCost.getStyleClass().addAll("buy-cost-value-major");
-    availableCash.getStyleClass().add("buy-cost-value");
-    cashAfterTransaction.getStyleClass().add("buy-cost-value");
-    VBox costContainer = new VBox(totalCost, availableCash, cashAfterTransaction);
-    costContainer.getStyleClass().add("buy-cost-values");
-    costContainer.setAlignment(Pos.CENTER_RIGHT);
-
-    HBox row = new HBox(costContainerText, spacer, costContainer);
-    row.getStyleClass().add("buy-cost-card");
-    return row;
   }
 
   protected void bindToStock(Stock stock) {
@@ -131,8 +66,8 @@ public class BuyStockDialog extends TransactionDialog {
       return cash.divide(p, 0, RoundingMode.DOWN).max(BigDecimal.ZERO);
     }, cashProperty, price);
 
-    maxStockAmountLabel.textProperty().unbind();
-    maxStockAmountLabel.textProperty().bind(Bindings.createStringBinding(
+    amountLabel.textProperty().unbind();
+    amountLabel.textProperty().bind(Bindings.createStringBinding(
         () -> "Max: " + maxBuyable.get().toPlainString(), maxBuyable));
 
     ObjectBinding<BigDecimal> totalCostValue = Bindings.createObjectBinding(() -> {
@@ -142,8 +77,8 @@ public class BuyStockDialog extends TransactionDialog {
       return p.multiply(q);
     }, price, qtyValue);
 
-    totalCost.textProperty().unbind();
-    totalCost.textProperty().bind(Bindings.createStringBinding(
+    summaryLabel1.textProperty().unbind();
+    summaryLabel1.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(totalCostValue.get()), totalCostValue));
 
     ObjectBinding<BigDecimal> remainingValue = Bindings.createObjectBinding(() -> {
@@ -152,8 +87,8 @@ public class BuyStockDialog extends TransactionDialog {
       return cash.subtract(totalCostValue.get());
     }, cashProperty, totalCostValue);
 
-    cashAfterTransaction.textProperty().unbind();
-    cashAfterTransaction.textProperty().bind(Bindings.createStringBinding(
+    summaryLabel3.textProperty().unbind();
+    summaryLabel3.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(remainingValue.get()), remainingValue));
 
     BooleanBinding cannotBuy = Bindings.createBooleanBinding(() -> {
@@ -188,8 +123,8 @@ public class BuyStockDialog extends TransactionDialog {
   }
 
   private void updateRemainingStyle(BigDecimal v) {
-    cashAfterTransaction.getStyleClass().removeAll("value-positive", "value-negative");
+    summaryLabel3.getStyleClass().removeAll("value-positive", "value-negative");
     if (v == null) return;
-    cashAfterTransaction.getStyleClass().add(v.signum() >= 0 ? "value-positive" : "value-negative");
+    summaryLabel3.getStyleClass().add(v.signum() >= 0 ? "value-positive" : "value-negative");
   }
 }

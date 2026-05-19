@@ -139,16 +139,24 @@ public class Exchange {
    * Executes a sale transaction transferring a held share back to the exchange.
    *
    * @param share the share to sell
+   * @param amount the amount to sell
    * @param player the player that sells
    * @return the {@code Sale}
    */
-  public Sale sell(Share share, BigDecimal amount, Player player) throws NullPointerException, IllegalArgumentException{
+  public void sell(Share share, BigDecimal amount, Player player) {
     Objects.requireNonNull(share, "Share cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
     Objects.requireNonNull(amount, "Amount cannot be null");
-    Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, week.get());
-    tx.commit(player, commission, tax);
-    return tx;
+
+    if (share.quantity().compareTo(amount) == 0) {
+      Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, week.get());
+      tx.commit(player, commission, tax);
+    } else {
+      Share sellLot = new Share(share.stock(), amount, share.pricePerShare());
+      share.sell(amount);
+      Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, sellLot, week.get());
+      tx.commit(player, commission, tax);
+    }
   }
 
   /** Commission rate charged on each transaction. */

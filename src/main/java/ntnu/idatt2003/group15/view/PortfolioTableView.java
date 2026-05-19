@@ -104,7 +104,7 @@ public class PortfolioTableView {
         styleCellsAs(companyCol, "col-company");
 
         TableColumn<Share, BigDecimal> qtyCol = new TableColumn<>("Quantity");
-        qtyCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().quantity()));
+        qtyCol.setCellValueFactory(c -> c.getValue().quantityProperty());
         qtyCol.setCellFactory(_ -> quantityCell());
         styleCellsAs(qtyCol, "col-quantity");
 
