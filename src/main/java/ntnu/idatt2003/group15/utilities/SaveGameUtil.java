@@ -96,9 +96,9 @@ public final class SaveGameUtil {
     StringJoiner j = new StringJoiner(", ", "{", "}");
     boolean sell = tx instanceof Sale;
     j.add(field("type", quote(sell ? "SELL" : "BUY")));
-    j.add(field("symbol", quote(tx.getShare().getStock().getSymbol())));
-    j.add(field("quantity", number(tx.getShare().getQuantity())));
-    j.add(field("pricePerShare", number(tx.getShare().getPricePerShare())));
+    j.add(field("symbol", quote(tx.getShare().stock().getSymbol())));
+    j.add(field("quantity", number(tx.getShare().quantity())));
+    j.add(field("pricePerShare", number(tx.getShare().pricePerShare())));
     j.add(field("week", number(tx.getWeek())));
     j.add(field("committedAt",
         tx.getCommittedAt() == null ? "null" : quote(tx.getCommittedAt().toString())));
@@ -118,9 +118,9 @@ public final class SaveGameUtil {
     StringJoiner arr = new StringJoiner(", ", "[", "]");
     for (Share share : shares) {
       StringJoiner s = new StringJoiner(", ", "{", "}");
-      s.add(field("symbol", quote(share.getStock().getSymbol())));
-      s.add(field("quantity", number(share.getQuantity())));
-      s.add(field("pricePerShare", number(share.getPricePerShare())));
+      s.add(field("symbol", quote(share.stock().getSymbol())));
+      s.add(field("quantity", number(share.quantity())));
+      s.add(field("pricePerShare", number(share.pricePerShare())));
       arr.add(s.toString());
     }
     return arr.toString();

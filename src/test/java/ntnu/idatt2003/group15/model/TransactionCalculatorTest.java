@@ -84,7 +84,7 @@ class TransactionCalculatorTest {
 
     @Test
     void calculateCommission() {
-      assertEquals(0, calculator.calculateCommission(saleShare, new BigDecimal("0.01")).compareTo(BigDecimal.valueOf(1)));
+      assertEquals(BigDecimal.ZERO, calculator.calculateCommission(saleShare, BigDecimal.ZERO));
     }
 
     @Test

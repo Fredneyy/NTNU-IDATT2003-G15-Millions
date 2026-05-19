@@ -142,18 +142,18 @@ public class StatsView {
         symbolCol.getStyleClass().add("col-h-symbol");
 
         TableColumn<Share, BigDecimal> qtyCol = new TableColumn<>("Quantity");
-        qtyCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getQuantity()));
+        qtyCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().quantity()));
         qtyCol.setCellFactory(_ -> plainCell(v -> v.stripTrailingZeros().toPlainString()));
         qtyCol.getStyleClass().add("col-h-qty");
 
         TableColumn<Share, BigDecimal> avgBuyCol = new TableColumn<>("Avg Buy");
-        avgBuyCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getPricePerShare()));
+        avgBuyCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().pricePerShare()));
         avgBuyCol.setCellFactory(_ -> moneyCell());
         avgBuyCol.getStyleClass().add("col-h-avgbuy");
 
         TableColumn<Share, BigDecimal> currentCol = new TableColumn<>("Current");
         currentCol.setCellValueFactory(c ->
-                new ReadOnlyObjectWrapper<>(c.getValue().getStock().getSalesPrice()));
+                new ReadOnlyObjectWrapper<>(c.getValue().stock().getSalesPrice()));
         currentCol.setCellFactory(_ -> moneyCell());
         currentCol.getStyleClass().add("col-h-current");
 
@@ -161,7 +161,7 @@ public class StatsView {
         valueCol.setCellValueFactory(c -> {
             Share s = c.getValue();
             return new ReadOnlyObjectWrapper<>(
-                    s.getStock().getSalesPrice().multiply(s.getQuantity()));
+                    s.stock().getSalesPrice().multiply(s.quantity()));
         });
         valueCol.setCellFactory(_ -> moneyCell());
         valueCol.getStyleClass().add("col-h-value");
@@ -203,8 +203,8 @@ public class StatsView {
                     setGraphic(null);
                     return;
                 }
-                sym.setText(share.getStock().getSymbol());
-                company.setText(share.getStock().getCompany());
+                sym.setText(share.stock().getSymbol());
+                company.setText(share.stock().getCompany());
                 setGraphic(box);
             }
         };
@@ -232,9 +232,9 @@ public class StatsView {
                     setGraphic(null);
                     return;
                 }
-                BigDecimal avgBuy = share.getPricePerShare();
-                BigDecimal current = share.getStock().getSalesPrice();
-                BigDecimal qty = share.getQuantity();
+                BigDecimal avgBuy = share.pricePerShare();
+                BigDecimal current = share.stock().getSalesPrice();
+                BigDecimal qty = share.quantity();
                 BigDecimal pl = current.subtract(avgBuy).multiply(qty);
                 int sign = pl.signum();
                 BigDecimal pct = avgBuy.signum() == 0 ? BigDecimal.ZERO

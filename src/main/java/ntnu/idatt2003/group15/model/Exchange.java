@@ -3,8 +3,6 @@ package ntnu.idatt2003.group15.model;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import com.sun.jdi.IntegerValue;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
@@ -25,7 +23,7 @@ public class Exchange {
   private final Map<String, Stock> stockMap;
   private final StockSimulator simulator = new StockSimulator(SIMULATOR_DT);
   private final BigDecimal commission = new BigDecimal("0.01");
-  private final BigDecimal tax = new BigDecimal("0.22");
+  private final BigDecimal tax = new BigDecimal("0.37");
 
   /**
    * Initializes a new stock exchange with the given name and collection of initial stocks.
@@ -58,11 +56,6 @@ public class Exchange {
     simulator.setVolatilityMultiplier(multiplier);
   }
 
-  /**
-   * Retrieves the current simulation week of the exchange.
-   *
-   * @return the current week
-   */
   /** Restore the simulation week (used when loading a saved game). */
   public void setWeek(int week) {
     this.week.set(week);
@@ -123,33 +116,43 @@ public class Exchange {
    * @param symbol the symbol of the stock
    * @param quantity the amount to purchase
    * @param player the player
-   * @return the {@code Purchase}
    */
-  public Purchase buy(String symbol, BigDecimal quantity, Player player)
-      throws NullPointerException {
+  public void buy(String symbol, BigDecimal quantity, Player player) {
     Objects.requireNonNull(symbol, "Symbol cannot be null");
     Objects.requireNonNull(quantity, "Quantity cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
     Stock stock = getStock(symbol);
+
+    Share existing = player.getPortfolio().getShare(symbol);
     Share share = new Share(stock, quantity, stock.getSalesPrice());
+    if (existing != null) {
+      existing.buy(quantity, stock.getSalesPrice());
+    }
     Purchase tx = (Purchase) TransactionFactory.createTransaction(TransactionType.PURCHASE, share, week.get());
     tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
-    return tx;
   }
 
   /**
    * Executes a sale transaction transferring a held share back to the exchange.
    *
    * @param share the share to sell
+   * @param amount the amount to sell
    * @param player the player that sells
-   * @return the {@code Sale}
    */
-  public Sale sell(Share share, Player player) throws NullPointerException {
+  public void sell(Share share, BigDecimal amount, Player player) {
     Objects.requireNonNull(share, "Share cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
-    Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, week.get());
-    tx.commit(player, commission, tax);
-    return tx;
+    Objects.requireNonNull(amount, "Amount cannot be null");
+
+    if (share.quantity().compareTo(amount) == 0) {
+      Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, week.get());
+      tx.commit(player, commission, tax);
+    } else {
+      Share sellLot = new Share(share.stock(), amount, share.pricePerShare());
+      share.sell(amount);
+      Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, sellLot, week.get());
+      tx.commit(player, commission, tax);
+    }
   }
 
   /** Commission rate charged on each transaction. */

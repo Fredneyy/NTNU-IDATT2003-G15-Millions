@@ -2,10 +2,8 @@ package ntnu.idatt2003.group15.view;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
@@ -42,11 +40,11 @@ public class PortfolioTableView {
     private final TableView<Share> table = new TableView<>();
     private final PortfolioController portfolioController;
     private final FilteredList<Share> filtered;
-    private final Consumer<Stock> onSellPressed;
+    private final Consumer<Share> onSellPressed;
     private final Consumer<Stock> onChartPressed;
 
     public PortfolioTableView(PortfolioController portfolioController,
-                              Consumer<Stock> onSellPressed,
+                              Consumer<Share> onSellPressed,
                               Consumer<Stock> onChartPressed) {
         this.portfolioController = Objects.requireNonNull(portfolioController);
         this.onSellPressed = onSellPressed;
@@ -95,7 +93,6 @@ public class PortfolioTableView {
                 () -> formatMoney(totalValue.getValue()), totalValue));
     }
 
-    @SuppressWarnings("unchecked")
     private void buildTable() {
         TableColumn<Share, Share> symbolCol = new TableColumn<>("Symbol");
         symbolCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
@@ -103,16 +100,16 @@ public class PortfolioTableView {
         styleCellsAs(symbolCol, "col-symbol");
 
         TableColumn<Share, String> companyCol = new TableColumn<>("Company");
-        companyCol.setCellValueFactory(c -> c.getValue().getStock().companyProperty());
+        companyCol.setCellValueFactory(c -> c.getValue().stock().companyProperty());
         styleCellsAs(companyCol, "col-company");
 
         TableColumn<Share, BigDecimal> qtyCol = new TableColumn<>("Quantity");
-        qtyCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getQuantity()));
+        qtyCol.setCellValueFactory(c -> c.getValue().quantityProperty());
         qtyCol.setCellFactory(_ -> quantityCell());
         styleCellsAs(qtyCol, "col-quantity");
 
         TableColumn<Share, BigDecimal> priceCol = new TableColumn<>("Price");
-        priceCol.setCellValueFactory(c -> c.getValue().getStock().getPriceBinding());
+        priceCol.setCellValueFactory(c -> c.getValue().stock().getPriceBinding());
         priceCol.setCellFactory(_ -> moneyCell());
         styleCellsAs(priceCol, "col-price");
 
@@ -120,8 +117,8 @@ public class PortfolioTableView {
         totalCol.setCellValueFactory(c -> {
             Share s = c.getValue();
             return Bindings.createObjectBinding(
-                    () -> s.getStock().getSalesPrice().multiply(s.getQuantity()),
-                    s.getStock().getPriceBinding());
+                    () -> s.stock().getSalesPrice().multiply(s.quantity()),
+                    s.stock().getPriceBinding());
         });
         totalCol.setCellFactory(_ -> moneyCell());
         styleCellsAs(totalCol, "col-total");
@@ -129,7 +126,7 @@ public class PortfolioTableView {
         TableColumn<Share, Share> changeCol = new TableColumn<>("Change");
         changeCol.setCellValueFactory(c -> {
             Share s = c.getValue();
-            return Bindings.createObjectBinding(() -> s, s.getStock().getPriceBinding());
+            return Bindings.createObjectBinding(() -> s, s.stock().getPriceBinding());
         });
         changeCol.setCellFactory(_ -> combinedChangeCell());
         styleCellsAs(changeCol, "col-change");
@@ -179,7 +176,7 @@ public class PortfolioTableView {
                     setGraphic(null);
                     return;
                 }
-                String sym = share.getStock().getSymbol();
+                String sym = share.stock().getSymbol();
                 avatarLabel.setText(sym.length() >= 2 ? sym.substring(0, 2) : sym);
                 symbolLabel.setText(sym);
                 setGraphic(wrapper);
@@ -236,7 +233,7 @@ public class PortfolioTableView {
                     setGraphic(null);
                     return;
                 }
-                Stock stock = share.getStock();
+                Stock stock = share.stock();
                 BigDecimal delta = stock.getLatestPriceChange();
                 BigDecimal pct = stock.getLatestPriceChangeRelative().movePointRight(2);
                 int sign = delta.signum();
@@ -253,7 +250,7 @@ public class PortfolioTableView {
         };
     }
 
-    private static TableCell<Share, Share> sellButtonCell(Consumer<Stock> onSell,
+    private static TableCell<Share, Share> sellButtonCell(Consumer<Share> onSell,
                                                           Consumer<Stock> onChart) {
         return new TableCell<>() {
             private final Button graphButton = new Button();
@@ -264,13 +261,13 @@ public class PortfolioTableView {
                 graphButton.getStyleClass().add("market-graph-button");
                 graphButton.setOnAction(_ -> {
                     Share s = getItem();
-                    if (s != null && onChart != null) onChart.accept(s.getStock());
+                    if (s != null && onChart != null) onChart.accept(s.stock());
                 });
 
                 sellButton.getStyleClass().add("market-sell-button");
                 sellButton.setOnAction(_ -> {
                     Share s = getItem();
-                    if (s != null && onSell != null) onSell.accept(s.getStock());
+                    if (s != null && onSell != null) onSell.accept(s);
                 });
 
                 wrapper.getStyleClass().add("market-action-cell");
@@ -298,7 +295,7 @@ public class PortfolioTableView {
         }
         String q = query.trim().toLowerCase();
         filtered.setPredicate(s ->
-                s.getStock().getSymbol().toLowerCase().contains(q)
-                        || s.getStock().getCompany().toLowerCase().contains(q));
+                s.stock().getSymbol().toLowerCase().contains(q)
+                        || s.stock().getCompany().toLowerCase().contains(q));
     }
 }

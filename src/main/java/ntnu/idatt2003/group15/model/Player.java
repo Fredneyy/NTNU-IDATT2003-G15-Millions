@@ -20,7 +20,7 @@ public class Player {
   private final BigDecimal startingMoney;
   private final Portfolio portfolio = new Portfolio();
   private final TransactionArchive transactionArchive = new TransactionArchive();
-  private ObjectProperty<PlayerStatus> status;
+  private final ObservableValue<PlayerStatus> status;
   private final ObjectBinding<BigDecimal> netWorthBinding;
   private final ObjectBinding<BigDecimal> netWorthChangeBinding;
   private final ObjectBinding<BigDecimal> netWorthChangePercentBinding;
@@ -166,16 +166,7 @@ public class Player {
    *
    * @return the status property of the player
    */
-  public ObjectProperty<PlayerStatus> statusProperty() {
+  public ObservableValue<PlayerStatus> statusProperty() {
     return status;
-  }
-
-  /**
-   * Returns the current status of the player.
-   *
-   * @return the current status of the player
-   */
-  public PlayerStatus getStatus() {
-    return status.get();
   }
 }

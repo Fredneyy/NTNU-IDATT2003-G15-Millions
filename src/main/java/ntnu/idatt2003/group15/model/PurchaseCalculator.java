@@ -16,7 +16,7 @@ public class PurchaseCalculator implements TransactionCalculator {
    */
   public BigDecimal calculateGross(Share share) {
     Objects.requireNonNull(share, "Share cannot be null");
-    return share.getPricePerShare().multiply(share.getQuantity());
+    return share.pricePerShare().multiply(share.quantity());
   }
 
   /**

@@ -246,8 +246,8 @@ public class MarketTableView {
         BigDecimal total = BigDecimal.ZERO;
         String symbol = stock.getSymbol();
         for (Share share : shares) {
-            if (share.getStock().getSymbol().equalsIgnoreCase(symbol)) {
-                total = total.add(share.getQuantity());
+            if (share.stock().getSymbol().equalsIgnoreCase(symbol)) {
+                total = total.add(share.quantity());
             }
         }
         return total;

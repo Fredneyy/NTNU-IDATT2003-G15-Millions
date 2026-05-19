@@ -2,7 +2,9 @@ package ntnu.idatt2003.group15.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javafx.beans.binding.Bindings;
@@ -18,6 +20,7 @@ import javafx.collections.ObservableList;
 public class Portfolio {
 
   private final ObservableList<Share> shares = FXCollections.observableArrayList();
+  private final Map<String, Share> shareIndex = new HashMap<>();
 
   private final ObjectBinding<BigDecimal> totalMarketValueBinding = new ObjectBinding<>() {
     {
@@ -25,10 +28,10 @@ public class Portfolio {
       shares.addListener((ListChangeListener<Share>) change -> {
         while (change.next()) {
           for (Share removed : change.getRemoved()) {
-            unbind(removed.getStock().getPriceBinding());
+            unbind(removed.stock().getPriceBinding());
           }
           for (Share added : change.getAddedSubList()) {
-            bind(added.getStock().getPriceBinding());
+            bind(added.stock().getPriceBinding());
           }
         }
       });
@@ -40,7 +43,6 @@ public class Portfolio {
     }
   };
 
-  // Cost basis is purely structural: only invalidates on add/remove, never on price ticks.
   private final ObjectBinding<BigDecimal> investedBinding =
       Bindings.createObjectBinding(this::computeInvested, shares);
 
@@ -90,18 +92,20 @@ public class Portfolio {
   private BigDecimal computeInvested() {
     BigDecimal total = BigDecimal.ZERO;
     for (Share currentShare : shares) {
-      total = total.add(currentShare.getPricePerShare().multiply(currentShare.getQuantity()));
+      total = total.add(currentShare.pricePerShare().multiply(currentShare.quantity()));
     }
     return total;
   }
+
   /**
    * Adds a purchased share to the portfolio holding.
    *
-   * @param inputShare the share to add to portfolia
+   * @param inputShare the share to add to portfolio
    * @return {@code true} if added, {@code false} otherwise
    */
   public boolean addShare(Share inputShare) throws NullPointerException {
     Objects.requireNonNull(inputShare, "Share cannot be null");
+    shareIndex.put(inputShare.stock().getSymbol(), inputShare);
     return shares.add(inputShare);
   }
 
@@ -113,7 +117,19 @@ public class Portfolio {
    */
   public boolean removeShare(Share inputShare) throws NullPointerException {
     Objects.requireNonNull(inputShare, "Share cannot be null");
+    shareIndex.remove(inputShare.stock().getSymbol());
     return shares.remove(inputShare);
+  }
+
+  /**
+   * Returns the share matching the given symbol, or {@code null} if not held.
+   *
+   * @param symbol the stock symbol to look up
+   * @return the matching {@link Share}, or {@code null}
+   */
+  public Share getShare(String symbol) throws NullPointerException {
+    Objects.requireNonNull(symbol, "Symbol cannot be null");
+    return shareIndex.get(symbol);
   }
 
   /**
@@ -135,23 +151,10 @@ public class Portfolio {
   }
 
   /**
-   * Returns a list of held shares that match the given stock symbol.
-   *
-   * @param symbol the symbol to search for
-   * @return a {@code List} containing shares with matching symbol
-   */
-  public List<Share> getShares(String symbol) throws NullPointerException {
-    Objects.requireNonNull(symbol, "Symbol cannot be null");
-    return shares.stream()
-        .filter(share -> share.getStock().getSymbol().equalsIgnoreCase(symbol))
-        .toList();
-  }
-
-  /**
    * Checks if the exact given share instance is held in this portfolio.
    *
    * @param inputShare check if share is in the portfolio
-   * @return {@code true} if portfolio contains,{@code false} otherwise
+   * @return {@code true} if portfolio contains, {@code false} otherwise
    */
   public boolean contains(Share inputShare) throws NullPointerException {
     Objects.requireNonNull(inputShare, "Share cannot be null");

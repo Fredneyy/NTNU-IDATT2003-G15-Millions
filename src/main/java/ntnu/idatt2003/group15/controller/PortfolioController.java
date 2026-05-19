@@ -37,8 +37,8 @@ public class PortfolioController {
     return portfolio.getTotalMarketValueProperty();
   }
 
-  public List<Share> getShares(String symbol) {
-    return portfolio.getShares(symbol);
+  public Share getShares(String symbol) {
+    return portfolio.getShare(symbol);
   }
 
   public boolean contains(Share inputShare) {

@@ -43,13 +43,9 @@ public class StatsController {
     player.getTransactionArchive().getTransactionsProperty()
         .addListener((ListChangeListener<Transaction>) _ -> refresh());
 
-    // React to holdings changes (e.g. mark-to-market updates that move
-    // unrealized P/L and total return).
     player.getPortfolio().getListProperty()
         .addListener((ListChangeListener<Share>) _ -> refresh());
 
-    // React to net-worth movement so total-return stays in sync between trades
-    // as stock prices tick.
     ChangeListener<Object> any = (_, _, _) -> refresh();
     exchange.netWorthProperty().addListener(any);
     exchange.unrealizedPnlProperty().addListener(any);
@@ -67,13 +63,13 @@ public class StatsController {
     Map<String, BigDecimal> volumeBySymbol = new HashMap<>();
 
     for (Transaction tx : txs) {
-      BigDecimal qty = tx.getShare().getQuantity();
-      String symbol = tx.getShare().getStock().getSymbol();
+      BigDecimal qty = tx.getShare().quantity();
+      String symbol = tx.getShare().stock().getSymbol();
 
       if (tx instanceof Sale s) {
         sells++;
         BigDecimal salePrice = s.getSalePricePerShare();
-        BigDecimal tradeValue = (salePrice == null ? tx.getShare().getPricePerShare() : salePrice)
+        BigDecimal tradeValue = (salePrice == null ? tx.getShare().pricePerShare() : salePrice)
             .multiply(qty);
         volume = volume.add(tradeValue);
         volumeBySymbol.merge(symbol, tradeValue, BigDecimal::add);
@@ -84,7 +80,7 @@ public class StatsController {
         else if (pnl.signum() < 0) losses++;
       } else if (tx instanceof Purchase) {
         buys++;
-        BigDecimal tradeValue = tx.getShare().getPricePerShare().multiply(qty);
+        BigDecimal tradeValue = tx.getShare().pricePerShare().multiply(qty);
         volume = volume.add(tradeValue);
         volumeBySymbol.merge(symbol, tradeValue, BigDecimal::add);
       }

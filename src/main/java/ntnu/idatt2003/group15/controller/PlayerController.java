@@ -3,6 +3,7 @@ package ntnu.idatt2003.group15.controller;
 import java.math.BigDecimal;
 import java.util.Objects;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ObservableValue;
 import ntnu.idatt2003.group15.model.Player;
 import ntnu.idatt2003.group15.model.PlayerStatus;
 import ntnu.idatt2003.group15.model.Portfolio;
@@ -52,11 +53,11 @@ public class PlayerController {
     return player.getNetWorth();
   }
 
-  public ObjectProperty<PlayerStatus> statusProperty() {
+  public ObservableValue<PlayerStatus> statusProperty() {
     return player.statusProperty();
   }
 
   public PlayerStatus getStatus() {
-    return player.getStatus();
+    return player.statusProperty().getValue();
   }
 }
