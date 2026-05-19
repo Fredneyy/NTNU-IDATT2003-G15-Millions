@@ -56,11 +56,6 @@ public class Exchange {
     simulator.setVolatilityMultiplier(multiplier);
   }
 
-  /**
-   * Retrieves the current simulation week of the exchange.
-   *
-   * @return the current week
-   */
   /** Restore the simulation week (used when loading a saved game). */
   public void setWeek(int week) {
     this.week.set(week);
