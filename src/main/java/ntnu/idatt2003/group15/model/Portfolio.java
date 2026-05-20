@@ -7,19 +7,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.util.Callback;
 
 /**
  * Manages a collection of stock holdings for a specific player.
  */
 public class Portfolio {
 
-  private final ObservableList<Share> shares = FXCollections.observableArrayList();
+  private final ObservableList<Share> shares = FXCollections.observableArrayList(
+      new Callback<Share, Observable[]>() {
+        @Override
+        public Observable[] call(Share share) {
+          return new Observable[]{
+              share.quantityProperty(),
+              share.stock().getPriceBinding()
+          };
+        }
+      }
+  );
   private final Map<String, Share> shareIndex = new HashMap<>();
 
   private final ObjectBinding<BigDecimal> totalMarketValueBinding = new ObjectBinding<>() {

@@ -233,7 +233,7 @@ public class GameView {
   public void pushItem(NewsItem item) {
     NewsItem stamped = ensureStamped(item);
 
-    NewsDialog dialog = new NewsDialog(Duration.seconds(25));
+    NewsDialog dialog = new NewsDialog(Duration.seconds(10));
     dialog.setSentiment(stamped.sentiment());
     dialog.setSymbol(stamped.sector() == null ? null : stamped.sector().getLabel());
     dialog.setChangePercent(stamped.changePercent());

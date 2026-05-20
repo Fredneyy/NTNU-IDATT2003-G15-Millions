@@ -104,14 +104,14 @@ public class MainController {
   private void startPriceTicker(ExchangeController exchangeController) {
     stopPriceTicker();
     priceTicker = new Timeline(new KeyFrame(
-        Duration.seconds(5), _ -> {
+        Duration.seconds(2), _ -> {
           exchangeController.advanceWeek();
           newsController.advanceWeek();
     }));
     priceTicker.setCycleCount(Animation.INDEFINITE);
     priceTicker.play();
     Timeline timeline = new Timeline(new KeyFrame(
-        Duration.seconds(5), _ -> {
+        Duration.seconds(10), _ -> {
           newsController.publish();
     }));
     timeline.setCycleCount(Animation.INDEFINITE);
@@ -154,7 +154,7 @@ public class MainController {
 
     newsController.addNewsItem(new NewsItem(
         NewsDialog.Sentiment.NEUTRAL,
-        null,
+        StockSectors.CONSUMER,
         null,
         null,
         "Market update",
@@ -192,7 +192,7 @@ public class MainController {
 
     newsController.addNewsItem(new NewsItem(
         NewsDialog.Sentiment.NEUTRAL,
-        null,
+        StockSectors.FINANCIALS,
         null,
         null,
         "Market updad",
