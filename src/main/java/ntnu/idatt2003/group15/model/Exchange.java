@@ -3,9 +3,13 @@ package ntnu.idatt2003.group15.model;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 import ntnu.idatt2003.group15.model.factories.TransactionFactory;
 import ntnu.idatt2003.group15.model.factories.TransactionType;
@@ -24,6 +28,8 @@ public class Exchange {
   private final StockSimulator simulator = new StockSimulator(SIMULATOR_DT);
   private final BigDecimal commission = new BigDecimal("0.01");
   private final BigDecimal tax = new BigDecimal("0.37");
+  private double volatilityMultiplier = 1.0;
+  private ObservableList<NewsItem> news = FXCollections.observableArrayList();
 
   /**
    * Initializes a new stock exchange with the given name and collection of initial stocks.
@@ -34,12 +40,21 @@ public class Exchange {
   public Exchange(String name, List<Stock> stocks)
       throws BlankArgumentException, NullPointerException {
     Objects.requireNonNull(name, "name cannot be null");
+    this.news = Objects.requireNonNull(news, "news cannot be null");
     if (name.isBlank()) {
       throw new BlankArgumentException("Name cannot be blank");
     }
     Objects.requireNonNull(stocks, "stocks cannot be null");
     this.name = name;
     this.stockMap = stocks.stream().collect(Collectors.toMap(Stock::getSymbol, stock -> stock));
+  }
+
+  /**
+   * Sets the news events observable for applying changed stock drift, volatility etc
+   * @param news the list to watch for events
+   */
+  public void setNewsObservableList(ObservableList<NewsItem> news) {
+    this.news = Objects.requireNonNull(news, "news cannot be null");
   }
 
   /**
@@ -54,6 +69,10 @@ public class Exchange {
   /** Restore the simulation week (used when loading a saved game). */
   public void setWeek(int week) {
     this.week.set(week);
+  }
+
+  public void setVolatilityMultiplier(double volatilityMultiplier) {
+    this.volatilityMultiplier = volatilityMultiplier;
   }
 
   public ObservableIntegerValue getWeekProperty() {
@@ -167,7 +186,7 @@ public class Exchange {
   public void advance() {
     week.set(week.get() + 1);
     for (Stock stock : stockMap.values()) {
-      BigDecimal next = simulator.nextPrice(stock);
+      BigDecimal next = simulator.nextPrice(stock, volatilityMultiplier);
       if (next.signum() > 0) {
         stock.addNewSalesPrice(next);
       }

@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -35,18 +36,34 @@ public class NewsFeedView {
     private final VBox rowsContainer = new VBox();
 
     private final ObservableList<NewsItem> events = FXCollections.observableArrayList();
+    private final HashMap<NewsItem, NewsRow> rows = new HashMap<>();
 
     public NewsFeedView() {
         view.getStyleClass().add("news-card");
         view.getChildren().addAll(buildHeader(), buildBody());
 
-        events.addListener((ListChangeListener<NewsItem>) _ -> rebuildRows());
+        events.addListener((ListChangeListener<NewsItem>) change -> {
+            if (change.next()) {
+                if (change.wasAdded()) {
+                    for (NewsItem item : change.getAddedSubList()) {
+                        NewsRow newsRow =  new NewsRow(item, false);
+                        rows.put(item, newsRow);
+                        rowsContainer.getChildren().add(newsRow.root);
+                    }
+                }
+                if (change.wasRemoved()) {
+                    for (NewsItem item : change.getRemoved()) {
+                        rowsContainer.getChildren().remove(rows.get(item).root);
+                        rows.remove(item);
+                    }
+                }
+            }
+        });
         subtitle.textProperty().bind(Bindings.createStringBinding(
                 () -> events.size() + (events.size() == 1
                         ? " event recorded"
                         : " events recorded"),
                 events));
-        rebuildRows();
     }
 
     private VBox buildHeader() {
@@ -71,25 +88,9 @@ public class NewsFeedView {
         return body;
     }
 
-    private void rebuildRows() {
-        List<Node> nodes = new ArrayList<>(events.size());
-        for (int i = 0; i < events.size(); i++) {
-            nodes.add(new NewsRow(events.get(i), i < events.size() - 1).root);
-        }
-        rowsContainer.getChildren().setAll(nodes);
-    }
-
     public VBox getView() { return view; }
     public ObservableList<NewsItem> getEvents() { return events; }
-    public void setEvents(List<NewsItem> items) { events.setAll(items); }
-
-    /** Insert a single new event at the top of the feed (newest first). NEUTRAL items are skipped. */
-    public void prependEvent(NewsItem item) {
-        if (item == null || item.sentiment() == NewsDialog.Sentiment.NEUTRAL) return;
-        events.add(0, item);
-    }
-
-    // ----- Row layout -----
+    public void setEvents(ObservableList<NewsItem> items) { Bindings.bindContent(events, items); }
 
     private static final class NewsRow {
         final VBox root = new VBox();

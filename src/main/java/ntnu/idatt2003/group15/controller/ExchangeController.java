@@ -182,4 +182,8 @@ public class ExchangeController {
     public void advanceWeek() {
         exchange.advance();
     }
+
+    public void setVolatilityMultiplier(double volatilityMultiplier) {
+        exchange.setVolatilityMultiplier(volatilityMultiplier);
+    }
 }

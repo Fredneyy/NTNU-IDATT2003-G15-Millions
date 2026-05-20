@@ -30,10 +30,10 @@ public class StockSimulator {
    * @param stock the stock being ticked
    * @return the next stock price
    */
-  public BigDecimal nextPrice(Stock stock) {
+  public BigDecimal nextPrice(Stock stock, double volatilityMultiplier) {
     Objects.requireNonNull(stock, "stock cannot be null.");
 
-    return gbmStep(stock.getSalesPrice(), stock.getDrift(), stock.getVolatility());
+    return gbmStep(stock.getSalesPrice(), stock.getDrift(), stock.getVolatility() * volatilityMultiplier);
   }
 
   private BigDecimal gbmStep(BigDecimal currentPrice, double drift, double volatility) {

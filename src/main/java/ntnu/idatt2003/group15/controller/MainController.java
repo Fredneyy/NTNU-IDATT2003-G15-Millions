@@ -10,6 +10,7 @@ import ntnu.idatt2003.group15.utilities.CsvUtil;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;
+import ntnu.idatt2003.group15.view.NewsDialog;
 import ntnu.idatt2003.group15.view.OnBoardingDialog;
 
 import java.math.BigDecimal;
@@ -36,11 +37,11 @@ public class MainController {
     mainMenuController.setGameSettings(gameSettings);
     mainMenuController.setOnGameLoadConsumer(this::resumeGame);
     mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
-    newsController = new NewsController(root, gameSettings);
+    newsController = new NewsController(root, gameSettings, new NewsArchive());
+    seedNews(newsController);
   }
 
   public void showMainMenu() {
-    newsController.stop();
     stopPriceTicker();
     // Clear any blur/effect that may have leaked onto the menu from an open
     // dialog (e.g. logging out while the onboarding overlay is still up).
@@ -83,7 +84,7 @@ public class MainController {
 
   private void enterGame(ExchangeController exchangeController, PlayerController playerController,
                          boolean showOnboarding) {
-    GameView gameView = new GameView(playerController, exchangeController, gameSettings, this::showMainMenu);
+    GameView gameView = new GameView(playerController, exchangeController, gameSettings, this::showMainMenu, newsController);
     gameView.show(root);
     // Take the main menu out of the scene so it can't be blurred (or otherwise
     // affected) by overlays drawn on top of the game view.
@@ -97,22 +98,24 @@ public class MainController {
     gameSettings.volatilityMultiplierProperty().addListener(
         (_, _, v) -> exchangeController.setVolatilityMultiplier(v.doubleValue()));
 
-    newsController.start();
-    newsController.setOnNewsEmitted(item -> {
-      gameView.onNewsEmitted(item);
-      if (item.sector() != null) {
-        exchangeController.applyNews(item);
-      }
-    });
     startPriceTicker(exchangeController);
   }
 
   private void startPriceTicker(ExchangeController exchangeController) {
     stopPriceTicker();
     priceTicker = new Timeline(new KeyFrame(
-        Duration.seconds(5), _ -> exchangeController.advanceWeek()));
+        Duration.seconds(5), _ -> {
+          exchangeController.advanceWeek();
+          newsController.advanceWeek();
+    }));
     priceTicker.setCycleCount(Animation.INDEFINITE);
     priceTicker.play();
+    Timeline timeline = new Timeline(new KeyFrame(
+        Duration.seconds(5), _ -> {
+          newsController.publish();
+    }));
+    timeline.setCycleCount(Animation.INDEFINITE);
+    timeline.play();
   }
 
   private void stopPriceTicker() {
@@ -120,6 +123,85 @@ public class MainController {
       priceTicker.stop();
       priceTicker = null;
     }
+  }
+
+  private void seedNews(NewsController newsController) {
+    newsController.addNewsItem(new NewsItem(
+        NewsDialog.Sentiment.BULLISH,
+        StockSectors.TECHNOLOGY,
+        new BigDecimal("3.5"),
+        new BigDecimal("0.02"),
+        "Tech rally",
+        "Strong earnings lifted tech stocks this week.",
+        new BigDecimal("0.15"),
+        10,
+        "sector",
+        null
+    ));
+
+    newsController.addNewsItem(new NewsItem(
+        NewsDialog.Sentiment.BEARISH,
+        StockSectors.ENERGY,
+        new BigDecimal("-2.1"),
+        new BigDecimal("-0.01"),
+        "Energy pullback",
+        "Oil demand worries hit the energy sector.",
+        new BigDecimal("0.20"),
+        5,
+        "sector",
+        null
+    ));
+
+    newsController.addNewsItem(new NewsItem(
+        NewsDialog.Sentiment.NEUTRAL,
+        null,
+        null,
+        null,
+        "Market update",
+        "Investors await the next policy announcement.",
+        null,
+        7,
+        "info",
+        null
+    ));
+    newsController.addNewsItem(new NewsItem(
+        NewsDialog.Sentiment.BULLISH,
+        StockSectors.TECHNOLOGY,
+        new BigDecimal("3.5"),
+        new BigDecimal("0.02"),
+        "Tech rally",
+        "Strong earnings lifted tech stocks this week.",
+        new BigDecimal("0.15"),
+        10,
+        "sector",
+        null
+    ));
+
+    newsController.addNewsItem(new NewsItem(
+        NewsDialog.Sentiment.BEARISH,
+        StockSectors.ENERGY,
+        new BigDecimal("-2.1"),
+        new BigDecimal("-0.01"),
+        "Energy pullback",
+        "Oil demandsorries hitdgy sector.",
+        new BigDecimal("0.20"),
+        5,
+        "sector",
+        null
+    ));
+
+    newsController.addNewsItem(new NewsItem(
+        NewsDialog.Sentiment.NEUTRAL,
+        null,
+        null,
+        null,
+        "Market updad",
+        "Investors await the next policy announcement.",
+        null,
+        7,
+        "info",
+        null
+    ));
   }
 
 }

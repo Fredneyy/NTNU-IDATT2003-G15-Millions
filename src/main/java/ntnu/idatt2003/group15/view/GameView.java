@@ -24,11 +24,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import ntnu.idatt2003.group15.controller.ExchangeController;
-import ntnu.idatt2003.group15.controller.PlayerController;
-import ntnu.idatt2003.group15.controller.PortfolioController;
-import ntnu.idatt2003.group15.controller.SettingsController;
-import ntnu.idatt2003.group15.controller.StatsController;
+import javafx.util.Duration;
+import ntnu.idatt2003.group15.controller.*;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
@@ -40,7 +37,6 @@ public class GameView {
 
   private final StackPane view = new StackPane();
   private StackPane root;
-
   private final SettingsView settingsView;
   private final SettingsController settingsController;
   private final StatisticsOverview statisticsOverview = new StatisticsOverview();
@@ -52,19 +48,22 @@ public class GameView {
   private final NewsFeedView newsFeedView = new NewsFeedView();
   private final TextField searchField = new TextField();
   private final HBox searchBar;
-
   private final VBox marketContent;
   private final VBox portfolioContent;
   private final ExchangeController exchangeController;
   private final PlayerController playerController;
   private final GameSettings gameSettings;
-
   private final TabContainer tabContainer;
+  private ObservableList<NewsItem> news;
+  private int unreadNews = 0;
+  private final NewsContainer newsContainer = new NewsContainer();
 
   public GameView(PlayerController player, ExchangeController exchange,
-                  GameSettings settings, Runnable runnableExit) {
+                  GameSettings settings, Runnable runnableExit, NewsController newsController) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
+    this.news = Objects.requireNonNull(newsController.getNewsObservable());
+    this.newsFeedView.setEvents(newsController.getNewsObservable());
     this.gameSettings = Objects.requireNonNull(settings, "settings");
     ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
     marketStocks.addAll(exchangeController.getAllStocks());
@@ -157,23 +156,30 @@ public class GameView {
     StackPane.setAlignment(scroll, Pos.TOP_CENTER);
     view.getChildren().add(scroll);
 
+    news.addListener((ListChangeListener<? super NewsItem>) c -> {
+      if (c.next() && c.wasAdded()) {
+        for (NewsItem item : c.getAddedSubList()) {
+          onNewsEmitted(item);
+        }
+      }
+    });
+
     // Reset the News badge whenever the user actually opens the News tab.
     tabContainer.selectedTabProperty().addListener((_, _, sel) -> {
       if (sel != null && "news".equals(sel.getId())) clearNewsBadge();
     });
   }
 
-  /** Unread count behind the News tab badge; reset when the tab is opened. */
-  private int unreadNews = 0;
-
   /**
    * Forward a freshly-emitted news item into the feed and bump the unread
    * counter on the News tab (unless that tab is already open).
    */
-  public void onNewsEmitted(ntnu.idatt2003.group15.model.NewsItem item) {
-    newsFeedView.prependEvent(item);
+  public void onNewsEmitted(NewsItem item) {
+    pushItem(item);
     TabContainer.Tab sel = tabContainer.selectedTabProperty().get();
-    if (sel != null && "news".equals(sel.getId())) return;
+    if (sel != null && "news".equals(sel.getId())) {
+      return;
+    }
     unreadNews++;
     tabContainer.setBadge("news", unreadNews > 99 ? "99+" : Integer.toString(unreadNews));
   }
@@ -183,19 +189,11 @@ public class GameView {
     tabContainer.setBadge("news", null);
   }
 
-  public NewsFeedView getNewsFeedView() {
-    return newsFeedView;
-  }
-
-  public SettingsController getSettingsController() {
-    return settingsController;
-  }
-
-
   public void show(StackPane root) {
     if (root != null && !root.getChildren().contains(view)) {
       this.root = root;
       root.getChildren().add(view);
+      newsContainer.mountIn(root);
     }
   }
 
@@ -203,6 +201,7 @@ public class GameView {
   public void close() {
     if (root != null) {
       root.getChildren().remove(view);
+      newsContainer.unmount();
     }
   }
 
@@ -229,6 +228,29 @@ public class GameView {
     } catch (IOException ex) {
       showError("Could not save game", ex.getMessage());
     }
+  }
+
+  public void pushItem(NewsItem item) {
+    NewsItem stamped = ensureStamped(item);
+
+    NewsDialog dialog = new NewsDialog(Duration.seconds(25));
+    dialog.setSentiment(stamped.sentiment());
+    dialog.setSymbol(stamped.sector() == null ? null : stamped.sector().getLabel());
+    dialog.setChangePercent(stamped.changePercent());
+    dialog.setText(stamped.title(), stamped.message());
+    dialog.setFooter(stamped.footerText());
+    dialog.showIn(newsContainer);
+  }
+
+  private static NewsItem ensureStamped(NewsItem item) {
+    if (item.when() != null) {
+      return item;
+    }
+    return new NewsItem(
+        item.sentiment(), item.sector(), item.changePercent(), item.drift(),
+        item.title(), item.message(), item.volatility(),
+        item.durationUpdates(), item.type(), Instant.now()
+    );
   }
 
   private static void showInfo(String header, String message) {
@@ -274,8 +296,6 @@ public class GameView {
     boolean sell = tx instanceof Sale;
     TradesView.TradeType type = sell ? TradesView.TradeType.SELL : TradesView.TradeType.BUY;
     Stock stock = tx.getShare().stock();
-    // For sells, prefer the actual sale price captured at commit time; the lot's
-    // pricePerShare is the original *buy* price.
     BigDecimal price = tx.getShare().pricePerShare();
     if (sell) {
       BigDecimal sp = ((Sale) tx).getSalePricePerShare();
