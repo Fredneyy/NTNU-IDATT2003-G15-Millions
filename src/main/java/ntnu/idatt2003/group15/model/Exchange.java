@@ -51,11 +51,6 @@ public class Exchange {
     return name;
   }
 
-  /** Apply a global volatility multiplier to all subsequent price ticks. */
-  public void setVolatilityMultiplier(double multiplier) {
-    simulator.setVolatilityMultiplier(multiplier);
-  }
-
   /** Restore the simulation week (used when loading a saved game). */
   public void setWeek(int week) {
     this.week.set(week);
@@ -166,9 +161,7 @@ public class Exchange {
   }
 
   /**
-   * Advances the calendar week and ticks every listed stock through the simulator,
-   * pushing the new price onto the stock when positive. Any active news-driven
-   * volatility windows registered via {@link #applyNews(NewsItem)} decay one
+   * Advances the calendar week and ticks every listed stock through the simulator
    * update per advance.
    */
   public void advance() {
@@ -179,16 +172,6 @@ public class Exchange {
         stock.addNewSalesPrice(next);
       }
     }
-  }
-
-  /**
-   * Apply a news headline to every stock whose categories include
-   * {@code item.sector()}: each affected stock takes an immediate
-   * {@code changePercent} price shock and enters an elevated-volatility window.
-   */
-  public void applyNews(NewsItem item) {
-    Objects.requireNonNull(item, "news item cannot be null");
-    simulator.applyNews(item, List.copyOf(stockMap.values()));
   }
 
   /**
