@@ -32,7 +32,6 @@ import org.kordamp.ikonli.javafx.FontIcon;
  */
 public class MarketTableView {
 
-    /** Status of an upcoming/active price event on a stock. */
     public enum EventStatus { NONE, POSITIVE, NEGATIVE }
 
     private final VBox view = new VBox();
@@ -42,8 +41,6 @@ public class MarketTableView {
     private final FilteredList<Stock> filteredStocks;
     private final ObservableList<Stock> stocks;
     private final PortfolioController portfolioController;
-
-    /** Pluggable lookup for event status — controllers can supply real data later. */
     private Function<Stock, EventStatus> eventLookup = _ -> EventStatus.NONE;
     private final Consumer<Stock> onBuyPressed;
     private final Consumer<Stock> onChartPressed;
@@ -57,12 +54,16 @@ public class MarketTableView {
         this.onChartPressed = onChartPressed;
         this.stocks = stocks;
         this.filteredStocks = new FilteredList<>(stocks, _ -> true);
+        table.setMaxHeight(Double.MAX_VALUE);
+        table.setMaxWidth(Double.MAX_VALUE);
 
         buildHeader();
         buildTable();
 
-        VBox.setVgrow(table, Priority.ALWAYS);
         view.getStyleClass().add("market-table");
+        view.setFillWidth(true);
+        VBox.setVgrow(view, Priority.ALWAYS);
+        view.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         view.getChildren().addAll(buildHeaderRow(), table);
     }
 
@@ -135,6 +136,7 @@ public class MarketTableView {
         table.setItems(filteredStocks);
         table.setPlaceholder(new Label("No stocks match your filter."));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        VBox.setVgrow(table, Priority.ALWAYS);
         table.getStyleClass().add("market-table-inner");
     }
 
