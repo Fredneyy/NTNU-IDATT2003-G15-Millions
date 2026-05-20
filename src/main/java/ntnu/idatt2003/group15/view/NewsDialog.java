@@ -45,13 +45,11 @@ public class NewsDialog extends BaseDialog {
   private final Duration displayDuration;
   private Timeline progressTimeline;
 
-  // Header
   private final FontIcon headerIcon = new FontIcon(FontAwesome.EXCLAMATION_CIRCLE);
   private final Label headerTitle = new Label("BREAKING NEWS");
   private final Button closeButton = new Button();
   private final HBox header = new HBox();
 
-  // Body
   private final FontIcon trendIcon = new FontIcon(FontAwesome.LINE_CHART);
   private final StackPane trendIconBox = new StackPane(trendIcon);
   private final Label symbolBadge = new Label();
@@ -60,7 +58,6 @@ public class NewsDialog extends BaseDialog {
   private final VBox bodyContent = new VBox();
   private final HBox body = new HBox();
 
-  // Footer (volatility text + sentiment chip)
   private final Region divider = new Region();
   private final Label footerText = new Label();
   private final Label sentimentChip = new Label();
@@ -71,7 +68,6 @@ public class NewsDialog extends BaseDialog {
 
   private Sentiment sentiment = Sentiment.NEUTRAL;
 
-  /** When set, close() removes from this stack instead of the legacy root StackPane. */
   private NewsContainer container;
 
   public NewsDialog(Duration displayDuration) {
@@ -90,8 +86,6 @@ public class NewsDialog extends BaseDialog {
     dialog.getChildren().addAll(header, body, footer, progressBar);
     applySentimentStyles();
   }
-
-  // ---------- Construction helpers ----------
 
   private void buildHeader() {
     headerIcon.getStyleClass().add("news-popup-header-icon");
@@ -172,8 +166,6 @@ public class NewsDialog extends BaseDialog {
       progressBar.setClip(clip);
     });
   }
-
-  // ---------- Public setters ----------
 
   public void setText(String title, String message) {
     titleLabel.setText(title == null ? "" : title);
