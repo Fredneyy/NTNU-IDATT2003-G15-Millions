@@ -12,8 +12,6 @@ import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;
 import ntnu.idatt2003.group15.view.OnBoardingDialog;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -27,12 +25,14 @@ public class MainController {
   private final GameSettings gameSettings = new GameSettings();
   private Timeline priceTicker;
 
-  public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
+  public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil,
+                        TaskUtil taskUtil, List<Stock> stocks) {
     this.csvUtil = csvUtil;
     this.taskUtil = taskUtil;
     this.root = root;
 
-    MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", loadStocks()), this::startGame);
+    MainMenuController mainMenuController = new MainMenuController(
+        new Exchange("OSEBX", stocks), this::startGame);
     mainMenuController.setGameSettings(gameSettings);
     mainMenuController.setOnGameLoadConsumer(this::resumeGame);
     mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
@@ -47,30 +47,6 @@ public class MainController {
     mainMenu.getView().setEffect(null);
     mainMenu.refreshContinueCard();
     root.getChildren().setAll(mainMenu.getView());
-  }
-
-  private List<Stock> loadStocks() {
-    List<List<String>> rawStockValues = new ArrayList<>(
-        csvUtil.readCsvFile("src/main/resources/storage/stocks.csv")
-    );
-    rawStockValues.removeFirst();
-    List<Stock> stocks = new ArrayList<>();
-    for (List<String> stockvalue : rawStockValues) {
-      String[] sectorsStrings = stockvalue.getLast().split("\\|");
-      List<StockSectors> sectors = new ArrayList<>();
-      for (String sector : sectorsStrings) {
-        sectors.add(StockSectors.fromLabel(sector));
-      }
-      stocks.add(new Stock(
-          stockvalue.getFirst(),
-          stockvalue.get(1),
-          BigDecimal.valueOf(Double.parseDouble(stockvalue.get(2))),
-          Double.parseDouble(stockvalue.get(3)),
-          Double.parseDouble(stockvalue.get(4)),
-          sectors)
-      );
-    }
-    return stocks;
   }
 
   private void startGame(ExchangeController exchangeController, PlayerController playerController) {
