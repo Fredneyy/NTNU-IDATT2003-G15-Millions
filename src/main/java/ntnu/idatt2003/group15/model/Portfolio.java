@@ -22,14 +22,9 @@ import javafx.util.Callback;
 public class Portfolio {
 
   private final ObservableList<Share> shares = FXCollections.observableArrayList(
-      new Callback<Share, Observable[]>() {
-        @Override
-        public Observable[] call(Share share) {
-          return new Observable[]{
-              share.quantityProperty(),
-              share.stock().getPriceBinding()
-          };
-        }
+      share -> new Observable[]{
+          share.quantityProperty(),
+          share.stock().getPriceBinding()
       }
   );
   private final Map<String, Share> shareIndex = new HashMap<>();
@@ -129,8 +124,13 @@ public class Portfolio {
    */
   public boolean removeShare(Share inputShare) throws NullPointerException {
     Objects.requireNonNull(inputShare, "Share cannot be null");
-    shareIndex.remove(inputShare.stock().getSymbol());
-    return shares.remove(inputShare);
+
+    boolean removed = shares.remove(inputShare);
+    if (removed) {
+      shareIndex.remove(inputShare.stock().getSymbol());
+    }
+
+    return removed;
   }
 
   /**
