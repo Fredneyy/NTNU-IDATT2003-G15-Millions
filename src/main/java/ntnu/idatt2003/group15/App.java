@@ -68,6 +68,8 @@ public class App extends Application {
 
     private void setUpDependencies() {
         // infrastructure
+        exceptionDialog = new ExceptionDialog();
+        errorHandler = this::exceptionPopUp;
         taskUtil = new TaskUtil();
         try {
             taskUtil.init(Runtime.getRuntime().availableProcessors());
@@ -75,8 +77,6 @@ public class App extends Application {
             exceptionPopUp(e);
         }
         csvUtil = new CsvUtil();
-        errorHandler = this::exceptionPopUp;
-        exceptionDialog = new ExceptionDialog();
     }
 
 
