@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StockChartDialog extends BaseDialog {
 
@@ -31,6 +32,7 @@ public class StockChartDialog extends BaseDialog {
 
   private final Label symbolLabel = new Label();
   private final Label companyLabel = new Label();
+  private final Label sectorLabel = new Label();
   private final Label currentPriceLabel = new Label();
   private final Label lastRelativeChange = new Label();
   private final Label lastAbsoluteChangeLabel = new Label();
@@ -109,6 +111,11 @@ public class StockChartDialog extends BaseDialog {
 
     symbolLabel.setText(stockData.getSymbol());
     companyLabel.setText(stockData.getCompany());
+    
+    String sectors = stockData.getCategories().stream()
+            .map(c -> c.getLabel())
+            .collect(Collectors.joining(", "));
+    sectorLabel.setText(sectors.isEmpty() ? "" : sectors);
 
     refreshLiveLabels();
     updateChart(stockData);
@@ -128,7 +135,7 @@ public class StockChartDialog extends BaseDialog {
     BigDecimal relChange = currentStock.getLatestPriceChangeRelative();
 
     String sign = absChange.compareTo(BigDecimal.ZERO) > 0 ? "+" : "";
-    lastRelativeChange.setText(String.format("%s%.2f%%", sign, relChange));
+    lastRelativeChange.setText(String.format("%s%.2f%%", sign, relChange.multiply(BigDecimal.valueOf(100))));
     lastRelativeChange.getStyleClass().setAll("stock-stat-value",
         absChange.compareTo(BigDecimal.ZERO) >= 0 ? "value-positive" : "value-negative");
 
@@ -156,8 +163,12 @@ public class StockChartDialog extends BaseDialog {
     avatar.getChildren().add(symbolLabel);
 
     companyLabel.getStyleClass().add("stock-company");
+    sectorLabel.getStyleClass().addAll("news-badge", "news-badge--symbol");
 
-    VBox info = new VBox(2, companyLabel);
+    HBox titleBox = new HBox(8, companyLabel, sectorLabel);
+    titleBox.setAlignment(Pos.CENTER_LEFT);
+
+    VBox info = new VBox(2, titleBox);
     info.setAlignment(Pos.CENTER_LEFT);
 
     Button closeBtn = new Button();
