@@ -9,6 +9,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 import ntnu.idatt2003.group15.model.factories.TransactionFactory;
@@ -25,6 +26,7 @@ public class Exchange {
   private final String name;
   private final IntegerProperty week = new SimpleIntegerProperty(1);
   private final Map<String, Stock> stockMap;
+  private final Map<StockSectors, List<Stock>> stockSectorMap;
   private final StockSimulator simulator = new StockSimulator(SIMULATOR_DT);
   private final BigDecimal commission = new BigDecimal("0.01");
   private final BigDecimal tax = new BigDecimal("0.37");
@@ -47,6 +49,16 @@ public class Exchange {
     Objects.requireNonNull(stocks, "stocks cannot be null");
     this.name = name;
     this.stockMap = stocks.stream().collect(Collectors.toMap(Stock::getSymbol, stock -> stock));
+    this.stockSectorMap = new HashMap<>();
+    for (StockSectors sector : StockSectors.values()) {
+      List<Stock> stocksInSector = new ArrayList<>();
+      for (Stock stock : stocks) {
+        if (stock.getCategories().contains(sector)) {
+          stocksInSector.add(stock);
+        }
+      }
+      stockSectorMap.put(sector, stocksInSector);
+    }
   }
 
   /**
@@ -184,6 +196,13 @@ public class Exchange {
    * update per advance.
    */
   public void advance() {
+    if (news != null && !news.isEmpty()) {
+      for (NewsItem item : news) {
+        if (!item.appliedChange()) {
+          shockStocks(item);
+        }
+      }
+    }
     week.set(week.get() + 1);
     for (Stock stock : stockMap.values()) {
       BigDecimal next = simulator.nextPrice(stock, volatilityMultiplier);
@@ -223,5 +242,13 @@ public class Exchange {
         .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative))
         .limit(limit)
         .collect(Collectors.toList());
+  }
+
+  private void shockStocks(NewsItem newsItem) {
+    for (Stock stock : stockSectorMap.get(newsItem.sector())) {
+      BigDecimal change = simulator.priceShock(stock, newsItem.changePercent());
+      stock.addNewSalesPrice(change);
+    }
+    newsItem.setAppliedChange(true);
   }
 }

@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.util.Duration;
+
 import java.util.Random;
 
 public class NewsArchive {
@@ -35,7 +36,9 @@ public class NewsArchive {
         item -> !activeNewsItems.contains(item));
     if (!sortedNews.isEmpty()) {
       int randomIndex = random.nextInt(0, sortedNews.size());
-      activeNewsItems.add(sortedNews.get(randomIndex));
+      NewsItem item = sortedNews.get(randomIndex);
+      item.setAppliedChange(false);
+      activeNewsItems.add(item);
     }
   }
 

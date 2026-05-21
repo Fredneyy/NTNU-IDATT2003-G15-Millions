@@ -95,6 +95,7 @@ public class MainController {
 
     // Propagate the current volatility multiplier and keep it in sync as the user adjusts settings.
     exchangeController.setVolatilityMultiplier(gameSettings.getVolatilityMultiplier());
+    exchangeController.setNewsObserver(newsController.getNewsObservable());
     gameSettings.volatilityMultiplierProperty().addListener(
         (_, _, v) -> exchangeController.setVolatilityMultiplier(v.doubleValue()));
 
@@ -129,78 +130,53 @@ public class MainController {
     newsController.addNewsItem(new NewsItem(
         NewsDialog.Sentiment.BULLISH,
         StockSectors.TECHNOLOGY,
-        new BigDecimal("3.5"),
-        new BigDecimal("0.02"),
+        new BigDecimal("1.2"),
         "Tech rally",
         "Strong earnings lifted tech stocks this week.",
         new BigDecimal("0.15"),
         10,
         "sector",
-        null
+        null,
+        false
     ));
 
     newsController.addNewsItem(new NewsItem(
         NewsDialog.Sentiment.BEARISH,
         StockSectors.ENERGY,
-        new BigDecimal("-2.1"),
-        new BigDecimal("-0.01"),
+        new BigDecimal("0.7"),
         "Energy pullback",
         "Oil demand worries hit the energy sector.",
         new BigDecimal("0.20"),
         5,
         "sector",
-        null
+        null,
+        false
     ));
 
     newsController.addNewsItem(new NewsItem(
-        NewsDialog.Sentiment.NEUTRAL,
-        StockSectors.CONSUMER,
-        null,
-        null,
-        "Market update",
-        "Investors await the next policy announcement.",
-        null,
-        7,
-        "info",
-        null
-    ));
-    newsController.addNewsItem(new NewsItem(
         NewsDialog.Sentiment.BULLISH,
         StockSectors.TECHNOLOGY,
-        new BigDecimal("3.5"),
-        new BigDecimal("0.02"),
+        new BigDecimal("1.2"),
         "Tech rally",
         "Strong earnings lifted tech stocks this week.",
         new BigDecimal("0.15"),
         10,
         "sector",
-        null
+        null,
+        false
     ));
 
     newsController.addNewsItem(new NewsItem(
         NewsDialog.Sentiment.BEARISH,
         StockSectors.ENERGY,
-        new BigDecimal("-2.1"),
-        new BigDecimal("-0.01"),
+        new BigDecimal("0.8"),
         "Energy pullback",
         "Oil demandsorries hitdgy sector.",
         new BigDecimal("0.20"),
         5,
         "sector",
-        null
-    ));
-
-    newsController.addNewsItem(new NewsItem(
-        NewsDialog.Sentiment.NEUTRAL,
-        StockSectors.FINANCIALS,
         null,
-        null,
-        "Market updad",
-        "Investors await the next policy announcement.",
-        null,
-        7,
-        "info",
-        null
+        false
     ));
   }
 

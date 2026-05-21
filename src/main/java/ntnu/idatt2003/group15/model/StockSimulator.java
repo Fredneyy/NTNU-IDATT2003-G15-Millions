@@ -36,20 +36,21 @@ public class StockSimulator {
     return gbmStep(stock.getSalesPrice(), stock.getDrift(), stock.getVolatility() * volatilityMultiplier);
   }
 
+  /**
+   * Sets the stock price to a product of it and the initial change.
+   *
+   * @param stock to change price of
+   * @param change the number to multiply stock price with
+   * @return the product of the stock price and the change
+   */
+  public BigDecimal priceShock(Stock stock, BigDecimal change) {
+    return stock.getSalesPrice().multiply(change);
+  }
+
   private BigDecimal gbmStep(BigDecimal currentPrice, double drift, double volatility) {
     double z = random.nextGaussian();
     double exponent = (drift - 0.5 * volatility * volatility) * dt
         + (volatility * Math.sqrt(dt) * z);
     return currentPrice.multiply(BigDecimal.valueOf(Math.exp(exponent)));
-  }
-
-  private static double driftOf(NewsItem item) {
-    BigDecimal d = item.drift();
-    return d == null ? 0.0 : d.doubleValue();
-  }
-
-  private static double volatilityOf(NewsItem item) {
-    BigDecimal v = item.volatility();
-    return v == null ? 0.0 : v.doubleValue();
   }
 }

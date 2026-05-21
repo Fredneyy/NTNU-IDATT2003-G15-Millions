@@ -236,7 +236,8 @@ public class GameView {
     NewsDialog dialog = new NewsDialog(Duration.seconds(10));
     dialog.setSentiment(stamped.sentiment());
     dialog.setSymbol(stamped.sector() == null ? null : stamped.sector().getLabel());
-    dialog.setChangePercent(stamped.changePercent());
+    BigDecimal changepercentFormatted = stamped.changePercent().subtract(BigDecimal.ONE).multiply(BigDecimal.valueOf(100));
+    dialog.setChangePercent(changepercentFormatted);
     dialog.setText(stamped.title(), stamped.message());
     dialog.setFooter(stamped.footerText());
     dialog.showIn(newsContainer);
@@ -247,9 +248,9 @@ public class GameView {
       return item;
     }
     return new NewsItem(
-        item.sentiment(), item.sector(), item.changePercent(), item.drift(),
+        item.sentiment(), item.sector(), item.changePercent(),
         item.title(), item.message(), item.volatility(),
-        item.durationUpdates(), item.type(), Instant.now()
+        item.durationUpdates(), item.type(), Instant.now(), item.appliedChange()
     );
   }
 

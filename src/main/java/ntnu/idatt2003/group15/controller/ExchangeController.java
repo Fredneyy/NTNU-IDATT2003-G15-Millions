@@ -186,4 +186,8 @@ public class ExchangeController {
     public void setVolatilityMultiplier(double volatilityMultiplier) {
         exchange.setVolatilityMultiplier(volatilityMultiplier);
     }
+
+    public void setNewsObserver(ObservableList<NewsItem> newsObserver) {
+        exchange.setNewsObservableList(newsObserver);
+    }
 }
