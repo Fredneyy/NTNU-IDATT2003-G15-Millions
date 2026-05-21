@@ -2,6 +2,7 @@ package ntnu.idatt2003.group15.view;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -11,6 +12,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 
 import java.util.Objects;
 
@@ -18,6 +21,8 @@ public class HeaderView {
 
     private Button settingsBtn;
     private Button saveBtn;
+    private Button advanceWeekBtn;
+    private CheckBox autoAdvanceCheckBox;
     private Text playerNameText;
     private String playerName = "";
     private final Runnable exit;
@@ -32,6 +37,14 @@ public class HeaderView {
 
     public Button getSaveButton() {
         return saveBtn;
+    }
+
+    public Button getAdvanceWeekButton() {
+        return advanceWeekBtn;
+    }
+
+    public CheckBox getAutoAdvanceCheckBox() {
+        return autoAdvanceCheckBox;
     }
 
     public void setPlayerName(String name) {
@@ -81,23 +94,28 @@ public class HeaderView {
         HBox actionContainer = new HBox(12);
         actionContainer.setAlignment(Pos.CENTER_RIGHT);
 
+        advanceWeekBtn = new Button("Advance Week");
+        advanceWeekBtn.setGraphic(new FontIcon(MaterialDesignC.CALENDAR_ARROW_RIGHT));
+        advanceWeekBtn.getStyleClass().addAll("action-button", "action-button-primary");
+
+        autoAdvanceCheckBox = new CheckBox("Auto-advance");
+        autoAdvanceCheckBox.getStyleClass().add("auto-advance-toggle");
+        autoAdvanceCheckBox.setSelected(true);
+
         saveBtn = new Button();
-        saveBtn.setGraphic(new FontIcon(FontAwesome.FLOPPY_O));
-        saveBtn.getStyleClass().add("action-button");
+        saveBtn.setGraphic(new FontIcon(MaterialDesignC.CONTENT_SAVE_OUTLINE));
+        saveBtn.getStyleClass().addAll("action-button", "icon-only-button");
 
         settingsBtn = new Button();
-        settingsBtn.setGraphic(new FontIcon(FontAwesome.COG));
+        settingsBtn.setGraphic(new FontIcon(MaterialDesignC.COG_OUTLINE));
         settingsBtn.getStyleClass().addAll("action-button", "icon-only-button");
 
-        Button resetBtn = new Button();
-        resetBtn.setGraphic(new FontIcon(FontAwesome.REFRESH));
-        resetBtn.getStyleClass().add("action-button");
-
         Button exitBtn = new Button();
-        exitBtn.setGraphic(new FontIcon(FontAwesome.SIGN_OUT));
-        exitBtn.getStyleClass().addAll("action-button", "icon-only-button");
+        exitBtn.setGraphic(new FontIcon(MaterialDesignL.LOGOUT));
+        exitBtn.getStyleClass().addAll("action-button", "icon-only-button", "action-button-danger");
         exitBtn.setOnAction(_ -> exit.run());
-        actionContainer.getChildren().addAll(saveBtn, settingsBtn, resetBtn, exitBtn);
+        actionContainer.getChildren().addAll(
+            advanceWeekBtn, autoAdvanceCheckBox, saveBtn, settingsBtn, exitBtn);
 
         header.getChildren().addAll(logoContainer, spacer, actionContainer);
         return header;
