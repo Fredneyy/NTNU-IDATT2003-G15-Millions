@@ -165,11 +165,8 @@ public class StockChartDialog extends BaseDialog {
     companyLabel.getStyleClass().add("stock-company");
     sectorLabel.getStyleClass().addAll("news-badge", "news-badge--symbol");
 
-    HBox titleBox = new HBox(8, companyLabel, sectorLabel);
-    titleBox.setAlignment(Pos.CENTER_LEFT);
-
-    VBox info = new VBox(2, titleBox);
-    info.setAlignment(Pos.CENTER_LEFT);
+    VBox info = new VBox(2, companyLabel, sectorLabel);
+    info.setAlignment(Pos.BOTTOM_LEFT);
 
     Button closeBtn = new Button();
     FontIcon x = new FontIcon(MaterialDesignC.CLOSE);

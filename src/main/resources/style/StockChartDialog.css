@@ -56,8 +56,9 @@
 }
 
 .stock-company {
-    -fx-text-fill: #8892b0;
-    -fx-font-size: 0.929em;
+    -fx-text-fill: #e8eaf6;
+    -fx-font-size: 1.5em;
+    -fx-font-weight: bold;
 }
 
 .stock-separator {

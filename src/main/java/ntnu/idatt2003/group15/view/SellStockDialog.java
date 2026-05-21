@@ -56,6 +56,7 @@ public class SellStockDialog extends TransactionDialog {
     stockSymbol.setText("Sell " + share.stock().getSymbol());
     stockName.setText(share.stock().getCompany());
     transactionButton.setText("$ Sell");
+    quantityField.setText("");
     qtyValue.set(BigDecimal.ZERO);
 
     ObservableValue<BigDecimal> price = share.stock().getPriceBinding();

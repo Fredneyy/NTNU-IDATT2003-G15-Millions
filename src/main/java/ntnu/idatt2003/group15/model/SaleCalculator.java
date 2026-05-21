@@ -42,11 +42,15 @@ public class SaleCalculator implements TransactionCalculator {
    */
   public BigDecimal calculateTax(Share share, BigDecimal tax, BigDecimal commission) {
     Objects.requireNonNull(share, "Share cannot be null");
-    return tax.multiply(calculateProfit(share).subtract(calculateCommission(share, commission)));
+    BigDecimal taxableAmount = calculateProfit(share).subtract(calculateCommission(share, commission));
+    if (taxableAmount.signum() < 0) {
+      return BigDecimal.ZERO;
+    }
+    return tax.multiply(taxableAmount);
   }
 
   private BigDecimal calculateProfit(Share share) {
-    return share.stock().getSalesPrice().subtract(share.pricePerShare());
+    return share.stock().getSalesPrice().subtract(share.pricePerShare()).multiply(share.quantity());
   }
 
   /**
