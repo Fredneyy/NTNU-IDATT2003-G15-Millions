@@ -4,12 +4,10 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 import ntnu.idatt2003.group15.model.factories.TransactionFactory;
@@ -26,7 +24,6 @@ public class Exchange {
   private final String name;
   private final IntegerProperty week = new SimpleIntegerProperty(1);
   private final Map<String, Stock> stockMap;
-  private final Map<StockSectors, List<Stock>> stockSectorMap;
   private final StockSimulator simulator = new StockSimulator(SIMULATOR_DT);
   private final BigDecimal commission = new BigDecimal("0.01");
   private final BigDecimal tax = new BigDecimal("0.37");
@@ -42,23 +39,12 @@ public class Exchange {
   public Exchange(String name, List<Stock> stocks)
       throws BlankArgumentException, NullPointerException {
     Objects.requireNonNull(name, "name cannot be null");
-    this.news = Objects.requireNonNull(news, "news cannot be null");
     if (name.isBlank()) {
       throw new BlankArgumentException("Name cannot be blank");
     }
     Objects.requireNonNull(stocks, "stocks cannot be null");
     this.name = name;
     this.stockMap = stocks.stream().collect(Collectors.toMap(Stock::getSymbol, stock -> stock));
-    this.stockSectorMap = new HashMap<>();
-    for (StockSectors sector : StockSectors.values()) {
-      List<Stock> stocksInSector = new ArrayList<>();
-      for (Stock stock : stocks) {
-        if (stock.getCategories().contains(sector)) {
-          stocksInSector.add(stock);
-        }
-      }
-      stockSectorMap.put(sector, stocksInSector);
-    }
   }
 
   /**
@@ -196,18 +182,44 @@ public class Exchange {
    * update per advance.
    */
   public void advance() {
-    if (news != null && !news.isEmpty()) {
-      for (NewsItem item : news) {
-        if (!item.appliedChange()) {
-          shockStocks(item);
+    week.set(week.get() + 1);
+
+    for (Stock stock : stockMap.values()) {
+      double stackedVolatility = 1.0;
+      double stackedImpactJump = 0.0;
+
+      if (news != null) {
+        for (NewsItem item : news) {
+          if (item.sector() != null && !item.isExpired() && stock.getCategories().contains(item.sector())) {
+            
+            if (item.volatility() != null) {
+              stackedVolatility *= item.volatility().doubleValue();
+            }
+
+            if (!item.appliedChange() && item.changePercent() != null) {
+              stackedImpactJump += (item.changePercent().doubleValue() - 1.0);
+            }
+          }
         }
       }
+
+      double finalVolatilityModifier = this.volatilityMultiplier * stackedVolatility;
+      BigDecimal baseNextPrice = simulator.nextPrice(stock, finalVolatilityModifier);
+
+      BigDecimal impactMultiplier = BigDecimal.ONE.add(BigDecimal.valueOf(stackedImpactJump));
+      BigDecimal finalNextPrice = baseNextPrice.multiply(impactMultiplier);
+
+      if (finalNextPrice.signum() > 0) {
+        stock.addNewSalesPrice(finalNextPrice);
+      }
     }
-    week.set(week.get() + 1);
-    for (Stock stock : stockMap.values()) {
-      BigDecimal next = simulator.nextPrice(stock, volatilityMultiplier);
-      if (next.signum() > 0) {
-        stock.addNewSalesPrice(next);
+
+    if (news != null) {
+      for (NewsItem item : news) {
+        if (!item.appliedChange()) {
+          item.setAppliedChange(true);
+        }
+        item.reduceDuration();
       }
     }
   }
@@ -242,13 +254,5 @@ public class Exchange {
         .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative))
         .limit(limit)
         .collect(Collectors.toList());
-  }
-
-  private void shockStocks(NewsItem newsItem) {
-    for (Stock stock : stockSectorMap.get(newsItem.sector())) {
-      BigDecimal change = simulator.priceShock(stock, newsItem.changePercent());
-      stock.addNewSalesPrice(change);
-    }
-    newsItem.setAppliedChange(true);
   }
 }

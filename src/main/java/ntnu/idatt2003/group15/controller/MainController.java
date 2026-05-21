@@ -108,7 +108,7 @@ public class MainController {
     priceTicker.setCycleCount(Animation.INDEFINITE);
     priceTicker.play();
     Timeline timeline = new Timeline(new KeyFrame(
-        Duration.seconds(10), _ -> {
+        Duration.seconds(50), _ -> {
           newsController.publish();
     }));
     timeline.setCycleCount(Animation.INDEFINITE);
@@ -139,10 +139,10 @@ public class MainController {
     newsController.addNewsItem(new NewsItem(
         NewsDialog.Sentiment.BEARISH,
         StockSectors.ENERGY,
-        new BigDecimal("0.7"),
+        new BigDecimal("-0.7"),
         "Energy pullback",
         "Oil demand worries hit the energy sector.",
-        new BigDecimal("0.20"),
+        new BigDecimal("1.2"),
         5,
         "sector",
         null,
@@ -165,10 +165,10 @@ public class MainController {
     newsController.addNewsItem(new NewsItem(
         NewsDialog.Sentiment.BEARISH,
         StockSectors.ENERGY,
-        new BigDecimal("0.8"),
+        new BigDecimal("-0.8"),
         "Energy pullback",
         "Oil demandsorries hitdgy sector.",
-        new BigDecimal("0.20"),
+        new BigDecimal("1.2"),
         5,
         "sector",
         null,
