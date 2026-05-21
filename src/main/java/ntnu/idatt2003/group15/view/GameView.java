@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -16,7 +17,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
@@ -59,20 +59,25 @@ public class GameView {
   private final ExchangeController exchangeController;
   private final PlayerController playerController;
   private final GameSettings gameSettings;
+  private final Consumer<Throwable> errorHandler;
+  private final InfoDialog infoDialog = new InfoDialog();
 
   private final TabContainer tabContainer;
 
   public GameView(PlayerController player, ExchangeController exchange,
-                  GameSettings settings, Runnable runnableExit) {
+                  GameSettings settings, Runnable runnableExit,
+                  Consumer<Throwable> errorHandler) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
     this.gameSettings = Objects.requireNonNull(settings, "settings");
+    this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler");
     ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
     marketStocks.addAll(exchangeController.getAllStocks());
 
     buyStockDialog = new BuyStockDialog(
         exchangeController.cashProperty(),
-        exchangeController::buy);
+        exchangeController::buy,
+        errorHandler);
 
     PortfolioController portfolioController =
         new PortfolioController(playerController.getPortfolio());
@@ -83,7 +88,8 @@ public class GameView {
         new SaleCalculator(),
         exchangeController.getCommission(),
         exchangeController.getTax(),
-        exchangeController::sell);
+        exchangeController::sell,
+        errorHandler);
 
     portfolioTable = new PortfolioTableView(portfolioController,
         share -> sellStockDialog.show(view, share),
@@ -226,26 +232,11 @@ public class GameView {
 
     try {
       SaveGameUtil.save(target, playerController, exchangeController, gameSettings);
-      showInfo("Game saved", "Saved to:\n" + target.getAbsolutePath());
+      infoDialog.setText("Game saved", "Saved to:\n" + target.getAbsolutePath());
+      if (root != null) infoDialog.show(root);
     } catch (IOException ex) {
-      showError("Could not save game", ex.getMessage());
+      errorHandler.accept(ex);
     }
-  }
-
-  private static void showInfo(String header, String message) {
-    Alert a = new Alert(Alert.AlertType.INFORMATION);
-    a.setTitle("Millions");
-    a.setHeaderText(header);
-    a.setContentText(message);
-    a.showAndWait();
-  }
-
-  private static void showError(String header, String message) {
-    Alert a = new Alert(Alert.AlertType.ERROR);
-    a.setTitle("Millions");
-    a.setHeaderText(header);
-    a.setContentText(message);
-    a.showAndWait();
   }
 
   /**

@@ -11,6 +11,7 @@ import ntnu.idatt2003.group15.model.Share;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class SellStockDialog extends TransactionDialog {
 
@@ -18,18 +19,21 @@ public class SellStockDialog extends TransactionDialog {
   private final BigDecimal commissionRate;
   private final BigDecimal taxRate;
   private final BiConsumer<Share, BigDecimal> onConfirm;
+  private final Consumer<Throwable> errorHandler;
 
   public SellStockDialog(ObservableValue<BigDecimal> cashProperty,
                          PortfolioController portfolioController,
                          SaleCalculator calculator,
                          BigDecimal commissionRate,
                          BigDecimal taxRate,
-                         BiConsumer<Share, BigDecimal> onConfirm) {
+                         BiConsumer<Share, BigDecimal> onConfirm,
+                         Consumer<Throwable> errorHandler) {
     super(cashProperty);
     this.onConfirm = Objects.requireNonNull(onConfirm);
     this.calculator = Objects.requireNonNull(calculator, "calculator cannot be null");
     this.commissionRate = Objects.requireNonNull(commissionRate, "commissionRate cannot be null");
     this.taxRate = Objects.requireNonNull(taxRate, "taxRate cannot be null");
+    this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler cannot be null");
     assembleBody();
     summaryTextLabel1.setText("You Receive");
     summaryTextLabel2.setText("Fees and Taxes");
@@ -117,8 +121,12 @@ public class SellStockDialog extends TransactionDialog {
       if (q == null || q.signum() <= 0) {
         return;
       }
-      onConfirm.accept(share, q);
-      close();
+      try {
+        onConfirm.accept(share, q);
+        close();
+      } catch (RuntimeException ex) {
+        errorHandler.accept(ex);
+      }
     });
   }
 }

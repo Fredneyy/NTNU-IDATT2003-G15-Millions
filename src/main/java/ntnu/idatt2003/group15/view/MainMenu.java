@@ -2,7 +2,6 @@ package ntnu.idatt2003.group15.view;
 
 import javafx.animation.*;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -496,7 +495,8 @@ public class MainMenu {
 
   private void loadFromFile(File file) {
     if (!file.exists()) {
-      showError("Save not found", file.getAbsolutePath());
+      errorHandler.accept(
+          new IllegalStateException("Save not found: " + file.getAbsolutePath()));
       doRefreshContinueCard();
       return;
     }
@@ -505,7 +505,7 @@ public class MainMenu {
       mainMenuController.loadGame(save);
       close();
     } catch (IOException | RuntimeException ex) {
-      showError("Could not load save", ex.getMessage() == null ? ex.toString() : ex.getMessage());
+      errorHandler.accept(ex);
     }
   }
 
@@ -522,14 +522,6 @@ public class MainMenu {
   private static String formatWhen(java.time.Instant when) {
     if (when == null) return "—";
     return WHEN_FORMAT.format(when.atZone(ZoneId.systemDefault()));
-  }
-
-  private static void showError(String header, String message) {
-    Alert a = new Alert(Alert.AlertType.ERROR);
-    a.setTitle("Millions");
-    a.setHeaderText(header);
-    a.setContentText(message);
-    a.showAndWait();
   }
 
   private void close() {
@@ -573,7 +565,8 @@ public class MainMenu {
     try {
       List<Stock> loaded = new StockLoader(picked.getAbsolutePath()).load();
       if (loaded.isEmpty()) {
-        showError("Empty stock file", "The selected file contains no stocks.");
+        errorHandler.accept(
+            new IllegalStateException("The selected file contains no stocks."));
         return;
       }
       customStocks = loaded;
@@ -581,8 +574,7 @@ public class MainMenu {
       resetStocksButton.setVisible(true);
       resetStocksButton.setManaged(true);
     } catch (RuntimeException ex) {
-      showError("Could not load stocks",
-          ex.getMessage() == null ? ex.toString() : ex.getMessage());
+      errorHandler.accept(ex);
     }
   }
 
