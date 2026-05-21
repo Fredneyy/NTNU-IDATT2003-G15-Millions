@@ -17,167 +17,40 @@ import java.util.Random;
  */
 public class StockSimulator {
 
-  /** Active news-driven volatility window for a stock. Mutated in-place per tick. */
-  private static final class ActiveNews {
-    final double volatilityMultiplier;
-    int remainingUpdates;
-
-    ActiveNews(double volatilityMultiplier, int remainingUpdates) {
-      this.volatilityMultiplier = volatilityMultiplier;
-      this.remainingUpdates = remainingUpdates;
-    }
-  }
-
   private final Random random = new Random();
   private final double dt;
-  private final Map<String, ActiveNews> activeNews = new HashMap<>();
-  private double volatilityMultiplier = 1.0;
 
   public StockSimulator(double dt) {
     this.dt = dt;
   }
 
   /**
-   * Set a global volatility multiplier applied on top of every per-stock σ
-   * computed each tick. Defaults to {@code 1.0}.
-   */
-  public void setVolatilityMultiplier(double multiplier) {
-    if (multiplier <= 0) {
-      throw new IllegalArgumentException("multiplier must be > 0");
-    }
-    this.volatilityMultiplier = multiplier;
-  }
-
-  public double getVolatilityMultiplier() {
-    return volatilityMultiplier;
-  }
-
-  /**
-   * Pure-function tick: GBM step using the news item's drift/volatility, with
-   * no active-news overlay. Useful for tests and stateless callers.
-   *
-   * @param priceEvent   the news item supplying drift (changePercent / 100) and σ (volatility)
-   * @param currentPrice the current price of the stock
-   * @return the next stock price
-   */
-  public BigDecimal nextPrice(NewsItem priceEvent, BigDecimal currentPrice) {
-    if (currentPrice == null) {
-      throw new IllegalArgumentException("Current price cannot be null.");
-    }
-    if (currentPrice.compareTo(BigDecimal.ZERO) < 0) {
-      throw new IllegalArgumentException("Current price cannot be negative.");
-    }
-    Objects.requireNonNull(priceEvent, "priceEvent cannot be null.");
-
-    double drift = driftOf(priceEvent);
-    double volatility = volatilityOf(priceEvent);
-    return gbmStep(currentPrice, drift, volatility);
-  }
-
-  /**
-   * Stock-aware tick: like {@link #nextPrice(NewsItem, BigDecimal)} but consults
-   * any active news effect registered for this stock's symbol. If a window is
-   * active, σ is scaled by its multiplier and its remaining-updates counter is
-   * decremented (and the entry dropped when it hits zero).
-   *
-   * @param baseline the baseline news item for this stock (drift / σ)
-   * @param stock    the stock being ticked
-   * @return the next stock price
-   */
-  public BigDecimal nextPrice(NewsItem baseline, Stock stock) {
-    Objects.requireNonNull(baseline, "baseline cannot be null.");
-    Objects.requireNonNull(stock, "stock cannot be null.");
-
-    double volatility = volatilityOf(baseline);
-    ActiveNews effect = activeNews.get(stock.getSymbol());
-    if (effect != null) {
-      volatility *= effect.volatilityMultiplier;
-      effect.remainingUpdates--;
-      if (effect.remainingUpdates <= 0) {
-        activeNews.remove(stock.getSymbol());
-      }
-    }
-
-    return gbmStep(stock.getSalesPrice(), driftOf(baseline), volatility);
-  }
-
-  /**
    * Stock-only tick: uses the stock's own {@code drift} and {@code volatility}
-   * fields as the GBM baseline, with the same active-news σ overlay as
-   * {@link #nextPrice(NewsItem, Stock)}.
    *
    * @param stock the stock being ticked
    * @return the next stock price
    */
-  public BigDecimal nextPrice(Stock stock) {
+  public BigDecimal nextPrice(Stock stock, double volatilityMultiplier) {
     Objects.requireNonNull(stock, "stock cannot be null.");
 
-    double volatility = stock.getVolatility();
-    ActiveNews effect = activeNews.get(stock.getSymbol());
-    if (effect != null) {
-      volatility *= effect.volatilityMultiplier;
-      effect.remainingUpdates--;
-      if (effect.remainingUpdates <= 0) {
-        activeNews.remove(stock.getSymbol());
-      }
-    }
-
-    return gbmStep(stock.getSalesPrice(), stock.getDrift(), volatility);
+    return gbmStep(stock.getSalesPrice(), stock.getDrift(), stock.getVolatility() * volatilityMultiplier);
   }
 
   /**
-   * Apply a news item to every stock in the news item's sector: each affected
-   * stock is shocked by {@code item.changePercent()} (pushed as a new sales
-   * price) and registered with an elevated-volatility window of
-   * {@code item.durationUpdates()} ticks scaled by {@code item.volatility()}.
+   * Sets the stock price to a product of it and the initial change.
    *
-   * <p>If {@code item.sector()} is null, this is a no-op.
+   * @param stock to change price of
+   * @param change the number to multiply stock price with
+   * @return the product of the stock price and the change
    */
-  public void applyNews(NewsItem item, List<Stock> stocks) {
-    Objects.requireNonNull(item, "news item cannot be null.");
-    Objects.requireNonNull(stocks, "stocks cannot be null.");
-    StockSectors sector = item.sector();
-    if (sector == null) return;
-
-    for (Stock stock : stocks) {
-      if (stock.getCategories().contains(sector)) {
-        shockAndQueue(item, stock);
-      }
-    }
-  }
-
-  private void shockAndQueue(NewsItem item, Stock stock) {
-    BigDecimal changePercent = item.changePercent();
-    if (changePercent != null && changePercent.signum() != 0) {
-      BigDecimal factor = BigDecimal.ONE.add(changePercent.movePointLeft(2));
-      BigDecimal shocked = stock.getSalesPrice().multiply(factor);
-      if (shocked.signum() > 0) {
-        stock.addNewSalesPrice(shocked);
-      }
-    }
-
-    BigDecimal volMultiplier = item.volatility();
-    if (volMultiplier != null && volMultiplier.signum() > 0 && item.durationUpdates() > 0) {
-      activeNews.put(stock.getSymbol(),
-          new ActiveNews(volMultiplier.doubleValue(), item.durationUpdates()));
-    }
+  public BigDecimal priceShock(Stock stock, BigDecimal change) {
+    return stock.getSalesPrice().multiply(change);
   }
 
   private BigDecimal gbmStep(BigDecimal currentPrice, double drift, double volatility) {
-    double effectiveVol = volatility * volatilityMultiplier;
     double z = random.nextGaussian();
-    double exponent = (drift - 0.5 * effectiveVol * effectiveVol) * dt
-        + (effectiveVol * Math.sqrt(dt) * z);
+    double exponent = (drift - 0.5 * volatility * volatility) * dt
+        + (volatility * Math.sqrt(dt) * z);
     return currentPrice.multiply(BigDecimal.valueOf(Math.exp(exponent)));
-  }
-
-  private static double driftOf(NewsItem item) {
-    BigDecimal d = item.drift();
-    return d == null ? 0.0 : d.doubleValue();
-  }
-
-  private static double volatilityOf(NewsItem item) {
-    BigDecimal v = item.volatility();
-    return v == null ? 0.0 : v.doubleValue();
   }
 }

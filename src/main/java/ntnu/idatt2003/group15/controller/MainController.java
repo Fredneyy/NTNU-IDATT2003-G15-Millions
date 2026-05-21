@@ -7,6 +7,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
+import ntnu.idatt2003.group15.utilities.StockLoader;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;
@@ -33,16 +34,20 @@ public class MainController {
     this.root = root;
     this.errorHandler = errorHandler;
 
-    MainMenuController mainMenuController = new MainMenuController(
-        new Exchange("OSEBX", stocks), this::startGame);
+    MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", loadStocks()), this::startGame);
     mainMenuController.setGameSettings(gameSettings);
     mainMenuController.setOnGameLoadConsumer(this::resumeGame);
     mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
-    newsController = new NewsController(root, gameSettings);
+    newsController = new NewsController(root, gameSettings, new NewsArchive());
+  }
+
+  private List<Stock> loadStocks() {
+    StockLoader stockLoader = new StockLoader("src/main/resources/storage/defaultstocks.csv");
+    List<Stock> stocks = stockLoader.load();
+    return stocks;
   }
 
   public void showMainMenu() {
-    newsController.stop();
     stopPriceTicker();
     // Clear any blur/effect that may have leaked onto the menu from an open
     // dialog (e.g. logging out while the onboarding overlay is still up).
@@ -62,8 +67,9 @@ public class MainController {
   private void enterGame(ExchangeController exchangeController, PlayerController playerController,
                          boolean showOnboarding) {
     GameView gameView = new GameView(playerController, exchangeController, gameSettings,
-        this::showMainMenu, errorHandler);
+        this::showMainMenu, errorHandler, newsController);
     gameView.show(root);
+    exchangeController.setNewsObserver(newsController.getNewsObservable());
     // Take the main menu out of the scene so it can't be blurred (or otherwise
     // affected) by overlays drawn on top of the game view.
     root.getChildren().remove(mainMenu.getView());
@@ -84,31 +90,7 @@ public class MainController {
         errorHandler.accept(ex);
       }
     });
-
-    newsController.start();
-    newsController.setOnNewsEmitted(item -> {
-      try {
-        gameView.onNewsEmitted(item);
-        if (item.sector() != null) {
-          exchangeController.applyNews(item);
-        }
-      } catch (RuntimeException ex) {
-        errorHandler.accept(ex);
-      }
-    });
-
-    // Ticker follows the header's Auto-advance toggle; manual advance is wired in GameView.
-    applyAutoAdvance(gameView.autoAdvanceProperty().get(), exchangeController);
-    gameView.autoAdvanceProperty().addListener(
-        (_, _, on) -> applyAutoAdvance(Boolean.TRUE.equals(on), exchangeController));
-  }
-
-  private void applyAutoAdvance(boolean on, ExchangeController exchangeController) {
-    if (on) {
-      startPriceTicker(exchangeController);
-    } else {
-      stopPriceTicker();
-    }
+    startPriceTicker(exchangeController);
   }
 
   private void startPriceTicker(ExchangeController exchangeController) {
@@ -130,5 +112,4 @@ public class MainController {
       priceTicker = null;
     }
   }
-
 }

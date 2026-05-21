@@ -17,6 +17,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
@@ -24,11 +25,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import ntnu.idatt2003.group15.controller.ExchangeController;
-import ntnu.idatt2003.group15.controller.PlayerController;
-import ntnu.idatt2003.group15.controller.PortfolioController;
-import ntnu.idatt2003.group15.controller.SettingsController;
-import ntnu.idatt2003.group15.controller.StatsController;
+import javafx.util.Duration;
+import ntnu.idatt2003.group15.controller.*;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
@@ -61,15 +59,19 @@ public class GameView {
   private final GameSettings gameSettings;
   private final Consumer<Throwable> errorHandler;
   private final InfoDialog infoDialog = new InfoDialog();
-  private HeaderView headerView;
 
   private final TabContainer tabContainer;
+  private ObservableList<NewsItem> news;
+  private int unreadNews = 0;
+  private final NewsContainer newsContainer = new NewsContainer();
 
   public GameView(PlayerController player, ExchangeController exchange,
                   GameSettings settings, Runnable runnableExit,
-                  Consumer<Throwable> errorHandler) {
+                  Consumer<Throwable> errorHandler, NewsController newsController) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
+    this.news = Objects.requireNonNull(newsController.getNewsObservable());
+    this.newsFeedView.setEvents(newsController.getNewsObservable());
     this.gameSettings = Objects.requireNonNull(settings, "settings");
     this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler");
     ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
@@ -116,7 +118,7 @@ public class GameView {
         new TabContainer.Tab("trades",    "Trades",    FontAwesome.CLOCK_O,     tradesContent),
         new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent)
     );
-    this.headerView = new HeaderView(runnableExit);
+    HeaderView headerView = new HeaderView(runnableExit);
     settingsView = new SettingsView(view);
     settingsController = new SettingsController(settingsView, gameSettings);
     headerView.setPlayerName(player.getName());
@@ -125,13 +127,6 @@ public class GameView {
     HBox header = headerView.createHeader();
     headerView.getSettingsButton().setOnAction(_ -> settingsView.toggle());
     headerView.getSaveButton().setOnAction(_ -> saveGame());
-    headerView.getAdvanceWeekButton().setOnAction(_ -> {
-      try {
-        exchangeController.advanceWeek();
-      } catch (RuntimeException ex) {
-        errorHandler.accept(ex);
-      }
-    });
 
     addStatisticsCards();
     searchBar = buildSearchBar();
@@ -172,23 +167,32 @@ public class GameView {
     scroll.getStyleClass().add("game-scroll");
     view.getChildren().add(scroll);
 
+    news.addListener((ListChangeListener<? super NewsItem>) c -> {
+      while (c.next()) {
+        if (c.wasAdded()) {
+          for (NewsItem item : c.getAddedSubList()) {
+            onNewsEmitted(item);
+          }
+        }
+      }
+    });
+
     // Reset the News badge whenever the user actually opens the News tab.
     tabContainer.selectedTabProperty().addListener((_, _, sel) -> {
       if (sel != null && "news".equals(sel.getId())) clearNewsBadge();
     });
   }
 
-  /** Unread count behind the News tab badge; reset when the tab is opened. */
-  private int unreadNews = 0;
-
   /**
    * Forward a freshly-emitted news item into the feed and bump the unread
    * counter on the News tab (unless that tab is already open).
    */
-  public void onNewsEmitted(ntnu.idatt2003.group15.model.NewsItem item) {
-    newsFeedView.prependEvent(item);
+  public void onNewsEmitted(NewsItem item) {
+    pushItem(item);
     TabContainer.Tab sel = tabContainer.selectedTabProperty().get();
-    if (sel != null && "news".equals(sel.getId())) return;
+    if (sel != null && "news".equals(sel.getId())) {
+      return;
+    }
     unreadNews++;
     tabContainer.setBadge("news", unreadNews > 99 ? "99+" : Integer.toString(unreadNews));
   }
@@ -206,16 +210,12 @@ public class GameView {
     return settingsController;
   }
 
-  /** Selected state of the header's Auto-advance checkbox. */
-  public javafx.beans.property.BooleanProperty autoAdvanceProperty() {
-    return headerView.getAutoAdvanceCheckBox().selectedProperty();
-  }
-
 
   public void show(StackPane root) {
     if (root != null && !root.getChildren().contains(view)) {
       this.root = root;
       root.getChildren().add(view);
+      newsContainer.mountIn(root);
     }
   }
 
@@ -223,6 +223,7 @@ public class GameView {
   public void close() {
     if (root != null) {
       root.getChildren().remove(view);
+      newsContainer.unmount();
     }
   }
 
@@ -245,11 +246,50 @@ public class GameView {
 
     try {
       SaveGameUtil.save(target, playerController, exchangeController, gameSettings);
-      infoDialog.setText("Game saved", "Saved to:\n" + target.getAbsolutePath());
-      if (root != null) infoDialog.show(root);
+      showInfo("Game saved", "Saved to:\n" + target.getAbsolutePath());
     } catch (IOException ex) {
-      errorHandler.accept(ex);
+      showError("Could not save game", ex.getMessage());
     }
+  }
+
+  public void pushItem(NewsItem item) {
+    NewsItem stamped = ensureStamped(item);
+
+    NewsDialog dialog = new NewsDialog(Duration.seconds(10));
+    dialog.setSentiment(stamped.sentiment());
+    dialog.setSymbol(stamped.sector() == null ? null : stamped.sector().getLabel());
+    BigDecimal changepercentFormatted = stamped.changePercent().subtract(BigDecimal.ONE).multiply(BigDecimal.valueOf(100));
+    dialog.setChangePercent(changepercentFormatted);
+    dialog.setText(stamped.title(), stamped.message());
+    dialog.setFooter(stamped.footerText());
+    dialog.showIn(newsContainer);
+  }
+
+  private static NewsItem ensureStamped(NewsItem item) {
+    if (item.when() != null) {
+      return item;
+    }
+    return new NewsItem(
+        item.sentiment(), item.sector(), item.changePercent(),
+        item.title(), item.message(), item.volatility(),
+        item.durationUpdates(), item.type(), Instant.now(), item.appliedChange()
+    );
+  }
+
+  private static void showInfo(String header, String message) {
+    Alert a = new Alert(Alert.AlertType.INFORMATION);
+    a.setTitle("Millions");
+    a.setHeaderText(header);
+    a.setContentText(message);
+    a.showAndWait();
+  }
+
+  private static void showError(String header, String message) {
+    Alert a = new Alert(Alert.AlertType.ERROR);
+    a.setTitle("Millions");
+    a.setHeaderText(header);
+    a.setContentText(message);
+    a.showAndWait();
   }
 
   /**

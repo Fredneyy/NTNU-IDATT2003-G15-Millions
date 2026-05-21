@@ -183,13 +183,11 @@ public class ExchangeController {
         exchange.advance();
     }
 
-    /** Apply a news headline to every stock in the item's sector. */
-    public void applyNews(NewsItem item) {
-        exchange.applyNews(item);
+    public void setVolatilityMultiplier(double volatilityMultiplier) {
+        exchange.setVolatilityMultiplier(volatilityMultiplier);
     }
 
-    /** Adjust the global volatility multiplier applied to every price tick. */
-    public void setVolatilityMultiplier(double multiplier) {
-        exchange.setVolatilityMultiplier(multiplier);
+    public void setNewsObserver(ObservableList<NewsItem> newsObserver) {
+        exchange.setNewsObservableList(newsObserver);
     }
 }

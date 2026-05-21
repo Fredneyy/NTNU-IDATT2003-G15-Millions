@@ -1,114 +1,35 @@
 package ntnu.idatt2003.group15.controller;
 
-import java.time.Instant;
 import java.util.Objects;
 import java.util.Random;
-import java.util.function.Consumer;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.collections.ObservableList;
 import javafx.scene.layout.StackPane;
-import javafx.util.Duration;
-import ntnu.idatt2003.group15.model.GameSettings;
-import ntnu.idatt2003.group15.model.NewsItem;
-import ntnu.idatt2003.group15.view.NewsContainer;
-import ntnu.idatt2003.group15.view.NewsDialog;
+import ntnu.idatt2003.group15.model.*;
 
 public class NewsController {
 
-    private static final Duration TICK_STDDEV = Duration.seconds(15);
-    private static final Duration MIN_TICK = Duration.seconds(5);
-    private static final Duration ITEM_LIFETIME = Duration.seconds(25);
-    private static final double DEFAULT_INTERVAL_SECONDS = 60.0;
-
-    private final StackPane root;
-    private final NewsContainer container = new NewsContainer();
+    NewsArchive newsArchive;
     private final Random random = new Random();
-    private final GameSettings settings;
-    private Timeline timer;
-    private int index = 0;
-    private Consumer<NewsItem> onEmitted = _ -> {};
 
-    public NewsController(StackPane root) {
-        this(root, null);
+    public NewsController(StackPane root, GameSettings settings, NewsArchive newsArchive) {
+
+        this.newsArchive = Objects.requireNonNull(newsArchive);
     }
 
-    public NewsController(StackPane root, GameSettings settings) {
-        this.root = root;
-        this.settings = settings;
+    public void addNewsItem(NewsItem item) {
+        newsArchive.addNewItem(item);
     }
 
-    public void setOnNewsEmitted(Consumer<NewsItem> listener) {
-        this.onEmitted = Objects.requireNonNull(listener);
+
+    public ObservableList<NewsItem> getNewsObservable() {
+        return newsArchive.getActiveNewsItems();
     }
 
-    public void start() {
-        if (root == null) return;
-        container.mountIn(root);
-        if (timer != null) timer.stop();
-        scheduleNext();
+    public void advanceWeek() {
+        newsArchive.advance();
     }
 
-    public void stop() {
-        if (timer != null) {
-            timer.stop();
-            timer = null;
-        }
-        container.unmount();
+    public void publish() {
+        newsArchive.publishNews();
     }
-
-    public void push(String title, String message) {
-        pushItem(NewsItem.info(title, message));
-    }
-
-    public void pushItem(NewsItem item) {
-        NewsItem stamped = ensureStamped(item);
-
-        NewsDialog dialog = new NewsDialog(ITEM_LIFETIME);
-        dialog.setSentiment(stamped.sentiment());
-        dialog.setSymbol(stamped.sector() == null ? null : stamped.sector().getLabel());
-        dialog.setChangePercent(stamped.changePercent());
-        dialog.setText(stamped.title(), stamped.message());
-        dialog.setFooter(stamped.footerText());
-        dialog.showIn(container);
-
-        onEmitted.accept(stamped);
-    }
-
-    private static NewsItem ensureStamped(NewsItem item) {
-        if (item.when() != null) return item;
-        return new NewsItem(
-            item.sentiment(), item.sector(), item.changePercent(), item.drift(),
-            item.title(), item.message(), item.volatility(),
-            item.durationUpdates(), item.type(), Instant.now()
-        );
-    }
-
-    /**
-     * Schedule the next tick using a Gaussian-distributed delay centered on
-     * TICK_INTERVAL with TICK_STDDEV spread, floored at MIN_TICK.
-     */
-    private void scheduleNext() {
-        double intervalSeconds = settings != null
-            ? settings.getNewsIntervalSeconds()
-            : DEFAULT_INTERVAL_SECONDS;
-        double mean = Duration.seconds(intervalSeconds).toMillis();
-        double stddev = TICK_STDDEV.toMillis();
-        double jittered = mean + random.nextGaussian() * stddev;
-        double clamped = Math.max(MIN_TICK.toMillis(), jittered);
-
-        Duration nextDelay = Duration.millis(clamped);
-
-        timer = new Timeline(new KeyFrame(nextDelay, _ -> {
-            showNext();
-            scheduleNext(); // self-reschedule with a new random delay
-        }));
-        timer.setCycleCount(1);
-        timer.play();
-    }
-
-    private void showNext() {
-        // your existing logic
-    }
-
-    public NewsContainer getContainer() { return container; }
 }

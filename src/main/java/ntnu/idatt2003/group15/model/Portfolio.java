@@ -7,19 +7,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.util.Callback;
 
 /**
  * Manages a collection of stock holdings for a specific player.
  */
 public class Portfolio {
 
-  private final ObservableList<Share> shares = FXCollections.observableArrayList();
+  private final ObservableList<Share> shares = FXCollections.observableArrayList(
+      share -> new Observable[]{
+          share.quantityProperty(),
+          share.stock().getPriceBinding()
+      }
+  );
   private final Map<String, Share> shareIndex = new HashMap<>();
 
   private final ObjectBinding<BigDecimal> totalMarketValueBinding = new ObjectBinding<>() {
@@ -117,8 +124,13 @@ public class Portfolio {
    */
   public boolean removeShare(Share inputShare) throws NullPointerException {
     Objects.requireNonNull(inputShare, "Share cannot be null");
-    shareIndex.remove(inputShare.stock().getSymbol());
-    return shares.remove(inputShare);
+
+    boolean removed = shares.remove(inputShare);
+    if (removed) {
+      shareIndex.remove(inputShare.stock().getSymbol());
+    }
+
+    return removed;
   }
 
   /**

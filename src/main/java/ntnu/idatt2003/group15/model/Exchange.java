@@ -3,9 +3,12 @@ package ntnu.idatt2003.group15.model;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 import ntnu.idatt2003.group15.model.factories.TransactionFactory;
 import ntnu.idatt2003.group15.model.factories.TransactionType;
@@ -24,6 +27,8 @@ public class Exchange {
   private final StockSimulator simulator = new StockSimulator(SIMULATOR_DT);
   private final BigDecimal commission = new BigDecimal("0.01");
   private final BigDecimal tax = new BigDecimal("0.37");
+  private double volatilityMultiplier = 1.0;
+  private ObservableList<NewsItem> news = FXCollections.observableArrayList();
 
   /**
    * Initializes a new stock exchange with the given name and collection of initial stocks.
@@ -43,6 +48,14 @@ public class Exchange {
   }
 
   /**
+   * Sets the news events observable for applying changed stock drift, volatility etc
+   * @param news the list to watch for events
+   */
+  public void setNewsObservableList(ObservableList<NewsItem> news) {
+    this.news = Objects.requireNonNull(news, "news cannot be null");
+  }
+
+  /**
    * Retrieves the name of the exchange.
    *
    * @return the name of the exchange
@@ -51,14 +64,13 @@ public class Exchange {
     return name;
   }
 
-  /** Apply a global volatility multiplier to all subsequent price ticks. */
-  public void setVolatilityMultiplier(double multiplier) {
-    simulator.setVolatilityMultiplier(multiplier);
-  }
-
   /** Restore the simulation week (used when loading a saved game). */
   public void setWeek(int week) {
     this.week.set(week);
+  }
+
+  public void setVolatilityMultiplier(double volatilityMultiplier) {
+    this.volatilityMultiplier = volatilityMultiplier;
   }
 
   public ObservableIntegerValue getWeekProperty() {
@@ -166,29 +178,50 @@ public class Exchange {
   }
 
   /**
-   * Advances the calendar week and ticks every listed stock through the simulator,
-   * pushing the new price onto the stock when positive. Any active news-driven
-   * volatility windows registered via {@link #applyNews(NewsItem)} decay one
+   * Advances the calendar week and ticks every listed stock through the simulator
    * update per advance.
    */
   public void advance() {
     week.set(week.get() + 1);
+
     for (Stock stock : stockMap.values()) {
-      BigDecimal next = simulator.nextPrice(stock);
-      if (next.signum() > 0) {
-        stock.addNewSalesPrice(next);
+      double stackedVolatility = 1.0;
+      double stackedImpactJump = 0.0;
+
+      if (news != null) {
+        for (NewsItem item : news) {
+          if (item.sector() != null && !item.isExpired() && stock.getCategories().contains(item.sector())) {
+            
+            if (item.volatility() != null) {
+              stackedVolatility *= item.volatility().doubleValue();
+            }
+
+            if (!item.appliedChange() && item.changePercent() != null) {
+              stackedImpactJump += (item.changePercent().doubleValue() - 1.0);
+            }
+          }
+        }
+      }
+
+      double finalVolatilityModifier = this.volatilityMultiplier * stackedVolatility;
+      BigDecimal baseNextPrice = simulator.nextPrice(stock, finalVolatilityModifier);
+
+      BigDecimal impactMultiplier = BigDecimal.ONE.add(BigDecimal.valueOf(stackedImpactJump));
+      BigDecimal finalNextPrice = baseNextPrice.multiply(impactMultiplier);
+
+      if (finalNextPrice.signum() > 0) {
+        stock.addNewSalesPrice(finalNextPrice);
       }
     }
-  }
 
-  /**
-   * Apply a news headline to every stock whose categories include
-   * {@code item.sector()}: each affected stock takes an immediate
-   * {@code changePercent} price shock and enters an elevated-volatility window.
-   */
-  public void applyNews(NewsItem item) {
-    Objects.requireNonNull(item, "news item cannot be null");
-    simulator.applyNews(item, List.copyOf(stockMap.values()));
+    if (news != null) {
+      for (NewsItem item : news) {
+        if (!item.appliedChange()) {
+          item.setAppliedChange(true);
+        }
+        item.reduceDuration();
+      }
+    }
   }
 
   /**
