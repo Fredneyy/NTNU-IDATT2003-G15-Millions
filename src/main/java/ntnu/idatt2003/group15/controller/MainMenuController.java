@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.controller;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -55,21 +56,28 @@ public class MainMenuController {
   /**
    * Creates a new {@link Player} with the given name and starting balance, then notifies
    * the registered consumer with an {@link ExchangeController} and {@link PlayerController}
-   * scoped to that player.
+   * scoped to that player. If {@code customStocks} is non-null and non-empty, a fresh
+   * {@link Exchange} is built from them for this session; otherwise the default exchange
+   * is used.
    *
    * @param name the name entered by the user
    * @param startingMoney the starting balance, or {@code null} to use the default
+   * @param customStocks user-supplied stocks for this session, or {@code null} for default
    * @throws NullPointerException   if name is null
    * @throws BlankArgumentException if name is blank
    */
-  public void startGame(String name, BigDecimal startingMoney) throws BlankArgumentException, NullPointerException {
+  public void startGame(String name, BigDecimal startingMoney, List<Stock> customStocks)
+      throws BlankArgumentException, NullPointerException {
     Objects.requireNonNull(name, "Name cannot be null");
     if (startingMoney == null) {
       startingMoney = DEFAULT_STARTING_MONEY;
     }
     Player player = new Player(name, startingMoney);
     PlayerController playerController = createPlayerController(player);
-    onGameStartConsumer.accept(new ExchangeController(exchange, player), playerController);
+    Exchange exchangeForGame = (customStocks == null || customStocks.isEmpty())
+        ? this.exchange
+        : new Exchange(this.exchange.getName(), customStocks);
+    onGameStartConsumer.accept(new ExchangeController(exchangeForGame, player), playerController);
   }
 
   /**

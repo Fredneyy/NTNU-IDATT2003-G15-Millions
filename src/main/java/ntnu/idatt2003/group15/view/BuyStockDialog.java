@@ -12,18 +12,22 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class BuyStockDialog extends TransactionDialog {
 
   private final BiConsumer<Stock, BigDecimal> onConfirm;
+  private final Consumer<Throwable> errorHandler;
 
   private ChangeListener<BigDecimal> remainingSignListener;
   private ObservableValue<BigDecimal> remainingObservable;
 
   public BuyStockDialog(ObservableValue<BigDecimal> cashProperty,
-                        BiConsumer<Stock, BigDecimal> onConfirm) {
+                        BiConsumer<Stock, BigDecimal> onConfirm,
+                        Consumer<Throwable> errorHandler) {
     super(cashProperty);
     this.onConfirm = Objects.requireNonNull(onConfirm);
+    this.errorHandler = Objects.requireNonNull(errorHandler);
     summaryLabel2.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(cashProperty.getValue()), cashProperty));
     assembleBody();
@@ -104,8 +108,12 @@ public class BuyStockDialog extends TransactionDialog {
     transactionButton.setOnAction(_ -> {
       BigDecimal q = qtyValue.get();
       if (q == null || q.signum() <= 0) return;
-      onConfirm.accept(stock, q);
-      close();
+      try {
+        onConfirm.accept(stock, q);
+        close();
+      } catch (RuntimeException ex) {
+        errorHandler.accept(ex);
+      }
     });
 
     maxButton.setOnAction(_ -> {

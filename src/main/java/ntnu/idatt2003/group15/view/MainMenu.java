@@ -2,7 +2,6 @@ package ntnu.idatt2003.group15.view;
 
 import javafx.animation.*;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -17,6 +16,7 @@ import javafx.stage.Screen;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainMenuController;
 import ntnu.idatt2003.group15.model.SaveData;
+import ntnu.idatt2003.group15.model.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 import java.io.File;
@@ -51,6 +51,10 @@ public class MainMenu {
   private final VBox continuePlayingList = new VBox(8);
   private final Label continuePlayingEmpty = new Label("No saved games yet.");
   private VBox continueCard;
+  private final Label stocksStatusLabel = new Label("Default stocks");
+  private final Button chooseStocksButton = new Button("Use custom stocks…");
+  private final Button resetStocksButton = new Button("Reset");
+  private List<Stock> customStocks;
 
   public MainMenu(StackPane root, Consumer<Throwable> errorHandler,
                   CsvUtil csvUtil, TaskUtil taskUtil,
@@ -351,11 +355,37 @@ public class MainMenu {
     VBox inputFields = new VBox(10, nameField, startingMoneyField);
     HBox.setHgrow(inputFields, Priority.ALWAYS);
 
-    VBox card = new VBox(16, sectionBox, inputFields, playButton);
+    VBox stocksSection = buildStocksSection();
+
+    VBox card = new VBox(16, sectionBox, inputFields, stocksSection, playButton);
     card.getStyleClass().add("card");
     card.setAlignment(Pos.CENTER_LEFT);
 
     return card;
+  }
+
+  private VBox buildStocksSection() {
+    Label title = new Label("Stocks:");
+    title.getStyleClass().add("save-meta");
+    stocksStatusLabel.getStyleClass().add("save-meta");
+    HBox header = new HBox(6, title, stocksStatusLabel);
+    header.setAlignment(Pos.CENTER_LEFT);
+
+    FontIcon chooseIcon = new FontIcon(FontAwesome.UPLOAD);
+    chooseIcon.getStyleClass().add("load-save-icon");
+    chooseStocksButton.setGraphic(chooseIcon);
+    chooseStocksButton.getStyleClass().add("load-save-button");
+    HBox.setHgrow(chooseStocksButton, Priority.ALWAYS);
+    chooseStocksButton.setMaxWidth(Double.MAX_VALUE);
+
+    resetStocksButton.getStyleClass().add("load-save-button");
+    resetStocksButton.setVisible(false);
+    resetStocksButton.setManaged(false);
+
+    HBox controls = new HBox(8, chooseStocksButton, resetStocksButton);
+    controls.setAlignment(Pos.CENTER_LEFT);
+
+    return new VBox(6, header, controls);
   }
 
   private VBox buildContinueCard() {
@@ -465,7 +495,8 @@ public class MainMenu {
 
   private void loadFromFile(File file) {
     if (!file.exists()) {
-      showError("Save not found", file.getAbsolutePath());
+      errorHandler.accept(
+          new IllegalStateException("Save not found: " + file.getAbsolutePath()));
       doRefreshContinueCard();
       return;
     }
@@ -474,7 +505,7 @@ public class MainMenu {
       mainMenuController.loadGame(save);
       close();
     } catch (IOException | RuntimeException ex) {
-      showError("Could not load save", ex.getMessage() == null ? ex.toString() : ex.getMessage());
+      errorHandler.accept(ex);
     }
   }
 
@@ -491,14 +522,6 @@ public class MainMenu {
   private static String formatWhen(java.time.Instant when) {
     if (when == null) return "—";
     return WHEN_FORMAT.format(when.atZone(ZoneId.systemDefault()));
-  }
-
-  private static void showError(String header, String message) {
-    Alert a = new Alert(Alert.AlertType.ERROR);
-    a.setTitle("Millions");
-    a.setHeaderText(header);
-    a.setContentText(message);
-    a.showAndWait();
   }
 
   private void close() {
@@ -525,6 +548,41 @@ public class MainMenu {
     playButton.setOnAction(_ -> handlePlay());
 
     nameField.setOnAction(_ -> handlePlay());
+
+    chooseStocksButton.setOnAction(_ -> chooseCustomStocks());
+    resetStocksButton.setOnAction(_ -> resetStocks());
+  }
+
+  private void chooseCustomStocks() {
+    FileChooser chooser = new FileChooser();
+    chooser.setTitle("Choose custom stocks");
+    chooser.getExtensionFilters().addAll(
+        new FileChooser.ExtensionFilter("Stock data (*.csv, *.json)", "*.csv", "*.json"),
+        new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"),
+        new FileChooser.ExtensionFilter("JSON (*.json)", "*.json"));
+    File picked = chooser.showOpenDialog(view.getScene() == null ? null : view.getScene().getWindow());
+    if (picked == null) return;
+    try {
+      List<Stock> loaded = new StockLoader(picked.getAbsolutePath()).load();
+      if (loaded.isEmpty()) {
+        errorHandler.accept(
+            new IllegalStateException("The selected file contains no stocks."));
+        return;
+      }
+      customStocks = loaded;
+      stocksStatusLabel.setText(picked.getName() + " (" + loaded.size() + ")");
+      resetStocksButton.setVisible(true);
+      resetStocksButton.setManaged(true);
+    } catch (RuntimeException ex) {
+      errorHandler.accept(ex);
+    }
+  }
+
+  private void resetStocks() {
+    customStocks = null;
+    stocksStatusLabel.setText("Default stocks");
+    resetStocksButton.setVisible(false);
+    resetStocksButton.setManaged(false);
   }
 
   private void handlePlay() {
@@ -540,7 +598,8 @@ public class MainMenu {
     }
     if (!name.isBlank() && InputValidator.isInt(startingMoney)) {
         try {
-          mainMenuController.startGame(name, BigDecimal.valueOf(Long.parseLong(startingMoney)));
+          mainMenuController.startGame(
+              name, BigDecimal.valueOf(Long.parseLong(startingMoney)), customStocks);
           close();
         } catch (RuntimeException ex) {
           errorHandler.accept(ex);

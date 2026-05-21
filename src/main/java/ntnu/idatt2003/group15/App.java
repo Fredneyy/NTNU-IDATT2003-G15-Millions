@@ -6,6 +6,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import ntnu.idatt2003.group15.controller.MainController;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
+import ntnu.idatt2003.group15.utilities.StockLoader;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.ExceptionDialog;
 
@@ -29,7 +30,9 @@ public class App extends Application {
 
         root =  new StackPane();
         Scene scene = new Scene(root);
-        MainController mainController = new MainController(root, errorHandler, csvUtil, taskUtil);
+        MainController mainController = new MainController(
+            root, errorHandler, csvUtil, taskUtil,
+            new StockLoader("src/main/resources/storage/defaultstocks.csv").load());
         mainController.showMainMenu();
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/SettingsStyle.css")).toExternalForm());
@@ -65,6 +68,8 @@ public class App extends Application {
 
     private void setUpDependencies() {
         // infrastructure
+        exceptionDialog = new ExceptionDialog();
+        errorHandler = this::exceptionPopUp;
         taskUtil = new TaskUtil();
         try {
             taskUtil.init(Runtime.getRuntime().availableProcessors());
@@ -72,8 +77,6 @@ public class App extends Application {
             exceptionPopUp(e);
         }
         csvUtil = new CsvUtil();
-        errorHandler = this::exceptionPopUp;
-        exceptionDialog = new ExceptionDialog();
     }
 
 
