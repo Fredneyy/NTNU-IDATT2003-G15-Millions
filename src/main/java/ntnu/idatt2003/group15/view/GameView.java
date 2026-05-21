@@ -61,6 +61,7 @@ public class GameView {
   private final GameSettings gameSettings;
   private final Consumer<Throwable> errorHandler;
   private final InfoDialog infoDialog = new InfoDialog();
+  private HeaderView headerView;
 
   private final TabContainer tabContainer;
 
@@ -115,7 +116,7 @@ public class GameView {
         new TabContainer.Tab("trades",    "Trades",    FontAwesome.CLOCK_O,     tradesContent),
         new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent)
     );
-    HeaderView headerView = new HeaderView(runnableExit);
+    this.headerView = new HeaderView(runnableExit);
     settingsView = new SettingsView(view);
     settingsController = new SettingsController(settingsView, gameSettings);
     headerView.setPlayerName(player.getName());
@@ -124,6 +125,13 @@ public class GameView {
     HBox header = headerView.createHeader();
     headerView.getSettingsButton().setOnAction(_ -> settingsView.toggle());
     headerView.getSaveButton().setOnAction(_ -> saveGame());
+    headerView.getAdvanceWeekButton().setOnAction(_ -> {
+      try {
+        exchangeController.advanceWeek();
+      } catch (RuntimeException ex) {
+        errorHandler.accept(ex);
+      }
+    });
 
     addStatisticsCards();
     searchBar = buildSearchBar();
@@ -196,6 +204,11 @@ public class GameView {
 
   public SettingsController getSettingsController() {
     return settingsController;
+  }
+
+  /** Selected state of the header's Auto-advance checkbox. */
+  public javafx.beans.property.BooleanProperty autoAdvanceProperty() {
+    return headerView.getAutoAdvanceCheckBox().selectedProperty();
   }
 
 

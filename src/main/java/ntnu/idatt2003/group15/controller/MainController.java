@@ -96,7 +96,19 @@ public class MainController {
         errorHandler.accept(ex);
       }
     });
-    startPriceTicker(exchangeController);
+
+    // Ticker follows the header's Auto-advance toggle; manual advance is wired in GameView.
+    applyAutoAdvance(gameView.autoAdvanceProperty().get(), exchangeController);
+    gameView.autoAdvanceProperty().addListener(
+        (_, _, on) -> applyAutoAdvance(Boolean.TRUE.equals(on), exchangeController));
+  }
+
+  private void applyAutoAdvance(boolean on, ExchangeController exchangeController) {
+    if (on) {
+      startPriceTicker(exchangeController);
+    } else {
+      stopPriceTicker();
+    }
   }
 
   private void startPriceTicker(ExchangeController exchangeController) {
