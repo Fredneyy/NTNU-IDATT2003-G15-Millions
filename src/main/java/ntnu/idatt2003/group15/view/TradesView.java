@@ -8,12 +8,15 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
@@ -54,10 +57,15 @@ public class TradesView {
     private final Label subtitle = new Label("0 transactions recorded");
     private final Label totalVolume = new Label("$0.00");
     private final VBox rowsContainer = new VBox();
+    private final FilteredList<TradeRecord> filteredTradeRecords;
+    private final HashMap<TradeRecord, TradeRow> tradeRows = new HashMap<>();
 
     private final ObservableList<TradeRecord> trades = FXCollections.observableArrayList();
 
     public TradesView() {
+
+        filteredTradeRecords = new FilteredList<>(trades, _ -> true);
+
         view.getStyleClass().add("trades-card");
 
         view.getChildren().addAll(buildHeader(), buildBody());
@@ -129,21 +137,21 @@ public class TradesView {
         return sum;
     }
 
-    /** Rebuild the entire list of rows. Cheap given the typical transaction count. */
     private void rebuildRows() {
-        List<TradeRow> built = new ArrayList<>(trades.size());
-        for (int i = 0; i < trades.size(); i++) {
-            TradeRow row = new TradeRow(trades.get(i), i < trades.size() - 1);
-            built.add(row);
+        List<TradeRecord> snapshot = new ArrayList<>(trades);
+
+        for (TradeRecord tradeRecord : snapshot) {
+            if (!tradeRows.containsKey(tradeRecord)) {
+                TradeRow tradeRow = new TradeRow(tradeRecord, true);
+                tradeRows.put(tradeRecord, tradeRow);
+                rowsContainer.getChildren().add(tradeRow.getView());
+            }
         }
-        rowsContainer.getChildren().setAll(built.stream().map(r -> (javafx.scene.Node) r.root).toList());
     }
 
     public VBox getView() { return view; }
     public ObservableList<TradeRecord> getTrades() { return trades; }
     public void setTrades(List<TradeRecord> records) { trades.setAll(records); }
-
-    // ----- Row layout -----
 
     private static final class TradeRow {
         final VBox root = new VBox();
@@ -225,6 +233,20 @@ public class TradesView {
             }
         }
 
+        public VBox getView() {
+            return root;
+        }
+
+        public void setDisabled() {
+            root.setManaged(false);
+            root.setVisible(false);
+        }
+
+        public void setVisible() {
+            root.setVisible(true);
+            root.setManaged(true);
+        }
+
         private static HBox metaPair(String label, String value) {
             Label l = new Label(label);
             l.getStyleClass().add("trade-meta-label");
@@ -250,6 +272,29 @@ public class TradesView {
             long months = days / 30;
             if (months < 12)       return months + "mo ago";
             return (days / 365) + "y ago";
+        }
+    }
+
+    /** Filter table rows by symbol/company substring (case insensitive). Empty resets. */
+    public void setSearchFilter(String query) {
+        if (query == null || query.isBlank()) {
+            filteredTradeRecords.setPredicate(_ -> true);
+        } else {
+            String q = query.trim().toLowerCase();
+            filteredTradeRecords.setPredicate(s ->
+                s.company().toLowerCase().contains(q)
+                    || s.symbol().toLowerCase().contains(q));
+        }
+
+        // Show/hide rows to match the current predicate
+        for (TradeRecord record : trades) {
+            TradeRow row = tradeRows.get(record);
+            if (row == null) continue;
+            if (filteredTradeRecords.contains(record)) {
+                row.setVisible();
+            } else {
+                row.setDisabled();
+            }
         }
     }
 }

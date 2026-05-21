@@ -57,6 +57,7 @@ public class MarketTableView {
         this.onChartPressed = onChartPressed;
         this.stocks = stocks;
         this.filteredStocks = new FilteredList<>(stocks, _ -> true);
+        VBox.setVgrow(table, Priority.ALWAYS);
 
         buildHeader();
         buildTable();

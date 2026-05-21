@@ -33,7 +33,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 public class GameView {
 
-  private static final Set<String> TABS_WITH_SEARCH = Set.of("market", "portfolio");
+  private static final Set<String> TABS_WITH_SEARCH = Set.of("market", "portfolio", "trades");
 
   private final StackPane view = new StackPane();
   private StackPane root;
@@ -50,6 +50,7 @@ public class GameView {
   private final HBox searchBar;
   private final VBox marketContent;
   private final VBox portfolioContent;
+  private final VBox tradesContent;
   private final ExchangeController exchangeController;
   private final PlayerController playerController;
   private final GameSettings gameSettings;
@@ -97,7 +98,7 @@ public class GameView {
     VBox statsContent = new VBox(statsView.getView());
     new StatsController(statsView, playerController, exchangeController);
     TradesView tradesView = new TradesView();
-    VBox tradesContent = new VBox(tradesView.getView());
+    tradesContent = new VBox(tradesView.getView());
     bindTradesView(tradesView);
     VBox newsContent = new VBox(newsFeedView.getView());
     tabContainer = new TabContainer(
@@ -125,6 +126,7 @@ public class GameView {
     searchField.textProperty().addListener((_, _, q) -> {
       marketTable.setSearchFilter(q);
       portfolioTable.setSearchFilter(q);
+      tradesView.setSearchFilter(q);
     });
 
     VBox.setVgrow(tabContainer.getView(), Priority.ALWAYS);
@@ -139,7 +141,7 @@ public class GameView {
     VBox layout = new VBox();
     layout.getStyleClass().add("game-layout");
     layout.setFillWidth(false);
-    layout.setAlignment(Pos.TOP_CENTER);
+    layout.setAlignment(Pos.CENTER);
     layout.getChildren().addAll(
         header,
         settingsView.getView(),
@@ -153,7 +155,6 @@ public class GameView {
     scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
     scroll.getStyleClass().add("game-scroll");
-    StackPane.setAlignment(scroll, Pos.TOP_CENTER);
     view.getChildren().add(scroll);
 
     news.addListener((ListChangeListener<? super NewsItem>) c -> {
@@ -391,6 +392,7 @@ public class GameView {
     return switch (tabId) {
       case "market" -> marketContent;
       case "portfolio" -> portfolioContent;
+      case "trades" -> tradesContent;
       default -> null;
     };
   }

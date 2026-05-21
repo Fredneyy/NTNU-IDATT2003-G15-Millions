@@ -141,7 +141,7 @@ public class MainMenu {
     scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
     scroll.getStyleClass().add("menu-scroll");
-    StackPane.setAlignment(scroll, Pos.TOP_CENTER);
+    StackPane.setAlignment(scroll, Pos.CENTER);
 
     view.getChildren().addAll(particleLayer, scroll);
   }
