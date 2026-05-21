@@ -168,9 +168,11 @@ public class GameView {
     view.getChildren().add(scroll);
 
     news.addListener((ListChangeListener<? super NewsItem>) c -> {
-      if (c.next() && c.wasAdded()) {
-        for (NewsItem item : c.getAddedSubList()) {
-          onNewsEmitted(item);
+      while (c.next()) {
+        if (c.wasAdded()) {
+          for (NewsItem item : c.getAddedSubList()) {
+            onNewsEmitted(item);
+          }
         }
       }
     });
