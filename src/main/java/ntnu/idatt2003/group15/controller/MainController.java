@@ -26,12 +26,15 @@ public class MainController {
   private final StackPane root;
   private final NewsController newsController;
   private final GameSettings gameSettings = new GameSettings();
+  private final Consumer<Throwable> errorHandler;
   private Timeline priceTicker;
 
-  public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil, TaskUtil taskUtil) {
+  public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil,
+                        TaskUtil taskUtil, List<Stock> stocks) {
     this.csvUtil = csvUtil;
     this.taskUtil = taskUtil;
     this.root = root;
+    this.errorHandler = errorHandler;
 
     MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", loadStocks()), this::startGame);
     mainMenuController.setGameSettings(gameSettings);
@@ -42,6 +45,7 @@ public class MainController {
   }
 
   public void showMainMenu() {
+    newsController.stop();
     stopPriceTicker();
     // Clear any blur/effect that may have leaked onto the menu from an open
     // dialog (e.g. logging out while the onboarding overlay is still up).
@@ -84,7 +88,8 @@ public class MainController {
 
   private void enterGame(ExchangeController exchangeController, PlayerController playerController,
                          boolean showOnboarding) {
-    GameView gameView = new GameView(playerController, exchangeController, gameSettings, this::showMainMenu, newsController);
+    GameView gameView = new GameView(playerController, exchangeController, gameSettings,
+        this::showMainMenu, errorHandler);
     gameView.show(root);
     // Take the main menu out of the scene so it can't be blurred (or otherwise
     // affected) by overlays drawn on top of the game view.
@@ -94,20 +99,41 @@ public class MainController {
     }
 
     // Propagate the current volatility multiplier and keep it in sync as the user adjusts settings.
-    exchangeController.setVolatilityMultiplier(gameSettings.getVolatilityMultiplier());
-    exchangeController.setNewsObserver(newsController.getNewsObservable());
-    gameSettings.volatilityMultiplierProperty().addListener(
-        (_, _, v) -> exchangeController.setVolatilityMultiplier(v.doubleValue()));
+    try {
+      exchangeController.setVolatilityMultiplier(gameSettings.getVolatilityMultiplier());
+    } catch (RuntimeException ex) {
+      errorHandler.accept(ex);
+    }
+    gameSettings.volatilityMultiplierProperty().addListener((_, _, v) -> {
+      try {
+        exchangeController.setVolatilityMultiplier(v.doubleValue());
+      } catch (RuntimeException ex) {
+        errorHandler.accept(ex);
+      }
+    });
 
+    newsController.start();
+    newsController.setOnNewsEmitted(item -> {
+      try {
+        gameView.onNewsEmitted(item);
+        if (item.sector() != null) {
+          exchangeController.applyNews(item);
+        }
+      } catch (RuntimeException ex) {
+        errorHandler.accept(ex);
+      }
+    });
     startPriceTicker(exchangeController);
   }
 
   private void startPriceTicker(ExchangeController exchangeController) {
     stopPriceTicker();
-    priceTicker = new Timeline(new KeyFrame(
-        Duration.seconds(2), _ -> {
-          exchangeController.advanceWeek();
-          newsController.advanceWeek();
+    priceTicker = new Timeline(new KeyFrame(Duration.seconds(5), _ -> {
+      try {
+        exchangeController.advanceWeek();
+      } catch (RuntimeException ex) {
+        errorHandler.accept(ex);
+      }
     }));
     priceTicker.setCycleCount(Animation.INDEFINITE);
     priceTicker.play();

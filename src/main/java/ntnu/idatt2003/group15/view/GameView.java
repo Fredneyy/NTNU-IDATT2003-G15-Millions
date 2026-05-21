@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -16,7 +17,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
@@ -24,8 +24,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
-import ntnu.idatt2003.group15.controller.*;
+import ntnu.idatt2003.group15.controller.ExchangeController;
+import ntnu.idatt2003.group15.controller.PlayerController;
+import ntnu.idatt2003.group15.controller.PortfolioController;
+import ntnu.idatt2003.group15.controller.SettingsController;
+import ntnu.idatt2003.group15.controller.StatsController;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
@@ -37,6 +40,7 @@ public class GameView {
 
   private final StackPane view = new StackPane();
   private StackPane root;
+
   private final SettingsView settingsView;
   private final SettingsController settingsController;
   private final StatisticsOverview statisticsOverview = new StatisticsOverview();
@@ -48,30 +52,37 @@ public class GameView {
   private final NewsFeedView newsFeedView = new NewsFeedView();
   private final TextField searchField = new TextField();
   private final HBox searchBar;
+
   private final VBox marketContent;
   private final VBox portfolioContent;
   private final VBox tradesContent;
   private final ExchangeController exchangeController;
   private final PlayerController playerController;
   private final GameSettings gameSettings;
+  private final Consumer<Throwable> errorHandler;
+  private final InfoDialog infoDialog = new InfoDialog();
+
   private final TabContainer tabContainer;
   private ObservableList<NewsItem> news;
   private int unreadNews = 0;
   private final NewsContainer newsContainer = new NewsContainer();
 
   public GameView(PlayerController player, ExchangeController exchange,
-                  GameSettings settings, Runnable runnableExit, NewsController newsController) {
+                  GameSettings settings, Runnable runnableExit,
+                  Consumer<Throwable> errorHandler) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
     this.news = Objects.requireNonNull(newsController.getNewsObservable());
     this.newsFeedView.setEvents(newsController.getNewsObservable());
     this.gameSettings = Objects.requireNonNull(settings, "settings");
+    this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler");
     ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
     marketStocks.addAll(exchangeController.getAllStocks());
 
     buyStockDialog = new BuyStockDialog(
         exchangeController.cashProperty(),
-        exchangeController::buy);
+        exchangeController::buy,
+        errorHandler);
 
     PortfolioController portfolioController =
         new PortfolioController(playerController.getPortfolio());
@@ -82,7 +93,8 @@ public class GameView {
         new SaleCalculator(),
         exchangeController.getCommission(),
         exchangeController.getTax(),
-        exchangeController::sell);
+        exchangeController::sell,
+        errorHandler);
 
     portfolioTable = new PortfolioTableView(portfolioController,
         share -> sellStockDialog.show(view, share),
@@ -171,6 +183,9 @@ public class GameView {
     });
   }
 
+  /** Unread count behind the News tab badge; reset when the tab is opened. */
+  private int unreadNews = 0;
+
   /**
    * Forward a freshly-emitted news item into the feed and bump the unread
    * counter on the News tab (unless that tab is already open).
@@ -189,6 +204,15 @@ public class GameView {
     unreadNews = 0;
     tabContainer.setBadge("news", null);
   }
+
+  public NewsFeedView getNewsFeedView() {
+    return newsFeedView;
+  }
+
+  public SettingsController getSettingsController() {
+    return settingsController;
+  }
+
 
   public void show(StackPane root) {
     if (root != null && !root.getChildren().contains(view)) {
@@ -298,6 +322,8 @@ public class GameView {
     boolean sell = tx instanceof Sale;
     TradesView.TradeType type = sell ? TradesView.TradeType.SELL : TradesView.TradeType.BUY;
     Stock stock = tx.getShare().stock();
+    // For sells, prefer the actual sale price captured at commit time; the lot's
+    // pricePerShare is the original *buy* price.
     BigDecimal price = tx.getShare().pricePerShare();
     if (sell) {
       BigDecimal sp = ((Sale) tx).getSalePricePerShare();
