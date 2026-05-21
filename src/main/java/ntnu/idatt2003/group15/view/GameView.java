@@ -17,6 +17,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
@@ -24,11 +25,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import ntnu.idatt2003.group15.controller.ExchangeController;
-import ntnu.idatt2003.group15.controller.PlayerController;
-import ntnu.idatt2003.group15.controller.PortfolioController;
-import ntnu.idatt2003.group15.controller.SettingsController;
-import ntnu.idatt2003.group15.controller.StatsController;
+import javafx.util.Duration;
+import ntnu.idatt2003.group15.controller.*;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
@@ -69,7 +67,7 @@ public class GameView {
 
   public GameView(PlayerController player, ExchangeController exchange,
                   GameSettings settings, Runnable runnableExit,
-                  Consumer<Throwable> errorHandler) {
+                  Consumer<Throwable> errorHandler, NewsController newsController) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
     this.news = Objects.requireNonNull(newsController.getNewsObservable());
@@ -182,9 +180,6 @@ public class GameView {
       if (sel != null && "news".equals(sel.getId())) clearNewsBadge();
     });
   }
-
-  /** Unread count behind the News tab badge; reset when the tab is opened. */
-  private int unreadNews = 0;
 
   /**
    * Forward a freshly-emitted news item into the feed and bump the unread

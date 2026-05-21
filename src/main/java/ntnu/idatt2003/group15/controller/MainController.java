@@ -7,6 +7,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.utilities.CsvUtil;
+import ntnu.idatt2003.group15.utilities.StockLoader;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;
@@ -44,38 +45,19 @@ public class MainController {
     seedNews(newsController);
   }
 
+  private List<Stock> loadStocks() {
+    StockLoader stockLoader = new StockLoader("src/main/resources/storage/defaultstocks.csv");
+    List<Stock> stocks = stockLoader.load();
+    return stocks;
+  }
+
   public void showMainMenu() {
-    newsController.stop();
     stopPriceTicker();
     // Clear any blur/effect that may have leaked onto the menu from an open
     // dialog (e.g. logging out while the onboarding overlay is still up).
     mainMenu.getView().setEffect(null);
     mainMenu.refreshContinueCard();
     root.getChildren().setAll(mainMenu.getView());
-  }
-
-  private List<Stock> loadStocks() {
-    List<List<String>> rawStockValues = new ArrayList<>(
-        csvUtil.readCsvFile("src/main/resources/storage/stocks.csv")
-    );
-    rawStockValues.removeFirst();
-    List<Stock> stocks = new ArrayList<>();
-    for (List<String> stockvalue : rawStockValues) {
-      String[] sectorsStrings = stockvalue.getLast().split("\\|");
-      List<StockSectors> sectors = new ArrayList<>();
-      for (String sector : sectorsStrings) {
-        sectors.add(StockSectors.fromLabel(sector));
-      }
-      stocks.add(new Stock(
-          stockvalue.getFirst(),
-          stockvalue.get(1),
-          BigDecimal.valueOf(Double.parseDouble(stockvalue.get(2))),
-          Double.parseDouble(stockvalue.get(3)),
-          Double.parseDouble(stockvalue.get(4)),
-          sectors)
-      );
-    }
-    return stocks;
   }
 
   private void startGame(ExchangeController exchangeController, PlayerController playerController) {
@@ -89,7 +71,7 @@ public class MainController {
   private void enterGame(ExchangeController exchangeController, PlayerController playerController,
                          boolean showOnboarding) {
     GameView gameView = new GameView(playerController, exchangeController, gameSettings,
-        this::showMainMenu, errorHandler);
+        this::showMainMenu, errorHandler, newsController);
     gameView.show(root);
     // Take the main menu out of the scene so it can't be blurred (or otherwise
     // affected) by overlays drawn on top of the game view.
@@ -107,18 +89,6 @@ public class MainController {
     gameSettings.volatilityMultiplierProperty().addListener((_, _, v) -> {
       try {
         exchangeController.setVolatilityMultiplier(v.doubleValue());
-      } catch (RuntimeException ex) {
-        errorHandler.accept(ex);
-      }
-    });
-
-    newsController.start();
-    newsController.setOnNewsEmitted(item -> {
-      try {
-        gameView.onNewsEmitted(item);
-        if (item.sector() != null) {
-          exchangeController.applyNews(item);
-        }
       } catch (RuntimeException ex) {
         errorHandler.accept(ex);
       }
@@ -205,5 +175,4 @@ public class MainController {
         false
     ));
   }
-
 }
