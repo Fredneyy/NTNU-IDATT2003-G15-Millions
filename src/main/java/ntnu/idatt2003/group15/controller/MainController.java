@@ -11,11 +11,8 @@ import ntnu.idatt2003.group15.utilities.StockLoader;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;
-import ntnu.idatt2003.group15.view.NewsDialog;
 import ntnu.idatt2003.group15.view.OnBoardingDialog;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -42,7 +39,6 @@ public class MainController {
     mainMenuController.setOnGameLoadConsumer(this::resumeGame);
     mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
     newsController = new NewsController(root, gameSettings, new NewsArchive());
-    seedNews(newsController);
   }
 
   private List<Stock> loadStocks() {
@@ -73,6 +69,7 @@ public class MainController {
     GameView gameView = new GameView(playerController, exchangeController, gameSettings,
         this::showMainMenu, errorHandler, newsController);
     gameView.show(root);
+    exchangeController.setNewsObserver(newsController.getNewsObservable());
     // Take the main menu out of the scene so it can't be blurred (or otherwise
     // affected) by overlays drawn on top of the game view.
     root.getChildren().remove(mainMenu.getView());
@@ -107,12 +104,6 @@ public class MainController {
     }));
     priceTicker.setCycleCount(Animation.INDEFINITE);
     priceTicker.play();
-    Timeline timeline = new Timeline(new KeyFrame(
-        Duration.seconds(50), _ -> {
-          newsController.publish();
-    }));
-    timeline.setCycleCount(Animation.INDEFINITE);
-    timeline.play();
   }
 
   private void stopPriceTicker() {
@@ -120,59 +111,5 @@ public class MainController {
       priceTicker.stop();
       priceTicker = null;
     }
-  }
-
-  private void seedNews(NewsController newsController) {
-    newsController.addNewsItem(new NewsItem(
-        NewsDialog.Sentiment.BULLISH,
-        StockSectors.TECHNOLOGY,
-        new BigDecimal("1.2"),
-        "Tech rally",
-        "Strong earnings lifted tech stocks this week.",
-        new BigDecimal("0.15"),
-        10,
-        "sector",
-        null,
-        false
-    ));
-
-    newsController.addNewsItem(new NewsItem(
-        NewsDialog.Sentiment.BEARISH,
-        StockSectors.ENERGY,
-        new BigDecimal("-0.7"),
-        "Energy pullback",
-        "Oil demand worries hit the energy sector.",
-        new BigDecimal("1.2"),
-        5,
-        "sector",
-        null,
-        false
-    ));
-
-    newsController.addNewsItem(new NewsItem(
-        NewsDialog.Sentiment.BULLISH,
-        StockSectors.TECHNOLOGY,
-        new BigDecimal("1.2"),
-        "Tech rally",
-        "Strong earnings lifted tech stocks this week.",
-        new BigDecimal("0.15"),
-        10,
-        "sector",
-        null,
-        false
-    ));
-
-    newsController.addNewsItem(new NewsItem(
-        NewsDialog.Sentiment.BEARISH,
-        StockSectors.ENERGY,
-        new BigDecimal("-0.8"),
-        "Energy pullback",
-        "Oil demandsorries hitdgy sector.",
-        new BigDecimal("1.2"),
-        5,
-        "sector",
-        null,
-        false
-    ));
   }
 }
