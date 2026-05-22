@@ -25,10 +25,10 @@ public class CsvNewsParser implements NewsParser {
     List<NewsItem> newsItems = new ArrayList<>();
     for (List<String> row : rows) {
       newsItems.add(new NewsItem(
-          StockSectors.fromLabel(row.get(1)),
-          BigDecimal.valueOf(Double.parseDouble(row.get(3))),
           row.getFirst(),
+          StockSectors.fromLabel(row.get(1)),
           BigDecimal.valueOf(Double.parseDouble(row.get(2))),
+          BigDecimal.valueOf(Double.parseDouble(row.get(3))),
           Integer.parseInt(row.getLast()),
           null, false
       ));

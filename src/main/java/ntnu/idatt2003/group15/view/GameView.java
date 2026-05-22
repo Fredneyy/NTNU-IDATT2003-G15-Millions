@@ -264,7 +264,7 @@ public class GameView {
       SaveGameUtil.save(target, playerController, exchangeController, gameSettings);
       showInfo("Game saved", "Saved to:\n" + target.getAbsolutePath());
     } catch (IOException ex) {
-      showError("Could not save game", ex.getMessage());
+      errorHandler.accept(ex);
     }
   }
 
@@ -290,22 +290,14 @@ public class GameView {
       return item;
     }
     return new NewsItem(
-        item.sector(), item.changePercent(),
-        item.headline(), item.volatility(),
+        item.headline(),
+        item.sector(), item.volatility(), item.changePercent(),
         item.durationUpdates(), Instant.now(), item.appliedChange()
     );
   }
 
   private static void showInfo(String header, String message) {
     Alert a = new Alert(Alert.AlertType.INFORMATION);
-    a.setTitle("Millions");
-    a.setHeaderText(header);
-    a.setContentText(message);
-    a.showAndWait();
-  }
-
-  private static void showError(String header, String message) {
-    Alert a = new Alert(Alert.AlertType.ERROR);
     a.setTitle("Millions");
     a.setHeaderText(header);
     a.setContentText(message);

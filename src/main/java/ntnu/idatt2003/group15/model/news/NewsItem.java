@@ -29,10 +29,10 @@ public class NewsItem {
    * @param appliedChange   the applied change
    */
   public NewsItem(
-      StockSectors sector,
-      BigDecimal changePercent,
       String headline,
+      StockSectors sector,
       BigDecimal volatility,
+      BigDecimal changePercent,
       int durationUpdates,
       Instant when,
       boolean appliedChange
@@ -83,12 +83,11 @@ public class NewsItem {
    * does not affect stocks but shows information.
    *
    * @param headline the headline
-   * @param message  the message
    * @return the news item
    */
-  public static NewsItem info(String headline, String message) {
-    return new NewsItem(null, null,
-        headline, null, 0, Instant.now(), false);
+  public static NewsItem info(String headline) {
+    return new NewsItem(headline, null,
+        null, null, 0, Instant.now(), false);
   }
 
   /**
