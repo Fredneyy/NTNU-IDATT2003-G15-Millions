@@ -1,11 +1,10 @@
 package ntnu.idatt2003.group15.model.transactions;
 
-import ntnu.idatt2003.group15.model.player.Player;
-import ntnu.idatt2003.group15.model.stocks.Share;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
+import ntnu.idatt2003.group15.model.player.Player;
+import ntnu.idatt2003.group15.model.stocks.Share;
 
 /**
  * Represents a buy transaction executed on the stock exchange.
@@ -28,7 +27,9 @@ public class Purchase extends Transaction {
    */
   public static Purchase restored(Share lot, int week, Instant committedAt) {
     Purchase p = new Purchase(lot, week);
-    if (committedAt != null) p.setCommittedAt(committedAt);
+    if (committedAt != null) {
+      p.setCommittedAt(committedAt);
+    }
     p.setCommitted(true);
     return p;
   }

@@ -3,7 +3,6 @@ package ntnu.idatt2003.group15.model;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
@@ -55,7 +54,8 @@ public class Exchange {
   }
 
   /**
-   * Sets the news events observable for applying changed stock drift, volatility etc
+   * Sets the news events observable for applying changed stock drift, volatility etc.
+   *
    * @param news the list to watch for events
    */
   public void setNewsObservableList(ObservableList<NewsItem> news) {
@@ -147,7 +147,8 @@ public class Exchange {
     if (existing != null) {
       existing.buy(quantity, stock.getSalesPrice());
     }
-    Purchase tx = (Purchase) TransactionFactory.createTransaction(TransactionType.PURCHASE, share, week.get());
+    Purchase tx = (Purchase) TransactionFactory
+        .createTransaction(TransactionType.PURCHASE, share, week.get());
     tx.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
   }
 
@@ -164,12 +165,14 @@ public class Exchange {
     Objects.requireNonNull(amount, "Amount cannot be null");
 
     if (share.quantity().compareTo(amount) == 0) {
-      Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, share, week.get());
+      Sale tx = (Sale) TransactionFactory
+          .createTransaction(TransactionType.SALE, share, week.get());
       tx.commit(player, commission, tax);
     } else {
       Share sellLot = new Share(share.stock(), amount, share.pricePerShare());
       share.sell(amount);
-      Sale tx = (Sale) TransactionFactory.createTransaction(TransactionType.SALE, sellLot, week.get());
+      Sale tx = (Sale) TransactionFactory
+          .createTransaction(TransactionType.SALE, sellLot, week.get());
       tx.commit(player, commission, tax);
     }
   }
@@ -190,19 +193,6 @@ public class Exchange {
    */
   public void advance() {
     week.set(week.get() + 1);
-    
-    // Evaluate base effects for the whole week first since they rely on global news events
-    double globalStackedVolatility = 1.0;
-    
-    if (news != null) {
-      for (NewsItem item : news) {
-        if (!item.isExpired()) {
-          if (item.volatility() != null) {
-              globalStackedVolatility *= item.volatility().doubleValue();
-          }
-        }
-      }
-    }
 
     for (Stock stock : stockMap.values()) {
       double stackedVolatility = 1.0;
@@ -212,7 +202,8 @@ public class Exchange {
 
       if (news != null) {
         for (NewsItem item : news) {
-          if (item.sector() != null && !item.isExpired() && stock.getCategories().contains(item.sector())) {
+          if (item.sector() != null && !item.isExpired()
+              && stock.getCategories().contains(item.sector())) {
             
             if (item.volatility() != null) {
               stackedVolatility *= item.volatility().doubleValue();
@@ -225,9 +216,9 @@ public class Exchange {
               double finalIndividualChange = baseChange + randomFactor;
 
               if (baseChange > 0 && finalIndividualChange <= 0) {
-                  finalIndividualChange = 0.005; 
+                finalIndividualChange = 0.005;
               } else if (baseChange < 0 && finalIndividualChange >= 0) {
-                  finalIndividualChange = -0.005;
+                finalIndividualChange = -0.005;
               }
               
               stackedImpactJump += finalIndividualChange;

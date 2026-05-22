@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleStringProperty;
@@ -34,7 +33,8 @@ public class Stock {
    * @param company the name of the stock
    * @param salesPrice the price of the stock
    */
-  public Stock(String symbol, String company, BigDecimal salesPrice, double drift, double volatility, List<StockSectors> categories)
+  public Stock(String symbol, String company, BigDecimal salesPrice,
+               double drift, double volatility, List<StockSectors> categories)
       throws NullPointerException, BlankArgumentException, IllegalArgumentException {
     Objects.requireNonNull(symbol, "Symbol cannot be null");
     this.categories = FXCollections.observableArrayList(categories);
@@ -226,7 +226,8 @@ public class Stock {
   }
 
   /**
-   * Returns the latest price object binding
+   * Returns the latest price object binding.
+   *
    * @return object binding for the latest price
    */
   public ObjectBinding<BigDecimal> getPriceBinding() {

@@ -1,11 +1,10 @@
 package ntnu.idatt2003.group15.model.transactions;
 
-import ntnu.idatt2003.group15.model.player.Player;
-import ntnu.idatt2003.group15.model.stocks.Share;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
+import ntnu.idatt2003.group15.model.player.Player;
+import ntnu.idatt2003.group15.model.stocks.Share;
 
 /**
  * Defines the base structure for financial operations within the market.
@@ -15,7 +14,6 @@ public abstract class Transaction {
   private final int week;
   private final TransactionCalculator calculator;
   private boolean committed;
-  /** Wall-clock timestamp; defaults to creation time and survives save/load. */
   private Instant committedAt = Instant.now();
 
   /**
