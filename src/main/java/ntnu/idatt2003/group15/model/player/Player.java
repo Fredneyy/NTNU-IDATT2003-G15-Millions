@@ -53,7 +53,9 @@ public class Player {
         () -> netWorthBinding.get().subtract(startingMoney),
         netWorthBinding);
     this.netWorthChangePercentBinding = Bindings.createObjectBinding(() -> {
-      if (startingMoney.signum() == 0) return BigDecimal.ZERO;
+      if (startingMoney.signum() == 0) {
+        return BigDecimal.ZERO;
+      }
       return netWorthChangeBinding.get()
           .divide(startingMoney, 4, RoundingMode.HALF_UP)
           .movePointRight(2);

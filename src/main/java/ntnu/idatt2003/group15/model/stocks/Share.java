@@ -3,7 +3,6 @@ package ntnu.idatt2003.group15.model.stocks;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import ntnu.idatt2003.group15.utilities.InputValidator;
@@ -20,7 +19,7 @@ public class Share {
   private final ObjectProperty<BigDecimal> quantityProperty = new SimpleObjectProperty<>();
 
   /**
-   * Constructs a share representing an ownership fraction at a fixed purchase price.
+   * Constructs a share representing an ownership at a fixed purchase price.
    *
    * @param stock         the stock
    * @param quantity      the amount of shares
@@ -35,18 +34,38 @@ public class Share {
     setPricePerShare(pricePerShare);
   }
 
+  /**
+   * Returns the stock of the share.
+   *
+   * @return the stock
+   */
   public Stock stock() {
     return stock;
   }
 
+  /**
+   * Returns the Quantity.
+   *
+   * @return the big decimal container the quantity of shares
+   */
   public BigDecimal quantity() {
     return quantity;
   }
 
+  /**
+   * Returns the price per share.
+   *
+   * @return the big decimal containing the price per share
+   */
   public BigDecimal pricePerShare() {
     return pricePerShare;
   }
 
+  /**
+   * Returns the quantity property object property.
+   *
+   * @return the object property containing the quantity of shares
+   */
   public ObjectProperty<BigDecimal> quantityProperty() {
     return quantityProperty;
   }
@@ -74,7 +93,7 @@ public class Share {
    * @param quantity the quantity to sell
    * @throws IllegalArgumentException if quantity exceeds held amount
    */
-  public void sell(BigDecimal quantity) {
+  public void sell(BigDecimal quantity) throws IllegalArgumentException {
     validateQuantity(quantity);
     setQuantity(this.quantity.subtract(quantity));
   }
@@ -84,8 +103,9 @@ public class Share {
    *
    * @param quantity      the quantity to buy
    * @param pricePerShare the price per share of the new purchase
+   * @throws IllegalArgumentException if input is null or not positive in value
    */
-  public void buy(BigDecimal quantity, BigDecimal pricePerShare) {
+  public void buy(BigDecimal quantity, BigDecimal pricePerShare) throws IllegalArgumentException {
     Objects.requireNonNull(pricePerShare, "Price per share cannot be null");
     Objects.requireNonNull(quantity, "Quantity cannot be null");
     if (!InputValidator.isBigDecimalValuePositive(pricePerShare)) {
