@@ -158,19 +158,17 @@ public class MarketTableView {
         };
     }
 
-    /** Symbol cell: gradient avatar with the first two letters + symbol text. */
     private static TableCell<Stock, Stock> symbolCell() {
         return new TableCell<>() {
             private final Label avatarLabel = new Label();
             private final StackPane avatar = new StackPane(avatarLabel);
-            private final Label symbolLabel = new Label();
-            private final HBox wrapper = new HBox(avatar, symbolLabel);
+            private final HBox wrapper = new HBox(avatar);
             {
                 avatar.getStyleClass().add("symbol-avatar");
                 avatarLabel.getStyleClass().add("symbol-avatar-text");
-                symbolLabel.getStyleClass().add("symbol-text");
                 wrapper.getStyleClass().add("symbol-cell");
                 wrapper.setSpacing(12);
+                avatarLabel.setWrapText(true);
             }
 
             @Override
@@ -181,14 +179,12 @@ public class MarketTableView {
                     return;
                 }
                 String sym = stock.getSymbol();
-                avatarLabel.setText(sym.length() >= 2 ? sym.substring(0, 2) : sym);
-                symbolLabel.setText(sym);
+                avatarLabel.setText(sym.length() >= 3 ? sym.substring(0, 3) : sym);
                 setGraphic(wrapper);
             }
         };
     }
 
-    /** Combined change cell: trend arrow + signed $ amount + (% in parentheses). */
     private static TableCell<Stock, Stock> combinedChangeCell() {
         return new TableCell<>() {
             private final FontIcon arrow = new FontIcon();
@@ -226,7 +222,6 @@ public class MarketTableView {
         };
     }
 
-    /** Owned cell: shows total quantity held or em-dash when none. */
     private static TableCell<Stock, BigDecimal> ownedCell() {
         return new TableCell<>() {
             @Override
@@ -255,7 +250,6 @@ public class MarketTableView {
         return total;
     }
 
-    /** Status cell: warning + EVENT text when stock has an active event. */
     private static TableCell<Stock, Stock> statusCell(Function<Stock, EventStatus> lookup) {
         return new TableCell<>() {
             private final FontIcon warning = new FontIcon(FontAwesome.EXCLAMATION_TRIANGLE);

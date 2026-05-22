@@ -8,6 +8,7 @@ import java.util.List;
 import ntnu.idatt2003.group15.model.Stock;
 import ntnu.idatt2003.group15.model.StockSectors;
 import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
+import ntnu.idatt2003.group15.utilities.StockParser.StockLoader;
 import org.junit.jupiter.api.Test;
 
 class StockLoaderTest {

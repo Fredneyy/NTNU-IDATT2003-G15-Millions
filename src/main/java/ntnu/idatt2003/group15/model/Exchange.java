@@ -183,10 +183,25 @@ public class Exchange {
    */
   public void advance() {
     week.set(week.get() + 1);
+    
+    // Evaluate base effects for the whole week first since they rely on global news events
+    double globalStackedVolatility = 1.0;
+    
+    if (news != null) {
+      for (NewsItem item : news) {
+        if (!item.isExpired()) {
+          if (item.volatility() != null) {
+              globalStackedVolatility *= item.volatility().doubleValue();
+          }
+        }
+      }
+    }
 
     for (Stock stock : stockMap.values()) {
       double stackedVolatility = 1.0;
       double stackedImpactJump = 0.0;
+      
+      java.util.Random rnd = new java.util.Random();
 
       if (news != null) {
         for (NewsItem item : news) {
@@ -197,7 +212,18 @@ public class Exchange {
             }
 
             if (!item.appliedChange() && item.changePercent() != null) {
-              stackedImpactJump += (item.changePercent().doubleValue() - 1.0);
+              double baseChange = (item.changePercent().doubleValue() - 1.0);
+              double stdDev = 0.02;
+              double randomFactor = rnd.nextGaussian() * stdDev;
+              double finalIndividualChange = baseChange + randomFactor;
+
+              if (baseChange > 0 && finalIndividualChange <= 0) {
+                  finalIndividualChange = 0.005; 
+              } else if (baseChange < 0 && finalIndividualChange >= 0) {
+                  finalIndividualChange = -0.005;
+              }
+              
+              stackedImpactJump += finalIndividualChange;
             }
           }
         }

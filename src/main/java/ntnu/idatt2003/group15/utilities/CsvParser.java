@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 /**
  * Provides utility methods for parsing and writing CSV data.
  */
-public class CsvUtil {
+public class CsvParser {
 
   /**
    * Read a CSV file as rows and columns.
@@ -20,7 +20,7 @@ public class CsvUtil {
    * @return a list of rows, where each row is a list of trimmed, unquoted cells
    * @throws FileReaderException if the reader runs into a problem during operation
    */
-  public List<List<String>> readCsvFile(String filePath) throws FileReaderException {
+  public List<List<String>> parse(String filePath) throws FileReaderException {
     try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
       return lines
           .map(line -> Arrays.stream(line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))

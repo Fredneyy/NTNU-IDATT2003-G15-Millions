@@ -1,43 +1,32 @@
 package ntnu.idatt2003.group15.model;
 
-import ntnu.idatt2003.group15.view.NewsDialog;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 
 public class NewsItem {
 
-  private final NewsDialog.Sentiment sentiment;
   private final StockSectors sector;
-  private final BigDecimal changePercent;
-  private final String title;
-  private final String message;
+  private BigDecimal changePercent;
+  private final String headline;
   private final BigDecimal volatility;
   private int durationUpdates;
-  private final String type;
   private final Instant when;
   private boolean appliedChange;
 
   public NewsItem(
-      NewsDialog.Sentiment sentiment,
       StockSectors sector,
       BigDecimal changePercent,
-      String title,
-      String message,
+      String headline,
       BigDecimal volatility,
       int durationUpdates,
-      String type,
       Instant when,
       boolean appliedChange
   ) {
-    this.sentiment = sentiment;
     this.sector = sector;
     this.changePercent = changePercent;
-    this.title = title;
-    this.message = message;
+    this.headline = headline;
     this.volatility = volatility;
     this.durationUpdates = durationUpdates;
-    this.type = type;
     this.when = when;
     this.appliedChange = appliedChange;
   }
@@ -61,23 +50,24 @@ public class NewsItem {
   }
 
   /** Plain informational item (e.g. the welcome message). Skipped by feed listeners. */
-  public static NewsItem info(String title, String message) {
-    return new NewsItem(NewsDialog.Sentiment.NEUTRAL, null, null,
-        title, message, null, 0, null, Instant.now(), false);
+  public static NewsItem info(String headline, String message) {
+    return new NewsItem(null, null,
+        headline, null, 0, Instant.now(), false);
   }
 
   public void setAppliedChange(boolean appliedChange) {
     this.appliedChange = appliedChange;
   }
 
-  public NewsDialog.Sentiment sentiment() { return sentiment; }
+  public void setChangePercent(BigDecimal changePercent) {
+    this.changePercent = changePercent;
+  }
+
   public StockSectors sector() { return sector; }
   public BigDecimal changePercent() { return changePercent; }
-  public String title() { return title; }
-  public String message() { return message; }
+  public String headline() { return headline; }
   public BigDecimal volatility() { return volatility; }
   public int durationUpdates() { return durationUpdates; }
-  public String type() { return type; }
   public Instant when() { return when; }
   public boolean appliedChange() { return appliedChange; }
 }

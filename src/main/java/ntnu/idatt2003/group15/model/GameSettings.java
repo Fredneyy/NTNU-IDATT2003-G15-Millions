@@ -16,11 +16,8 @@ import javafx.beans.property.SimpleDoubleProperty;
  */
 public class GameSettings {
 
-  /** Minimum difficulty multiplier (easiest). */
   public static final double MIN_DIFFICULTY = 0.5;
-  /** Maximum difficulty multiplier (hardest). */
   public static final double MAX_DIFFICULTY = 2.5;
-  /** Default difficulty multiplier (normal). */
   public static final double DEFAULT_DIFFICULTY = 1.0;
 
   private final DoubleProperty difficulty =
@@ -40,11 +37,8 @@ public class GameSettings {
 
   private void recompute(double d) {
     double clamped = clamp(d, MIN_DIFFICULTY, MAX_DIFFICULTY);
-    // Volatility scales 1:1 with difficulty.
     volatilityMultiplier.set(clamped);
-    // News interval: 1x -> 60s, 2.5x -> 24s, 0.5x -> 120s.
     newsIntervalSeconds.set(60.0 / clamped);
-    // Max event chance: 0.5x -> 8%, 1x -> 10%, 2.5x -> 16%.
     maxEventChance.set(0.06 + 0.04 * clamped);
   }
 
@@ -52,12 +46,10 @@ public class GameSettings {
     return Math.max(lo, Math.min(hi, v));
   }
 
-  // ---- difficulty (read/write) ----
   public DoubleProperty difficultyProperty() { return difficulty; }
   public double getDifficulty() { return difficulty.get(); }
   public void setDifficulty(double v) { difficulty.set(v); }
 
-  // ---- derived (read-only) ----
   public ReadOnlyDoubleProperty volatilityMultiplierProperty() {
     return volatilityMultiplier.getReadOnlyProperty();
   }

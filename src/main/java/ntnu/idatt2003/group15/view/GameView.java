@@ -29,6 +29,7 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.*;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
+import ntnu.idatt2003.group15.view.dialog.*;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -67,7 +68,8 @@ public class GameView {
 
   public GameView(PlayerController player, ExchangeController exchange,
                   GameSettings settings, Runnable runnableExit,
-                  Consumer<Throwable> errorHandler, NewsController newsController) {
+                  Consumer<Throwable> errorHandler, NewsController newsController, Runnable advance,
+                  Runnable autoAdvanceOn, Runnable autoadvanceOff) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
     this.news = Objects.requireNonNull(newsController.getNewsObservable());
@@ -125,6 +127,14 @@ public class GameView {
     view.getStylesheets().add(Objects.requireNonNull(
         getClass().getResource("/style/RootStyle.css")).toExternalForm());
     HBox header = headerView.createHeader();
+    headerView.getAutoAdvanceCheckBox().selectedProperty().addListener((value, _, _) -> {
+      if (value.getValue() == true) {
+        autoAdvanceOn.run();
+      } else {
+        autoadvanceOff.run();
+      }
+    });
+    headerView.getAdvanceWeekButton().setOnAction(_ -> advance.run());
     headerView.getSettingsButton().setOnAction(_ -> settingsView.toggle());
     headerView.getSaveButton().setOnAction(_ -> saveGame());
 
@@ -256,11 +266,15 @@ public class GameView {
     NewsItem stamped = ensureStamped(item);
 
     NewsDialog dialog = new NewsDialog(Duration.seconds(10));
-    dialog.setSentiment(stamped.sentiment());
+    if (stamped.changePercent().compareTo(BigDecimal.ZERO) > 0) {
+      dialog.setSentiment(NewsDialog.Sentiment.BULLISH);
+    } else {
+      dialog.setSentiment(NewsDialog.Sentiment.BEARISH);
+    }
     dialog.setSymbol(stamped.sector() == null ? null : stamped.sector().getLabel());
-    BigDecimal changepercentFormatted = stamped.changePercent().subtract(BigDecimal.ONE).multiply(BigDecimal.valueOf(100));
-    dialog.setChangePercent(changepercentFormatted);
-    dialog.setText(stamped.title(), stamped.message());
+    BigDecimal changePercentFormatted = stamped.changePercent().multiply(BigDecimal.valueOf(100));
+    dialog.setChangePercent(changePercentFormatted);
+    dialog.setText(stamped.headline());
     dialog.setFooter(stamped.footerText());
     dialog.showIn(newsContainer);
   }
@@ -270,9 +284,9 @@ public class GameView {
       return item;
     }
     return new NewsItem(
-        item.sentiment(), item.sector(), item.changePercent(),
-        item.title(), item.message(), item.volatility(),
-        item.durationUpdates(), item.type(), Instant.now(), item.appliedChange()
+        item.sector(), item.changePercent(),
+        item.headline(), item.volatility(),
+        item.durationUpdates(), Instant.now(), item.appliedChange()
     );
   }
 

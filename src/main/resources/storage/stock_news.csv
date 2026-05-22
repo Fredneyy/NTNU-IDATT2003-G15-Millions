@@ -1,0 +1,149 @@
+headline,sector,volatility,initial_change,duration_weeks
+CEO caught laundering money through offshore shell companies in the Cayman Islands,financials,1.25,-0.18,13
+Whistleblower exposes years of fraudulent earnings restatements at major bank,financials,1.22,-0.15,17
+Board of directors ousted in aggressive shareholder proxy vote,financials,1.18,-0.1,4
+Senior executive arrested for insider trading ahead of merger announcement,financials,1.2,-0.14,9
+CFO resigns amid SEC investigation into accounting irregularities,financials,1.2,-0.12,6
+Audit reveals billions in hidden off-balance-sheet liabilities,financials,1.22,-0.16,13
+Record quarterly net interest income reported across all lending segments,financials,0.9,0.09,2
+Earnings per share beat consensus analyst estimates by wide margin,financials,0.91,0.08,1
+Major hedge fund discloses large short position via 13F filing,financials,1.15,-0.08,4
+Activist investor demands immediate CEO and board overhaul at annual meeting,financials,1.18,-0.07,6
+Central bank raises benchmark interest rates by 75 basis points,financials,1.14,-0.1,9
+Fed rate cut sparks broad rally across rate-sensitive growth equities,financials,0.9,0.09,3
+Bank stress test results reveal Tier 1 capital shortfall under adverse scenario,financials,1.2,-0.12,4
+Landmark all-cash merger agreement valued at 20 billion announced,financials,0.85,0.11,2
+Oversubscribed IPO prices above range raising record capital for expansion,financials,0.88,0.08,1
+Short seller publishes damning report alleging systematic accounting fraud,financials,1.22,-0.14,9
+Annual net profit surges 35 percent year over year on strong fee income,financials,0.9,0.1,1
+Operating margins expand to highest level in company history on cost discipline,financials,0.91,0.08,1
+Profit warning issued citing unexpected credit loss provisions and cost pressures,financials,1.14,-0.1,3
+Revenue falls short of consensus estimates for third consecutive quarter,financials,1.13,-0.09,2
+Warren Buffett discloses surprise 10 billion stake in struggling regional bank,financials,0.82,0.14,2
+Jamie Dimon tells analysts he plans to retire within 18 months shocking investors,financials,1.16,-0.11,4
+Elon Musk posts cryptic tweet hinting at hostile takeover bid for major insurer,financials,0.78,0.09,3
+Bill Ackman launches public campaign demanding breakup of conglomerate on X,financials,1.2,-0.08,5
+Ken Griffin donates record 1 billion to market-structure reform think tank,financials,0.92,0.04,1
+Revolutionary solid-state battery technology doubles energy density for EVs,technology,0.82,0.14,4
+Breakthrough large language model outperforms all major industry benchmarks,technology,0.84,0.13,2
+New 3nm chip architecture reduces power consumption by 40 percent,technology,0.86,0.11,3
+Quantum computing error correction milestone achieved eighteen months ahead of roadmap,technology,0.82,0.14,4
+Broad patent granted for next-generation micro-LED display technology,technology,0.88,0.08,2
+Flagship smartphone recalled globally due to battery overheating defect,technology,1.18,-0.11,6
+Rival releases superior AI assistant at significantly lower price point,technology,1.15,-0.09,4
+Critical remote code execution vulnerability found in flagship enterprise software,technology,1.16,-0.1,3
+Data breach exposes 50 million customer records including payment data,technology,1.2,-0.12,9
+Ransomware attack shuts down cloud production environment for third consecutive day,technology,1.18,-0.1,4
+Zero-day exploit discovered in core operating system infrastructure,technology,1.18,-0.11,3
+AI-powered SaaS product line drives record enterprise subscription growth,technology,0.86,0.12,2
+Next-generation console launch delayed by six months due to chip supply issues,technology,1.15,-0.09,4
+Flagship app crashes on launch day for millions of users amid server overload,technology,1.16,-0.08,2
+Streaming subscription service surpasses 100 million paid users milestone,technology,0.88,0.1,1
+New wearable device launch shatters first-day pre-order and sales records,technology,0.88,0.09,1
+Competitor files broad patent infringement lawsuit over core hardware design,technology,1.14,-0.07,13
+State-sponsored threat actor breaches internal R&D and source code systems,technology,1.18,-0.11,6
+DOJ antitrust investigation launched targeting app store monopoly practices,technology,1.15,-0.09,17
+Extensive beta testing reveals major GPU performance regression before launch,technology,1.13,-0.07,3
+Elon Musk announces surprise resignation as Tesla CEO effective immediately,technology,1.28,-0.19,8
+Sam Altman reveals GPT-5 will be open-sourced in landmark policy reversal,technology,0.8,0.13,3
+Jensen Huang previews next-gen chip architecture delivering 10x AI throughput,technology,0.84,0.15,2
+Mark Zuckerberg challenges rival CEO to live cage match on social media,technology,0.76,0.06,2
+Sundar Pichai accidentally leaks unreleased Pixel device in earnings call slide,technology,1.14,-0.06,1
+Tim Cook spotted at Formula 1 race sparking Apple Motors acquisition rumors,technology,0.82,0.08,3
+FDA approves flagship oncology drug for two new treatment indications,healthcare,0.8,0.16,2
+Phase 3 pivotal trial delivers statistically exceptional efficacy and safety results,healthcare,0.78,0.18,1
+Orphan drug patent exclusivity extended by five additional years by USPTO,healthcare,0.88,0.1,2
+Blockbuster immunotherapy receives Breakthrough Therapy and fast-track FDA designation,healthcare,0.82,0.13,1
+Novel CAR-T cancer treatment shows 90 percent durable remission rate in trial,healthcare,0.78,0.18,1
+Phase 2 clinical trial halted after serious cardiac adverse events reported,healthcare,1.25,-0.16,13
+Generic drug approval by FDA erodes exclusivity revenue from top-selling product,healthcare,1.16,-0.11,4
+Voluntary drug recall issued over sterile manufacturing contamination concerns,healthcare,1.22,-0.14,6
+FDA issues Complete Response Letter rejecting NDA citing insufficient safety data,healthcare,1.22,-0.15,9
+First biosimilar competitor enters market slashing biologic drug net pricing,healthcare,1.15,-0.1,4
+Major hospital chain announces acquisition and network expansion into three new states,healthcare,0.9,0.08,2
+Robotic surgical device receives Breakthrough Device designation from FDA,healthcare,0.84,0.12,2
+Continuous glucose monitor receives FDA clearance and reimbursement approval,healthcare,0.86,0.1,2
+Opioid class action lawsuit results in landmark multi-state settlement payout,healthcare,1.18,-0.12,4
+Prior authorization and claim denial practices draw formal CMS regulatory scrutiny,healthcare,1.14,-0.09,9
+Bill Gates foundation pledges 5 billion to fund neglected tropical disease pipeline,healthcare,0.88,0.07,2
+Dr. Oz endorses controversial weight-loss drug in primetime TV special,healthcare,0.84,0.06,2
+Explosion at chemical processing plant injures dozens and halts output,industrials,1.2,-0.12,9
+Toxic chemical spill triggers multi-state environmental emergency and EPA response,industrials,1.18,-0.11,6
+Warehouse fire destroys months of finished goods inventory at main distribution hub,industrials,1.16,-0.1,4
+Severe flooding halts operations at primary heavy manufacturing facility,industrials,1.15,-0.09,3
+Longshoremen port strike collapses supply chain across multiple product categories,industrials,1.16,-0.11,4
+UAW authorizes nationwide strike at major manufacturing plants,industrials,1.16,-0.1,6
+Assembly line workers walk off the job at three facilities demanding wage increases,industrials,1.15,-0.09,4
+Pentagon awards multi-billion long-range missile defense contract,industrials,0.88,0.11,2
+New multi-year collective bargaining agreement signed averting nationwide strike,industrials,0.92,0.06,1
+Lights-out automation overhaul cuts per-unit production costs by 30 percent,industrials,0.9,0.09,3
+Tornado levels regional headquarters and two adjacent production buildings,industrials,1.18,-0.11,4
+Category 4 hurricane forces full evacuation of Gulf Coast offshore facilities,industrials,1.16,-0.1,3
+Federal infrastructure bill directs record capital spending to domestic manufacturing,industrials,0.88,0.1,4
+Cargo vessel carrying finished goods capsizes causing total loss at sea,industrials,1.15,-0.09,2
+Major earthquake damages critical rail and distribution hub in key region,industrials,1.14,-0.09,3
+Semiconductor shortage causes widespread assembly line stock-outs and shutdowns,industrials,1.14,-0.08,6
+Record multi-quarter order backlog signals sustained strong industrial demand,industrials,0.9,0.08,1
+Pipeline rupture triggers major oil spill and multi-agency environmental response,industrials,1.2,-0.12,9
+Class action lawsuit filed by thousands of current and former workers over safety,industrials,1.13,-0.07,13
+Jeff Bezos unveils fully autonomous delivery drone network covering 48 US states,industrials,0.85,0.1,3
+Elon Musk tweets that his tunnel boring company will replace all US freight rail,industrials,0.78,0.07,2
+Holiday same-store retail sales surge well beyond analyst expectations,consumer,0.91,0.08,1
+Comparable store sales growth accelerates for fourth consecutive quarter,consumer,0.91,0.08,1
+Direct-to-consumer e-commerce revenue doubles year over year on ad efficiency,consumer,0.88,0.1,2
+Inventory glut forces steep promotional discounting across core product lines,consumer,1.13,-0.09,4
+In-store foot traffic declines sharply as consumers shift wallet to online channels,consumer,1.12,-0.08,4
+Key big-box retail partner drops entire product line from planograms,consumer,1.14,-0.09,3
+48-hour flash sale event generates record single-day gross merchandise value,consumer,0.9,0.07,1
+Conference board consumer confidence index rises to three-year high,consumer,0.91,0.07,2
+CPI inflation hits 40-year high materially dampening discretionary consumer spending,consumer,1.14,-0.1,9
+Loyalty rewards program membership surpasses 50 million enrolled customers,consumer,0.92,0.06,1
+Voluntary safety recall affects tens of millions of households due to fire risk,consumer,1.16,-0.11,4
+Major celebrity ambassador deal drives record brand search and awareness metrics,consumer,0.9,0.07,2
+Unemployment rate falls to historic low boosting discretionary retail spending,consumer,0.91,0.07,2
+Limited edition designer collaboration sells out globally in under one minute,consumer,0.9,0.07,1
+Smaller-format neighborhood store rollout meaningfully exceeds revenue-per-sqft targets,consumer,0.91,0.07,3
+Investigative report exposes widespread counterfeit goods eroding brand trust,consumer,1.14,-0.09,6
+Recession officially declared in largest consumer market triggering spending freeze,consumer,1.15,-0.11,9
+Taylor Swift launches co-branded credit card sending issuer shares to all-time high,consumer,0.88,0.09,1
+Kylie Jenner beauty line announces exclusive retail partnership with mass-market chain,consumer,0.9,0.06,2
+Oprah Winfrey book club selection triggers supply shortage at major online retailer,consumer,0.91,0.05,1
+Investigative report exposes illegal toxic waste dumping at offshore refinery,energy,1.2,-0.12,13
+EPA levies largest ever pollution fine against a domestic energy producer,energy,1.16,-0.11,9
+Large methane leak discovered at LNG processing and compression facility,energy,1.16,-0.1,4
+Scope 1 and 2 carbon emissions cut by 50 percent well ahead of 2030 target,energy,0.9,0.07,2
+Company achieves certified carbon neutral status across all global operations,energy,0.9,0.08,1
+All production facilities now powered by 100 percent renewable energy contracts,energy,0.9,0.08,1
+Brent crude surges 20 percent on unexpected Middle East supply shock,energy,0.82,0.12,2
+OPEC announces surprise 1 million barrel per day production cut,energy,0.84,0.1,2
+European natural gas shortage drives spot prices to decade high,energy,0.85,0.1,3
+Deepwater exploration well confirms major offshore oil discovery in new basin,energy,0.82,0.13,2
+Offshore platform blowout triggers massive oil spill and international crisis,energy,1.22,-0.14,17
+Planned refinery maintenance cuts tighten domestic refined product supply,energy,0.86,0.08,3
+Government accelerates fossil fuel production subsidy phase-out ahead of schedule,energy,1.14,-0.1,9
+Emergency export ban imposed on crude oil and LNG commodities,energy,1.16,-0.11,4
+Proposed federal fracking ban threatens output across key shale production basins,energy,1.15,-0.1,13
+Record-breaking utility-scale solar farm begins commercial operations,energy,0.9,0.07,1
+Sweeping new tariff regime escalates trade war affecting energy commodity flows,energy,1.16,-0.1,6
+Geopolitical conflict shuts down critical Strait tanker shipping route,energy,0.82,0.09,4
+Currency crisis in major emerging market severely erodes energy export revenues,energy,1.15,-0.09,4
+Windfall profit tax on energy companies announced in government budget,energy,1.14,-0.1,9
+Elon Musk announces plan to beam solar energy from orbit using Starlink satellites,energy,0.8,0.11,4
+Jeff Bezos backs fusion startup with 2 billion personal investment,energy,0.86,0.08,2
+City council grants mixed-use zoning approval for major urban development project,realestate,0.9,0.08,2
+Rapid mortgage rate rise to 7 percent cools housing transaction volume sharply,realestate,1.14,-0.1,4
+Downtown commercial office vacancy rates hit post-pandemic historic highs,realestate,1.13,-0.09,4
+Median residential property prices surge double digits in key metro markets,realestate,0.88,0.09,2
+Federal affordable housing investment tax credit program announced by Treasury,realestate,0.9,0.07,2
+Major corporate tenant cancels large office lease citing permanent hybrid policy,realestate,1.14,-0.09,4
+Luxury high-rise condo tower fully sold out within 72 hours of opening sales,realestate,0.88,0.08,1
+Fed rate cut triggers immediate surge in mortgage refinance applications,realestate,0.88,0.1,2
+Commercial tenant defaults spike amid deteriorating retail and office conditions,realestate,1.15,-0.1,6
+Hyperscaler demand drives record leasing activity for industrial data center properties,realestate,0.89,0.09,2
+Citywide residential rent stabilization ordinance passes over landlord opposition,realestate,1.13,-0.09,9
+Sovereign wealth fund discloses record foreign direct investment in commercial property,realestate,0.89,0.08,2
+Lumber and steel material cost surge drives construction budget overruns sector-wide,realestate,1.12,-0.08,6
+Chapter 11 bankruptcy filing by major anchor retail tenant rattles mall REIT owners,realestate,1.16,-0.1,4
+New metro rail line approval triggers rapid property value appreciation in corridor,realestate,0.9,0.07,3
+Jeff Bezos purchases entire Miami Beach island for record 500 million redevelopment,realestate,0.88,0.05,2
+Elon Musk announces plan to build high-density housing around every Tesla Gigafactory,realestate,0.82,0.07,3

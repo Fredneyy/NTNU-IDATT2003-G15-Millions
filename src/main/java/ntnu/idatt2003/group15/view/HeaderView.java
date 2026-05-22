@@ -60,18 +60,15 @@ public class HeaderView {
             Objects.requireNonNull(getClass().getResource("/style/HeaderStyle.css")).toExternalForm());
         header.getStyleClass().add("header-bar");
 
-        // --- Left Side: Logo and Title ---
         HBox logoContainer = new HBox(15);
         logoContainer.setAlignment(Pos.CENTER_LEFT);
 
-        // Gradient logo tile with a FontAwesome trending-up icon
         StackPane iconBox = new StackPane();
         iconBox.getStyleClass().add("logo-frame");
         FontIcon brandIcon = new FontIcon(FontAwesome.LINE_CHART);
         brandIcon.getStyleClass().add("logo-icon");
         iconBox.getChildren().add(brandIcon);
 
-        // Title and Status
         VBox titleBox = new VBox(-2);
         Text stockText = new Text("Millions");
         stockText.getStyleClass().add("brand-text-main");
@@ -86,11 +83,9 @@ public class HeaderView {
         titleBox.getChildren().addAll(brandFlow, statusFlow);
         logoContainer.getChildren().addAll(iconBox, titleBox);
 
-        // --- Spacer ---
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // --- Right Side: Actions ---
         HBox actionContainer = new HBox(12);
         actionContainer.setAlignment(Pos.CENTER_RIGHT);
 
@@ -100,7 +95,7 @@ public class HeaderView {
 
         autoAdvanceCheckBox = new CheckBox("Auto-advance");
         autoAdvanceCheckBox.getStyleClass().add("auto-advance-toggle");
-        autoAdvanceCheckBox.setSelected(true);
+        autoAdvanceCheckBox.setSelected(false);
 
         saveBtn = new Button();
         saveBtn.setGraphic(new FontIcon(MaterialDesignC.CONTENT_SAVE_OUTLINE));
@@ -115,7 +110,7 @@ public class HeaderView {
         exitBtn.getStyleClass().addAll("action-button", "icon-only-button", "action-button-danger");
         exitBtn.setOnAction(_ -> exit.run());
         actionContainer.getChildren().addAll(
-            advanceWeekBtn, autoAdvanceCheckBox, saveBtn, settingsBtn, exitBtn);
+            autoAdvanceCheckBox, advanceWeekBtn, saveBtn, settingsBtn, exitBtn);
 
         header.getChildren().addAll(logoContainer, spacer, actionContainer);
         return header;

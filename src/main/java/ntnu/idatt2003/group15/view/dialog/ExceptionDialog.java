@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.view;
+package ntnu.idatt2003.group15.view.dialog;
 
 import javafx.animation.ParallelTransition;
 import javafx.event.EventHandler;
@@ -15,8 +15,7 @@ import javafx.util.Duration;
 
 import java.util.Objects;
 
-/** Modal dialog for non-exception messages (e.g. "Game saved"). Mirrors {@link ExceptionDialog}. */
-public class InfoDialog extends BaseDialog {
+public class ExceptionDialog extends BaseDialog {
 
   private StackPane root;
   private final StackPane dialogPane;
@@ -31,10 +30,10 @@ public class InfoDialog extends BaseDialog {
   };
   private Scene installedScene;
 
-  public InfoDialog() {
+  public ExceptionDialog() {
     super();
 
-    dialog.getStyleClass().add("info-dialog");
+    dialog.getStyleClass().add("exception-dialog");
     dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 3.0);
     dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 3.0);
 
@@ -88,8 +87,22 @@ public class InfoDialog extends BaseDialog {
 
   public void close() {
     if (root != null && root.getChildren().contains(overlay)
-        && root.getChildren().contains(dialog)) {
+    && root.getChildren().contains(dialog)) {
       closeAnimation.play();
+    }
+  }
+
+  private void installEscapeFilter(Scene scene) {
+    if (scene == null || scene == installedScene) return;
+    uninstallEscapeFilter();
+    scene.addEventFilter(KeyEvent.KEY_PRESSED, escapeFilter);
+    installedScene = scene;
+  }
+
+  private void uninstallEscapeFilter() {
+    if (installedScene != null) {
+      installedScene.removeEventFilter(KeyEvent.KEY_PRESSED, escapeFilter);
+      installedScene = null;
     }
   }
 
@@ -109,17 +122,5 @@ public class InfoDialog extends BaseDialog {
     return newOverlay;
   }
 
-  private void installEscapeFilter(Scene scene) {
-    if (scene == null || scene == installedScene) return;
-    uninstallEscapeFilter();
-    scene.addEventFilter(KeyEvent.KEY_PRESSED, escapeFilter);
-    installedScene = scene;
-  }
 
-  private void uninstallEscapeFilter() {
-    if (installedScene != null) {
-      installedScene.removeEventFilter(KeyEvent.KEY_PRESSED, escapeFilter);
-      installedScene = null;
-    }
-  }
 }

@@ -1,10 +1,11 @@
-package ntnu.idatt2003.group15.utilities;
+package ntnu.idatt2003.group15.utilities.StockParser;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import ntnu.idatt2003.group15.model.Stock;
 import ntnu.idatt2003.group15.model.StockSectors;
+import ntnu.idatt2003.group15.utilities.CsvParser;
 
 /**
  * {@link StockParser} for CSV files with the columns
@@ -14,11 +15,11 @@ import ntnu.idatt2003.group15.model.StockSectors;
  */
 public class CsvStockParser implements StockParser {
 
-  private final CsvUtil csvUtil = new CsvUtil();
+  private final CsvParser csvParser = new CsvParser();
 
   @Override
   public List<Stock> parse(String filePath) {
-    List<List<String>> rows = new ArrayList<>(csvUtil.readCsvFile(filePath));
+    List<List<String>> rows = new ArrayList<>(csvParser.parse(filePath));
     rows.removeFirst();
     List<Stock> stocks = new ArrayList<>();
     for (List<String> row : rows) {

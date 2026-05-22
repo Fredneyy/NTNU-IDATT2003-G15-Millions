@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.view;
+package ntnu.idatt2003.group15.view.dialog;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,18 +21,17 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import ntnu.idatt2003.group15.view.NewsContainer;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 /**
  * Rich breaking-news notification.
- *
  * Layout (top to bottom): colored header strip with "BREAKING NEWS" caption +
  * close button, a body row with sentiment-tinted icon tile and content column
  * (symbol badge, percent change, headline, description), a metadata footer
  * with a colored sentiment chip on the right, and a progress bar pinned to
  * the bottom that drains over the dialog's lifetime.
- *
  * Coloring is driven by {@link Sentiment}; pass {@code NEUTRAL} for plain
  * informational dialogs (e.g. the welcome message) — badges and percent
  * collapse out of view when their data is missing.
@@ -117,12 +116,10 @@ public class NewsDialog extends BaseDialog {
     topRow.setSpacing(12);
     topRow.setAlignment(Pos.CENTER_LEFT);
 
-    titleLabel.getStyleClass().setAll("news-popup-title");
     messageLabel.getStyleClass().setAll("news-popup-message");
-    titleLabel.setWrapText(true);
     messageLabel.setWrapText(true);
 
-    bodyContent.getChildren().setAll(topRow, titleLabel, messageLabel);
+    bodyContent.getChildren().setAll(topRow, messageLabel);
     bodyContent.getStyleClass().add("news-popup-body-content");
     bodyContent.setSpacing(6);
     HBox.setHgrow(bodyContent, Priority.ALWAYS);
@@ -153,10 +150,8 @@ public class NewsDialog extends BaseDialog {
   private void buildProgressBar() {
     progressBar.setMaxWidth(Double.MAX_VALUE);
     progressBar.getStyleClass().add("news-popup-progress");
-    // Round only the bottom corners: anchor the clip ABOVE the bar so the top
-    // arc lands off-bar (invisible) while the bottom arc curves the visible edge.
     progressBar.layoutBoundsProperty().addListener((_, _, b) -> {
-      double r = 14;                                   // matches .news-popup radius
+      double r = 14;
       double w = b.getWidth();
       double h = b.getHeight();
       if (w <= 0 || h <= 0) return;
@@ -167,10 +162,9 @@ public class NewsDialog extends BaseDialog {
     });
   }
 
-  public void setText(String title, String message) {
-    titleLabel.setText(title == null ? "" : title);
-    messageLabel.setText(message == null ? "" : message);
-    setManaged(messageLabel, message != null && !message.isBlank());
+  public void setText(String headline) {
+    messageLabel.setText(headline == null ? "" : headline);
+    setManaged(messageLabel, headline != null && !headline.isBlank());
   }
 
   public void setSentiment(Sentiment sentiment) {
@@ -178,14 +172,12 @@ public class NewsDialog extends BaseDialog {
     applySentimentStyles();
   }
 
-  /** Show the symbol badge with the given ticker, or hide it if null/blank. */
   public void setSymbol(String symbol) {
     boolean show = symbol != null && !symbol.isBlank();
     symbolBadge.setText(show ? symbol : "");
     setManaged(symbolBadge, show);
   }
 
-  /** Show the percent change label (e.g. +20.0%) or hide it if null. */
   public void setChangePercent(BigDecimal percent) {
     if (percent == null) {
       percentLabel.setText("");
@@ -198,7 +190,6 @@ public class NewsDialog extends BaseDialog {
     setManaged(percentLabel, true);
   }
 
-  /** Bottom-row metadata text (e.g. "Volatility increased for 16 updates"). Empty hides footer. */
   public void setFooter(String text) {
     boolean show = text != null && !text.isBlank();
     footerText.setText(show ? text : "");
@@ -209,10 +200,7 @@ public class NewsDialog extends BaseDialog {
     return !sentimentChip.getText().isBlank();
   }
 
-  // ---------- Internals ----------
-
   private void applySentimentStyles() {
-    // Reset tone classes and re-apply for the current sentiment.
     for (String c : new String[]{"sentiment-bullish", "sentiment-bearish", "sentiment-neutral"}) {
       dialog.getStyleClass().remove(c);
     }
@@ -223,14 +211,12 @@ public class NewsDialog extends BaseDialog {
     };
     dialog.getStyleClass().add(toneClass);
 
-    // Trend icon glyph reflects direction.
     trendIcon.setIconCode(switch (sentiment) {
       case BULLISH -> FontAwesome.LINE_CHART;
       case BEARISH -> FontAwesome.AREA_CHART;
       case NEUTRAL -> FontAwesome.INFO_CIRCLE;
     });
 
-    // Sentiment chip text.
     switch (sentiment) {
       case BULLISH -> sentimentChip.setText("BULLISH");
       case BEARISH -> sentimentChip.setText("BEARISH");
@@ -238,8 +224,6 @@ public class NewsDialog extends BaseDialog {
     }
     setManaged(sentimentChip, !sentimentChip.getText().isBlank());
 
-    // Hide the rich top row entirely if NEUTRAL with no symbol/percent — e.g.
-    // the welcome message reduces to header + title + message.
     boolean topRowVisible = sentiment != Sentiment.NEUTRAL
             || !symbolBadge.getText().isBlank()
             || !percentLabel.getText().isBlank();
@@ -256,8 +240,6 @@ public class NewsDialog extends BaseDialog {
     node.setManaged(managed);
     node.setVisible(managed);
   }
-
-  // ---------- Lifecycle ----------
 
   public void close() {
     if (container != null) {

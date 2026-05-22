@@ -5,10 +5,10 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import ntnu.idatt2003.group15.controller.MainController;
-import ntnu.idatt2003.group15.utilities.CsvUtil;
-import ntnu.idatt2003.group15.utilities.StockLoader;
+import ntnu.idatt2003.group15.utilities.CsvParser;
+import ntnu.idatt2003.group15.utilities.StockParser.StockLoader;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
-import ntnu.idatt2003.group15.view.ExceptionDialog;
+import ntnu.idatt2003.group15.view.dialog.ExceptionDialog;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -20,7 +20,7 @@ public class App extends Application {
 
     private TaskUtil taskUtil;
     private Consumer<Throwable> errorHandler;
-    private CsvUtil csvUtil;
+    private CsvParser csvParser;
     private ExceptionDialog exceptionDialog;
     private StackPane root;
 
@@ -31,7 +31,7 @@ public class App extends Application {
         root =  new StackPane();
         Scene scene = new Scene(root);
         MainController mainController = new MainController(
-            root, errorHandler, csvUtil, taskUtil,
+            root, errorHandler, csvParser, taskUtil,
             new StockLoader("src/main/resources/storage/defaultstocks.csv").load());
         mainController.showMainMenu();
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
@@ -76,7 +76,7 @@ public class App extends Application {
         } catch (IllegalArgumentException e) {
             exceptionPopUp(e);
         }
-        csvUtil = new CsvUtil();
+        csvParser = new CsvParser();
     }
 
 

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn -q compile)",
+      "mcp__ide__getDiagnostics",
+      "Bash(./gradlew compileJava -q)",
+      "Bash(mvn -q -DskipTests compile)",
+      "Bash(mvn -q -Dtest='PlayerTest,PortfolioTest' test)",
+      "Bash(mvn -Dtest='PlayerTest,PortfolioTest' test)",
+      "Bash(mvn -DskipTests compile)",
+      "Bash(mvn -Dtest='PlayerTest,PortfolioTest,StockTest' test)",
+      "Bash(mvn test *)",
+      "Bash(mvn clean *)",
+      "Bash(mvn -Dtest='!StockTest' -DfailIfNoTests=false test)",
+      "Bash(powershell -Command \"javac -version\")",
+      "Bash(mvn -q -o compile)"
+    ]
+  }
+}

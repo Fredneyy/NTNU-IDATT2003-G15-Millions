@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.view;
+package ntnu.idatt2003.group15.view.dialog;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Share;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -56,6 +57,7 @@ public class SellStockDialog extends TransactionDialog {
     stockSymbol.setText("Sell " + share.stock().getSymbol());
     stockName.setText(share.stock().getCompany());
     transactionButton.setText("$ Sell");
+    quantityField.setText("");
     qtyValue.set(BigDecimal.ZERO);
 
     ObservableValue<BigDecimal> price = share.stock().getPriceBinding();

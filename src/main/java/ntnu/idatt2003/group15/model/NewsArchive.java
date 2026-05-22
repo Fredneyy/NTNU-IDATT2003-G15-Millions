@@ -3,18 +3,19 @@ package ntnu.idatt2003.group15.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.util.Duration;
 
+import java.util.List;
 import java.util.Random;
 
 public class NewsArchive {
 
   private final ObservableList<NewsItem> activeNewsItems = FXCollections.observableArrayList();
   private final ObservableList<NewsItem> loadedNewsItems = FXCollections.observableArrayList();
-  private static final Duration TICK_STDDEV = Duration.seconds(15);
-  private static final Duration MIN_TICK = Duration.seconds(5);
-  private static final double DEFAULT_INTERVAL_SECONDS = 60.0;
   private final Random random = new Random();
+
+  public NewsArchive(List<NewsItem> news) {
+    this.loadedNewsItems.addAll(news);
+  }
 
   public ObservableList<NewsItem> getActiveNewsItems() {
     return activeNewsItems;

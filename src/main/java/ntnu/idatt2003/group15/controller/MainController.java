@@ -2,34 +2,39 @@ package ntnu.idatt2003.group15.controller;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.model.*;
-import ntnu.idatt2003.group15.utilities.CsvUtil;
-import ntnu.idatt2003.group15.utilities.StockLoader;
+import ntnu.idatt2003.group15.utilities.CsvParser;
+import ntnu.idatt2003.group15.utilities.NewsParser.NewsLoader;
+import ntnu.idatt2003.group15.utilities.StockParser.StockLoader;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;
-import ntnu.idatt2003.group15.view.OnBoardingDialog;
+import ntnu.idatt2003.group15.view.dialog.OnBoardingDialog;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.Random;
 
 public class MainController {
 
   private final MainMenu mainMenu;
-  private final CsvUtil csvUtil;
+  private final CsvParser csvParser;
   private final TaskUtil taskUtil;
   private final StackPane root;
   private final NewsController newsController;
   private final GameSettings gameSettings = new GameSettings();
   private final Consumer<Throwable> errorHandler;
   private Timeline priceTicker;
+  private PauseTransition newsTicker;
+  private final Random random = new Random();
 
-  public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvUtil csvUtil,
+  public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvParser csvParser,
                         TaskUtil taskUtil, List<Stock> stocks) {
-    this.csvUtil = csvUtil;
+    this.csvParser = csvParser;
     this.taskUtil = taskUtil;
     this.root = root;
     this.errorHandler = errorHandler;
@@ -37,8 +42,8 @@ public class MainController {
     MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", loadStocks()), this::startGame);
     mainMenuController.setGameSettings(gameSettings);
     mainMenuController.setOnGameLoadConsumer(this::resumeGame);
-    mainMenu = new MainMenu(root, errorHandler, csvUtil, taskUtil, mainMenuController);
-    newsController = new NewsController(root, gameSettings, new NewsArchive());
+    mainMenu = new MainMenu(root, errorHandler, csvParser, taskUtil, mainMenuController);
+    newsController = new NewsController(root, gameSettings, new NewsArchive(loadNewsItems()));
   }
 
   private List<Stock> loadStocks() {
@@ -47,10 +52,16 @@ public class MainController {
     return stocks;
   }
 
+  private List<NewsItem> loadNewsItems() {
+    NewsLoader newsLoader = new NewsLoader("src/main/resources/storage/stock_news.csv");
+    List<NewsItem> newsItems = newsLoader.load();
+    return newsItems;
+  }
+
   public void showMainMenu() {
     stopPriceTicker();
-    // Clear any blur/effect that may have leaked onto the menu from an open
-    // dialog (e.g. logging out while the onboarding overlay is still up).
+    stopNewsTicker();
+    
     mainMenu.getView().setEffect(null);
     mainMenu.refreshContinueCard();
     root.getChildren().setAll(mainMenu.getView());
@@ -67,17 +78,21 @@ public class MainController {
   private void enterGame(ExchangeController exchangeController, PlayerController playerController,
                          boolean showOnboarding) {
     GameView gameView = new GameView(playerController, exchangeController, gameSettings,
-        this::showMainMenu, errorHandler, newsController);
+        this::showMainMenu, errorHandler, newsController, () -> {
+      try {
+        exchangeController.advanceWeek();
+        newsController.advanceWeek();
+      } catch (RuntimeException ex) {
+        errorHandler.accept(ex);
+      }
+    }, () -> startPriceTicker(exchangeController), this::stopPriceTicker);
     gameView.show(root);
     exchangeController.setNewsObserver(newsController.getNewsObservable());
-    // Take the main menu out of the scene so it can't be blurred (or otherwise
-    // affected) by overlays drawn on top of the game view.
     root.getChildren().remove(mainMenu.getView());
     if (showOnboarding) {
-      new OnBoardingDialog(csvUtil, taskUtil).show(root);
+      new OnBoardingDialog(csvParser, taskUtil).show(root);
     }
 
-    // Propagate the current volatility multiplier and keep it in sync as the user adjusts settings.
     try {
       exchangeController.setVolatilityMultiplier(gameSettings.getVolatilityMultiplier());
     } catch (RuntimeException ex) {
@@ -90,7 +105,44 @@ public class MainController {
         errorHandler.accept(ex);
       }
     });
-    startPriceTicker(exchangeController);
+    
+    gameSettings.newsIntervalSecondsProperty().addListener((_, _, _) -> {
+      if (newsTicker != null) {
+          startNewsTicker(newsController);
+      }
+    });
+    startNewsTicker(newsController);
+  }
+
+  private void startNewsTicker(NewsController newsController) {
+    stopNewsTicker();
+
+    double meanSeconds = gameSettings.getNewsIntervalSeconds();
+    double stdDev = meanSeconds / 3.0;
+    double minSeconds = 5.0;
+
+    double nextDuration = meanSeconds + random.nextGaussian() * stdDev;
+    if (nextDuration < minSeconds) {
+      nextDuration = minSeconds;
+    }
+
+    newsTicker = new PauseTransition(Duration.seconds(nextDuration));
+    newsTicker.setOnFinished(event -> {
+      try {
+        newsController.publish();
+      } catch (RuntimeException ex) {
+        errorHandler.accept(ex);
+      }
+      startNewsTicker(newsController);
+    });
+    newsTicker.play();
+  }
+
+  private void stopNewsTicker() {
+    if (newsTicker != null) {
+      newsTicker.stop();
+      newsTicker = null;
+    }
   }
 
   private void startPriceTicker(ExchangeController exchangeController) {
@@ -98,6 +150,7 @@ public class MainController {
     priceTicker = new Timeline(new KeyFrame(Duration.seconds(5), _ -> {
       try {
         exchangeController.advanceWeek();
+        newsController.advanceWeek();
       } catch (RuntimeException ex) {
         errorHandler.accept(ex);
       }
