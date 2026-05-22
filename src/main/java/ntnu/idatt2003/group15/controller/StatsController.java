@@ -14,26 +14,14 @@ import ntnu.idatt2003.group15.model.transactions.Transaction;
 import ntnu.idatt2003.group15.view.StatsView;
 import ntnu.idatt2003.group15.view.StatsView.Tone;
 
-/**
- * Reactive glue between the player's transaction archive / portfolio and the
- * {@link StatsView}. Recomputes KPI cards, the performance summary, and the
- * holdings table whenever transactions are committed or share lots change.
- *
- * <p>Win/loss is judged per sale: profitable sale → win, otherwise → loss.
- * Realized P/L is the sum of per-sale {@link Sale#getRealizedPnl()} (net of fees).
- * Total return is computed against the player's starting balance so cash that
- * went out and came back lossy is reflected even after holdings drop to zero.
- */
 public class StatsController {
 
   private final StatsView view;
   private final PlayerController player;
-  private final ExchangeController exchange;
 
-  public StatsController(StatsView view, PlayerController player, ExchangeController exchange) {
+  public StatsController(StatsView view, PlayerController player) {
     this.view = Objects.requireNonNull(view);
     this.player = Objects.requireNonNull(player);
-    this.exchange = Objects.requireNonNull(exchange);
     bind();
     refresh();
   }
@@ -135,7 +123,7 @@ public class StatsController {
   private static Tone tone(int signum) {
     if (signum > 0) return Tone.POSITIVE;
     if (signum < 0) return Tone.NEGATIVE;
-    return Tone.POSITIVE; // zero shows as neutral-positive "+$0.00"
+    return Tone.POSITIVE;
   }
 
   private static String formatSigned(BigDecimal v) {

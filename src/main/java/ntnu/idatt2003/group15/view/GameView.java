@@ -115,7 +115,7 @@ public class GameView {
     marketContent = new VBox(marketTable.getView());
     StatsView statsView = new StatsView();
     VBox statsContent = new VBox(statsView.getView());
-    new StatsController(statsView, playerController, exchangeController);
+    new StatsController(statsView, playerController);
     TradesView tradesView = new TradesView();
     tradesContent = new VBox(tradesView.getView());
     bindTradesView(tradesView);
