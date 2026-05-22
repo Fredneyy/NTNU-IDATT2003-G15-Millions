@@ -69,7 +69,6 @@ public class GameView {
   private final InfoDialog infoDialog = new InfoDialog();
 
   private final TabContainer tabContainer;
-  private ObservableList<NewsItem> news;
   private int unreadNews = 0;
   private final NewsContainer newsContainer = new NewsContainer();
 
@@ -79,7 +78,7 @@ public class GameView {
                   Runnable autoAdvanceOn, Runnable autoadvanceOff) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
-    this.news = Objects.requireNonNull(newsController.getNewsObservable());
+    ObservableList<NewsItem> news = Objects.requireNonNull(newsController.getNewsObservable());
     this.newsFeedView.setEvents(newsController.getNewsObservable());
     this.gameSettings = Objects.requireNonNull(settings, "settings");
     this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler");

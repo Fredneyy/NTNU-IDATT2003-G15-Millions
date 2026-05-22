@@ -52,15 +52,14 @@ public final class SaveGameUtil {
   private static String buildJson(PlayerController player,
                                   ExchangeController exchange,
                                   GameSettings settings) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("{\n");
-    sb.append("  \"version\": 1,\n");
-    sb.append("  \"savedAt\": ").append(quote(Instant.now().toString())).append(",\n");
-    sb.append("  \"settings\": ").append(settingsJson(settings)).append(",\n");
-    sb.append("  \"player\": ").append(playerJson(player)).append(",\n");
-    sb.append("  \"exchange\": ").append(exchangeJson(exchange)).append("\n");
-    sb.append("}\n");
-    return sb.toString();
+    String sb = "{\n" +
+        "  \"version\": 1,\n" +
+        "  \"savedAt\": " + quote(Instant.now().toString()) + ",\n" +
+        "  \"settings\": " + settingsJson(settings) + ",\n" +
+        "  \"player\": " + playerJson(player) + ",\n" +
+        "  \"exchange\": " + exchangeJson(exchange) + "\n" +
+        "}\n";
+    return sb;
   }
 
   private static String settingsJson(GameSettings s) {

@@ -25,7 +25,6 @@ public class TransactionFactory {
     return switch (type) {
       case PURCHASE -> new Purchase(share, week);
       case SALE -> new Sale(share, week);
-      default -> throw new IllegalArgumentException("Illegal transaction type");
     };
   }
 }

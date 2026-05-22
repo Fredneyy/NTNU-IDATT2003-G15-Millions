@@ -1,7 +1,6 @@
 package ntnu.idatt2003.group15.controller;
 
 import javafx.beans.value.ObservableIntegerValue;
-import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.model.news.NewsItem;
