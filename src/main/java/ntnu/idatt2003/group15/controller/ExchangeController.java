@@ -1,7 +1,7 @@
 package ntnu.idatt2003.group15.controller;
 
 import javafx.beans.value.ObservableIntegerValue;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.model.news.NewsItem;
@@ -34,14 +34,6 @@ public class ExchangeController {
 
     public List<Stock> getAllStocks() {
         return exchange.getAllStocks();
-    }
-
-    public List<Stock> getGainers(int limit) {
-        return exchange.getGainers(limit);
-    }
-
-    public List<Stock> getLosers(int limit) {
-        return exchange.getLosers(limit);
     }
 
     public void buy(Stock stock, BigDecimal quantity, Player player) {

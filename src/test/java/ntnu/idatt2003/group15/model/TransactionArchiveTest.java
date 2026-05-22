@@ -19,14 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionArchiveTest {
 
-  private Stock stock;
   private Share share;
   private Purchase purchase;
   private Sale sale;
 
   @BeforeEach
   void setUpShared() {
-    stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100), 0.0, 0.0,
+    Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100), 0.0, 0.0,
         List.of(StockSectors.TECHNOLOGY));
     share = new Share(stock, BigDecimal.valueOf(10), BigDecimal.valueOf(1000));
     purchase = new Purchase(share, 1);

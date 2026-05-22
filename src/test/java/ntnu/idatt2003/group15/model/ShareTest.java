@@ -62,35 +62,21 @@ class ShareTest {
 
         @Test
         void nullStock() {
-            assertThrows(NullPointerException.class, () -> {
-                new Share(null, BigDecimal.valueOf(50), BigDecimal.valueOf(1000));
-            });
+            assertThrows(NullPointerException.class, () -> new Share(null, BigDecimal.valueOf(50), BigDecimal.valueOf(1000)));
         }
 
         @Test
         void zeroNullOrNegativeQuantity() {
-            assertThrows(NullPointerException.class, () -> {
-                new Share(stock, null, BigDecimal.valueOf(1000));
-            });
-            assertThrows(IllegalArgumentException.class, () -> {
-                new Share(stock, BigDecimal.valueOf(0), BigDecimal.valueOf(1000));
-            });
-            assertThrows(IllegalArgumentException.class, () -> {
-                new Share(stock, BigDecimal.valueOf(-100), BigDecimal.valueOf(1000));
-            });
+            assertThrows(NullPointerException.class, () -> new Share(stock, null, BigDecimal.valueOf(1000)));
+            assertThrows(IllegalArgumentException.class, () -> new Share(stock, BigDecimal.valueOf(0), BigDecimal.valueOf(1000)));
+            assertThrows(IllegalArgumentException.class, () -> new Share(stock, BigDecimal.valueOf(-100), BigDecimal.valueOf(1000)));
         }
 
         @Test
         void zeroNullOrNegativePricePerShare() {
-            assertThrows(NullPointerException.class, () -> {
-                new Share(stock, BigDecimal.valueOf(50), null);
-            });
-            assertThrows(IllegalArgumentException.class, () -> {
-                new Share(stock, BigDecimal.valueOf(50), BigDecimal.valueOf(0));
-            });
-            assertThrows(IllegalArgumentException.class, () -> {
-                new Share(stock, BigDecimal.valueOf(50), BigDecimal.valueOf(-100));
-            });
+            assertThrows(NullPointerException.class, () -> new Share(stock, BigDecimal.valueOf(50), null));
+            assertThrows(IllegalArgumentException.class, () -> new Share(stock, BigDecimal.valueOf(50), BigDecimal.valueOf(0)));
+            assertThrows(IllegalArgumentException.class, () -> new Share(stock, BigDecimal.valueOf(50), BigDecimal.valueOf(-100)));
         }
     }
 }

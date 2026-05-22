@@ -10,7 +10,7 @@ import ntnu.idatt2003.group15.model.stocks.StockSectors;
 public class NewsItem {
 
   private final StockSectors sector;
-  private BigDecimal changePercent;
+  private final BigDecimal changePercent;
   private final String headline;
   private final BigDecimal volatility;
   private int durationUpdates;

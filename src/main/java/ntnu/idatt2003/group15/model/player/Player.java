@@ -17,7 +17,7 @@ import ntnu.idatt2003.group15.model.transactions.TransactionArchive;
 public class Player {
 
   private final String name;
-  private ObjectProperty<BigDecimal> money;
+  private final ObjectProperty<BigDecimal> money;
   private final BigDecimal startingMoney;
   private final Portfolio portfolio = new Portfolio();
   private final TransactionArchive transactionArchive = new TransactionArchive();

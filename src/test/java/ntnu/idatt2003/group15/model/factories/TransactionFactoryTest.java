@@ -18,14 +18,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionFactoryTest {
 
-    private Stock testStock;
-    private Share testShare;
+  private Share testShare;
     private int testWeek;
 
     @BeforeEach
     void setUp() {
-        testStock = new Stock("EQNR", "Equinor ASA", BigDecimal.valueOf(100), 0.0, 0.0,
-            List.of(StockSectors.ENERGY));
+      Stock testStock = new Stock("EQNR", "Equinor ASA", BigDecimal.valueOf(100), 0.0, 0.0,
+          List.of(StockSectors.ENERGY));
         testShare = new Share(testStock, BigDecimal.valueOf(3), BigDecimal.valueOf(100));
         testWeek = 10;
     }

@@ -22,13 +22,10 @@ public class TransactionFactory {
    * @throws IllegalArgumentException if the provided transaction type is not supported
    */
   public static Transaction createTransaction(TransactionType type, Share share, int week) {
-    switch (type) {
-      case PURCHASE:
-        return new Purchase(share, week);
-      case SALE:
-        return new Sale(share, week);
-      default:
-        throw new IllegalArgumentException("Illegal transaction type");
-    }
+    return switch (type) {
+      case PURCHASE -> new Purchase(share, week);
+      case SALE -> new Sale(share, week);
+      default -> throw new IllegalArgumentException("Illegal transaction type");
+    };
   }
 }
