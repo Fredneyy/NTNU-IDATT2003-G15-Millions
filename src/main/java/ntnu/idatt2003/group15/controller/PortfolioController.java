@@ -17,14 +17,6 @@ public class PortfolioController {
     this.portfolio = Objects.requireNonNull(portfolio, "Portfolio cannot be null");
   }
 
-  public boolean addShare(Share inputShare) {
-    return portfolio.addShare(inputShare);
-  }
-
-  public boolean removeShare(Share inputShare) {
-    return portfolio.removeShare(inputShare);
-  }
-
   public ObservableList<Share> getListProperty() {
     return portfolio.getListProperty();
   }
@@ -37,15 +29,7 @@ public class PortfolioController {
     return portfolio.getTotalMarketValueProperty();
   }
 
-  public Share getShares(String symbol) {
-    return portfolio.getShare(symbol);
-  }
-
   public boolean contains(Share inputShare) {
     return portfolio.contains(inputShare);
-  }
-
-  public BigDecimal getTotalMarketValue() {
-    return portfolio.getTotalMarketValue();
   }
 }

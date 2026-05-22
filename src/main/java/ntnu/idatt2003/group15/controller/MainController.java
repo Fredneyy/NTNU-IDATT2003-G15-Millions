@@ -36,29 +36,18 @@ public class MainController {
   private final Random random = new Random();
 
   public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvParser csvParser,
-                        TaskUtil taskUtil, List<Stock> stocks) {
+                        TaskUtil taskUtil, List<Stock> stocks, List<NewsItem> news) {
     this.csvParser = csvParser;
     this.taskUtil = taskUtil;
     this.root = root;
     this.errorHandler = errorHandler;
 
-    MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", loadStocks()), this::startGame);
+    MainMenuController mainMenuController = new MainMenuController(new Exchange("OSEBX", stocks), this::startGame);
     mainMenuController.setGameSettings(gameSettings);
     mainMenuController.setOnGameLoadConsumer(this::resumeGame);
+
     mainMenu = new MainMenu(root, errorHandler, csvParser, taskUtil, mainMenuController);
-    newsController = new NewsController(root, gameSettings, new NewsArchive(loadNewsItems()));
-  }
-
-  private List<Stock> loadStocks() {
-    StockLoader stockLoader = new StockLoader("src/main/resources/storage/defaultstocks.csv");
-    List<Stock> stocks = stockLoader.load();
-    return stocks;
-  }
-
-  private List<NewsItem> loadNewsItems() {
-    NewsLoader newsLoader = new NewsLoader("src/main/resources/storage/stock_news.csv");
-    List<NewsItem> newsItems = newsLoader.load();
-    return newsItems;
+    newsController = new NewsController(new NewsArchive(news));
   }
 
   public void showMainMenu() {

@@ -6,14 +6,6 @@ import javafx.scene.control.Slider;
 import ntnu.idatt2003.group15.model.GameSettings;
 import ntnu.idatt2003.group15.view.SettingsView;
 
-/**
- * Binds a {@link SettingsView} to a {@link GameSettings} model.
- *
- * <p>The slider in the view becomes the single source of truth for difficulty;
- * derived knobs (volatility multiplier, news interval, max event chance) are
- * exposed via {@code GameSettings} so other controllers (exchange, news) can
- * react. The view's labels are updated live as the user drags the slider.
- */
 public class SettingsController {
 
   private final SettingsView view;
@@ -25,13 +17,8 @@ public class SettingsController {
     bind();
   }
 
-  public GameSettings getSettings() {
-    return settings;
-  }
-
   private void bind() {
     Slider slider = view.getDifficultySlider();
-    // Seed the slider from the model, then keep them in sync both ways.
     slider.setValue(settings.getDifficulty());
     slider.valueProperty().bindBidirectional(settings.difficultyProperty());
 
