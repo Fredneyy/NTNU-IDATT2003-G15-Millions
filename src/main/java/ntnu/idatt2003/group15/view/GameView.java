@@ -68,7 +68,8 @@ public class GameView {
 
   public GameView(PlayerController player, ExchangeController exchange,
                   GameSettings settings, Runnable runnableExit,
-                  Consumer<Throwable> errorHandler, NewsController newsController) {
+                  Consumer<Throwable> errorHandler, NewsController newsController, Runnable advance,
+                  Runnable autoAdvanceOn, Runnable autoadvanceOff) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
     this.news = Objects.requireNonNull(newsController.getNewsObservable());
@@ -126,6 +127,14 @@ public class GameView {
     view.getStylesheets().add(Objects.requireNonNull(
         getClass().getResource("/style/RootStyle.css")).toExternalForm());
     HBox header = headerView.createHeader();
+    headerView.getAutoAdvanceCheckBox().selectedProperty().addListener((value, _, _) -> {
+      if (value.getValue() == true) {
+        autoAdvanceOn.run();
+      } else {
+        autoadvanceOff.run();
+      }
+    });
+    headerView.getAdvanceWeekButton().setOnAction(_ -> advance.run());
     headerView.getSettingsButton().setOnAction(_ -> settingsView.toggle());
     headerView.getSaveButton().setOnAction(_ -> saveGame());
 
@@ -258,13 +267,13 @@ public class GameView {
 
     NewsDialog dialog = new NewsDialog(Duration.seconds(10));
     if (stamped.changePercent().compareTo(BigDecimal.ZERO) > 0) {
-      dialog.setSentiment(NewsDialog.Sentiment.BEARISH);
-    } else {
       dialog.setSentiment(NewsDialog.Sentiment.BULLISH);
+    } else {
+      dialog.setSentiment(NewsDialog.Sentiment.BEARISH);
     }
     dialog.setSymbol(stamped.sector() == null ? null : stamped.sector().getLabel());
-    BigDecimal changepercentFormatted = stamped.changePercent().subtract(BigDecimal.ONE).multiply(BigDecimal.valueOf(100));
-    dialog.setChangePercent(changepercentFormatted);
+    BigDecimal changePercentFormatted = stamped.changePercent().multiply(BigDecimal.valueOf(100));
+    dialog.setChangePercent(changePercentFormatted);
     dialog.setText(stamped.title(), stamped.message());
     dialog.setFooter(stamped.footerText());
     dialog.showIn(newsContainer);

@@ -61,8 +61,7 @@ public class MainController {
   public void showMainMenu() {
     stopPriceTicker();
     stopNewsTicker();
-    // Clear any blur/effect that may have leaked onto the menu from an open
-    // dialog (e.g. logging out while the onboarding overlay is still up).
+    
     mainMenu.getView().setEffect(null);
     mainMenu.refreshContinueCard();
     root.getChildren().setAll(mainMenu.getView());
@@ -79,11 +78,16 @@ public class MainController {
   private void enterGame(ExchangeController exchangeController, PlayerController playerController,
                          boolean showOnboarding) {
     GameView gameView = new GameView(playerController, exchangeController, gameSettings,
-        this::showMainMenu, errorHandler, newsController);
+        this::showMainMenu, errorHandler, newsController, () -> {
+      try {
+        exchangeController.advanceWeek();
+        newsController.advanceWeek();
+      } catch (RuntimeException ex) {
+        errorHandler.accept(ex);
+      }
+    }, () -> startPriceTicker(exchangeController), this::stopPriceTicker);
     gameView.show(root);
     exchangeController.setNewsObserver(newsController.getNewsObservable());
-    // Take the main menu out of the scene so it can't be blurred (or otherwise
-    // affected) by overlays drawn on top of the game view.
     root.getChildren().remove(mainMenu.getView());
     if (showOnboarding) {
       new OnBoardingDialog(csvParser, taskUtil).show(root);
@@ -102,23 +106,20 @@ public class MainController {
       }
     });
     
-    // Subscribe to news interval changes to adjust the ticker frequency dynamically
     gameSettings.newsIntervalSecondsProperty().addListener((_, _, _) -> {
       if (newsTicker != null) {
           startNewsTicker(newsController);
       }
     });
-
-    startPriceTicker(exchangeController);
     startNewsTicker(newsController);
   }
 
   private void startNewsTicker(NewsController newsController) {
     stopNewsTicker();
 
-    double meanSeconds = gameSettings.getNewsIntervalSeconds(); // Fetch bound duration from settings
-    double stdDev = meanSeconds / 3.0; // Standard deviation scales based on the mean
-    double minSeconds = 5.0; // Absolute bare minimum to avoid spam
+    double meanSeconds = gameSettings.getNewsIntervalSeconds();
+    double stdDev = meanSeconds / 3.0;
+    double minSeconds = 5.0;
 
     double nextDuration = meanSeconds + random.nextGaussian() * stdDev;
     if (nextDuration < minSeconds) {
@@ -149,6 +150,7 @@ public class MainController {
     priceTicker = new Timeline(new KeyFrame(Duration.seconds(5), _ -> {
       try {
         exchangeController.advanceWeek();
+        newsController.advanceWeek();
       } catch (RuntimeException ex) {
         errorHandler.accept(ex);
       }

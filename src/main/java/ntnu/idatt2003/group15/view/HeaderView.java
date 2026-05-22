@@ -95,7 +95,7 @@ public class HeaderView {
 
         autoAdvanceCheckBox = new CheckBox("Auto-advance");
         autoAdvanceCheckBox.getStyleClass().add("auto-advance-toggle");
-        autoAdvanceCheckBox.setSelected(true);
+        autoAdvanceCheckBox.setSelected(false);
 
         saveBtn = new Button();
         saveBtn.setGraphic(new FontIcon(MaterialDesignC.CONTENT_SAVE_OUTLINE));
