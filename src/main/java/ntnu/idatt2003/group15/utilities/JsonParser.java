@@ -1,5 +1,7 @@
 package ntnu.idatt2003.group15.utilities;
 
+import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -147,7 +149,7 @@ public final class JsonParser {
     return pos < src.length() ? src.charAt(pos) : '\0';
   }
 
-  private IllegalArgumentException err(String msg) {
-    return new IllegalArgumentException(msg + " at position " + pos);
+  private FileReaderException err(String msg) {
+    return new FileReaderException(msg + " at position " + pos);
   }
 }

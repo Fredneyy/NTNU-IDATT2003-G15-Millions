@@ -3,6 +3,8 @@ package ntnu.idatt2003.group15.utilities.stockparser;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
 import ntnu.idatt2003.group15.model.stocks.Stock;
 import ntnu.idatt2003.group15.model.stocks.StockSectors;
 import ntnu.idatt2003.group15.utilities.CsvParser;
@@ -18,7 +20,7 @@ public class CsvStockParser implements StockParser {
   private final CsvParser csvParser = new CsvParser();
 
   @Override
-  public List<Stock> parse(String filePath) {
+  public List<Stock> parse(String filePath) throws FileReaderException {
     List<List<String>> rows = new ArrayList<>(csvParser.parse(filePath));
     rows.removeFirst();
     List<Stock> stocks = new ArrayList<>();

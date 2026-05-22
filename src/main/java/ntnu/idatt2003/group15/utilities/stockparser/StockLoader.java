@@ -1,6 +1,8 @@
 package ntnu.idatt2003.group15.utilities.stockparser;
 
 import java.util.List;
+import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
+import ntnu.idatt2003.group15.model.exceptions.UnsupportedFileTypeException;
 import ntnu.idatt2003.group15.model.stocks.Stock;
 
 /**
@@ -16,6 +18,11 @@ public class StockLoader {
   private final String filePath;
   private final StockParser parser;
 
+  /**
+   * Instantiates a new Stock loader.
+   *
+   * @param filePath the file path to read from
+   */
   public StockLoader(String filePath) {
     this.filePath = filePath;
     this.parser = selectParser(filePath);
@@ -25,6 +32,8 @@ public class StockLoader {
    * Reads the configured file and returns the stocks it contains.
    *
    * @return the parsed stocks
+   * @throws UnsupportedFileTypeException if loader cannot load that file type
+   * @throws FileReaderException          if parser cannot read file correctly
    */
   public List<Stock> load() {
     return parser.parse(filePath);
@@ -38,6 +47,6 @@ public class StockLoader {
     if (lower.endsWith(".json")) {
       return new JsonStockParser();
     }
-    throw new IllegalArgumentException("Unsupported stock file extension: " + filePath);
+    throw new UnsupportedFileTypeException("Unsupported stock file extension: " + filePath);
   }
 }

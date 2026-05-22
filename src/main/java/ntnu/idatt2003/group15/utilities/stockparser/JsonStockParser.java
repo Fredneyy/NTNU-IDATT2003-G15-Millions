@@ -21,17 +21,17 @@ import ntnu.idatt2003.group15.utilities.JsonParser;
 public class JsonStockParser implements StockParser {
 
   @Override
-  public List<Stock> parse(String filePath) {
+  public List<Stock> parse(String filePath) throws FileReaderException{
     Object parsed = readJson(filePath);
     if (!(parsed instanceof List<?> entries)) {
       throw new FileReaderException(
-          "Stock JSON file must contain a top-level array: " + filePath, null);
+          "Stock JSON file must contain a top-level array: " + filePath);
     }
     List<Stock> stocks = new ArrayList<>();
     for (Object entry : entries) {
       if (!(entry instanceof Map<?, ?> raw)) {
         throw new FileReaderException(
-            "Stock JSON entries must be objects: " + filePath, null);
+            "Stock JSON entries must be objects: " + filePath);
       }
       List<StockSectors> sectors = new ArrayList<>();
       if (raw.get("sectors") instanceof List<?> sectorLabels) {
@@ -55,7 +55,7 @@ public class JsonStockParser implements StockParser {
       String text = Files.readString(Paths.get(filePath), StandardCharsets.UTF_8);
       return JsonParser.parse(text);
     } catch (Exception e) {
-      throw new FileReaderException("Error reading file " + filePath, e);
+      throw new FileReaderException("Error reading file " + filePath);
     }
   }
 
