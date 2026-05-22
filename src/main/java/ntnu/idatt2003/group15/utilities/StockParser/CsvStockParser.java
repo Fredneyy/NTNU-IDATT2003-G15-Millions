@@ -3,8 +3,8 @@ package ntnu.idatt2003.group15.utilities.StockParser;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import ntnu.idatt2003.group15.model.Stock;
-import ntnu.idatt2003.group15.model.StockSectors;
+import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.model.stocks.StockSectors;
 import ntnu.idatt2003.group15.utilities.CsvParser;
 
 /**

@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.player;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -14,7 +14,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.util.Callback;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.transactions.SaleCalculator;
 
 /**
  * Manages a collection of stock holdings for a specific player.

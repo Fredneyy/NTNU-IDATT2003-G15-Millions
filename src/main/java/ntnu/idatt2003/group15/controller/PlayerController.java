@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
-import ntnu.idatt2003.group15.model.Player;
-import ntnu.idatt2003.group15.model.PlayerStatus;
-import ntnu.idatt2003.group15.model.Portfolio;
-import ntnu.idatt2003.group15.model.TransactionArchive;
+import ntnu.idatt2003.group15.model.player.Player;
+import ntnu.idatt2003.group15.model.player.PlayerStatus;
+import ntnu.idatt2003.group15.model.player.Portfolio;
+import ntnu.idatt2003.group15.model.transactions.TransactionArchive;
 
 public class PlayerController {
 
@@ -15,6 +15,10 @@ public class PlayerController {
 
   public PlayerController(Player player) {
     this.player = Objects.requireNonNull(player, "Player cannot be null");
+  }
+
+  public Player getPlayer() {
+    return player;
   }
 
   public String getName() {
@@ -31,14 +35,6 @@ public class PlayerController {
 
   public BigDecimal getStartingMoney() {
     return player.getStartingMoney();
-  }
-
-  public void addMoney(BigDecimal amount) {
-    player.addMoney(amount);
-  }
-
-  public void withdrawMoney(BigDecimal amount) {
-    player.withdrawMoney(amount);
   }
 
   public Portfolio getPortfolio() {
@@ -59,5 +55,21 @@ public class PlayerController {
 
   public PlayerStatus getStatus() {
     return player.statusProperty().getValue();
+  }
+
+  public ObservableValue<BigDecimal> getCashProperty() {
+    return player.moneyProperty();
+  }
+
+  public ObservableValue<BigDecimal> getNetWorthProperty() {
+    return player.getNetWorthProperty();
+  }
+
+  public ObservableValue<BigDecimal> getNetWorthChangeProperty() {
+    return player.getNetWorthChangeProperty();
+  }
+
+  public ObservableValue<BigDecimal> getNetWorthChangePercentProperty() {
+    return player.getNetWorthChangePercentProperty();
   }
 }

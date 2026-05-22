@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.transactions;
 
 import java.util.List;
 import java.util.Set;

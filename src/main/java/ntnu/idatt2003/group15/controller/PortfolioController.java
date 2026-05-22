@@ -6,8 +6,8 @@ import java.util.Objects;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import ntnu.idatt2003.group15.model.Portfolio;
-import ntnu.idatt2003.group15.model.Share;
+import ntnu.idatt2003.group15.model.player.Portfolio;
+import ntnu.idatt2003.group15.model.stocks.Share;
 
 public class PortfolioController {
 

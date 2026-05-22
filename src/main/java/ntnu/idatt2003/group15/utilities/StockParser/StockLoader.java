@@ -1,7 +1,7 @@
 package ntnu.idatt2003.group15.utilities.StockParser;
 
 import java.util.List;
-import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.model.stocks.Stock;
 
 /**
  * Loads {@link Stock} instances from a file. The format is selected from the

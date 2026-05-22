@@ -7,6 +7,9 @@ import javafx.animation.Timeline;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.model.*;
+import ntnu.idatt2003.group15.model.news.NewsArchive;
+import ntnu.idatt2003.group15.model.news.NewsItem;
+import ntnu.idatt2003.group15.model.stocks.Stock;
 import ntnu.idatt2003.group15.utilities.CsvParser;
 import ntnu.idatt2003.group15.utilities.NewsParser.NewsLoader;
 import ntnu.idatt2003.group15.utilities.StockParser.StockLoader;
@@ -147,7 +150,7 @@ public class MainController {
 
   private void startPriceTicker(ExchangeController exchangeController) {
     stopPriceTicker();
-    priceTicker = new Timeline(new KeyFrame(Duration.seconds(5), _ -> {
+    priceTicker = new Timeline(new KeyFrame(Duration.seconds(3), _ -> {
       try {
         exchangeController.advanceWeek();
         newsController.advanceWeek();

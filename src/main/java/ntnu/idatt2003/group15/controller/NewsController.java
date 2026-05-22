@@ -5,6 +5,8 @@ import java.util.Random;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.StackPane;
 import ntnu.idatt2003.group15.model.*;
+import ntnu.idatt2003.group15.model.news.NewsArchive;
+import ntnu.idatt2003.group15.model.news.NewsItem;
 
 public class NewsController {
 

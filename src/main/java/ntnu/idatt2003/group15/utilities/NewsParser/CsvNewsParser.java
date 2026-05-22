@@ -1,7 +1,7 @@
 package ntnu.idatt2003.group15.utilities.NewsParser;
 
-import ntnu.idatt2003.group15.model.NewsItem;
-import ntnu.idatt2003.group15.model.StockSectors;
+import ntnu.idatt2003.group15.model.news.NewsItem;
+import ntnu.idatt2003.group15.model.stocks.StockSectors;
 import ntnu.idatt2003.group15.utilities.CsvParser;
 
 import java.math.BigDecimal;

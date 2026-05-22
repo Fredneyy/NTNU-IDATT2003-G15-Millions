@@ -12,13 +12,13 @@ import java.util.StringJoiner;
 import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.PlayerController;
 import ntnu.idatt2003.group15.model.GameSettings;
-import ntnu.idatt2003.group15.model.Portfolio;
-import ntnu.idatt2003.group15.model.Purchase;
-import ntnu.idatt2003.group15.model.Sale;
-import ntnu.idatt2003.group15.model.Share;
-import ntnu.idatt2003.group15.model.Stock;
-import ntnu.idatt2003.group15.model.StockSectors;
-import ntnu.idatt2003.group15.model.Transaction;
+import ntnu.idatt2003.group15.model.player.Portfolio;
+import ntnu.idatt2003.group15.model.transactions.Purchase;
+import ntnu.idatt2003.group15.model.transactions.Sale;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.model.stocks.StockSectors;
+import ntnu.idatt2003.group15.model.transactions.Transaction;
 
 /**
  * Serializes the current game state (player, exchange, settings) to a JSON file

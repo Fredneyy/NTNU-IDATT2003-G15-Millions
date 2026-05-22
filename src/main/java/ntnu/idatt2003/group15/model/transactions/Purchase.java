@@ -1,4 +1,7 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.transactions;
+
+import ntnu.idatt2003.group15.model.player.Player;
+import ntnu.idatt2003.group15.model.stocks.Share;
 
 import java.math.BigDecimal;
 import java.time.Instant;

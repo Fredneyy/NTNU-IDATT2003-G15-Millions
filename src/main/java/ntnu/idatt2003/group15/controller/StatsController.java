@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.Objects;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
-import ntnu.idatt2003.group15.model.Purchase;
-import ntnu.idatt2003.group15.model.Sale;
-import ntnu.idatt2003.group15.model.Share;
-import ntnu.idatt2003.group15.model.Transaction;
+import ntnu.idatt2003.group15.model.transactions.Purchase;
+import ntnu.idatt2003.group15.model.transactions.Sale;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.transactions.Transaction;
 import ntnu.idatt2003.group15.view.StatsView;
 import ntnu.idatt2003.group15.view.StatsView.Tone;
 
@@ -39,7 +39,6 @@ public class StatsController {
   }
 
   private void bind() {
-    // React to new buys / sells.
     player.getTransactionArchive().getTransactionsProperty()
         .addListener((ListChangeListener<Transaction>) _ -> refresh());
 
@@ -47,8 +46,8 @@ public class StatsController {
         .addListener((ListChangeListener<Share>) _ -> refresh());
 
     ChangeListener<Object> any = (_, _, _) -> refresh();
-    exchange.netWorthProperty().addListener(any);
-    exchange.unrealizedPnlProperty().addListener(any);
+    player.getNetWorthProperty().addListener(any);
+    player.getPlayer().getPortfolio().getUnrealizedPnlProperty().addListener(any);
   }
 
   /** Recompute every visible figure from scratch. Cheap given typical trade counts. */
@@ -90,7 +89,7 @@ public class StatsController {
     view.setTotalTrades(total, buys, sells);
     view.setRealizedPL(formatSigned(realized), tone(realized.signum()));
 
-    BigDecimal unrealized = nz(exchange.unrealizedPnlProperty().getValue());
+    BigDecimal unrealized = nz(player.getPlayer().getPortfolio().getUnrealizedPnlProperty().getValue());
     view.setUnrealizedPL(formatSigned(unrealized), tone(unrealized.signum()));
 
     int rated = wins + losses;
@@ -100,10 +99,8 @@ public class StatsController {
               .divide(BigDecimal.valueOf(rated), 1, RoundingMode.HALF_UP);
     view.setWinRate(winRate.toPlainString() + "%", wins, losses);
 
-    // Total return is net-worth - startingMoney, so both realized losses (already in cash)
-    // and unrealized P/L (still in holdings) contribute.
     BigDecimal starting = nz(player.getStartingMoney());
-    BigDecimal netWorth = nz(exchange.netWorthProperty().getValue());
+    BigDecimal netWorth = nz(player.getNetWorthProperty().getValue());
     BigDecimal totalReturn = netWorth.subtract(starting);
     BigDecimal pct = starting.signum() == 0
         ? BigDecimal.ZERO

@@ -3,10 +3,10 @@ package ntnu.idatt2003.group15.controller;
 import java.util.List;
 import java.util.Objects;
 import javafx.collections.ObservableList;
-import ntnu.idatt2003.group15.model.Purchase;
-import ntnu.idatt2003.group15.model.Sale;
-import ntnu.idatt2003.group15.model.Transaction;
-import ntnu.idatt2003.group15.model.TransactionArchive;
+import ntnu.idatt2003.group15.model.transactions.Purchase;
+import ntnu.idatt2003.group15.model.transactions.Sale;
+import ntnu.idatt2003.group15.model.transactions.Transaction;
+import ntnu.idatt2003.group15.model.transactions.TransactionArchive;
 
 public class TransactionArchiveController {
 

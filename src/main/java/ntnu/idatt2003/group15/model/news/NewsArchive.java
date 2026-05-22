@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.news;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

@@ -7,13 +7,13 @@ import java.util.function.BiConsumer;
 
 import ntnu.idatt2003.group15.model.Exchange;
 import ntnu.idatt2003.group15.model.GameSettings;
-import ntnu.idatt2003.group15.model.Player;
-import ntnu.idatt2003.group15.model.Portfolio;
-import ntnu.idatt2003.group15.model.Purchase;
-import ntnu.idatt2003.group15.model.Sale;
+import ntnu.idatt2003.group15.model.player.Player;
+import ntnu.idatt2003.group15.model.player.Portfolio;
+import ntnu.idatt2003.group15.model.transactions.Purchase;
+import ntnu.idatt2003.group15.model.transactions.Sale;
 import ntnu.idatt2003.group15.model.SaveData;
-import ntnu.idatt2003.group15.model.Share;
-import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.stocks.Stock;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 
 /**
@@ -77,7 +77,7 @@ public class MainMenuController {
     Exchange exchangeForGame = (customStocks == null || customStocks.isEmpty())
         ? this.exchange
         : new Exchange(this.exchange.getName(), customStocks);
-    onGameStartConsumer.accept(new ExchangeController(exchangeForGame, player), playerController);
+    onGameStartConsumer.accept(new ExchangeController(exchangeForGame), playerController);
   }
 
   /**
@@ -186,6 +186,6 @@ public class MainMenuController {
     PlayerController playerController = createPlayerController(player);
     BiConsumer<ExchangeController, PlayerController> handoff =
         onGameLoadConsumer != null ? onGameLoadConsumer : onGameStartConsumer;
-    handoff.accept(new ExchangeController(exchange, player), playerController);
+    handoff.accept(new ExchangeController(exchange), playerController);
   }
 }

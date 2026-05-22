@@ -12,6 +12,13 @@ import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 import ntnu.idatt2003.group15.model.factories.TransactionFactory;
 import ntnu.idatt2003.group15.model.factories.TransactionType;
+import ntnu.idatt2003.group15.model.news.NewsItem;
+import ntnu.idatt2003.group15.model.player.Player;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.model.transactions.Purchase;
+import ntnu.idatt2003.group15.model.transactions.Sale;
+import ntnu.idatt2003.group15.utilities.StockSimulator;
 
 /**
  * Represents a stock exchange managing a collection of active stocks

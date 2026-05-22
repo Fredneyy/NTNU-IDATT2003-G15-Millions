@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.player;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,6 +9,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
+import ntnu.idatt2003.group15.model.transactions.TransactionArchive;
 
 /**
  * Represents a participant in the stock market simulation managing a portfolio and balance.

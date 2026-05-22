@@ -1,14 +1,14 @@
 package ntnu.idatt2003.group15.model;
 
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
+import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.model.stocks.StockSectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

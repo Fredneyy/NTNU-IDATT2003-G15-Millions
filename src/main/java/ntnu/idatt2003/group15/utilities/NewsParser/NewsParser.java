@@ -1,6 +1,6 @@
 package ntnu.idatt2003.group15.utilities.NewsParser;
 
-import ntnu.idatt2003.group15.model.NewsItem;
+import ntnu.idatt2003.group15.model.news.NewsItem;
 
 import java.util.List;
 

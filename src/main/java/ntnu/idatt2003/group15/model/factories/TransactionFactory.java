@@ -1,9 +1,9 @@
 package ntnu.idatt2003.group15.model.factories;
 
-import ntnu.idatt2003.group15.model.Purchase;
-import ntnu.idatt2003.group15.model.Sale;
-import ntnu.idatt2003.group15.model.Share;
-import ntnu.idatt2003.group15.model.Transaction;
+import ntnu.idatt2003.group15.model.transactions.Purchase;
+import ntnu.idatt2003.group15.model.transactions.Sale;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.transactions.Transaction;
 
 /**
  * Factory class for creating instances of {@link Transaction}.
