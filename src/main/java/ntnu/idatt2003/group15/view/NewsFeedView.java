@@ -137,12 +137,7 @@ public class NewsFeedView {
             topRow.getStyleClass().add("news-row-top");
             topRow.setAlignment(Pos.CENTER_LEFT);
 
-            // Headline + description
-            Label headline = new Label(ev.title() == null ? "" : ev.title());
-            headline.getStyleClass().add("news-row-title");
-            headline.setWrapText(true);
-
-            Label description = new Label(ev.message() == null ? "" : ev.message());
+            Label description = new Label(ev.headline() == null ? "" : ev.headline());
             description.getStyleClass().add("news-row-description");
             description.setWrapText(true);
 
@@ -155,7 +150,7 @@ public class NewsFeedView {
             meta.setSpacing(28);
             meta.getStyleClass().add("news-row-meta");
 
-            VBox center = new VBox(topRow, headline, description, meta);
+            VBox center = new VBox(topRow, description, meta);
             center.setSpacing(8);
             HBox.setHgrow(center, Priority.ALWAYS);
             center.setMaxWidth(Double.MAX_VALUE);

@@ -116,12 +116,10 @@ public class NewsDialog extends BaseDialog {
     topRow.setSpacing(12);
     topRow.setAlignment(Pos.CENTER_LEFT);
 
-    titleLabel.getStyleClass().setAll("news-popup-title");
     messageLabel.getStyleClass().setAll("news-popup-message");
-    titleLabel.setWrapText(true);
     messageLabel.setWrapText(true);
 
-    bodyContent.getChildren().setAll(topRow, titleLabel, messageLabel);
+    bodyContent.getChildren().setAll(topRow, messageLabel);
     bodyContent.getStyleClass().add("news-popup-body-content");
     bodyContent.setSpacing(6);
     HBox.setHgrow(bodyContent, Priority.ALWAYS);
@@ -164,10 +162,9 @@ public class NewsDialog extends BaseDialog {
     });
   }
 
-  public void setText(String title, String message) {
-    titleLabel.setText(title == null ? "" : title);
-    messageLabel.setText(message == null ? "" : message);
-    setManaged(messageLabel, message != null && !message.isBlank());
+  public void setText(String headline) {
+    messageLabel.setText(headline == null ? "" : headline);
+    setManaged(messageLabel, headline != null && !headline.isBlank());
   }
 
   public void setSentiment(Sentiment sentiment) {

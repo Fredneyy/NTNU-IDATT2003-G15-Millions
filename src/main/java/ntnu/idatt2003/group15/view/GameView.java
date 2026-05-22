@@ -274,7 +274,7 @@ public class GameView {
     dialog.setSymbol(stamped.sector() == null ? null : stamped.sector().getLabel());
     BigDecimal changePercentFormatted = stamped.changePercent().multiply(BigDecimal.valueOf(100));
     dialog.setChangePercent(changePercentFormatted);
-    dialog.setText(stamped.title(), stamped.message());
+    dialog.setText(stamped.headline());
     dialog.setFooter(stamped.footerText());
     dialog.showIn(newsContainer);
   }
@@ -285,7 +285,7 @@ public class GameView {
     }
     return new NewsItem(
         item.sector(), item.changePercent(),
-        item.title(), item.message(), item.volatility(),
+        item.headline(), item.volatility(),
         item.durationUpdates(), Instant.now(), item.appliedChange()
     );
   }

@@ -1,7 +1,5 @@
 package ntnu.idatt2003.group15.model;
 
-import ntnu.idatt2003.group15.view.dialog.NewsDialog;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -9,8 +7,7 @@ public class NewsItem {
 
   private final StockSectors sector;
   private BigDecimal changePercent;
-  private final String title;
-  private final String message;
+  private final String headline;
   private final BigDecimal volatility;
   private int durationUpdates;
   private final Instant when;
@@ -19,8 +16,7 @@ public class NewsItem {
   public NewsItem(
       StockSectors sector,
       BigDecimal changePercent,
-      String title,
-      String message,
+      String headline,
       BigDecimal volatility,
       int durationUpdates,
       Instant when,
@@ -28,8 +24,7 @@ public class NewsItem {
   ) {
     this.sector = sector;
     this.changePercent = changePercent;
-    this.title = title;
-    this.message = message;
+    this.headline = headline;
     this.volatility = volatility;
     this.durationUpdates = durationUpdates;
     this.when = when;
@@ -55,9 +50,9 @@ public class NewsItem {
   }
 
   /** Plain informational item (e.g. the welcome message). Skipped by feed listeners. */
-  public static NewsItem info(String title, String message) {
+  public static NewsItem info(String headline, String message) {
     return new NewsItem(null, null,
-        title, message, null, 0, Instant.now(), false);
+        headline, null, 0, Instant.now(), false);
   }
 
   public void setAppliedChange(boolean appliedChange) {
@@ -70,8 +65,7 @@ public class NewsItem {
 
   public StockSectors sector() { return sector; }
   public BigDecimal changePercent() { return changePercent; }
-  public String title() { return title; }
-  public String message() { return message; }
+  public String headline() { return headline; }
   public BigDecimal volatility() { return volatility; }
   public int durationUpdates() { return durationUpdates; }
   public Instant when() { return when; }

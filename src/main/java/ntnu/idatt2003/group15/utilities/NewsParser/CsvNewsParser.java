@@ -25,7 +25,6 @@ public class CsvNewsParser implements NewsParser {
           StockSectors.fromLabel(row.get(1)),
           BigDecimal.valueOf(Double.parseDouble(row.get(3))),
           row.getFirst(),
-          row.get(1),
           BigDecimal.valueOf(Double.parseDouble(row.get(2))),
           Integer.parseInt(row.getLast()),
           null, false
