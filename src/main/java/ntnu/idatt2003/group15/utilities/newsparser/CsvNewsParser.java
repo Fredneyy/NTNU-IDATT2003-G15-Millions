@@ -1,22 +1,25 @@
-package ntnu.idatt2003.group15.utilities.NewsParser;
-
-import ntnu.idatt2003.group15.model.news.NewsItem;
-import ntnu.idatt2003.group15.model.stocks.StockSectors;
-import ntnu.idatt2003.group15.utilities.CsvParser;
+package ntnu.idatt2003.group15.utilities.newsparser;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
+import ntnu.idatt2003.group15.model.news.NewsItem;
+import ntnu.idatt2003.group15.model.stocks.StockSectors;
+import ntnu.idatt2003.group15.utilities.CsvParser;
+
 /**
+ * The type Csv news parser.
  *
+ * <p>is used for creating {@link NewsItem} from a csv file with a certain format</p>
  */
 public class CsvNewsParser implements NewsParser {
 
   private final CsvParser csvParser = new CsvParser();
 
   @Override
-  public List<NewsItem> parse(String filePath) {
+  public List<NewsItem> parse(String filePath) throws FileReaderException {
     List<List<String>> rows = new ArrayList<>(csvParser.parse(filePath));
     rows.removeFirst();
     List<NewsItem> newsItems = new ArrayList<>();

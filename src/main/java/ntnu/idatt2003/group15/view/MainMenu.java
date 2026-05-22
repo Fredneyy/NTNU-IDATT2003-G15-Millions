@@ -17,7 +17,7 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainMenuController;
 import ntnu.idatt2003.group15.model.SaveData;
 import ntnu.idatt2003.group15.model.stocks.Stock;
-import ntnu.idatt2003.group15.utilities.StockParser.StockLoader;
+import ntnu.idatt2003.group15.utilities.stockparser.StockLoader;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 import java.io.File;

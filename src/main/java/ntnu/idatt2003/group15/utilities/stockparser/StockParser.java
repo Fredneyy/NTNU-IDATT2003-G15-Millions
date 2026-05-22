@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.utilities.StockParser;
+package ntnu.idatt2003.group15.utilities.stockparser;
 
 import java.util.List;
 import ntnu.idatt2003.group15.model.stocks.Stock;

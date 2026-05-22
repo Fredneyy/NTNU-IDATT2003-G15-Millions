@@ -11,8 +11,6 @@ import ntnu.idatt2003.group15.model.news.NewsArchive;
 import ntnu.idatt2003.group15.model.news.NewsItem;
 import ntnu.idatt2003.group15.model.stocks.Stock;
 import ntnu.idatt2003.group15.utilities.CsvParser;
-import ntnu.idatt2003.group15.utilities.NewsParser.NewsLoader;
-import ntnu.idatt2003.group15.utilities.StockParser.StockLoader;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;

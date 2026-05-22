@@ -6,8 +6,8 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import ntnu.idatt2003.group15.controller.MainController;
 import ntnu.idatt2003.group15.utilities.CsvParser;
-import ntnu.idatt2003.group15.utilities.NewsParser.NewsLoader;
-import ntnu.idatt2003.group15.utilities.StockParser.StockLoader;
+import ntnu.idatt2003.group15.utilities.newsparser.NewsLoader;
+import ntnu.idatt2003.group15.utilities.stockparser.StockLoader;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.dialog.ExceptionDialog;
 

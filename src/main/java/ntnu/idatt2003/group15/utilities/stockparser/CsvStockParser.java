@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.utilities.StockParser;
+package ntnu.idatt2003.group15.utilities.stockparser;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
