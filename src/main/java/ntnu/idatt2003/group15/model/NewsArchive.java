@@ -40,7 +40,6 @@ public class NewsArchive {
       NewsItem item = sortedNews.get(randomIndex);
       item.setAppliedChange(false);
       activeNewsItems.add(item);
-      System.out.println(sortedNews.get(randomIndex).toString());
     }
   }
 
