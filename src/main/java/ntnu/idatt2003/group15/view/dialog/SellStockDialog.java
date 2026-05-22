@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.view;
+package ntnu.idatt2003.group15.view.dialog;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.SaleCalculator;
 import ntnu.idatt2003.group15.model.Share;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.function.BiConsumer;

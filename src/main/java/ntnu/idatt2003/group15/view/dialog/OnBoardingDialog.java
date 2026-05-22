@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.view;
+package ntnu.idatt2003.group15.view.dialog;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.util.Duration;
-import ntnu.idatt2003.group15.utilities.CsvUtil;
+import ntnu.idatt2003.group15.utilities.CsvParser;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.*;
@@ -37,7 +37,7 @@ public class OnBoardingDialog extends BaseDialog {
   private final ProgressBar progressBar;
   private final VBox textContainer;
   private final StackPane iconBox;
-  private final CsvUtil csvUtil;
+  private final CsvParser csvParser;
   private final TaskUtil taskUtil;
   private List<List<String>> onboardingText = List.of();
   private StackPane root;
@@ -47,10 +47,10 @@ public class OnBoardingDialog extends BaseDialog {
   private final ParallelTransition closeAnimation;
 
 
-  public OnBoardingDialog(CsvUtil csvUtil, TaskUtil taskUtil) throws NullPointerException {
+  public OnBoardingDialog(CsvParser csvParser, TaskUtil taskUtil) throws NullPointerException {
     super();
 
-    this.csvUtil = Objects.requireNonNull(csvUtil);
+    this.csvParser = Objects.requireNonNull(csvParser);
     this.taskUtil = Objects.requireNonNull(taskUtil);
 
     loadText();
@@ -157,7 +157,7 @@ public class OnBoardingDialog extends BaseDialog {
   }
 
   private void loadText() {
-    taskUtil.runTaskAsync(() -> csvUtil.readCsvFile("src/main/resources/storage/onboarding.csv"), result -> {
+    taskUtil.runTaskAsync(() -> csvParser.parse("src/main/resources/storage/onboarding.csv"), result -> {
           this.onboardingText = result == null ? List.of() : result;
           if (onboardingText.isEmpty()) {
             close();

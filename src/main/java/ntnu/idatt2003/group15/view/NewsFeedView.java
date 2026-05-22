@@ -4,15 +4,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
@@ -21,6 +19,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import ntnu.idatt2003.group15.model.NewsItem;
+import ntnu.idatt2003.group15.view.dialog.NewsDialog;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -96,7 +95,8 @@ public class NewsFeedView {
         final VBox root = new VBox();
 
         NewsRow(NewsItem ev, boolean withDivider) {
-            boolean bullish = ev.sentiment() == NewsDialog.Sentiment.BULLISH;
+            BigDecimal rawPct = ev.changePercent() == null ? BigDecimal.ZERO : ev.changePercent();
+            boolean bullish = rawPct.compareTo(BigDecimal.ONE) >= 0;
 
             // Trend-arrow icon tile (green up / red down)
             FontIcon arrow = new FontIcon(bullish ? FontAwesome.LINE_CHART : FontAwesome.AREA_CHART);
@@ -109,7 +109,6 @@ public class NewsFeedView {
             Label symbolBadge = new Label(ev.sector() == null ? "" : ev.sector().getLabel());
             symbolBadge.getStyleClass().addAll("news-badge", "news-badge--symbol");
 
-            BigDecimal rawPct = ev.changePercent() == null ? BigDecimal.ZERO : ev.changePercent();
             BigDecimal pct = rawPct.subtract(BigDecimal.ONE).multiply(BigDecimal.valueOf(100)).setScale(1, RoundingMode.HALF_UP);
             String pctText = (pct.signum() >= 0 ? "+" : "") + pct.toPlainString() + "%";
             Label pctLabel = new Label(pctText);
@@ -151,8 +150,7 @@ public class NewsFeedView {
             BigDecimal vol = ev.volatility() == null ? BigDecimal.ZERO : ev.volatility();
             HBox meta = new HBox(
                     metaPair("Volatility:", vol.stripTrailingZeros().toPlainString() + "x"),
-                    metaPair("Duration:", ev.durationUpdates() + " updates"),
-                    metaPair("Type:", ev.type() == null ? "" : ev.type())
+                    metaPair("Duration:", ev.durationUpdates() + " updates")
             );
             meta.setSpacing(28);
             meta.getStyleClass().add("news-row-meta");

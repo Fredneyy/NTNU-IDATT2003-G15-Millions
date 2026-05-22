@@ -33,14 +33,14 @@ public enum StockSectors {
   /**
    * Looks up a sector by its label, case-insensitively.
    *
-   * @param label the label to look up
+   * @param stringLabel the label to look up
    * @return the matching sector
    * @throws IllegalArgumentException if no sector matches the label
    */
-  public static StockSectors fromLabel(String label) {
+  public static StockSectors fromLabel(String stringLabel) {
     return Arrays.stream(values())
-        .filter(sector -> sector.label.equalsIgnoreCase(label))
+        .filter(sector -> sector.label.equalsIgnoreCase(stringLabel))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unknown sector: " + label));
+        .orElseThrow(() -> new IllegalArgumentException("Unknown sector: " + stringLabel));
   }
 }

@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.utilities;
+package ntnu.idatt2003.group15.utilities.StockParser;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -10,6 +10,7 @@ import java.util.Map;
 import ntnu.idatt2003.group15.model.Stock;
 import ntnu.idatt2003.group15.model.StockSectors;
 import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
+import ntnu.idatt2003.group15.utilities.JsonParser;
 
 /**
  * {@link StockParser} for JSON files containing a top-level array of stock

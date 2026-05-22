@@ -132,7 +132,6 @@ public final class JsonParser {
     return new BigDecimal(src.substring(start, pos));
   }
 
-  // ---- helpers ----
   private void skipWs() {
     while (pos < src.length() && Character.isWhitespace(src.charAt(pos))) pos++;
   }

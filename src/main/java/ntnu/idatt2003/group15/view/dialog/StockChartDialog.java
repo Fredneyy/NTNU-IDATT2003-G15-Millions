@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.view;
+package ntnu.idatt2003.group15.view.dialog;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;

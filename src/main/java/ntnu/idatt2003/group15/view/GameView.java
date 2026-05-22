@@ -29,6 +29,7 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.*;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
+import ntnu.idatt2003.group15.view.dialog.*;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -256,7 +257,11 @@ public class GameView {
     NewsItem stamped = ensureStamped(item);
 
     NewsDialog dialog = new NewsDialog(Duration.seconds(10));
-    dialog.setSentiment(stamped.sentiment());
+    if (stamped.changePercent().compareTo(BigDecimal.ZERO) > 0) {
+      dialog.setSentiment(NewsDialog.Sentiment.BEARISH);
+    } else {
+      dialog.setSentiment(NewsDialog.Sentiment.BULLISH);
+    }
     dialog.setSymbol(stamped.sector() == null ? null : stamped.sector().getLabel());
     BigDecimal changepercentFormatted = stamped.changePercent().subtract(BigDecimal.ONE).multiply(BigDecimal.valueOf(100));
     dialog.setChangePercent(changepercentFormatted);
@@ -270,9 +275,9 @@ public class GameView {
       return item;
     }
     return new NewsItem(
-        item.sentiment(), item.sector(), item.changePercent(),
+        item.sector(), item.changePercent(),
         item.title(), item.message(), item.volatility(),
-        item.durationUpdates(), item.type(), Instant.now(), item.appliedChange()
+        item.durationUpdates(), Instant.now(), item.appliedChange()
     );
   }
 

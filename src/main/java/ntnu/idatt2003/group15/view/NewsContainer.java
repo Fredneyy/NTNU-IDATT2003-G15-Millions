@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import ntnu.idatt2003.group15.view.dialog.NewsDialog;
 
 /**
  * Top-right notification stack. Mount once into the game root StackPane;
@@ -50,14 +51,14 @@ public class NewsContainer {
     }
 
     /** Insert a dialog node at the top of the stack. Older ones get pushed down. */
-    void pushTop(Node dialogNode) {
+    public void pushTop(Node dialogNode) {
         if (!stack.getChildren().contains(dialogNode)) {
             stack.getChildren().add(0, dialogNode);
         }
     }
 
     /** Remove a dialog node from the stack (no animation; caller usually animates first). */
-    void remove(Node dialogNode) {
+    public void remove(Node dialogNode) {
         stack.getChildren().remove(dialogNode);
     }
 

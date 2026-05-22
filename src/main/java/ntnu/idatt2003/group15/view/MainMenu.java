@@ -17,6 +17,7 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainMenuController;
 import ntnu.idatt2003.group15.model.SaveData;
 import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.utilities.StockParser.StockLoader;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 import java.io.File;
@@ -45,7 +46,7 @@ public class MainMenu {
   private final TranslateTransition shakeAnimationStartMoneyField;
   Random random = new Random();
   Consumer<Throwable> errorHandler;
-  CsvUtil csvUtil;
+  CsvParser csvParser;
   TaskUtil taskUtil;
   private final MainMenuController mainMenuController;
   private final VBox continuePlayingList = new VBox(8);
@@ -57,17 +58,17 @@ public class MainMenu {
   private List<Stock> customStocks;
 
   public MainMenu(StackPane root, Consumer<Throwable> errorHandler,
-                  CsvUtil csvUtil, TaskUtil taskUtil,
+                  CsvParser csvParser, TaskUtil taskUtil,
                   MainMenuController mainMenuController) throws NullPointerException {
     Objects.requireNonNull(root);
     Objects.requireNonNull(errorHandler);
-    Objects.requireNonNull(csvUtil);
+    Objects.requireNonNull(csvParser);
     Objects.requireNonNull(taskUtil);
     Objects.requireNonNull(mainMenuController);
 
     this.root = root;
     this.errorHandler = errorHandler;
-    this.csvUtil = csvUtil;
+    this.csvParser = csvParser;
     this.taskUtil = taskUtil;
     this.mainMenuController = mainMenuController;
 
@@ -202,7 +203,7 @@ public class MainMenu {
   private void loadQuotes() {
     taskUtil.runTaskAsync(() -> {
       List<List<String>> rawQuotes = new ArrayList<>(
-          csvUtil.readCsvFile("src/main/resources/storage/mainmenu.csv")
+          csvParser.parse("src/main/resources/storage/mainmenu.csv")
       );
       rawQuotes.removeFirst();
       Collections.shuffle(rawQuotes);
