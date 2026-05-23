@@ -82,6 +82,70 @@ class StockTest {
             assertEquals(newCategories, appleStock.getCategories());
         }
 
+        @Test
+        void setAndGetDrift() {
+            appleStock.setDrift(0.05);
+            assertEquals(0.05, appleStock.getDrift());
+        }
+
+        @Test
+        void setAndGetVolatility() {
+            appleStock.setVolatility(0.3);
+            assertEquals(0.3, appleStock.getVolatility());
+        }
+    }
+
+    @Nested
+    @DisplayName("Equals Contract Tests")
+    class equalsContractTests {
+        private final List<StockSectors> categories = List.of(StockSectors.TECHNOLOGY);
+
+        @Test
+        void equalsReturnsTrueForSameInstance() {
+            Stock stock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
+            assertEquals(stock, stock);
+        }
+
+        @Test
+        void equalsReturnsTrueForSameSymbolAndCompany() {
+            Stock a = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
+            Stock b = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(999), 0.5, 0.5, categories);
+            assertEquals(a, b);
+        }
+
+        @Test
+        void equalsIsCaseInsensitive() {
+            Stock a = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
+            Stock b = new Stock("aapl", "apple inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
+            assertEquals(a, b);
+        }
+
+        @Test
+        void equalsReturnsFalseForDifferentSymbol() {
+            Stock a = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
+            Stock b = new Stock("MSFT", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
+            assertNotEquals(a, b);
+        }
+
+        @Test
+        void equalsReturnsFalseForNull() {
+            Stock stock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
+            assertNotEquals(null, stock);
+        }
+
+        @Test
+        void equalsReturnsFalseForNonStock() {
+            Stock stock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
+            assertNotEquals("AAPL", stock);
+        }
+
+        @Test
+        void hashCodeMatchesEqualsContract() {
+            Stock a = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0, categories);
+            Stock b = new Stock("aapl", "APPLE INC", BigDecimal.valueOf(999), 0.5, 0.5, categories);
+            assertEquals(a, b);
+            assertEquals(a.hashCode(), b.hashCode());
+        }
     }
 
     @Nested

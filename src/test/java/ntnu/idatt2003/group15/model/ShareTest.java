@@ -46,18 +46,47 @@ class ShareTest {
         void getPricePerShare() {
             assertEquals(BigDecimal.valueOf(100), share.pricePerShare());
         }
+
+        @Test
+        void sellReducesQuantity() {
+            share.sell(BigDecimal.valueOf(20));
+            assertEquals(0, BigDecimal.valueOf(30).compareTo(share.quantity()));
+        }
+
+        @Test
+        void sellEntireHoldingLeavesNoQuantity() {
+            // Selling all shares triggers the quantity validator's positive-value rule,
+            // so the share is left in an invalid state on purpose — verify it throws.
+            assertThrows(IllegalArgumentException.class, () -> share.sell(BigDecimal.valueOf(50)));
+        }
+
+        @Test
+        void buyAtSamePriceKeepsPricePerShare() {
+            share.buy(BigDecimal.valueOf(50), BigDecimal.valueOf(100));
+            assertEquals(0, BigDecimal.valueOf(100).compareTo(share.pricePerShare()));
+            assertEquals(0, BigDecimal.valueOf(100).compareTo(share.quantity()));
+        }
+
+        @Test
+        void buyAtHigherPriceUpdatesWeightedAverage() {
+            // 50 shares @ 100 + 50 shares @ 200 -> 100 shares @ 150
+            share.buy(BigDecimal.valueOf(50), BigDecimal.valueOf(200));
+            assertEquals(0, BigDecimal.valueOf(100).compareTo(share.quantity()));
+            assertEquals(0, new BigDecimal("150.0000000000").compareTo(share.pricePerShare()));
+        }
     }
 
     @Nested
     @DisplayName("Negative Share Tests")
     class negativeShareTests {
         private Stock stock;
+        private Share share;
 
       @BeforeEach
         void setUp() {
             stock = new Stock("AAPL", "Apple Inc", BigDecimal.valueOf(100), 0.0, 0.0,
                 List.of(StockSectors.TECHNOLOGY));
-            Share share = new Share(stock, BigDecimal.valueOf(50), BigDecimal.valueOf(100));
+            share = new Share(stock, BigDecimal.valueOf(50), BigDecimal.valueOf(100));
         }
 
         @Test
@@ -77,6 +106,45 @@ class ShareTest {
             assertThrows(NullPointerException.class, () -> new Share(stock, BigDecimal.valueOf(50), null));
             assertThrows(IllegalArgumentException.class, () -> new Share(stock, BigDecimal.valueOf(50), BigDecimal.valueOf(0)));
             assertThrows(IllegalArgumentException.class, () -> new Share(stock, BigDecimal.valueOf(50), BigDecimal.valueOf(-100)));
+        }
+
+        @Test
+        void sellMoreThanOwnedThrows() {
+            assertThrows(IllegalArgumentException.class, () -> share.sell(BigDecimal.valueOf(51)));
+        }
+
+        @Test
+        void sellNegativeQuantityThrows() {
+            assertThrows(IllegalArgumentException.class, () -> share.sell(BigDecimal.valueOf(-1)));
+        }
+
+        @Test
+        void sellNullQuantityThrows() {
+            assertThrows(NullPointerException.class, () -> share.sell(null));
+        }
+
+        @Test
+        void buyWithNullQuantityThrows() {
+            assertThrows(NullPointerException.class,
+                () -> share.buy(null, BigDecimal.valueOf(100)));
+        }
+
+        @Test
+        void buyWithNullPriceThrows() {
+            assertThrows(NullPointerException.class,
+                () -> share.buy(BigDecimal.valueOf(10), null));
+        }
+
+        @Test
+        void buyWithNonPositiveQuantityThrows() {
+            assertThrows(IllegalArgumentException.class,
+                () -> share.buy(BigDecimal.ZERO, BigDecimal.valueOf(100)));
+        }
+
+        @Test
+        void buyWithNonPositivePriceThrows() {
+            assertThrows(IllegalArgumentException.class,
+                () -> share.buy(BigDecimal.valueOf(10), BigDecimal.ZERO));
         }
     }
 }
