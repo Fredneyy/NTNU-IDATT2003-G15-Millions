@@ -1,5 +1,19 @@
 package ntnu.idatt2003.group15.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
+import ntnu.idatt2003.group15.model.news.NewsItem;
 import ntnu.idatt2003.group15.model.player.Player;
 import ntnu.idatt2003.group15.model.stocks.Share;
 import ntnu.idatt2003.group15.model.stocks.Stock;
@@ -7,15 +21,10 @@ import ntnu.idatt2003.group15.model.stocks.StockSectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import java.math.BigDecimal;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ExchangeTest {
   private Exchange exchange;
   private Player player;
-
 
   @BeforeEach
   void setUp() {
@@ -27,7 +36,6 @@ class ExchangeTest {
         pgtStock
       );
     exchange = new Exchange("FREX", stocks);
-    Share txShare = new Share(pgtStock, BigDecimal.valueOf(2), BigDecimal.valueOf(1000));
     player = new Player("Ole Theodor", BigDecimal.valueOf(10000));
   }
 
@@ -68,23 +76,181 @@ class ExchangeTest {
         exchange.buy("PGT", BigDecimal.valueOf(2), player);
 
         assertEquals(0, player.getMoney().compareTo(BigDecimal.valueOf(10000 - 2000)));
-
     }
 
       @Test
-      void sell () {
-    }
+      void sellEntireHoldingAddsProceedsAfterCommissionAndTax () {
+        // Buy at 1000/share so cost basis = 2000, then sell at the same price.
+        // Gross proceeds = 2 * 1000 = 2000. Commission 1% of gross = 20.
+        // Profit before tax = 2000 - 2000 cost basis - 20 commission = -20.
+        // Negative taxable amount means no tax. Final net = 2000 - 20 = 1980.
+        // Player started with 10_000, spent 2_000 on the buy, gains 1_980 on the sell.
+        exchange.buy("PGT", BigDecimal.valueOf(2), player);
+        Share held = player.getPortfolio().getShare("PGT");
+
+        exchange.sell(held, BigDecimal.valueOf(2), player);
+
+        assertEquals(0, player.getMoney().compareTo(BigDecimal.valueOf(10000 - 2000 + 1980)));
+        assertFalse(player.getPortfolio().contains(held));
+      }
 
       @Test
-      void advance () {
-    }
+      void sellPartialHoldingLeavesRemainder () {
+        exchange.buy("PGT", BigDecimal.valueOf(2), player);
+        Share held = player.getPortfolio().getShare("PGT");
+
+        exchange.sell(held, BigDecimal.valueOf(1), player);
+
+        Share remaining = player.getPortfolio().getShare("PGT");
+        assertEquals(0, BigDecimal.ONE.compareTo(remaining.quantity()));
+      }
 
       @Test
-      void getGainers () {
-    }
+      void advanceIncrementsWeekAndAppendsHistoricalPrice () {
+        Stock apple = exchange.getStock("AAPL");
+        int historySizeBefore = apple.getHistoricalPrices().size();
+        int weekBefore = exchange.getWeekProperty().get();
+
+        exchange.advance();
+
+        assertEquals(weekBefore + 1, exchange.getWeekProperty().get());
+        assertEquals(historySizeBefore + 1, apple.getHistoricalPrices().size());
+      }
 
       @Test
-      void getLosers () {
+      void getGainersOrdersByDescendingRelativeChange () {
+        Stock apple = exchange.getStock("AAPL");
+        Stock pgt = exchange.getStock("PGT");
+        // AAPL: 50 -> 60 (+20%). PGT: 1000 -> 900 (-10%).
+        apple.addNewSalesPrice(BigDecimal.valueOf(60));
+        pgt.addNewSalesPrice(BigDecimal.valueOf(900));
+
+        List<Stock> gainers = exchange.getGainers(2);
+
+        assertEquals(2, gainers.size());
+        assertEquals("AAPL", gainers.getFirst().getSymbol());
+        assertEquals("PGT", gainers.get(1).getSymbol());
+      }
+
+      @Test
+      void getGainersRespectsLimit () {
+        exchange.getStock("AAPL").addNewSalesPrice(BigDecimal.valueOf(60));
+        exchange.getStock("PGT").addNewSalesPrice(BigDecimal.valueOf(900));
+
+        List<Stock> gainers = exchange.getGainers(1);
+
+        assertEquals(1, gainers.size());
+      }
+
+      @Test
+      void getLosersOrdersByAscendingRelativeChange () {
+        Stock apple = exchange.getStock("AAPL");
+        Stock pgt = exchange.getStock("PGT");
+        apple.addNewSalesPrice(BigDecimal.valueOf(60));   // +20%
+        pgt.addNewSalesPrice(BigDecimal.valueOf(900));    // -10%
+
+        List<Stock> losers = exchange.getLosers(2);
+
+        assertEquals("PGT", losers.getFirst().getSymbol());
+        assertEquals("AAPL", losers.get(1).getSymbol());
+      }
+
+      @Test
+      void getGainersAndLosersInvertEachOther () {
+        exchange.getStock("AAPL").addNewSalesPrice(BigDecimal.valueOf(60));
+        exchange.getStock("PGT").addNewSalesPrice(BigDecimal.valueOf(900));
+
+        Stock topGainer = exchange.getGainers(1).getFirst();
+        Stock topLoser = exchange.getLosers(1).getFirst();
+
+        assertNotEquals(topGainer.getSymbol(), topLoser.getSymbol());
+      }
+
+      @Test
+      void getAllStocksReturnsImmutableSnapshotOfListedStocks () {
+        List<Stock> all = exchange.getAllStocks();
+        assertEquals(2, all.size());
+        assertThrows(UnsupportedOperationException.class, () -> all.add(
+            new Stock("X", "X", BigDecimal.ONE, 0.0, 0.0, List.of(StockSectors.MACRO))));
+      }
+
+      @Test
+      void getCommissionReturnsConfiguredRate () {
+        assertEquals(0, new BigDecimal("0.01").compareTo(exchange.getCommission()));
+      }
+
+      @Test
+      void getTaxReturnsConfiguredRate () {
+        assertEquals(0, new BigDecimal("0.37").compareTo(exchange.getTax()));
+      }
+
+      @Test
+      void setWeekRestoresExchangeWeek () {
+        exchange.setWeek(42);
+        assertEquals(42, exchange.getWeekProperty().get());
+      }
+
+      @Test
+      void setVolatilityMultiplierAffectsAdvanceWithoutThrowing () {
+        // Setting volatility to 0 leaves the GBM exponent ~ drift*dt, so the price
+        // moves toward exp(0) ≈ 1 — close to the current price.
+        exchange.setVolatilityMultiplier(0.0);
+        exchange.advance();
+        assertNotNull(exchange.getStock("AAPL").getSalesPrice());
+      }
+
+      @Test
+      void advanceConsumesActiveNewsAndMarksAppliedChange () {
+        NewsItem techNews = new NewsItem(
+            "Tech surges", StockSectors.TECHNOLOGY,
+            BigDecimal.valueOf(1.5), BigDecimal.valueOf(1.10), 3, Instant.now(), false);
+        ObservableList<NewsItem> news = FXCollections.observableArrayList(techNews);
+        exchange.setNewsObservableList(news);
+
+        exchange.advance();
+
+        // The initial change is applied once — flag flips and duration decrements.
+        assertTrue(techNews.appliedChange());
+        assertEquals(2, techNews.durationUpdates());
+      }
+
+      @Test
+      void advanceIgnoresExpiredNewsItems () {
+        NewsItem expired = new NewsItem(
+            "Old news", StockSectors.TECHNOLOGY,
+            BigDecimal.valueOf(2.0), BigDecimal.valueOf(2.0), 0, Instant.now(), false);
+        ObservableList<NewsItem> news = FXCollections.observableArrayList(expired);
+        exchange.setNewsObservableList(news);
+
+        exchange.advance();
+
+        // duration was already 0 — reduceDuration floors at 0 and appliedChange stays
+        // false because the item is expired before the loop applies the jump.
+        assertEquals(0, expired.durationUpdates());
+      }
+
+      @Test
+      void setNewsObservableListRejectsNull () {
+        assertThrows(NullPointerException.class, () -> exchange.setNewsObservableList(null));
+      }
+  }
+
+  @Nested
+  class negativeExchangeTests {
+
+    @Test
+    void constructorRejectsNullName() {
+      assertThrows(NullPointerException.class, () -> new Exchange(null, List.of()));
+    }
+
+    @Test
+    void constructorRejectsBlankName() {
+      assertThrows(BlankArgumentException.class, () -> new Exchange("   ", List.of()));
+    }
+
+    @Test
+    void constructorRejectsNullStocks() {
+      assertThrows(NullPointerException.class, () -> new Exchange("FREX", null));
     }
   }
 }

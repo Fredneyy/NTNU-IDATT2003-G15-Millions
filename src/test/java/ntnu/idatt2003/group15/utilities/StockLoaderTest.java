@@ -8,6 +8,7 @@ import java.util.List;
 import ntnu.idatt2003.group15.model.stocks.Stock;
 import ntnu.idatt2003.group15.model.stocks.StockSectors;
 import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
+import ntnu.idatt2003.group15.model.exceptions.UnsupportedFileTypeException;
 import ntnu.idatt2003.group15.utilities.stockparser.StockLoader;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +57,7 @@ class StockLoaderTest {
 
   @Test
   void unsupportedExtensionThrowsAtConstruction() {
-    assertThrows(IllegalArgumentException.class, () -> new StockLoader("stocks.xml"));
+    assertThrows(UnsupportedFileTypeException.class, () -> new StockLoader("stocks.xml"));
   }
 
   @Test

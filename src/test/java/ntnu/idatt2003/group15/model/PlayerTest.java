@@ -2,6 +2,7 @@ package ntnu.idatt2003.group15.model;
 
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 import ntnu.idatt2003.group15.model.player.Player;
+import ntnu.idatt2003.group15.model.player.PlayerStatus;
 import ntnu.idatt2003.group15.model.stocks.Share;
 import ntnu.idatt2003.group15.model.stocks.Stock;
 import ntnu.idatt2003.group15.model.stocks.StockSectors;
@@ -122,6 +123,28 @@ class PlayerTest {
           BigDecimal.ZERO.compareTo(broke.getNetWorthChangePercentProperty().getValue()));
     }
 
+    @Test
+    void getStartingMoneyReturnsInitialBalance() {
+      assertEquals(0, BigDecimal.valueOf(1000).compareTo(player.getStartingMoney()));
+    }
+
+    @Test
+    void getTransactionArchiveReturnsEmptyArchive() {
+      assertNotNull(player.getTransactionArchive());
+      assertTrue(player.getTransactionArchive().isEmpty());
+    }
+
+    @Test
+    void moneyPropertyReturnsLiveProperty() {
+      assertEquals(0, BigDecimal.valueOf(1000).compareTo(player.moneyProperty().get()));
+      player.addMoney(BigDecimal.valueOf(50));
+      assertEquals(0, BigDecimal.valueOf(1050).compareTo(player.moneyProperty().get()));
+    }
+
+    @Test
+    void statusPropertyDefaultsToNovice() {
+      assertEquals(PlayerStatus.NOVICE, player.statusProperty().getValue());
+    }
   }
 
   @Nested

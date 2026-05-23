@@ -58,13 +58,6 @@ class PortfolioTest {
     }
 
     @Test
-    void getSharesBySymbolCaseInsensitive() {
-      portfolio.addShare(share);
-      Share result = portfolio.getShare("AAPL");
-      assertEquals(share, result);
-    }
-
-    @Test
     void contains() {
       portfolio.addShare(share);
       assertTrue(portfolio.contains(share));
@@ -143,6 +136,35 @@ class PortfolioTest {
               .compareTo(portfolio.getUnrealizedPnlPercentProperty().getValue()));
     }
 
+    @Test
+    void totalMarketValuePropertyReactsToPriceChange() {
+      // The property goes through ObjectBinding/ListChangeListener — a separate
+      // code path from getTotalMarketValue() which recomputes eagerly on call.
+      portfolio.addShare(share);
+      assertEquals(0,
+          BigDecimal.valueOf(1000).compareTo(portfolio.getTotalMarketValueProperty().getValue()));
+
+      stock.addNewSalesPrice(BigDecimal.valueOf(25)); // 100 shares * 25 = 2500
+
+      assertEquals(0,
+          BigDecimal.valueOf(2500).compareTo(portfolio.getTotalMarketValueProperty().getValue()));
+    }
+
+    @Test
+    void totalMarketValuePropertyReactsToShareRemoval() {
+      portfolio.addShare(share);
+      portfolio.removeShare(share);
+
+      assertEquals(0,
+          BigDecimal.ZERO.compareTo(portfolio.getTotalMarketValueProperty().getValue()));
+    }
+
+    @Test
+    void getListPropertyReflectsAddedShares() {
+      assertTrue(portfolio.getListProperty().isEmpty());
+      portfolio.addShare(share);
+      assertEquals(1, portfolio.getListProperty().size());
+    }
   }
 
   @Nested

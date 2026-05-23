@@ -254,4 +254,11 @@ public class Stock {
     return getSymbol().equalsIgnoreCase(stock.getSymbol())
         && getCompany().equalsIgnoreCase(stock.getCompany());
   }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        getSymbol() == null ? null : getSymbol().toLowerCase(),
+        getCompany() == null ? null : getCompany().toLowerCase());
+  }
 }

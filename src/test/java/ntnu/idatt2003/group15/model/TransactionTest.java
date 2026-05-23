@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,6 +58,12 @@ class TransactionTest {
     @Test
     void isNotCommittedByDefault() {
       assertFalse(transaction.isCommitted());
+    }
+
+    @Test
+    void getCommittedAtIsNotNullByDefault() {
+      // Transactions stamp Instant.now() at construction.
+      assertNotNull(transaction.getCommittedAt());
     }
   }
 
@@ -105,6 +112,22 @@ class TransactionTest {
     void commitAddsShareToPortfolio() {
       purchase.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
       assertTrue(player.getPortfolio().contains(share));
+    }
+
+    @Test
+    void restoredPurchaseIsCommittedWithGivenWeekAndTimestamp() {
+      Instant when = Instant.parse("2026-05-23T10:15:30Z");
+      Purchase restored = Purchase.restored(share, 4, when);
+
+      assertTrue(restored.isCommitted());
+      assertEquals(4, restored.getWeek());
+      assertEquals(when, restored.getCommittedAt());
+    }
+
+    @Test
+    void restoredPurchaseWithNullCommittedAtKeepsDefaultInstant() {
+      Purchase restored = Purchase.restored(share, 1, null);
+      assertNotNull(restored.getCommittedAt());
     }
   }
 
@@ -162,6 +185,66 @@ class TransactionTest {
     void commitRemovesShareFromPortfolio() {
       sale.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
       assertFalse(player.getPortfolio().contains(share));
+    }
+
+    @Test
+    void getSalePricePerShareIsNullBeforeCommit() {
+      assertNull(sale.getSalePricePerShare());
+    }
+
+    @Test
+    void getProceedsIsNullBeforeCommit() {
+      assertNull(sale.getProceeds());
+    }
+
+    @Test
+    void getRealizedPnlIsZeroBeforeCommit() {
+      assertEquals(0, BigDecimal.ZERO.compareTo(sale.getRealizedPnl()));
+    }
+
+    @Test
+    void commitPopulatesSalePriceAndProceeds() {
+      sale.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
+      assertNotNull(sale.getSalePricePerShare());
+      assertNotNull(sale.getProceeds());
+    }
+
+    @Test
+    void getRealizedPnlIsPositiveWhenPriceRose() {
+      // share was bought at price 100, quantity 10 -> cost basis 1000.
+      // Stock has already had its price set to 100. Bump to 150 and sell.
+      share.stock().addNewSalesPrice(BigDecimal.valueOf(150));
+      sale.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
+      // gross = 150 * 10 = 1500; no tax/commission; cost basis = 1000; pnl = 500.
+      assertEquals(0, BigDecimal.valueOf(500).compareTo(sale.getRealizedPnl()));
+    }
+
+    @Test
+    void getRealizedPnlIsNegativeWhenPriceFell() {
+      share.stock().addNewSalesPrice(BigDecimal.valueOf(60));
+      sale.commit(player, BigDecimal.ZERO, BigDecimal.ZERO);
+      // gross = 60 * 10 = 600; cost basis = 1000; pnl = -400.
+      assertEquals(0, BigDecimal.valueOf(-400).compareTo(sale.getRealizedPnl()));
+    }
+
+    @Test
+    void restoredSaleIsCommittedWithGivenState() {
+      Instant when = Instant.parse("2026-05-23T10:15:30Z");
+      Sale restored = Sale.restored(share, 7, when,
+          BigDecimal.valueOf(120), BigDecimal.valueOf(1180));
+
+      assertTrue(restored.isCommitted());
+      assertEquals(7, restored.getWeek());
+      assertEquals(when, restored.getCommittedAt());
+      assertEquals(0, BigDecimal.valueOf(120).compareTo(restored.getSalePricePerShare()));
+      assertEquals(0, BigDecimal.valueOf(1180).compareTo(restored.getProceeds()));
+    }
+
+    @Test
+    void restoredSaleWithNullCommittedAtKeepsDefaultInstant() {
+      Sale restored = Sale.restored(share, 1, null,
+          BigDecimal.valueOf(100), BigDecimal.valueOf(1000));
+      assertNotNull(restored.getCommittedAt());
     }
   }
 
