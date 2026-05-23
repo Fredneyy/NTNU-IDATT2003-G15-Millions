@@ -1,5 +1,12 @@
 package ntnu.idatt2003.group15.model;
 
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.model.stocks.StockSectors;
+import ntnu.idatt2003.group15.model.transactions.Purchase;
+import ntnu.idatt2003.group15.model.transactions.Sale;
+import ntnu.idatt2003.group15.model.transactions.Transaction;
+import ntnu.idatt2003.group15.model.transactions.TransactionArchive;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,14 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionArchiveTest {
 
-  private Stock stock;
   private Share share;
   private Purchase purchase;
   private Sale sale;
 
   @BeforeEach
   void setUpShared() {
-    stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100), 0.0, 0.0,
+    Stock stock = new Stock("AAPL", "Apple", BigDecimal.valueOf(100), 0.0, 0.0,
         List.of(StockSectors.TECHNOLOGY));
     share = new Share(stock, BigDecimal.valueOf(10), BigDecimal.valueOf(1000));
     purchase = new Purchase(share, 1);

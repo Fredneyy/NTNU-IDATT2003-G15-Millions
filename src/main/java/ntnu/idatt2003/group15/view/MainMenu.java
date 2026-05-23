@@ -16,8 +16,8 @@ import javafx.stage.Screen;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainMenuController;
 import ntnu.idatt2003.group15.model.SaveData;
-import ntnu.idatt2003.group15.model.Stock;
-import ntnu.idatt2003.group15.utilities.StockParser.StockLoader;
+import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.utilities.stockparser.StockLoader;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 import java.io.File;
@@ -51,7 +51,6 @@ public class MainMenu {
   private final MainMenuController mainMenuController;
   private final VBox continuePlayingList = new VBox(8);
   private final Label continuePlayingEmpty = new Label("No saved games yet.");
-  private VBox continueCard;
   private final Label stocksStatusLabel = new Label("Default stocks");
   private final Button chooseStocksButton = new Button("Use custom stocks…");
   private final Button resetStocksButton = new Button("Reset");
@@ -119,7 +118,7 @@ public class MainMenu {
     VBox.setVgrow(playButton, Priority.ALWAYS);
 
 
-    continueCard = buildContinueCard();
+    VBox continueCard = buildContinueCard();
     doRefreshContinueCard();
 
     center.getChildren().addAll(
@@ -229,7 +228,7 @@ public class MainMenu {
   }
 
   private void scheduleAnimation(List<List<String>> quotes,VBox tipContainer, Label qouteLabel, Label authorLabel, AtomicInteger index) {
-    if (index.get() == quotes.size()) {
+    if (index.get() == quotes.size() - 1) {
       index.set(2);
     }
     double durationDouble = quotes.get(index.get()).getFirst().split(" ").length * 0.5;

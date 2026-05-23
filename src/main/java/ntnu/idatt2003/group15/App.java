@@ -6,7 +6,8 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import ntnu.idatt2003.group15.controller.MainController;
 import ntnu.idatt2003.group15.utilities.CsvParser;
-import ntnu.idatt2003.group15.utilities.StockParser.StockLoader;
+import ntnu.idatt2003.group15.utilities.newsparser.NewsLoader;
+import ntnu.idatt2003.group15.utilities.stockparser.StockLoader;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.dialog.ExceptionDialog;
 
@@ -32,8 +33,10 @@ public class App extends Application {
         Scene scene = new Scene(root);
         MainController mainController = new MainController(
             root, errorHandler, csvParser, taskUtil,
-            new StockLoader("src/main/resources/storage/defaultstocks.csv").load());
+            new StockLoader("src/main/resources/storage/defaultstocks.csv").load(),
+            new NewsLoader("src/main/resources/storage/stock_news.csv").load());
         mainController.showMainMenu();
+
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/RootStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/SettingsStyle.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/TabView.css")).toExternalForm());

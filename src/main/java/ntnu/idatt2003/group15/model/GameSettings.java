@@ -16,8 +16,17 @@ import javafx.beans.property.SimpleDoubleProperty;
  */
 public class GameSettings {
 
+  /**
+   * The constant MIN_DIFFICULTY.
+   */
   public static final double MIN_DIFFICULTY = 0.5;
+  /**
+   * The constant MAX_DIFFICULTY.
+   */
   public static final double MAX_DIFFICULTY = 2.5;
+  /**
+   * The constant DEFAULT_DIFFICULTY.
+   */
   public static final double DEFAULT_DIFFICULTY = 1.0;
 
   private final DoubleProperty difficulty =
@@ -30,6 +39,9 @@ public class GameSettings {
   private final ReadOnlyDoubleWrapper maxEventChance =
       new ReadOnlyDoubleWrapper(this, "maxEventChance", 0.10);
 
+  /**
+   * Instantiates a new Game settings.
+   */
   public GameSettings() {
     difficulty.addListener((_, _, v) -> recompute(v.doubleValue()));
     recompute(DEFAULT_DIFFICULTY);
@@ -46,22 +58,84 @@ public class GameSettings {
     return Math.max(lo, Math.min(hi, v));
   }
 
-  public DoubleProperty difficultyProperty() { return difficulty; }
-  public double getDifficulty() { return difficulty.get(); }
-  public void setDifficulty(double v) { difficulty.set(v); }
+  /**
+   * Difficulty property double property.
+   *
+   * @return the double property
+   */
+  public DoubleProperty difficultyProperty() {
+    return difficulty;
+  }
 
+  /**
+   * Gets difficulty.
+   *
+   * @return the difficulty
+   */
+  public double getDifficulty() {
+    return difficulty.get();
+  }
+
+  /**
+   * Sets difficulty.
+   *
+   * @param v the v
+   */
+  public void setDifficulty(double v) {
+    difficulty.set(v);
+  }
+
+  /**
+   * Volatility multiplier property read only double property.
+   *
+   * @return the read only double property
+   */
   public ReadOnlyDoubleProperty volatilityMultiplierProperty() {
     return volatilityMultiplier.getReadOnlyProperty();
   }
-  public double getVolatilityMultiplier() { return volatilityMultiplier.get(); }
 
+  /**
+   * Gets volatility multiplier.
+   *
+   * @return the volatility multiplier
+   */
+  public double getVolatilityMultiplier() {
+    return volatilityMultiplier.get();
+  }
+
+  /**
+   * News interval seconds property read only double property.
+   *
+   * @return the read only double property
+   */
   public ReadOnlyDoubleProperty newsIntervalSecondsProperty() {
     return newsIntervalSeconds.getReadOnlyProperty();
   }
-  public double getNewsIntervalSeconds() { return newsIntervalSeconds.get(); }
 
+  /**
+   * Gets news interval seconds.
+   *
+   * @return the news interval seconds
+   */
+  public double getNewsIntervalSeconds() {
+    return newsIntervalSeconds.get();
+  }
+
+  /**
+   * Max event chance property read only double property.
+   *
+   * @return the read only double property
+   */
   public ReadOnlyDoubleProperty maxEventChanceProperty() {
     return maxEventChance.getReadOnlyProperty();
   }
-  public double getMaxEventChance() { return maxEventChance.get(); }
+
+  /**
+   * Gets max event chance.
+   *
+   * @return the max event chance
+   */
+  public double getMaxEventChance() {
+    return maxEventChance.get();
+  }
 }

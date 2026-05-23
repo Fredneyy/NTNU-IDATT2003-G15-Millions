@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.player;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,6 +9,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
+import ntnu.idatt2003.group15.model.transactions.TransactionArchive;
 
 /**
  * Represents a participant in the stock market simulation managing a portfolio and balance.
@@ -16,7 +17,7 @@ import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
 public class Player {
 
   private final String name;
-  private ObjectProperty<BigDecimal> money;
+  private final ObjectProperty<BigDecimal> money;
   private final BigDecimal startingMoney;
   private final Portfolio portfolio = new Portfolio();
   private final TransactionArchive transactionArchive = new TransactionArchive();
@@ -52,7 +53,9 @@ public class Player {
         () -> netWorthBinding.get().subtract(startingMoney),
         netWorthBinding);
     this.netWorthChangePercentBinding = Bindings.createObjectBinding(() -> {
-      if (startingMoney.signum() == 0) return BigDecimal.ZERO;
+      if (startingMoney.signum() == 0) {
+        return BigDecimal.ZERO;
+      }
       return netWorthChangeBinding.get()
           .divide(startingMoney, 4, RoundingMode.HALF_UP)
           .movePointRight(2);

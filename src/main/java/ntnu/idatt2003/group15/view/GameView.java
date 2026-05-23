@@ -28,6 +28,13 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.*;
 import ntnu.idatt2003.group15.model.*;
+import ntnu.idatt2003.group15.model.news.NewsItem;
+import ntnu.idatt2003.group15.model.player.PlayerStatus;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.model.transactions.Sale;
+import ntnu.idatt2003.group15.model.transactions.SaleCalculator;
+import ntnu.idatt2003.group15.model.transactions.Transaction;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
 import ntnu.idatt2003.group15.view.dialog.*;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
@@ -62,7 +69,6 @@ public class GameView {
   private final InfoDialog infoDialog = new InfoDialog();
 
   private final TabContainer tabContainer;
-  private ObservableList<NewsItem> news;
   private int unreadNews = 0;
   private final NewsContainer newsContainer = new NewsContainer();
 
@@ -72,7 +78,7 @@ public class GameView {
                   Runnable autoAdvanceOn, Runnable autoadvanceOff) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
-    this.news = Objects.requireNonNull(newsController.getNewsObservable());
+    ObservableList<NewsItem> news = Objects.requireNonNull(newsController.getNewsObservable());
     this.newsFeedView.setEvents(newsController.getNewsObservable());
     this.gameSettings = Objects.requireNonNull(settings, "settings");
     this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler");
@@ -80,20 +86,20 @@ public class GameView {
     marketStocks.addAll(exchangeController.getAllStocks());
 
     buyStockDialog = new BuyStockDialog(
-        exchangeController.cashProperty(),
-        exchangeController::buy,
+        playerController.getCashProperty(),
+        (Stock stock, BigDecimal quantity) -> exchangeController.buy(stock, quantity, playerController.getPlayer()),
         errorHandler);
 
     PortfolioController portfolioController =
         new PortfolioController(playerController.getPortfolio());
 
     sellStockDialog = new SellStockDialog(
-        exchangeController.cashProperty(),
+        playerController.getCashProperty(),
         portfolioController,
         new SaleCalculator(),
         exchangeController.getCommission(),
         exchangeController.getTax(),
-        exchangeController::sell,
+        (Share share, BigDecimal amount) -> exchangeController.sell(share, amount, playerController.getPlayer()),
         errorHandler);
 
     portfolioTable = new PortfolioTableView(portfolioController,
@@ -108,7 +114,7 @@ public class GameView {
     marketContent = new VBox(marketTable.getView());
     StatsView statsView = new StatsView();
     VBox statsContent = new VBox(statsView.getView());
-    new StatsController(statsView, playerController, exchangeController);
+    new StatsController(statsView, playerController);
     TradesView tradesView = new TradesView();
     tradesContent = new VBox(tradesView.getView());
     bindTradesView(tradesView);
@@ -258,7 +264,7 @@ public class GameView {
       SaveGameUtil.save(target, playerController, exchangeController, gameSettings);
       showInfo("Game saved", "Saved to:\n" + target.getAbsolutePath());
     } catch (IOException ex) {
-      showError("Could not save game", ex.getMessage());
+      errorHandler.accept(ex);
     }
   }
 
@@ -284,22 +290,14 @@ public class GameView {
       return item;
     }
     return new NewsItem(
-        item.sector(), item.changePercent(),
-        item.headline(), item.volatility(),
+        item.headline(),
+        item.sector(), item.volatility(), item.changePercent(),
         item.durationUpdates(), Instant.now(), item.appliedChange()
     );
   }
 
   private static void showInfo(String header, String message) {
     Alert a = new Alert(Alert.AlertType.INFORMATION);
-    a.setTitle("Millions");
-    a.setHeaderText(header);
-    a.setContentText(message);
-    a.showAndWait();
-  }
-
-  private static void showError(String header, String message) {
-    Alert a = new Alert(Alert.AlertType.ERROR);
     a.setTitle("Millions");
     a.setHeaderText(header);
     a.setContentText(message);
@@ -351,10 +349,10 @@ public class GameView {
   }
 
   private void addStatisticsCards() {
-    ObservableValue<BigDecimal> netWorth = exchangeController.netWorthProperty();
-    ObservableValue<BigDecimal> cash = exchangeController.cashProperty();
-    ObservableValue<BigDecimal> portfolioValue = exchangeController.portfolioValueProperty();
-    ObservableValue<BigDecimal> pnl = exchangeController.unrealizedPnlProperty();
+    ObservableValue<BigDecimal> netWorth = playerController.getNetWorthProperty();
+    ObservableValue<BigDecimal> cash = playerController.getCashProperty();
+    ObservableValue<BigDecimal> portfolioValue = playerController.getPlayer().getPortfolio().getTotalMarketValueProperty();
+    ObservableValue<BigDecimal> pnl = playerController.getPlayer().getPortfolio().getUnrealizedPnlProperty();
 
     statisticsOverview.addCard(new StatisticsOverview.StatCard(
         "netWorth", "Net Worth", FontAwesome.DOLLAR,

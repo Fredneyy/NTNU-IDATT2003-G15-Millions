@@ -2,10 +2,10 @@ package ntnu.idatt2003.group15.controller;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-import ntnu.idatt2003.group15.model.Player;
-import ntnu.idatt2003.group15.model.Share;
-import ntnu.idatt2003.group15.model.Transaction;
-import ntnu.idatt2003.group15.model.TransactionCalculator;
+import ntnu.idatt2003.group15.model.player.Player;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.transactions.Transaction;
+import ntnu.idatt2003.group15.model.transactions.TransactionCalculator;
 
 /**
  * Controller mediating interactions between the UI and a single {@link Transaction}.

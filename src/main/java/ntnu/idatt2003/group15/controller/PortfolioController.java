@@ -6,8 +6,8 @@ import java.util.Objects;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import ntnu.idatt2003.group15.model.Portfolio;
-import ntnu.idatt2003.group15.model.Share;
+import ntnu.idatt2003.group15.model.player.Portfolio;
+import ntnu.idatt2003.group15.model.stocks.Share;
 
 public class PortfolioController {
 
@@ -15,14 +15,6 @@ public class PortfolioController {
 
   public PortfolioController(Portfolio portfolio) {
     this.portfolio = Objects.requireNonNull(portfolio, "Portfolio cannot be null");
-  }
-
-  public boolean addShare(Share inputShare) {
-    return portfolio.addShare(inputShare);
-  }
-
-  public boolean removeShare(Share inputShare) {
-    return portfolio.removeShare(inputShare);
   }
 
   public ObservableList<Share> getListProperty() {
@@ -37,15 +29,7 @@ public class PortfolioController {
     return portfolio.getTotalMarketValueProperty();
   }
 
-  public Share getShares(String symbol) {
-    return portfolio.getShare(symbol);
-  }
-
   public boolean contains(Share inputShare) {
     return portfolio.contains(inputShare);
-  }
-
-  public BigDecimal getTotalMarketValue() {
-    return portfolio.getTotalMarketValue();
   }
 }

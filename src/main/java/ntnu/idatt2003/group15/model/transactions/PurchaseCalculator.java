@@ -1,7 +1,8 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.transactions;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import ntnu.idatt2003.group15.model.stocks.Share;
 
 /**
  * Calculates the financial outcomes and costs of purchasing stock.

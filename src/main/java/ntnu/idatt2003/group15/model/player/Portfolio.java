@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.player;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
@@ -14,10 +13,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.util.Callback;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.transactions.SaleCalculator;
 
 /**
- * Manages a collection of stock holdings for a specific player.
+ * The type Portfolio.
  */
 public class Portfolio {
 
@@ -61,28 +61,46 @@ public class Portfolio {
   private final ObjectBinding<BigDecimal> unrealizedPnlPercentBinding =
       Bindings.createObjectBinding(() -> {
         BigDecimal inv = investedBinding.get();
-        if (inv == null || inv.signum() == 0) return BigDecimal.ZERO;
+        if (inv == null || inv.signum() == 0) {
+          return BigDecimal.ZERO;
+        }
         return unrealizedPnlBinding.get()
             .divide(inv, 4, RoundingMode.HALF_UP)
             .movePointRight(2);
       }, unrealizedPnlBinding, investedBinding);
 
-  /** Observable total market value. Updates when shares are added/removed or any stock price changes. */
+  /**
+   * Gets total market value property.
+   *
+   * @return the total market value property
+   */
   public ObservableValue<BigDecimal> getTotalMarketValueProperty() {
     return totalMarketValueBinding;
   }
 
-  /** Observable total cost basis: sum of quantity * pricePerShare across all shares. */
+  /**
+   * Gets invested property.
+   *
+   * @return the invested property
+   */
   public ObservableValue<BigDecimal> getInvestedProperty() {
     return investedBinding;
   }
 
-  /** Observable unrealized profit/loss: totalMarketValue - invested. */
+  /**
+   * Gets unrealized pnl property.
+   *
+   * @return the unrealized pnl property
+   */
   public ObservableValue<BigDecimal> getUnrealizedPnlProperty() {
     return unrealizedPnlBinding;
   }
 
-  /** Observable unrealized P/L as a percent of invested cost basis. */
+  /**
+   * Gets unrealized pnl percent property.
+   *
+   * @return the unrealized pnl percent property
+   */
   public ObservableValue<BigDecimal> getUnrealizedPnlPercentProperty() {
     return unrealizedPnlPercentBinding;
   }
@@ -109,6 +127,7 @@ public class Portfolio {
    *
    * @param inputShare the share to add to portfolio
    * @return {@code true} if added, {@code false} otherwise
+   * @throws NullPointerException the null pointer exception
    */
   public boolean addShare(Share inputShare) throws NullPointerException {
     Objects.requireNonNull(inputShare, "Share cannot be null");
@@ -121,6 +140,7 @@ public class Portfolio {
    *
    * @param inputShare the share to remove from portfolio
    * @return {@code true} if removed, {@code false} otherwise
+   * @throws NullPointerException the null pointer exception
    */
   public boolean removeShare(Share inputShare) throws NullPointerException {
     Objects.requireNonNull(inputShare, "Share cannot be null");
@@ -138,6 +158,7 @@ public class Portfolio {
    *
    * @param symbol the stock symbol to look up
    * @return the matching {@link Share}, or {@code null}
+   * @throws NullPointerException the null pointer exception
    */
   public Share getShare(String symbol) throws NullPointerException {
     Objects.requireNonNull(symbol, "Symbol cannot be null");
@@ -167,6 +188,7 @@ public class Portfolio {
    *
    * @param inputShare check if share is in the portfolio
    * @return {@code true} if portfolio contains, {@code false} otherwise
+   * @throws NullPointerException the null pointer exception
    */
   public boolean contains(Share inputShare) throws NullPointerException {
     Objects.requireNonNull(inputShare, "Share cannot be null");

@@ -1,9 +1,9 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.utilities;
+
+import ntnu.idatt2003.group15.model.news.NewsItem;
+import ntnu.idatt2003.group15.model.stocks.Stock;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 

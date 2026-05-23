@@ -1,8 +1,7 @@
-package ntnu.idatt2003.group15.utilities.NewsParser;
-
-import ntnu.idatt2003.group15.model.NewsItem;
+package ntnu.idatt2003.group15.utilities.newsparser;
 
 import java.util.List;
+import ntnu.idatt2003.group15.model.news.NewsItem;
 
 /**
  * Reads a file in some format and returns the {@link NewsItem} instances it describes.
