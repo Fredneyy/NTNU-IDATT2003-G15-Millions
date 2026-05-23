@@ -93,6 +93,27 @@ class StockTest {
             appleStock.setVolatility(0.3);
             assertEquals(0.3, appleStock.getVolatility());
         }
+
+        @Test
+        void symbolPropertyExposesLiveValue() {
+            assertEquals("AAPL", appleStock.symbolProperty().get());
+        }
+
+        @Test
+        void companyPropertyExposesLiveValue() {
+            assertEquals("Apple Inc", appleStock.companyProperty().get());
+        }
+
+        @Test
+        void priceBindingReflectsLatestPrice() {
+            assertEquals(0, BigDecimal.valueOf(50).compareTo(appleStock.getPriceBinding().get()));
+        }
+
+        @Test
+        void priceBindingUpdatesAfterNewSalesPrice() {
+            appleStock.addNewSalesPrice(BigDecimal.valueOf(75));
+            assertEquals(0, BigDecimal.valueOf(75).compareTo(appleStock.getPriceBinding().get()));
+        }
     }
 
     @Nested

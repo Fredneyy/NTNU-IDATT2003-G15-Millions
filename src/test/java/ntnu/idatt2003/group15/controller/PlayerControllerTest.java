@@ -80,6 +80,40 @@ class PlayerControllerTest {
   }
 
   @Test
+  void moneyPropertyTracksMoneyChanges() {
+    assertEquals(0, BigDecimal.valueOf(1000).compareTo(controller.moneyProperty().getValue()));
+    player.addMoney(BigDecimal.valueOf(200));
+    assertEquals(0, BigDecimal.valueOf(1200).compareTo(controller.moneyProperty().getValue()));
+  }
+
+  @Test
+  void netWorthChangePropertyIsZeroAtStart() {
+    assertEquals(0,
+        BigDecimal.ZERO.compareTo(controller.getNetWorthChangeProperty().getValue()));
+  }
+
+  @Test
+  void netWorthChangePropertyReflectsGains() {
+    player.addMoney(BigDecimal.valueOf(300));
+    assertEquals(0,
+        BigDecimal.valueOf(300).compareTo(controller.getNetWorthChangeProperty().getValue()));
+  }
+
+  @Test
+  void netWorthChangePercentPropertyIsZeroAtStart() {
+    assertEquals(0,
+        BigDecimal.ZERO.compareTo(controller.getNetWorthChangePercentProperty().getValue()));
+  }
+
+  @Test
+  void netWorthChangePercentPropertyReflectsGains() {
+    player.addMoney(BigDecimal.valueOf(250)); // +25% on 1000
+    assertEquals(0,
+        new BigDecimal("25.00")
+            .compareTo(controller.getNetWorthChangePercentProperty().getValue()));
+  }
+
+  @Test
   void constructorRejectsNullPlayer() {
     assertThrows(NullPointerException.class, () -> new PlayerController(null));
   }

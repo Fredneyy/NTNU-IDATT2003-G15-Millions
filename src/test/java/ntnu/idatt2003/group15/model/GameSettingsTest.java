@@ -1,6 +1,8 @@
 package ntnu.idatt2003.group15.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,5 +56,26 @@ class GameSettingsTest {
     assertEquals(2.0, settings.getVolatilityMultiplier(), DELTA);
     assertEquals(30.0, settings.getNewsIntervalSeconds(), DELTA);
     assertEquals(0.14, settings.getMaxEventChance(), DELTA);
+  }
+
+  @Test
+  void difficultyPropertyExposesWritableProperty() {
+    assertNotNull(settings.difficultyProperty());
+    settings.difficultyProperty().set(1.75);
+    assertEquals(1.75, settings.getDifficulty(), DELTA);
+  }
+
+  @Test
+  void difficultyPropertyIsTheSameReferenceAcrossCalls() {
+    assertSame(settings.difficultyProperty(), settings.difficultyProperty());
+  }
+
+  @Test
+  void readOnlyDerivedPropertiesReflectDifficulty() {
+    settings.setDifficulty(1.5);
+
+    assertEquals(1.5, settings.volatilityMultiplierProperty().get(), DELTA);
+    assertEquals(60.0 / 1.5, settings.newsIntervalSecondsProperty().get(), DELTA);
+    assertEquals(0.06 + 0.04 * 1.5, settings.maxEventChanceProperty().get(), DELTA);
   }
 }

@@ -158,6 +158,13 @@ class PortfolioTest {
       assertEquals(0,
           BigDecimal.ZERO.compareTo(portfolio.getTotalMarketValueProperty().getValue()));
     }
+
+    @Test
+    void getListPropertyReflectsAddedShares() {
+      assertTrue(portfolio.getListProperty().isEmpty());
+      portfolio.addShare(share);
+      assertEquals(1, portfolio.getListProperty().size());
+    }
   }
 
   @Nested

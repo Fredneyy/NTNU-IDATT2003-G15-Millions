@@ -3,10 +3,17 @@ package ntnu.idatt2003.group15.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import ntnu.idatt2003.group15.model.exceptions.BlankArgumentException;
+import ntnu.idatt2003.group15.model.news.NewsItem;
 import ntnu.idatt2003.group15.model.player.Player;
 import ntnu.idatt2003.group15.model.stocks.Share;
 import ntnu.idatt2003.group15.model.stocks.Stock;
@@ -158,5 +165,92 @@ class ExchangeTest {
 
         assertNotEquals(topGainer.getSymbol(), topLoser.getSymbol());
       }
+
+      @Test
+      void getAllStocksReturnsImmutableSnapshotOfListedStocks () {
+        List<Stock> all = exchange.getAllStocks();
+        assertEquals(2, all.size());
+        assertThrows(UnsupportedOperationException.class, () -> all.add(
+            new Stock("X", "X", BigDecimal.ONE, 0.0, 0.0, List.of(StockSectors.MACRO))));
+      }
+
+      @Test
+      void getCommissionReturnsConfiguredRate () {
+        assertEquals(0, new BigDecimal("0.01").compareTo(exchange.getCommission()));
+      }
+
+      @Test
+      void getTaxReturnsConfiguredRate () {
+        assertEquals(0, new BigDecimal("0.37").compareTo(exchange.getTax()));
+      }
+
+      @Test
+      void setWeekRestoresExchangeWeek () {
+        exchange.setWeek(42);
+        assertEquals(42, exchange.getWeekProperty().get());
+      }
+
+      @Test
+      void setVolatilityMultiplierAffectsAdvanceWithoutThrowing () {
+        // Setting volatility to 0 leaves the GBM exponent ~ drift*dt, so the price
+        // moves toward exp(0) ≈ 1 — close to the current price.
+        exchange.setVolatilityMultiplier(0.0);
+        exchange.advance();
+        assertNotNull(exchange.getStock("AAPL").getSalesPrice());
+      }
+
+      @Test
+      void advanceConsumesActiveNewsAndMarksAppliedChange () {
+        NewsItem techNews = new NewsItem(
+            "Tech surges", StockSectors.TECHNOLOGY,
+            BigDecimal.valueOf(1.5), BigDecimal.valueOf(1.10), 3, Instant.now(), false);
+        ObservableList<NewsItem> news = FXCollections.observableArrayList(techNews);
+        exchange.setNewsObservableList(news);
+
+        exchange.advance();
+
+        // The initial change is applied once — flag flips and duration decrements.
+        assertTrue(techNews.appliedChange());
+        assertEquals(2, techNews.durationUpdates());
+      }
+
+      @Test
+      void advanceIgnoresExpiredNewsItems () {
+        NewsItem expired = new NewsItem(
+            "Old news", StockSectors.TECHNOLOGY,
+            BigDecimal.valueOf(2.0), BigDecimal.valueOf(2.0), 0, Instant.now(), false);
+        ObservableList<NewsItem> news = FXCollections.observableArrayList(expired);
+        exchange.setNewsObservableList(news);
+
+        exchange.advance();
+
+        // duration was already 0 — reduceDuration floors at 0 and appliedChange stays
+        // false because the item is expired before the loop applies the jump.
+        assertEquals(0, expired.durationUpdates());
+      }
+
+      @Test
+      void setNewsObservableListRejectsNull () {
+        assertThrows(NullPointerException.class, () -> exchange.setNewsObservableList(null));
+      }
+  }
+
+  @Nested
+  class negativeExchangeTests {
+
+    @Test
+    void constructorRejectsNullName() {
+      assertThrows(NullPointerException.class, () -> new Exchange(null, List.of()));
+    }
+
+    @Test
+    void constructorRejectsBlankName() {
+      assertThrows(BlankArgumentException.class, () -> new Exchange("   ", List.of()));
+    }
+
+    @Test
+    void constructorRejectsNullStocks() {
+      assertThrows(NullPointerException.class, () -> new Exchange("FREX", null));
+    }
   }
 }

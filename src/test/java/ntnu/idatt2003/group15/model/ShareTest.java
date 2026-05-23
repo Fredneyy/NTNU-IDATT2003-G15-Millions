@@ -74,6 +74,26 @@ class ShareTest {
             assertEquals(0, BigDecimal.valueOf(100).compareTo(share.quantity()));
             assertEquals(0, new BigDecimal("150.0000000000").compareTo(share.pricePerShare()));
         }
+
+        @Test
+        void quantityPropertyReflectsInitialValue() {
+            assertEquals(0,
+                BigDecimal.valueOf(50).compareTo(share.quantityProperty().get()));
+        }
+
+        @Test
+        void quantityPropertyUpdatesAfterSell() {
+            share.sell(BigDecimal.valueOf(20));
+            assertEquals(0,
+                BigDecimal.valueOf(30).compareTo(share.quantityProperty().get()));
+        }
+
+        @Test
+        void quantityPropertyUpdatesAfterBuy() {
+            share.buy(BigDecimal.valueOf(25), BigDecimal.valueOf(100));
+            assertEquals(0,
+                BigDecimal.valueOf(75).compareTo(share.quantityProperty().get()));
+        }
     }
 
     @Nested

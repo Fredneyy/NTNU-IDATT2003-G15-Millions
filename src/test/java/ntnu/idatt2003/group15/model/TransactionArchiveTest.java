@@ -100,6 +100,24 @@ class TransactionArchiveTest {
       archive.add(anotherPurchase);
       assertEquals(2, archive.countDistinctWeeks());
     }
+
+    @Test
+    void isEmptyReturnsTrueOnNewArchive() {
+      assertTrue(archive.isEmpty());
+    }
+
+    @Test
+    void isEmptyReturnsFalseAfterAdd() {
+      archive.add(purchase);
+      assertFalse(archive.isEmpty());
+    }
+
+    @Test
+    void getTransactionsPropertyExposesObservableList() {
+      assertTrue(archive.getTransactionsProperty().isEmpty());
+      archive.add(purchase);
+      assertEquals(1, archive.getTransactionsProperty().size());
+    }
   }
 
   @Nested

@@ -7,8 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import ntnu.idatt2003.group15.model.Exchange;
+import ntnu.idatt2003.group15.model.news.NewsItem;
 import ntnu.idatt2003.group15.model.player.Player;
 import ntnu.idatt2003.group15.model.stocks.Share;
 import ntnu.idatt2003.group15.model.stocks.Stock;
@@ -110,6 +114,24 @@ class ExchangeControllerTest {
   void setVolatilityMultiplierDoesNotThrow() {
     controller.setVolatilityMultiplier(1.5);
     // No observable side-effect to read back, but should not throw.
+  }
+
+  @Test
+  void setNewsObserverPassesThroughToExchange() {
+    ObservableList<NewsItem> news = FXCollections.observableArrayList(
+        new NewsItem("Tech surges", StockSectors.TECHNOLOGY,
+            BigDecimal.ONE, BigDecimal.valueOf(0.05), 3, Instant.now(), false));
+
+    controller.setNewsObserver(news);
+
+    // The news list now feeds advance() — bumping the week should consume
+    // the news event without throwing.
+    controller.advanceWeek();
+  }
+
+  @Test
+  void setNewsObserverRejectsNull() {
+    assertThrows(NullPointerException.class, () -> controller.setNewsObserver(null));
   }
 
   @Test
