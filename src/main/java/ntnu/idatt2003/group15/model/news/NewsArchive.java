@@ -1,30 +1,42 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.news;
 
+import java.util.List;
+import java.util.Random;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 
-import java.util.List;
-import java.util.Random;
-
+/**
+ * The news archive for storing the {@link NewsItem} and publishing for events.
+ */
 public class NewsArchive {
 
   private final ObservableList<NewsItem> activeNewsItems = FXCollections.observableArrayList();
   private final ObservableList<NewsItem> loadedNewsItems = FXCollections.observableArrayList();
   private final Random random = new Random();
 
+  /**
+   * Instantiates a new News archive.
+   *
+   * @param news the list of loaded news
+   */
   public NewsArchive(List<NewsItem> news) {
     this.loadedNewsItems.addAll(news);
   }
 
+  /**
+   * Gets the observableList which contains the active news.
+   *
+   * @return the active news items
+   */
   public ObservableList<NewsItem> getActiveNewsItems() {
     return activeNewsItems;
   }
 
-  public void addNewItem(NewsItem item) {
-    loadedNewsItems.add(item);
-  }
-
+  /**
+   * Used in the same way as the {@link ntnu.idatt2003.group15.model.Exchange} advance for
+   * updating durations of news.
+   */
   public void advance() {
     for (NewsItem item : activeNewsItems) {
       item.reduceDuration();
@@ -32,6 +44,9 @@ public class NewsArchive {
     activeNewsItems.removeIf(NewsItem::isExpired);
   }
 
+  /**
+   * Puts a random {@link NewsItem} in the active news list for observers to see.
+   */
   public void publishNews() {
     FilteredList<NewsItem> sortedNews =  new FilteredList<>(loadedNewsItems,
         item -> !activeNewsItems.contains(item));

@@ -1,16 +1,16 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.transactions;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
+import ntnu.idatt2003.group15.model.player.Player;
+import ntnu.idatt2003.group15.model.stocks.Share;
 
 /**
  * Represents a sell transaction executed on the stock exchange.
  */
 public class Sale extends Transaction {
-  /** Market price per share at the moment the sale committed (post-hoc immutable). */
   private BigDecimal salePricePerShare;
-  /** Net proceeds the player actually received (after commission and tax). */
   private BigDecimal proceeds;
 
   /**
@@ -32,7 +32,9 @@ public class Sale extends Transaction {
   public static Sale restored(Share lot, int week, Instant committedAt,
                               BigDecimal salePricePerShare, BigDecimal proceeds) {
     Sale s = new Sale(lot, week);
-    if (committedAt != null) s.setCommittedAt(committedAt);
+    if (committedAt != null) {
+      s.setCommittedAt(committedAt);
+    }
     s.salePricePerShare = salePricePerShare;
     s.proceeds = proceeds;
     s.setCommitted(true);
@@ -56,7 +58,9 @@ public class Sale extends Transaction {
    * @return realized P/L, or {@code BigDecimal.ZERO} if not yet committed
    */
   public BigDecimal getRealizedPnl() {
-    if (proceeds == null) return BigDecimal.ZERO;
+    if (proceeds == null) {
+      return BigDecimal.ZERO;
+    }
     BigDecimal costBasis = getShare().pricePerShare().multiply(getShare().quantity());
     return proceeds.subtract(costBasis);
   }

@@ -18,8 +18,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import ntnu.idatt2003.group15.model.NewsItem;
-import ntnu.idatt2003.group15.view.dialog.NewsDialog;
+import ntnu.idatt2003.group15.model.news.NewsItem;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 

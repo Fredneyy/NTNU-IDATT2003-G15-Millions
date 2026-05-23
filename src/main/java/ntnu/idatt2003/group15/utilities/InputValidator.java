@@ -21,7 +21,7 @@ public class InputValidator {
   }
 
   /**
-   * Is text an integer
+   * Is text an integer.
    *
    * @param text the text to check
    * @return {@code true} if text is an integer, {@code false} otherwise

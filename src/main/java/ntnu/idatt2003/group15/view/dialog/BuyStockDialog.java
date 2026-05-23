@@ -6,7 +6,7 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.*;
-import ntnu.idatt2003.group15.model.Stock;
+import ntnu.idatt2003.group15.model.stocks.Stock;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

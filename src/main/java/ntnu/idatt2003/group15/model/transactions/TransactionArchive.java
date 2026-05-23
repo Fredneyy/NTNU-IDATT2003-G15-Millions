@@ -1,4 +1,4 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.transactions;
 
 import java.util.List;
 import java.util.Set;
@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
  * Maintains a historical ledger of all executed market transactions.
  */
 public class TransactionArchive {
+
   private final ObservableList<Transaction> transactions;
 
   /**

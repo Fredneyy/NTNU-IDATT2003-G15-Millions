@@ -28,7 +28,7 @@ public class CsvParser {
               .toList())
           .toList();
     } catch (Exception e) {
-      throw new FileReaderException("Error reading file " + filePath, e);
+      throw new FileReaderException("Error reading file " + filePath);
     }
   }
 }

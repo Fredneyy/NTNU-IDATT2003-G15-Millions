@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @param playerName     name of the saved trader
  * @param cash           cash on hand
- * @param startingMoney  starting balance the session was opened with ({@code null} → fall back to cash)
+ * @param startingMoney  starting balance the session was opened with
  * @param difficulty     persisted difficulty multiplier ({@code null} → default)
  * @param week           the simulation week to restore ({@code null} → default 1)
  * @param savedAt        when the save was written ({@code null} if missing)
@@ -29,6 +29,9 @@ public record SaveData(
     Map<String, BigDecimal> stockPrices,
     List<TxEntry> transactions
 ) {
+  /**
+   * A record class representing a share entry.
+   */
   public record ShareEntry(String symbol, BigDecimal quantity, BigDecimal pricePerShare) {}
 
   /**
@@ -37,7 +40,8 @@ public record SaveData(
    * @param type              "BUY" or "SELL"
    * @param symbol            stock symbol traded
    * @param quantity          number of shares
-   * @param pricePerShare     original lot price (cost basis); same as {@code salePricePerShare} for buys
+   * @param pricePerShare     original lot price (cost basis); same as
+   *{@code salePricePerShare} for buys
    * @param week              simulation week the transaction took place
    * @param committedAt       wall-clock timestamp (drives "X ago" labels)
    * @param salePricePerShare actual market price at sale time, sells only ({@code null} for buys)

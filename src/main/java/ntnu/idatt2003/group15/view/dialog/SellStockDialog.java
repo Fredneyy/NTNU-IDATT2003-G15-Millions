@@ -6,8 +6,8 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.controller.PortfolioController;
-import ntnu.idatt2003.group15.model.SaleCalculator;
-import ntnu.idatt2003.group15.model.Share;
+import ntnu.idatt2003.group15.model.transactions.SaleCalculator;
+import ntnu.idatt2003.group15.model.stocks.Share;
 
 import java.math.BigDecimal;
 import java.util.Objects;

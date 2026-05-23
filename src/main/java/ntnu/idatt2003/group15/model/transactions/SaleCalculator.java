@@ -1,7 +1,8 @@
-package ntnu.idatt2003.group15.model;
+package ntnu.idatt2003.group15.model.transactions;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import ntnu.idatt2003.group15.model.stocks.Share;
 
 /**
  * Calculates the financial outcomes and proceeds from selling stock.
@@ -42,7 +43,8 @@ public class SaleCalculator implements TransactionCalculator {
    */
   public BigDecimal calculateTax(Share share, BigDecimal tax, BigDecimal commission) {
     Objects.requireNonNull(share, "Share cannot be null");
-    BigDecimal taxableAmount = calculateProfit(share).subtract(calculateCommission(share, commission));
+    BigDecimal taxableAmount = calculateProfit(share)
+        .subtract(calculateCommission(share, commission));
     if (taxableAmount.signum() < 0) {
       return BigDecimal.ZERO;
     }

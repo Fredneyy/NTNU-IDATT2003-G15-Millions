@@ -12,13 +12,13 @@ import java.util.StringJoiner;
 import ntnu.idatt2003.group15.controller.ExchangeController;
 import ntnu.idatt2003.group15.controller.PlayerController;
 import ntnu.idatt2003.group15.model.GameSettings;
-import ntnu.idatt2003.group15.model.Portfolio;
-import ntnu.idatt2003.group15.model.Purchase;
-import ntnu.idatt2003.group15.model.Sale;
-import ntnu.idatt2003.group15.model.Share;
-import ntnu.idatt2003.group15.model.Stock;
-import ntnu.idatt2003.group15.model.StockSectors;
-import ntnu.idatt2003.group15.model.Transaction;
+import ntnu.idatt2003.group15.model.player.Portfolio;
+import ntnu.idatt2003.group15.model.transactions.Purchase;
+import ntnu.idatt2003.group15.model.transactions.Sale;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.model.stocks.StockSectors;
+import ntnu.idatt2003.group15.model.transactions.Transaction;
 
 /**
  * Serializes the current game state (player, exchange, settings) to a JSON file
@@ -52,15 +52,14 @@ public final class SaveGameUtil {
   private static String buildJson(PlayerController player,
                                   ExchangeController exchange,
                                   GameSettings settings) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("{\n");
-    sb.append("  \"version\": 1,\n");
-    sb.append("  \"savedAt\": ").append(quote(Instant.now().toString())).append(",\n");
-    sb.append("  \"settings\": ").append(settingsJson(settings)).append(",\n");
-    sb.append("  \"player\": ").append(playerJson(player)).append(",\n");
-    sb.append("  \"exchange\": ").append(exchangeJson(exchange)).append("\n");
-    sb.append("}\n");
-    return sb.toString();
+    String sb = "{\n" +
+        "  \"version\": 1,\n" +
+        "  \"savedAt\": " + quote(Instant.now().toString()) + ",\n" +
+        "  \"settings\": " + settingsJson(settings) + ",\n" +
+        "  \"player\": " + playerJson(player) + ",\n" +
+        "  \"exchange\": " + exchangeJson(exchange) + "\n" +
+        "}\n";
+    return sb;
   }
 
   private static String settingsJson(GameSettings s) {

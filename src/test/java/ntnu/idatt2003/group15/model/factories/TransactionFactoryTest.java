@@ -1,10 +1,11 @@
 package ntnu.idatt2003.group15.model.factories;
 
-import ntnu.idatt2003.group15.model.Purchase;
-import ntnu.idatt2003.group15.model.Sale;
-import ntnu.idatt2003.group15.model.Share;
-import ntnu.idatt2003.group15.model.Stock;
-import ntnu.idatt2003.group15.model.Transaction;
+import ntnu.idatt2003.group15.model.stocks.StockSectors;
+import ntnu.idatt2003.group15.model.transactions.Purchase;
+import ntnu.idatt2003.group15.model.transactions.Sale;
+import ntnu.idatt2003.group15.model.stocks.Share;
+import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.model.transactions.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,14 +18,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionFactoryTest {
 
-    private Stock testStock;
-    private Share testShare;
+  private Share testShare;
     private int testWeek;
 
     @BeforeEach
     void setUp() {
-        testStock = new Stock("EQNR", "Equinor ASA", BigDecimal.valueOf(100), 0.0, 0.0,
-            List.of(ntnu.idatt2003.group15.model.StockSectors.ENERGY));
+      Stock testStock = new Stock("EQNR", "Equinor ASA", BigDecimal.valueOf(100), 0.0, 0.0,
+          List.of(StockSectors.ENERGY));
         testShare = new Share(testStock, BigDecimal.valueOf(3), BigDecimal.valueOf(100));
         testWeek = 10;
     }
