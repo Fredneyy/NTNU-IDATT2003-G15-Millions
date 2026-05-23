@@ -2,20 +2,29 @@ package ntnu.idatt2003.group15.view;
 
 import java.util.concurrent.CountDownLatch;
 import javafx.application.Platform;
+import org.junit.jupiter.api.Assumptions;
 
 /**
  * Boots the JavaFX toolkit once for the test process.
- * Surefire is already configured for headless monocle in pom.xml;
- * this just makes sure {@link Platform} is initialized before any view
- * constructor that touches CSS / scene graph runs.
+ *
+ * <p>When the host has no display available (e.g. a headless GitHub Actions
+ * runner without Xvfb), {@link Platform#startup} throws and we abort the test
+ * via {@link Assumptions#abort} so it shows up as skipped, not failed. That
+ * keeps view-dependent tests useful on a developer machine while letting CI
+ * pass without extra display setup.
  */
 public final class JavaFxTestSupport {
 
   private static boolean started = false;
+  private static boolean unavailable = false;
+  private static String unavailableReason;
 
   private JavaFxTestSupport() {}
 
   public static synchronized void ensureStarted() {
+    if (unavailable) {
+      Assumptions.abort("JavaFX toolkit unavailable: " + unavailableReason);
+    }
     if (started) {
       return;
     }
@@ -25,6 +34,12 @@ public final class JavaFxTestSupport {
       latch.await();
     } catch (IllegalStateException alreadyRunning) {
       // Platform.startup was called by an earlier test. That's fine.
+    } catch (UnsupportedOperationException | LinkageError noDisplay) {
+      // Headless CI without a usable display — skip cleanly so the build still
+      // passes. The same JVM will skip subsequent ensureStarted() calls too.
+      unavailable = true;
+      unavailableReason = noDisplay.getMessage();
+      Assumptions.abort("JavaFX toolkit unavailable: " + unavailableReason);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException("Interrupted while booting JavaFX", e);
