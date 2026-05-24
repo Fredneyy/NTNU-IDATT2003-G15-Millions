@@ -161,16 +161,18 @@ public class PortfolioTableView {
 
     private static TableCell<Share, Share> symbolCell() {
         return new TableCell<>() {
+            // Match MarketTableView: avatar tile only, no separate symbol label
+            // next to it. The avatar's 3-char abbreviation is identification
+            // enough, and dropping the redundant label keeps the column tidy.
             private final Label avatarLabel = new Label();
             private final StackPane avatar = new StackPane(avatarLabel);
-            private final Label symbolLabel = new Label();
-            private final HBox wrapper = new HBox(avatar, symbolLabel);
+            private final HBox wrapper = new HBox(avatar);
             {
                 avatar.getStyleClass().add("symbol-avatar");
                 avatarLabel.getStyleClass().add("symbol-avatar-text");
-                symbolLabel.getStyleClass().add("symbol-text");
                 wrapper.getStyleClass().add("symbol-cell");
                 wrapper.setSpacing(12);
+                avatarLabel.setWrapText(true);
             }
 
             @Override
@@ -181,8 +183,7 @@ public class PortfolioTableView {
                     return;
                 }
                 String sym = share.stock().getSymbol();
-                avatarLabel.setText(sym.length() >= 2 ? sym.substring(0, 2) : sym);
-                symbolLabel.setText(sym);
+                avatarLabel.setText(sym.length() >= 3 ? sym.substring(0, 3) : sym);
                 setGraphic(wrapper);
             }
         };
