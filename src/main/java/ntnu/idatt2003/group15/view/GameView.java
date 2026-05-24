@@ -56,8 +56,10 @@ public class GameView {
   private final SellStockDialog sellStockDialog;
   private final StockChartDialog stockChartDialog = new StockChartDialog();
   private final ReceiptDialog receiptDialog = new ReceiptDialog();
+  private final ConfirmDialog confirmDialog = new ConfirmDialog();
   private final MarketTableView marketTable;
   private final PortfolioTableView portfolioTable;
+  private final SellAllCard sellAllCard;
   private final NewsFeedView newsFeedView = new NewsFeedView();
   private final TextField searchField = new TextField();
   private final HBox searchBar;
@@ -127,7 +129,15 @@ public class GameView {
     portfolioTable = new PortfolioTableView(portfolioController,
         share -> sellStockDialog.show(view, share),
         stock -> stockChartDialog.show(view, stock));
-    portfolioContent = new VBox(portfolioTable.getView());
+    sellAllCard = new SellAllCard(
+        portfolioController.getListProperty(),
+        () -> confirmDialog.show(view,
+            "Sell all stocks?",
+            "This will liquidate every share you currently hold. Do you really want to sell all stocks?",
+            "Sell all",
+            "Cancel",
+            this::sellAllStocks));
+    portfolioContent = new VBox(portfolioTable.getView(), sellAllCard.getView());
 
     marketTable = new MarketTableView(marketStocks,
         portfolioController,
@@ -269,6 +279,16 @@ public class GameView {
     if (root != null) {
       root.getChildren().remove(view);
       newsContainer.unmount();
+    }
+  }
+
+  private void sellAllStocks() {
+    try {
+      for (Share share : playerController.getPortfolio().getShares()) {
+        exchangeController.sell(share, share.quantity(), playerController.getPlayer());
+      }
+    } catch (RuntimeException ex) {
+      errorHandler.accept(ex);
     }
   }
 
