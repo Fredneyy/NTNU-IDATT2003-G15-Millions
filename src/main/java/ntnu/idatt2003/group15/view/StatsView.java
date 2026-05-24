@@ -174,7 +174,10 @@ public class StatsView {
         holdingsTable.getColumns().setAll(symbolCol, qtyCol, avgBuyCol, currentCol, valueCol, plCol);
         holdingsTable.setItems(holdings);
         holdingsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        holdingsTable.setPlaceholder(new Label("You have no current holdings."));
+        holdingsTable.setPlaceholder(EmptyState.create(
+                FontAwesome.LINE_CHART,
+                "No holdings yet",
+                "Per-position P/L will appear here once you own a stock."));
         holdingsTable.getStyleClass().add("holdings-table");
 
         VBox card = new VBox(header, holdingsTable);

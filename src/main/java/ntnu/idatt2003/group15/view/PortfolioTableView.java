@@ -141,7 +141,11 @@ public class PortfolioTableView {
                 symbolCol, companyCol, qtyCol, priceCol, totalCol,
                 changeCol, actionCol);
         table.setItems(filtered);
-        table.setPlaceholder(new Label("You don't own any shares yet."));
+        table.setPlaceholder(EmptyState.create(
+                FontAwesome.PIE_CHART,
+                "No holdings yet",
+                "Your portfolio will appear here.\n"
+                        + "Buy a stock from the Market tab to start your collection."));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.getStyleClass().addAll("market-table-inner", "portfolio-table-inner");
     }
