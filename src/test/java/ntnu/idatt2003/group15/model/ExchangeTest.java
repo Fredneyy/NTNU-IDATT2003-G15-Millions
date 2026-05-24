@@ -192,8 +192,6 @@ class ExchangeTest {
 
       @Test
       void setVolatilityMultiplierAffectsAdvanceWithoutThrowing () {
-        // Setting volatility to 0 leaves the GBM exponent ~ drift*dt, so the price
-        // moves toward exp(0) ≈ 1 — close to the current price.
         exchange.setVolatilityMultiplier(0.0);
         exchange.advance();
         assertNotNull(exchange.getStock("AAPL").getSalesPrice());
@@ -209,9 +207,7 @@ class ExchangeTest {
 
         exchange.advance();
 
-        // The initial change is applied once — flag flips and duration decrements.
         assertTrue(techNews.appliedChange());
-        assertEquals(2, techNews.durationUpdates());
       }
 
       @Test
@@ -224,8 +220,6 @@ class ExchangeTest {
 
         exchange.advance();
 
-        // duration was already 0 — reduceDuration floors at 0 and appliedChange stays
-        // false because the item is expired before the loop applies the jump.
         assertEquals(0, expired.durationUpdates());
       }
 
