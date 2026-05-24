@@ -25,7 +25,6 @@ public class SettingsController {
     ChangeListener<Number> refresh = (_, _, _) -> refreshLabels();
     settings.difficultyProperty().addListener(refresh);
     settings.volatilityMultiplierProperty().addListener(refresh);
-    settings.newsIntervalSecondsProperty().addListener(refresh);
     settings.maxEventChanceProperty().addListener(refresh);
 
     refreshLabels();
@@ -35,7 +34,6 @@ public class SettingsController {
     double d = settings.getDifficulty();
     view.getSliderValueLabel().setText(formatMultiplier(d));
     view.getDifficultyValueLabel().setText(difficultyName(d));
-    view.getEventFrequencyValue().setText(eventFrequencyLabel(settings.getNewsIntervalSeconds()));
     view.getPriceVolatilityValue().setText(percentLabel(settings.getVolatilityMultiplier()));
     view.getMaxEventChanceValue().setText(
         String.format("%.1f%%", settings.getMaxEventChance() * 100.0));

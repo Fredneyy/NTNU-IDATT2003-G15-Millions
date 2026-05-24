@@ -40,13 +40,13 @@ class NewsControllerTest {
 
   @Test
   void publishMovesItemIntoActiveList() {
-    controller.publish();
+    controller.publish(1);
     assertEquals(1, controller.getNewsObservable().size());
   }
 
   @Test
   void advanceWeekReducesDuration() {
-    controller.publish();
+    controller.publish(1);
     NewsItem published = controller.getNewsObservable().getFirst();
     int before = published.durationUpdates();
 
@@ -61,7 +61,7 @@ class NewsControllerTest {
         "short", StockSectors.TECHNOLOGY,
         BigDecimal.ONE, BigDecimal.ZERO, 1, Instant.now(), false);
     NewsController shortLived = new NewsController(new NewsArchive(List.of(shortItem)));
-    shortLived.publish();
+    shortLived.publish(1);
 
     shortLived.advanceWeek();
 
