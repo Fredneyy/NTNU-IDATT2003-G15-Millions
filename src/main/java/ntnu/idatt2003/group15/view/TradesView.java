@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -113,9 +114,31 @@ public class TradesView {
         ScrollPane scroller = new ScrollPane(rowsContainer);
         scroller.setFitToWidth(true);
         scroller.getStyleClass().add("trades-scroll");
-        VBox.setVgrow(scroller, Priority.ALWAYS);
-        VBox body = new VBox(scroller);
+
+        VBox emptyState = EmptyState.create(
+                FontAwesome.EXCHANGE,
+                "No orders yet",
+                "Your transaction history will appear here.\n"
+                        + "Buy or sell a stock to get started.");
+
+        // Overlay the empty-state panel on top of the scroller; visibility
+        // and managed flags flip off the trades list — once a trade lands,
+        // the empty panel disappears entirely.
+        StackPane content = new StackPane(scroller, emptyState);
+        VBox.setVgrow(content, Priority.ALWAYS);
+
+        BooleanBinding isEmpty = Bindings.isEmpty(trades);
+        emptyState.visibleProperty().bind(isEmpty);
+        emptyState.managedProperty().bind(isEmpty);
+        scroller.visibleProperty().bind(isEmpty.not());
+        scroller.managedProperty().bind(isEmpty.not());
+
+        VBox body = new VBox(content);
         body.getStyleClass().add("trades-body");
+        // Without Vgrow on body, the StackPane shrinks to the empty-state's
+        // preferred size when the scroller is hidden — leaving the panel
+        // glued to the top of the card with no vertical breathing room.
+        VBox.setVgrow(body, Priority.ALWAYS);
         return body;
     }
 
