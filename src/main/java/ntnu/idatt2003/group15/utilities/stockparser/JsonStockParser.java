@@ -25,13 +25,17 @@ public class JsonStockParser implements StockParser {
     Object parsed = readJson(filePath);
     if (!(parsed instanceof List<?> entries)) {
       throw new FileReaderException(
-          "Stock JSON file must contain a top-level array: " + filePath);
+          "The stock file '" + filePath
+              + "' is not in the expected format. The JSON has to start with an array '[' "
+              + "of stock objects.");
     }
     List<Stock> stocks = new ArrayList<>();
     for (Object entry : entries) {
       if (!(entry instanceof Map<?, ?> raw)) {
         throw new FileReaderException(
-            "Stock JSON entries must be objects: " + filePath);
+            "The stock file '" + filePath
+                + "' contains a malformed entry. Each item in the array has to be a stock object "
+                + "with 'symbol', 'company', 'salesPrice', 'drift', 'volatility' and 'sectors'.");
       }
       List<StockSectors> sectors = new ArrayList<>();
       if (raw.get("sectors") instanceof List<?> sectorLabels) {
@@ -55,7 +59,9 @@ public class JsonStockParser implements StockParser {
       String text = Files.readString(Paths.get(filePath), StandardCharsets.UTF_8);
       return JsonParser.parse(text);
     } catch (Exception e) {
-      throw new FileReaderException("Error reading file " + filePath);
+      throw new FileReaderException(
+          "Couldn't read the stock file '" + filePath
+              + "'. Make sure the file exists and that it's valid JSON.");
     }
   }
 

@@ -43,6 +43,8 @@ public class NewsLoader {
     if (lower.endsWith(".csv")) {
       return new CsvNewsParser();
     }
-    throw new UnsupportedFileTypeException("Unsupported file type" + filePath);
+    throw new UnsupportedFileTypeException(
+        "Couldn't load news from '" + filePath
+            + "'. Only CSV files are supported, so please choose a file ending in .csv.");
   }
 }

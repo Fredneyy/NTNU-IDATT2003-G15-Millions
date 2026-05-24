@@ -47,6 +47,8 @@ public class StockLoader {
     if (lower.endsWith(".json")) {
       return new JsonStockParser();
     }
-    throw new UnsupportedFileTypeException("Unsupported stock file extension: " + filePath);
+    throw new UnsupportedFileTypeException(
+        "Couldn't load stocks from '" + filePath
+            + "'. Only .csv and .json files are supported, so please choose one of those formats.");
   }
 }

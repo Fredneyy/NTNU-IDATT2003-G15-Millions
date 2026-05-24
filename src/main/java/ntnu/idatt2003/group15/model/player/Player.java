@@ -33,9 +33,10 @@ public class Player {
    */
   public Player(String name, BigDecimal startingMoney)
       throws BlankArgumentException, NullPointerException {
-    Objects.requireNonNull(name, "Name cannot be zero");
+    Objects.requireNonNull(name, "Player name cannot be null");
     if (name.isBlank()) {
-      throw new BlankArgumentException("Name cannot be blank");
+      throw new BlankArgumentException(
+          "The player name can't be empty. Please enter a name before starting the game.");
     }
     Objects.requireNonNull(startingMoney, "StartingMoney cannot be null");
 

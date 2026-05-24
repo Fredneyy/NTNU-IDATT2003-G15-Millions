@@ -73,7 +73,9 @@ public class StatisticsOverview {
     public void addCard(StatCard card) {
         Objects.requireNonNull(card);
         if (cards.containsKey(card.id())) {
-            throw new IllegalArgumentException("Stat card id already exists: " + card.id());
+            throw new IllegalArgumentException(
+                "A statistic card with id '" + card.id()
+                    + "' has already been added to this overview. Each card needs a unique id.");
         }
 
         VBox cardRoot = new VBox();
