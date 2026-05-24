@@ -88,9 +88,6 @@ public class NewsFeedView {
                 "Headlines will appear here as the market reacts.\n"
                         + "Advance the week to see what happens.");
 
-        // Stack the scroller and the empty-state panel; toggle which is shown
-        // off the events list — when the first item arrives the empty panel
-        // hides itself and gives up its layout slot via managedProperty.
         StackPane content = new StackPane(scroller, emptyState);
         VBox.setVgrow(content, Priority.ALWAYS);
 
@@ -102,9 +99,6 @@ public class NewsFeedView {
 
         VBox body = new VBox(content);
         body.getStyleClass().add("news-body");
-        // Without Vgrow on body, the StackPane shrinks to the empty-state's
-        // preferred size when the scroller is hidden — leaving the panel
-        // glued to the top of the card with no vertical breathing room.
         VBox.setVgrow(body, Priority.ALWAYS);
         return body;
     }
@@ -120,14 +114,12 @@ public class NewsFeedView {
             BigDecimal rawPct = ev.changePercent() == null ? BigDecimal.ZERO : ev.changePercent();
             boolean bullish = rawPct.compareTo(BigDecimal.ZERO) > 0;
 
-            // Trend-arrow icon tile (green up / red down)
             FontIcon arrow = new FontIcon(bullish ? FontAwesome.LINE_CHART : FontAwesome.AREA_CHART);
             arrow.getStyleClass().add("news-row-icon");
             StackPane iconBox = new StackPane(arrow);
             iconBox.getStyleClass().addAll("news-row-icon-box",
                     bullish ? "news-row-icon-box--bullish" : "news-row-icon-box--bearish");
 
-            // Top badges row: SECTOR  ±X.X%  [BULLISH | BEARISH]  ............ clock + ago
             Label symbolBadge = new Label(ev.sector() == null ? "" : ev.sector().getLabel());
             symbolBadge.getStyleClass().addAll("news-badge", "news-badge--symbol");
 
@@ -163,7 +155,6 @@ public class NewsFeedView {
             description.getStyleClass().add("news-row-description");
             description.setWrapText(true);
 
-            // Meta row
             BigDecimal vol = ev.volatility() == null ? BigDecimal.ZERO : ev.volatility();
             HBox meta = new HBox(
                     metaPair("Volatility:", vol.stripTrailingZeros().toPlainString() + "x"),

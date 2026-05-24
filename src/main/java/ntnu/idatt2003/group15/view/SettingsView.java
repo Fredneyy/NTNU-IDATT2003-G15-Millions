@@ -29,7 +29,6 @@ public class SettingsView {
   private final Label difficultyValueLabel = new Label("Normal");
     private final Region headerSpacer = new Region();
 
-  // --- Slider section ---
     private final Label sliderLabel = new Label("Market Difficulty");
     private final Label sliderValueLabel = new Label("1.0x");
     private final Region sliderHeaderSpacer = new Region();
@@ -50,20 +49,16 @@ public class SettingsView {
 
     private final VBox sliderSection = new VBox(sliderHeader, difficultySlider, sliderScale);
 
-    // --- Divider ---
     private final Region divider = new Region();
 
-    // --- Stat cards row ---
     private final VBox eventFrequencyCard = buildStatCard("Event Frequency", "Normal");
     private final VBox priceVolatilityCard = buildStatCard("Price Volatility", "100%");
     private final VBox maxEventChanceCard = buildStatCard("Max Event Chance", "12.0%");
 
-  // Keep references to the value labels so you can update them later
     private final Label eventFrequencyValue;
     private final Label priceVolatilityValue;
     private final Label maxEventChanceValue;
 
-    // --- Pro tip footer ---
     private final FontIcon tipIcon = new FontIcon(FontAwesome.BOLT);
     private final Label tipLabel = new Label(
             "Pro tip: Higher difficulty means more frequent events, higher volatility, " +
@@ -74,7 +69,6 @@ public class SettingsView {
     public SettingsView(StackPane root) {
         Objects.requireNonNull(root);
 
-        // Grab references to the stat card value labels (second child of each card VBox)
         eventFrequencyValue = (Label) eventFrequencyCard.getChildren().get(1);
         priceVolatilityValue = (Label) priceVolatilityCard.getChildren().get(1);
         maxEventChanceValue = (Label) maxEventChanceCard.getChildren().get(1);
@@ -84,17 +78,14 @@ public class SettingsView {
         tipLabel.setMaxWidth(Double.MAX_VALUE);
 
       FontIcon icon = new FontIcon(FontAwesome.SLIDERS);
-      // --- Header ---
       StackPane iconBox = new StackPane();
       iconBox.getChildren().add(icon);
 
-        // Let spacers push content apart in HBoxes
         HBox.setHgrow(headerSpacer, javafx.scene.layout.Priority.ALWAYS);
         HBox.setHgrow(sliderHeaderSpacer, javafx.scene.layout.Priority.ALWAYS);
         HBox.setHgrow(sliderScaleSpacerLeft, javafx.scene.layout.Priority.ALWAYS);
         HBox.setHgrow(sliderScaleSpacerRight, javafx.scene.layout.Priority.ALWAYS);
 
-        // Make stat cards share the row equally
         HBox.setHgrow(eventFrequencyCard, javafx.scene.layout.Priority.ALWAYS);
         HBox.setHgrow(priceVolatilityCard, javafx.scene.layout.Priority.ALWAYS);
         HBox.setHgrow(maxEventChanceCard, javafx.scene.layout.Priority.ALWAYS);
@@ -102,7 +93,6 @@ public class SettingsView {
         priceVolatilityCard.setMaxWidth(Double.MAX_VALUE);
         maxEventChanceCard.setMaxWidth(Double.MAX_VALUE);
 
-        // Style class hooks for your CSS
         view.getStylesheets().add(
             Objects.requireNonNull(getClass().getResource("/style/SettingsStyle.css")).toExternalForm());
         view.getStyleClass().add("settings-view");
@@ -138,7 +128,6 @@ public class SettingsView {
         tipLabel.getStyleClass().add("settings-tip-label");
         tipBox.getStyleClass().add("settings-tip-box");
 
-        // Compose the card
         card.getChildren().addAll(
             headerContent,
                 sliderSection,
@@ -210,7 +199,6 @@ public class SettingsView {
         return view;
     }
 
-    // --- Public accessors for the controller ---
 
     public Slider getDifficultySlider() {
         return difficultySlider;

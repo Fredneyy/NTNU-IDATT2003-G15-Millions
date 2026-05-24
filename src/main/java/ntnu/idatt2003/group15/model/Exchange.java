@@ -198,7 +198,7 @@ public class Exchange {
       double stackedVolatility = 1.0;
       double stackedImpactJump = 0.0;
       
-      java.util.Random rnd = new java.util.Random();
+      Random rnd = new java.util.Random();
 
       if (news != null) {
         for (NewsItem item : news) {
@@ -243,7 +243,6 @@ public class Exchange {
         if (!item.appliedChange()) {
           item.setAppliedChange(true);
         }
-        item.reduceDuration();
       }
     }
   }
