@@ -24,8 +24,7 @@ public class NewsContainer {
         stack.setSpacing(12);
         stack.setAlignment(Pos.TOP_RIGHT);
 
-        // Don't intercept clicks in the empty parts of the column — only the
-        // actual notification cards should consume mouse events.
+        // only the cards should consume mouse events, not the empty column
         stack.setPickOnBounds(false);
 
         stack.setMaxWidth(Region.USE_PREF_SIZE);

@@ -33,7 +33,7 @@ public class StatsView {
 
     private final VBox view = new VBox();
 
-    // Top-row cards (live references so setters can update them)
+    // live refs so setters can mutate them
     private final KpiCard totalTrades = new KpiCard("Total Trades",
             FontAwesome.BAR_CHART, Tone.BLUE);
     private final KpiCard realizedPL = new KpiCard("Realized P/L",
@@ -43,13 +43,11 @@ public class StatsView {
     private final KpiCard winRate = new KpiCard("Win Rate",
             FontAwesome.TROPHY, Tone.GOLD);
 
-    // Performance Summary fields
     private final Label totalReturnValue = new Label("+$0.00");
     private final Label totalReturnPercent = new Label("(+0.00%)");
     private final Label avgTradeSize = new Label("$0.00");
     private final Label mostTraded = new Label("—");
 
-    // Holdings table
     private final ObservableList<Share> holdings = FXCollections.observableArrayList();
     private final TableView<Share> holdingsTable = new TableView<>();
 
@@ -67,7 +65,7 @@ public class StatsView {
         view.setSpacing(16);
         view.getChildren().addAll(kpis, buildPerformanceSummary(), buildHoldingsCard());
 
-        // Reasonable defaults so the empty state still looks meaningful
+        // defaults so the empty state still reads meaningfully
         setTotalTrades(0, 0, 0);
         setRealizedPL("+$0.00", Tone.POSITIVE);
         setUnrealizedPL("+$0.00", Tone.POSITIVE);
@@ -281,8 +279,6 @@ public class StatsView {
 
     public VBox getView() { return view; }
 
-    // ----- Setters for a controller to push data -----
-
     public void setTotalTrades(int total, int buys, int sells) {
         totalTrades.value.setText(String.valueOf(total));
         Label buysLabel = new Label("↑ " + buys + " buys");
@@ -342,8 +338,6 @@ public class StatsView {
         label.getStyleClass().removeIf(s -> s.startsWith("tone-"));
         label.getStyleClass().add("tone-" + tone.name().toLowerCase());
     }
-
-    // ----- Card scaffolding -----
 
     /** A single KPI card: icon tile + label, big value, swappable subline. */
     private static class KpiCard {

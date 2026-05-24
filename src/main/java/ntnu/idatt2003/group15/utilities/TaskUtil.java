@@ -48,9 +48,7 @@ public class TaskUtil {
     Objects.requireNonNull(onFinished);
     Objects.requireNonNull(onError);
     if (executor == null) {
-      // failsafe if executor does not initialize correctly
-      // task will run on same thread as the one who called it
-      // UI may freeze if task is big, but it is better than not being able to run
+      // failsafe: run synchronously on the caller's thread (may freeze UI)
       try {
         var result = taskToRun.call();
         onFinished.accept(result);

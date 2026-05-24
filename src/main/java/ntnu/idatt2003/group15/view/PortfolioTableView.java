@@ -161,9 +161,7 @@ public class PortfolioTableView {
 
     private static TableCell<Share, Share> symbolCell() {
         return new TableCell<>() {
-            // Match MarketTableView: avatar tile only, no separate symbol label
-            // next to it. The avatar's 3-char abbreviation is identification
-            // enough, and dropping the redundant label keeps the column tidy.
+            // mirrors MarketTableView: avatar-only column, no separate symbol label
             private final Label avatarLabel = new Label();
             private final StackPane avatar = new StackPane(avatarLabel);
             private final HBox wrapper = new HBox(avatar);

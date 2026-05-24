@@ -95,8 +95,6 @@ public final class LoadGameUtil {
     return new SaveData(name, cash, startingMoney, difficulty, week, savedAt, shares, stockPrices, transactions);
   }
 
-  // ---- coercion helpers ----
-
   @SuppressWarnings("unchecked")
   private static Map<String, Object> asMap(Object v) {
     return v instanceof Map<?, ?> m ? (Map<String, Object>) m : null;

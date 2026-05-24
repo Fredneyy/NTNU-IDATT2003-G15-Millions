@@ -36,8 +36,7 @@ public class ReceiptDialog extends BaseDialog {
 
   public enum Type { BUY, SELL }
 
-  // Matches the trades-tab format so the same trade reads identically in
-  // both places (24-hour clock, no AM/PM).
+  // matches the trades-tab format (24-hour clock)
   private static final DateTimeFormatter DATE_FMT =
       DateTimeFormatter.ofPattern("MMM d, yyyy, HH:mm");
 
@@ -49,7 +48,7 @@ public class ReceiptDialog extends BaseDialog {
   private final Label priceValue = new Label();
   private final Label dateValue = new Label();
 
-  // Totals card — three rows; row 3 is hidden for BUY (no fees).
+  // totals card, row 3 is hidden for BUY (no fees)
   private final Label totalsLabel1 = new Label();
   private final Label totalsLabel2 = new Label();
   private final Label totalsLabel3 = new Label();
@@ -63,22 +62,17 @@ public class ReceiptDialog extends BaseDialog {
 
   public ReceiptDialog() {
     super();
-    // Pull in the trade-badge + buy-dialog stylesheets so the BUY/SELL chip
-    // and the cost-card layout look identical to their counterparts elsewhere
-    // in the app. The DialogStyle.css from BaseDialog stays loaded too.
+    // share styling with the trade badges and buy/sell dialog
     dialog.getStylesheets().addAll(
         Objects.requireNonNull(getClass().getResource("/style/TradesViewStyle.css"))
             .toExternalForm(),
         Objects.requireNonNull(getClass().getResource("/style/BuyStockDialogStyle.css"))
             .toExternalForm());
 
-    // Match TransactionDialog's width (35% of screen, 420px floor) so receipts
-    // and buy/sell dialogs share a footprint.
+    // 35% of screen with a 420px floor, same footprint as TransactionDialog
     double screenW = Screen.getPrimary().getVisualBounds().getWidth();
     dialog.setMaxWidth(Math.max(420, screenW * 0.35));
-    // Lock height to the dialog's preferred (content) size — without this the
-    // StackPane stretches the dialog vertically to fill the whole game-view
-    // height, leaving lots of empty space below the Done button.
+    // lock to content height, otherwise StackPane stretches the dialog full-height
     dialog.setMaxHeight(Region.USE_PREF_SIZE);
     dialog.getStyleClass().setAll("stock-dialog-card", "buy-stock-dialog");
 
@@ -149,8 +143,7 @@ public class ReceiptDialog extends BaseDialog {
 
     quantityValue.setText(quantity.stripTrailingZeros().toPlainString());
     priceValue.setText(formatMoney(pricePerShare));
-    // Render the trade timestamp in the user's local zone. Null is tolerated
-    // — old saves that lack a timestamp simply render an em-dash.
+    // local-zone timestamp, null tolerated for old saves that lacked one
     if (when == null) {
       dateValue.setText("—");
     } else {
@@ -160,8 +153,7 @@ public class ReceiptDialog extends BaseDialog {
 
     BigDecimal gross = pricePerShare.multiply(quantity);
     if (type == Type.BUY) {
-      // For a buy: cost is the gross. No fees in this game's buy flow, so we
-      // hide the third row entirely (managed=false drops it from layout).
+      // no buy-side fees, hide the fees row entirely
       totalsLabel1.setText("Total Cost");
       totalsValue1.setText(formatMoney(gross));
       totalsLabel2.setText("Cash Change");
@@ -169,8 +161,7 @@ public class ReceiptDialog extends BaseDialog {
       totalsRow3.setVisible(false);
       totalsRow3.setManaged(false);
     } else {
-      // For a sell: show the full breakdown — what the user got, what the
-      // market valued the shares at, and what the broker took off the top.
+      // sell: full breakdown of received, gross, fees
       totalsLabel1.setText("You Received");
       totalsValue1.setText(formatMoney(safeNet));
       totalsLabel2.setText("Gross Proceeds");
@@ -212,7 +203,6 @@ public class ReceiptDialog extends BaseDialog {
   }
 
   private VBox buildBody() {
-    // Top card: type badge + quantity + price-per-share
     Label typeRowLabel = new Label("Type");
     typeRowLabel.getStyleClass().add("buy-cost-label");
     typeBadge.getStyleClass().add("trade-badge");
@@ -230,7 +220,6 @@ public class ReceiptDialog extends BaseDialog {
     detailsCard.getStyleClass().add("buy-card");
     detailsCard.setSpacing(10);
 
-    // Bottom card: totals (row 3 hidden for BUY)
     HBox totalsRow1 = makeSummaryRow(totalsLabel1, totalsValue1, true);
     HBox totalsRow2 = makeSummaryRow(totalsLabel2, totalsValue2, false);
     VBox totalsCard = new VBox(totalsRow1, totalsRow2, totalsRow3);
@@ -248,8 +237,7 @@ public class ReceiptDialog extends BaseDialog {
   }
 
   private static HBox makeSummaryRow(Label label, Label value, boolean major) {
-    // Add the major/minor style classes idempotently so populate() can swap
-    // labels between BUY and SELL without leaking classes from prior shows.
+    // idempotent so populate() can swap BUY/SELL labels without leaking classes
     if (major) {
       if (!label.getStyleClass().contains("buy-cost-label-major")) {
         label.getStyleClass().add("buy-cost-label-major");

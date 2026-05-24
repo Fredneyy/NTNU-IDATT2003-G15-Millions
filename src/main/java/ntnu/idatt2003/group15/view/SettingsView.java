@@ -16,7 +16,6 @@ import java.util.Objects;
 
 public class SettingsView {
 
-    // Root container
     private final StackPane view = new StackPane();
     private final VBox card = new VBox();
 
