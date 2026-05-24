@@ -255,8 +255,7 @@ public class Exchange {
    * @return a {@code List} containing the best to worst stocks
    */
   public List<Stock> getGainers(int limit) {
-    List<Stock> list = new ArrayList<>();
-    stockMap.forEach((_, stock) -> list.add(stock));
+    List<Stock> list = new ArrayList<>(stockMap.values());
 
     return list.stream()
         .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative).reversed())
@@ -271,8 +270,7 @@ public class Exchange {
    * @return a {@code List} containing the worst to best stocks
    */
   public List<Stock> getLosers(int limit) {
-    List<Stock> list = new ArrayList<>();
-    stockMap.forEach((_, stock) -> list.add(stock));
+    List<Stock> list = new ArrayList<>(stockMap.values());
 
     return list.stream()
         .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative))

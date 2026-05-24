@@ -108,7 +108,7 @@ public class NewsFeedView {
             Label symbolBadge = new Label(ev.sector() == null ? "" : ev.sector().getLabel());
             symbolBadge.getStyleClass().addAll("news-badge", "news-badge--symbol");
 
-            BigDecimal pct = rawPct.subtract(BigDecimal.ONE).multiply(BigDecimal.valueOf(100)).setScale(1, RoundingMode.HALF_UP);
+            BigDecimal pct = rawPct.multiply(BigDecimal.valueOf(100)).setScale(1, RoundingMode.HALF_UP);
             String pctText = (pct.signum() >= 0 ? "+" : "") + pct.toPlainString() + "%";
             Label pctLabel = new Label(pctText);
             pctLabel.getStyleClass().addAll("news-row-percent",
