@@ -74,12 +74,6 @@ class PlayerControllerTest {
   }
 
   @Test
-  void statusPropertyIsNotNull() {
-    assertNotNull(controller.statusProperty().getValue());
-    assertEquals(controller.statusProperty().getValue(), controller.getStatus());
-  }
-
-  @Test
   void moneyPropertyTracksMoneyChanges() {
     assertEquals(0, BigDecimal.valueOf(1000).compareTo(controller.moneyProperty().getValue()));
     player.addMoney(BigDecimal.valueOf(200));

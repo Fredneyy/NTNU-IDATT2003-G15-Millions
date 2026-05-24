@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
 import javafx.collections.ListChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -29,6 +30,7 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.*;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.model.news.NewsItem;
+import ntnu.idatt2003.group15.model.player.Player;
 import ntnu.idatt2003.group15.model.player.PlayerStatus;
 import ntnu.idatt2003.group15.model.stocks.Share;
 import ntnu.idatt2003.group15.model.stocks.Stock;
@@ -89,13 +91,8 @@ public class GameView {
     buyStockDialog = new BuyStockDialog(
         playerController.getCashProperty(),
         (Stock stock, BigDecimal quantity) -> {
-          // Capture the price before the controller call — if the model ever
-          // updates the price as a side effect, the receipt still reflects
-          // what the user actually paid.
           BigDecimal price = stock.getSalesPrice();
           exchangeController.buy(stock, quantity, playerController.getPlayer());
-          // Buy succeeded. No fees on the buy side in this game, so the net
-          // cash change is just -gross.
           BigDecimal gross = price.multiply(quantity);
           receiptDialog.show(view, ReceiptDialog.Type.BUY, stock, quantity, price,
               BigDecimal.ZERO, gross.negate(), Instant.now());
@@ -105,8 +102,6 @@ public class GameView {
     PortfolioController portfolioController =
         new PortfolioController(playerController.getPortfolio());
 
-    // Share one SaleCalculator instance between the sell dialog and the
-    // receipt computation so they agree on rounding and intermediate values.
     SaleCalculator saleCalculator = new SaleCalculator();
 
     sellStockDialog = new SellStockDialog(
@@ -116,9 +111,6 @@ public class GameView {
         exchangeController.getCommission(),
         exchangeController.getTax(),
         (Share share, BigDecimal amount) -> {
-          // Compute receipt values before mutating the portfolio — the sell
-          // call reduces the share's quantity, so capture sale price and the
-          // sold quantity up front.
           BigDecimal salePrice = share.stock().getSalesPrice();
           BigDecimal soldQty = amount.min(share.quantity());
           Share soldLot = new Share(share.stock(), soldQty, share.pricePerShare());
@@ -148,8 +140,6 @@ public class GameView {
     TradesView tradesView = new TradesView();
     tradesContent = new VBox(tradesView.getView());
     bindTradesView(tradesView);
-    // Clicking "Open receipt" on any trade row replays the receipt dialog
-    // for that historical transaction with the data captured at commit time.
     tradesView.setOnOpenReceipt(record -> {
       ReceiptDialog.Type type = record.type() == TradesView.TradeType.BUY
           ? ReceiptDialog.Type.BUY
@@ -233,7 +223,6 @@ public class GameView {
       }
     });
 
-    // Reset the News badge whenever the user actually opens the News tab.
     tabContainer.selectedTabProperty().addListener((_, _, sel) -> {
       if (sel != null && "news".equals(sel.getId())) clearNewsBadge();
     });
@@ -344,12 +333,6 @@ public class GameView {
     a.showAndWait();
   }
 
-  /**
-   * Wire the {@link TradesView} to the player's transaction archive so every
-   * committed buy/sell appears in the ledger newest-first. Each transaction
-   * carries its own {@code committedAt} timestamp (persisted to save files), so
-   * "X ago" labels are stable across rebuilds and survive load.
-   */
   private void bindTradesView(TradesView tradesView) {
     var archive = playerController.getTransactionArchive().getTransactionsProperty();
 
@@ -372,16 +355,12 @@ public class GameView {
     TradesView.TradeType type = sell ? TradesView.TradeType.SELL : TradesView.TradeType.BUY;
     Stock stock = tx.getShare().stock();
     BigDecimal qty = tx.getShare().quantity();
-    // For sells, prefer the actual sale price captured at commit time; the lot's
-    // pricePerShare is the original *buy* price.
     BigDecimal price = tx.getShare().pricePerShare();
     BigDecimal fees = BigDecimal.ZERO;
     if (sell) {
       Sale sale = (Sale) tx;
       BigDecimal sp = sale.getSalePricePerShare();
       if (sp != null) price = sp;
-      // Reconstruct fees from the values the Sale persisted at commit time
-      // (sale price + net proceeds). gross - proceeds = commission + tax.
       BigDecimal proceeds = sale.getProceeds();
       if (sp != null && proceeds != null) {
         fees = sp.multiply(qty).subtract(proceeds).max(BigDecimal.ZERO);
@@ -426,7 +405,7 @@ public class GameView {
     ));
     statisticsOverview.addCard(new StatisticsOverview.StatCard(
         "Player", "Status", FontAwesome.STAR,
-        playerStatus(playerController.statusProperty())
+        playerStatus(exchangeController, playerController)
     ));
   }
 
@@ -438,8 +417,8 @@ public class GameView {
     return Bindings.createStringBinding(() -> formatSignedMoney(source.getValue()), source);
   }
 
-  private static ObservableValue<String> playerStatus(ObservableValue<PlayerStatus> playerStatus) {
-    return Bindings.createStringBinding(() -> formatPlayerStatus(playerStatus.getValue()), playerStatus);
+  private static ObservableValue<String> playerStatus(ExchangeController exchangeController, PlayerController playerController) {
+    return Bindings.createStringBinding(() -> formatPlayerStatus(playerController.getStatus(exchangeController.getWeek().get())), exchangeController.getWeek());
   }
 
   private static String formatPlayerStatus(PlayerStatus value) {
