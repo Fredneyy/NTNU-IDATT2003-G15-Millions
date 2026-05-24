@@ -213,14 +213,12 @@ public class TradesView {
         TradeRow(TradeRecord t, boolean withDivider, Consumer<TradeRecord> onOpenReceipt) {
             boolean buy = t.type() == TradeType.BUY;
 
-            // Left icon tile
             FontIcon arrow = new FontIcon(buy ? FontAwesome.LINE_CHART : FontAwesome.AREA_CHART);
             arrow.getStyleClass().add("trade-row-icon");
             StackPane iconBox = new StackPane(arrow);
             iconBox.getStyleClass().addAll("trade-row-icon-box",
                     buy ? "trade-row-icon-box--buy" : "trade-row-icon-box--sell");
 
-            // Type + symbol badges
             Label typeBadge = new Label(buy ? "BUY" : "SELL");
             typeBadge.getStyleClass().addAll("trade-badge", "trade-badge--type",
                     buy ? "trade-badge--buy" : "trade-badge--sell");
@@ -353,7 +351,6 @@ public class TradesView {
                     || s.symbol().toLowerCase().contains(q));
         }
 
-        // Show/hide rows to match the current predicate
         for (TradeRecord record : trades) {
             TradeRow row = tradeRows.get(record);
             if (row == null) continue;

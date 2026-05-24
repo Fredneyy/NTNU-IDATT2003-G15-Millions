@@ -48,10 +48,7 @@ public abstract class TransactionDialog extends BaseDialog {
     super();
     this.cashProperty = Objects.requireNonNull(cashProperty, "cashProperty cannot be null");
 
-    // Match StockChartDialog's width (35% of the screen) so the Max button
-    // and the summary values have room to render fully — the old /5.0 (20%)
-    // truncated the Max button label to "..." on most resolutions. Floor at
-    // 420px so the dialog stays usable on small screens too.
+    // 35% of screen with a 420px floor, matches StockChartDialog
     double screenW = Screen.getPrimary().getVisualBounds().getWidth();
     double screenH = Screen.getPrimary().getVisualBounds().getHeight();
     dialog.setMaxWidth(Math.max(420, screenW * 0.35));

@@ -35,12 +35,7 @@ public final class EmptyState {
    *         {@code TableView.setPlaceholder(...)} call
    */
   public static VBox create(Ikon icon, String title, String hint) {
-    // Use programmatic setters everywhere (setIconColor, setTextFill, setFont,
-    // setOpacity) rather than inline CSS via setStyle(). On some ikonli
-    // versions calling setStyle() on a FontIcon re-parses the inline string
-    // and properties not present in it — including -fx-icon-code — get reset
-    // to default, which is why every tab's icon was rendering the same
-    // fallback glyph.
+    // programmatic setters only, setStyle() on FontIcon clobbers -fx-icon-code on some ikonli versions
     FontIcon iconNode = new FontIcon(icon);
     iconNode.getStyleClass().add("empty-state-icon");
     iconNode.setIconSize(48);
@@ -63,10 +58,7 @@ public final class EmptyState {
     VBox box = new VBox(12, iconNode, titleLabel, hintLabel);
     box.setAlignment(Pos.CENTER);
     box.getStyleClass().add("empty-state");
-    // Generous vertical padding so the panel has visible breathing room
-    // regardless of whether the host gives it the full body height (as
-    // TableView.setPlaceholder does) or just enough to fit (as the StackPane
-    // overlay does when the scroller is hidden).
+    // generous vertical padding so the panel breathes in both placeholder and overlay slots
     box.setPadding(new Insets(48, 24, 48, 24));
     box.setMaxWidth(Region.USE_PREF_SIZE);
     return box;

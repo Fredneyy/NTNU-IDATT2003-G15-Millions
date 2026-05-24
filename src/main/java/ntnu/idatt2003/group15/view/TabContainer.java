@@ -102,13 +102,11 @@ public class TabContainer {
         Tab target = findTab(id);
         if (target == null) return;
 
-        // Update visual state on buttons
         for (Map.Entry<String, HBox> entry : tabButtons.entrySet()) {
             boolean active = entry.getKey().equals(id);
             entry.getValue().pseudoClassStateChanged(SELECTED, active);
         }
 
-        // Swap content
         contentArea.getChildren().setAll(target.getContent());
         selectedTab.set(target);
     }
@@ -138,8 +136,6 @@ public class TabContainer {
         return selectedTab.getReadOnlyProperty();
     }
 
-    // ---- internals ----
-
     private Tab findTab(String id) {
         for (Tab t : tabs) if (t.getId().equals(id)) return t;
         return null;
@@ -150,7 +146,6 @@ public class TabContainer {
         button.getStyleClass().add("tab-button");
         button.setFocusTraversable(true);
 
-        // Icon (optional)
         if (tab.getIcon() != null) {
             FontIcon icon = new FontIcon(tab.getIcon());
             icon.getStyleClass().add("tab-icon");
@@ -161,7 +156,7 @@ public class TabContainer {
         label.getStyleClass().add("tab-label");
         button.getChildren().add(label);
 
-        // Badge (optional, always created so we can toggle visibility later)
+        // always created so visibility can toggle at runtime
         Label badge = new Label(tab.getBadgeText() == null ? "" : tab.getBadgeText());
         badge.getStyleClass().add("tab-badge");
         boolean hasBadge = tab.getBadgeText() != null && !tab.getBadgeText().isBlank();
@@ -170,7 +165,6 @@ public class TabContainer {
         button.getChildren().add(badge);
         badgeLabels.put(tab.getId(), badge);
 
-        // Let the button stretch evenly across the tab bar
         HBox.setHgrow(button, Priority.ALWAYS);
         button.setMaxWidth(Double.MAX_VALUE);
 

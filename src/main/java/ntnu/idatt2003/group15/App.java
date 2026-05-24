@@ -70,7 +70,6 @@ public class App extends Application {
     }
 
     private void setUpDependencies() {
-        // infrastructure
         exceptionDialog = new ExceptionDialog();
         errorHandler = this::exceptionPopUp;
         taskUtil = new TaskUtil();

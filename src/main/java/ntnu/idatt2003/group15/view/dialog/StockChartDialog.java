@@ -208,8 +208,7 @@ public class StockChartDialog extends BaseDialog {
     grid.setVgap(12);
     grid.setMaxWidth(Double.MAX_VALUE);
 
-    // Two equally-sized columns so each card gets ~half the dialog width
-    // instead of the ~quarter it had in the old 4x1 layout.
+    // 2x2 grid so each stat card gets ~half the dialog width
     for (int i = 0; i < 2; i++) {
       ColumnConstraints col = new ColumnConstraints();
       col.setPercentWidth(50);
@@ -289,8 +288,7 @@ public class StockChartDialog extends BaseDialog {
     xAxis.getStyleClass().add("chart-axis");
 
     yAxis.setAutoRanging(false);
-    // Format as whole-dollar labels (no decimals) — keeps the axis readable
-    // even on stocks whose price ticks in fractions.
+    // whole-dollar labels stay readable even when prices tick in fractions
     yAxis.setTickLabelFormatter(new StringConverter<>() {
       @Override
       public String toString(Number value) {
@@ -325,15 +323,12 @@ public class StockChartDialog extends BaseDialog {
     BigDecimal range = max.subtract(min);
     boolean flat = range.signum() == 0;
     BigDecimal padding = flat ? BigDecimal.ONE : range.multiply(new BigDecimal("0.05"));
-    // Snap tick + bounds to whole dollars so the integer-formatted labels stay
-    // distinct (a 0.05 tick on a $1 range would otherwise render four "$100"s).
+    // snap to whole dollars so the integer-formatted labels stay distinct
     BigDecimal tick = flat
         ? BigDecimal.ONE
         : range.divide(new BigDecimal("4"), 0, RoundingMode.CEILING).max(BigDecimal.ONE);
 
-    // Stocks in this game can't go negative, so clamp the floor at $0 — without
-    // this, a near-zero crash would render a few negative tick labels because
-    // of the padding subtraction below.
+    // clamp floor at $0 so the padding subtraction can't produce negative ticks
     BigDecimal lower = min.subtract(padding).setScale(0, RoundingMode.FLOOR).max(BigDecimal.ZERO);
     yAxis.setLowerBound(lower.doubleValue());
     yAxis.setUpperBound(max.add(padding).setScale(0, RoundingMode.CEILING).doubleValue());

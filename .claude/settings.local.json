@@ -5,23 +5,12 @@
       "mcp__ide__getDiagnostics",
       "Bash(./gradlew compileJava -q)",
       "Bash(mvn -q -DskipTests compile)",
-      "Bash(mvn -q -Dtest='PlayerTest,PortfolioTest' test)",
-      "Bash(mvn -Dtest='PlayerTest,PortfolioTest' test)",
       "Bash(mvn -DskipTests compile)",
-      "Bash(mvn -Dtest='PlayerTest,PortfolioTest,StockTest' test)",
       "Bash(mvn test *)",
       "Bash(mvn clean *)",
-      "Bash(mvn -Dtest='!StockTest' -DfailIfNoTests=false test)",
-      "Bash(powershell -Command \"javac -version\")",
       "Bash(mvn -q -o compile)",
       "Bash(mvn test-compile *)",
-      "Bash(find ~/.m2/repository/org/kordamp/ikonli/ikonli-fontawesome-pack -name \"*.jar\" | head -3)",
-      "Bash(unzip -p /Users/fredr/.m2/repository/org/kordamp/ikonli/ikonli-fontawesome-pack/12.4.0/ikonli-fontawesome-pack-12.4.0.jar org/kordamp/ikonli/fontawesome/FontAwesome.class)",
       "Bash(mvn -q test)",
-      "Bash(python3)",
-      "Bash(awk '/^\\\\.close-button \\\\{/{flag=1; ln=NR} flag {print NR\": \"$0; if \\(/^\\\\}/\\) exit}' /Users/fredr/Programmering/NTNU-IDATT2003-G15-Millions/src/main/resources/style/DialogStyle.css)",
-      "Bash(mvn -f /Users/fredr/Programmering/NTNU-IDATT2003-G15-Millions/pom.xml test)",
-      "Bash(mvn -f /Users/fredr/Programmering/NTNU-IDATT2003-G15-Millions/pom.xml -q compile)"
     ]
   }
 }

@@ -105,7 +105,7 @@ public final class SaveGameUtil {
       j.add(field("salePricePerShare", number(s.getSalePricePerShare())));
       j.add(field("proceeds", number(s.getProceeds())));
     } else if (!(tx instanceof Purchase)) {
-      // Forward-compat: unknown transaction subtype — note it but don't fail.
+      // forward-compat: record unknown subtypes instead of failing
       j.add(field("type", quote(tx.getClass().getSimpleName())));
     }
     return j.toString();
@@ -155,8 +155,6 @@ public final class SaveGameUtil {
     j.add(field("history", hist.toString()));
     return j.toString();
   }
-
-  // ---- tiny JSON helpers ----
 
   private static String field(String key, String value) {
     return quote(key) + ": " + value;
