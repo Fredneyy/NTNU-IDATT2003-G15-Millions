@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.HashMap;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -80,9 +81,31 @@ public class NewsFeedView {
         ScrollPane scroller = new ScrollPane(rowsContainer);
         scroller.setFitToWidth(true);
         scroller.getStyleClass().add("news-scroll");
-        VBox.setVgrow(scroller, Priority.ALWAYS);
-        VBox body = new VBox(scroller);
+
+        VBox emptyState = EmptyState.create(
+                FontAwesome.NEWSPAPER_O,
+                "No market news yet",
+                "Headlines will appear here as the market reacts.\n"
+                        + "Advance the week to see what happens.");
+
+        // Stack the scroller and the empty-state panel; toggle which is shown
+        // off the events list — when the first item arrives the empty panel
+        // hides itself and gives up its layout slot via managedProperty.
+        StackPane content = new StackPane(scroller, emptyState);
+        VBox.setVgrow(content, Priority.ALWAYS);
+
+        BooleanBinding isEmpty = Bindings.isEmpty(events);
+        emptyState.visibleProperty().bind(isEmpty);
+        emptyState.managedProperty().bind(isEmpty);
+        scroller.visibleProperty().bind(isEmpty.not());
+        scroller.managedProperty().bind(isEmpty.not());
+
+        VBox body = new VBox(content);
         body.getStyleClass().add("news-body");
+        // Without Vgrow on body, the StackPane shrinks to the empty-state's
+        // preferred size when the scroller is hidden — leaving the panel
+        // glued to the top of the card with no vertical breathing room.
+        VBox.setVgrow(body, Priority.ALWAYS);
         return body;
     }
 
