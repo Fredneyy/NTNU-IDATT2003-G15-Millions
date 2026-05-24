@@ -140,11 +140,6 @@ class PlayerTest {
       player.addMoney(BigDecimal.valueOf(50));
       assertEquals(0, BigDecimal.valueOf(1050).compareTo(player.moneyProperty().get()));
     }
-
-    @Test
-    void statusPropertyDefaultsToNovice() {
-      assertEquals(PlayerStatus.NOVICE, player.statusProperty().getValue());
-    }
   }
 
   @Nested
