@@ -48,8 +48,14 @@ public abstract class TransactionDialog extends BaseDialog {
     super();
     this.cashProperty = Objects.requireNonNull(cashProperty, "cashProperty cannot be null");
 
-    dialog.setMaxHeight((int) Screen.getPrimary().getVisualBounds().getHeight() / 2.5);
-    dialog.setMaxWidth((int) Screen.getPrimary().getVisualBounds().getWidth() / 5.0);
+    // Match StockChartDialog's width (35% of the screen) so the Max button
+    // and the summary values have room to render fully — the old /5.0 (20%)
+    // truncated the Max button label to "..." on most resolutions. Floor at
+    // 420px so the dialog stays usable on small screens too.
+    double screenW = Screen.getPrimary().getVisualBounds().getWidth();
+    double screenH = Screen.getPrimary().getVisualBounds().getHeight();
+    dialog.setMaxWidth(Math.max(420, screenW * 0.35));
+    dialog.setMaxHeight(screenH / 2.5);
     dialog.getStyleClass().setAll("stock-dialog-card", "buy-stock-dialog");
 
     quantityField.textProperty().addListener((_, _, nv) -> qtyValue.set(parseQuantity(nv)));

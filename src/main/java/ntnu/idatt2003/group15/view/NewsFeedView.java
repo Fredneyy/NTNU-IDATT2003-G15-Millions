@@ -118,7 +118,7 @@ public class NewsFeedView {
 
         NewsRow(NewsItem ev, boolean withDivider) {
             BigDecimal rawPct = ev.changePercent() == null ? BigDecimal.ZERO : ev.changePercent();
-            boolean bullish = rawPct.compareTo(BigDecimal.ONE) >= 0;
+            boolean bullish = rawPct.compareTo(BigDecimal.ZERO) > 0;
 
             // Trend-arrow icon tile (green up / red down)
             FontIcon arrow = new FontIcon(bullish ? FontAwesome.LINE_CHART : FontAwesome.AREA_CHART);
