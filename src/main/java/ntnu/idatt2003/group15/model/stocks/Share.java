@@ -92,10 +92,14 @@ public class Share {
     Objects.requireNonNull(pricePerShare, "Price per share cannot be null");
     Objects.requireNonNull(quantity, "Quantity cannot be null");
     if (!InputValidator.isBigDecimalValuePositive(pricePerShare)) {
-      throw new IllegalArgumentException("PricePerShare must be positive");
+      throw new IllegalArgumentException(
+          "The price per share for " + stock.getSymbol()
+              + " has to be greater than zero. You can't buy at a zero or negative price.");
     }
     if (!InputValidator.isBigDecimalValuePositive(quantity)) {
-      throw new IllegalArgumentException("Quantity must be positive");
+      throw new IllegalArgumentException(
+          "The number of shares to buy for " + stock.getSymbol()
+              + " has to be greater than zero. Please enter a positive amount.");
     }
     BigDecimal newPricePerShare = this.quantity.multiply(this.pricePerShare)
         .add(quantity.multiply(pricePerShare))
@@ -107,7 +111,9 @@ public class Share {
   private void setQuantity(BigDecimal quantity) {
     Objects.requireNonNull(quantity, "Quantity cannot be null");
     if (!InputValidator.isBigDecimalValuePositive(quantity)) {
-      throw new IllegalArgumentException("Quantity must be positive");
+      throw new IllegalArgumentException(
+          "The share quantity for " + stock.getSymbol()
+              + " has to be greater than zero. Please enter a positive number of shares.");
     }
     this.quantity = quantity;
     this.quantityProperty.set(quantity);
@@ -116,7 +122,8 @@ public class Share {
   private void setPricePerShare(BigDecimal pricePerShare) {
     Objects.requireNonNull(pricePerShare, "Price per share cannot be null");
     if (!InputValidator.isBigDecimalValuePositive(pricePerShare)) {
-      throw new IllegalArgumentException("PricePerShare must be positive");
+      throw new IllegalArgumentException(
+          "The price per share for " + stock.getSymbol() + " has to be greater than zero.");
     }
     this.pricePerShare = pricePerShare;
   }
@@ -124,10 +131,14 @@ public class Share {
   private void validateQuantity(BigDecimal quantity) {
     Objects.requireNonNull(quantity, "Quantity cannot be null");
     if (!InputValidator.isBigDecimalValuePositive(quantity)) {
-      throw new IllegalArgumentException("Quantity must be positive");
+      throw new IllegalArgumentException(
+          "The number of shares to sell for " + stock.getSymbol()
+              + " has to be greater than zero. Please enter a positive amount.");
     }
     if (quantity.compareTo(this.quantity) > 0) {
-      throw new IllegalArgumentException("Cannot sell more shares than owned");
+      throw new IllegalArgumentException(
+          "You're trying to sell " + quantity.toPlainString() + " shares of " + stock.getSymbol()
+              + ", but you only own " + this.quantity.toPlainString() + ".");
     }
   }
 }

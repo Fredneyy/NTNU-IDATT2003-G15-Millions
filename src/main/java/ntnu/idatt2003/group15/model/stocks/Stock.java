@@ -41,14 +41,17 @@ public class Stock {
     this.drift = drift;
     this.volatility = volatility;
     if (symbol.isBlank()) {
-      throw new BlankArgumentException("Symbol cannot be blank");
+      throw new BlankArgumentException(
+          "The stock symbol can't be empty. Please give it a ticker symbol, like \"AAPL\".");
     }
     Objects.requireNonNull(company, "Company cannot be null");
     if (company.isBlank()) {
-      throw new BlankArgumentException("Company cannot be blank");
+      throw new BlankArgumentException(
+          "The company name can't be empty. Please enter the name of the company that issues the stock.");
     }
     if (!InputValidator.isBigDecimalValuePositive(salesPrice)) {
-      throw new IllegalArgumentException("SalesPrice must be positive");
+      throw new IllegalArgumentException(
+          "The sales price for " + symbol + " has to be greater than zero. A stock can't have a price of zero or below.");
     }
     this.symbol = new SimpleStringProperty(symbol);
     this.company = new SimpleStringProperty(company);
@@ -148,7 +151,8 @@ public class Stock {
     if (InputValidator.isBigDecimalValuePositive(price)) {
       prices.add(price);
     } else {
-      throw new IllegalArgumentException("Price must be positive");
+      throw new IllegalArgumentException(
+          "The new price for " + getSymbol() + " has to be greater than zero. Stock prices can't drop to zero or below.");
     }
   }
 

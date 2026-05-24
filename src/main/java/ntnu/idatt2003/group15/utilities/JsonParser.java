@@ -31,14 +31,16 @@ public final class JsonParser {
     Object value = p.readValue();
     p.skipWs();
     if (p.pos != src.length()) {
-      throw new IllegalArgumentException("Trailing content at " + p.pos);
+      throw new IllegalArgumentException(
+          "The JSON file has extra content after the end of the document (at position " + p.pos
+              + "). It may be corrupted or contain more than one top-level value.");
     }
     return value;
   }
 
   private Object readValue() {
     skipWs();
-    if (pos >= src.length()) throw err("Unexpected end of input");
+    if (pos >= src.length()) throw err("The JSON file ended before a value was found. It looks incomplete or truncated");
     char c = src.charAt(pos);
     return switch (c) {
       case '{' -> readObject();
@@ -66,7 +68,7 @@ public final class JsonParser {
       char c = src.charAt(pos++);
       if (c == ',') continue;
       if (c == '}') return out;
-      throw err("Expected ',' or '}' got '" + c + "'");
+      throw err("The JSON object is malformed. Expected a ',' or '}' here, but found '" + c + "'");
     }
   }
 
@@ -81,7 +83,7 @@ public final class JsonParser {
       char c = src.charAt(pos++);
       if (c == ',') continue;
       if (c == ']') return out;
-      throw err("Expected ',' or ']' got '" + c + "'");
+      throw err("The JSON array is malformed. Expected a ',' or ']' here, but found '" + c + "'");
     }
   }
 
@@ -92,7 +94,7 @@ public final class JsonParser {
       char c = src.charAt(pos++);
       if (c == '"') return sb.toString();
       if (c == '\\') {
-        if (pos >= src.length()) throw err("Bad escape");
+        if (pos >= src.length()) throw err("The JSON string ends with a stray backslash. The escape sequence is incomplete");
         char esc = src.charAt(pos++);
         switch (esc) {
           case '"', '\\', '/' -> sb.append(esc);
@@ -102,35 +104,35 @@ public final class JsonParser {
           case 'r' -> sb.append('\r');
           case 't' -> sb.append('\t');
           case 'u' -> {
-            if (pos + 4 > src.length()) throw err("Bad unicode escape");
+            if (pos + 4 > src.length()) throw err("The JSON has an incomplete unicode escape. \\u must be followed by exactly 4 hex digits");
             sb.append((char) Integer.parseInt(src.substring(pos, pos + 4), 16));
             pos += 4;
           }
-          default -> throw err("Bad escape '\\" + esc + "'");
+          default -> throw err("The JSON string contains an unknown escape sequence '\\" + esc + "'");
         }
       } else {
         sb.append(c);
       }
     }
-    throw err("Unterminated string");
+    throw err("A JSON string is missing its closing quote. The file may be truncated");
   }
 
   private Boolean readBoolean() {
     if (src.startsWith("true", pos))  { pos += 4; return Boolean.TRUE; }
     if (src.startsWith("false", pos)) { pos += 5; return Boolean.FALSE; }
-    throw err("Expected boolean");
+    throw err("The JSON is malformed. Expected 'true' or 'false' here");
   }
 
   private Object readNull() {
     if (src.startsWith("null", pos)) { pos += 4; return null; }
-    throw err("Expected null");
+    throw err("The JSON is malformed. Expected 'null' here");
   }
 
   private BigDecimal readNumber() {
     int start = pos;
     if (peek() == '-') pos++;
     while (pos < src.length() && "0123456789.eE+-".indexOf(src.charAt(pos)) >= 0) pos++;
-    if (start == pos) throw err("Expected number");
+    if (start == pos) throw err("The JSON is malformed. Expected a number here");
     return new BigDecimal(src.substring(start, pos));
   }
 
@@ -140,7 +142,7 @@ public final class JsonParser {
 
   private void expect(char c) {
     if (pos >= src.length() || src.charAt(pos) != c) {
-      throw err("Expected '" + c + "'");
+      throw err("The JSON is malformed. Expected '" + c + "' here");
     }
     pos++;
   }

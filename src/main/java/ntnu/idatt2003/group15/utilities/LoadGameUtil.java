@@ -26,7 +26,9 @@ public final class LoadGameUtil {
     String text = Files.readString(file.toPath(), StandardCharsets.UTF_8);
     Object parsed = JsonParser.parse(text);
     if (!(parsed instanceof Map<?, ?> rootMap)) {
-      throw new IOException("Save file is not a JSON object");
+      throw new IOException(
+          "The save file '" + file.getName()
+              + "' is not a valid game save. It looks like the file has been edited or corrupted.");
     }
     @SuppressWarnings("unchecked")
     Map<String, Object> root = (Map<String, Object>) rootMap;

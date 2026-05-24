@@ -43,7 +43,9 @@ public class ExchangeController {
         Objects.requireNonNull(share, "Share cannot be null");
         Objects.requireNonNull(amount, "Amount cannot be null");
         if (!player.getPortfolio().contains(share)) {
-            throw new IllegalArgumentException("Player does not own this share");
+            throw new IllegalArgumentException(
+                "You don't own any shares of " + share.stock().getSymbol()
+                    + ", so there's nothing to sell.");
         }
         exchange.sell(share, amount, player);
     }

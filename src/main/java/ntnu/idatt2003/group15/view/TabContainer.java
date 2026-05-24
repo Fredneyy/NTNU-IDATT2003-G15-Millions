@@ -84,7 +84,9 @@ public class TabContainer {
     public void addTab(Tab tab) {
         Objects.requireNonNull(tab);
         if (tabButtons.containsKey(tab.getId())) {
-            throw new IllegalArgumentException("Tab id already exists: " + tab.getId());
+            throw new IllegalArgumentException(
+                "A tab with id '" + tab.getId()
+                    + "' has already been added to this container. Each tab needs a unique id.");
         }
 
         HBox button = buildTabButton(tab);

@@ -28,7 +28,9 @@ public class CsvParser {
               .toList())
           .toList();
     } catch (Exception e) {
-      throw new FileReaderException("Error reading file " + filePath);
+      throw new FileReaderException(
+          "Couldn't read the CSV file '" + filePath
+              + "'. Make sure the file exists and that it's a valid CSV.");
     }
   }
 }

@@ -46,7 +46,8 @@ public class Exchange {
       throws BlankArgumentException, NullPointerException {
     Objects.requireNonNull(name, "name cannot be null");
     if (name.isBlank()) {
-      throw new BlankArgumentException("Name cannot be blank");
+      throw new BlankArgumentException(
+          "The exchange name can't be empty. Please give the stock exchange a name.");
     }
     Objects.requireNonNull(stocks, "stocks cannot be null");
     this.name = name;
