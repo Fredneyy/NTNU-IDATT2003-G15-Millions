@@ -23,7 +23,7 @@ public class NewsController {
         newsArchive.advance();
     }
 
-    public void publish() {
-        newsArchive.publishNews();
+    public void publish(double maxEventChance) {
+        newsArchive.publishNews(maxEventChance);
     }
 }

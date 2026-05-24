@@ -38,14 +38,14 @@ class NewsArchiveTest {
 
     @Test
     void publishNewsMovesAnItemIntoActive() {
-      archive.publishNews();
+      archive.publishNews(1);
       assertEquals(1, archive.getActiveNewsItems().size());
     }
 
     @Test
     void publishNewsDoesNotRepublishAlreadyActiveItems() {
-      archive.publishNews();
-      archive.publishNews();
+      archive.publishNews(1);
+      archive.publishNews(1);
       ObservableList<NewsItem> active = archive.getActiveNewsItems();
       assertEquals(2, active.size());
       assertEquals(2, active.stream().distinct().count());
@@ -53,9 +53,9 @@ class NewsArchiveTest {
 
     @Test
     void publishNewsBeyondLoadedPoolIsNoOp() {
-      archive.publishNews();
-      archive.publishNews();
-      archive.publishNews();
+      archive.publishNews(1);
+      archive.publishNews(1);
+      archive.publishNews(1);
       assertEquals(2, archive.getActiveNewsItems().size());
     }
 
@@ -63,7 +63,7 @@ class NewsArchiveTest {
     void publishNewsClearsAppliedChangeFlag() {
       itemA.setAppliedChange(true);
       itemB.setAppliedChange(true);
-      archive.publishNews();
+      archive.publishNews(1);
       NewsItem published = archive.getActiveNewsItems().getFirst();
       assertFalse(published.appliedChange());
     }
@@ -74,7 +74,7 @@ class NewsArchiveTest {
       // order doesn't matter and no item gets evicted mid-test.
       NewsItem longLived = newItem("long", 5);
       NewsArchive only = new NewsArchive(List.of(longLived));
-      only.publishNews();
+      only.publishNews(1);
 
       only.advance();
 
@@ -85,7 +85,7 @@ class NewsArchiveTest {
     void advanceRemovesExpiredItems() {
       NewsItem shortItem = newItem("short", 1);
       NewsArchive only = new NewsArchive(List.of(shortItem));
-      only.publishNews();
+      only.publishNews(1);
       assertEquals(1, only.getActiveNewsItems().size());
 
       only.advance();
@@ -96,7 +96,7 @@ class NewsArchiveTest {
     @Test
     void publishNewsOnEmptyArchiveAddsNothing() {
       NewsArchive empty = new NewsArchive(List.of());
-      empty.publishNews();
+      empty.publishNews(1);
       assertTrue(empty.getActiveNewsItems().isEmpty());
     }
   }

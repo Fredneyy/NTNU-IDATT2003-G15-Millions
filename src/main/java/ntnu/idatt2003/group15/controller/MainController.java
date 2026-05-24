@@ -50,7 +50,6 @@ public class MainController {
 
   public void showMainMenu() {
     stopPriceTicker();
-    stopNewsTicker();
     
     mainMenu.getView().setEffect(null);
     mainMenu.refreshContinueCard();
@@ -72,6 +71,7 @@ public class MainController {
       try {
         exchangeController.advanceWeek();
         newsController.advanceWeek();
+        newsController.publish(gameSettings.getMaxEventChance());
       } catch (RuntimeException ex) {
         errorHandler.accept(ex);
       }
@@ -95,44 +95,6 @@ public class MainController {
         errorHandler.accept(ex);
       }
     });
-    
-    gameSettings.newsIntervalSecondsProperty().addListener((_, _, _) -> {
-      if (newsTicker != null) {
-          startNewsTicker(newsController);
-      }
-    });
-    startNewsTicker(newsController);
-  }
-
-  private void startNewsTicker(NewsController newsController) {
-    stopNewsTicker();
-
-    double meanSeconds = gameSettings.getNewsIntervalSeconds();
-    double stdDev = meanSeconds / 3.0;
-    double minSeconds = 5.0;
-
-    double nextDuration = meanSeconds + random.nextGaussian() * stdDev;
-    if (nextDuration < minSeconds) {
-      nextDuration = minSeconds;
-    }
-
-    newsTicker = new PauseTransition(Duration.seconds(nextDuration));
-    newsTicker.setOnFinished(event -> {
-      try {
-        newsController.publish();
-      } catch (RuntimeException ex) {
-        errorHandler.accept(ex);
-      }
-      startNewsTicker(newsController);
-    });
-    newsTicker.play();
-  }
-
-  private void stopNewsTicker() {
-    if (newsTicker != null) {
-      newsTicker.stop();
-      newsTicker = null;
-    }
   }
 
   private void startPriceTicker(ExchangeController exchangeController) {
@@ -141,6 +103,7 @@ public class MainController {
       try {
         exchangeController.advanceWeek();
         newsController.advanceWeek();
+        newsController.publish(gameSettings.getMaxEventChance());
       } catch (RuntimeException ex) {
         errorHandler.accept(ex);
       }

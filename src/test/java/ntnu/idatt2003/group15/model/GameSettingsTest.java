@@ -26,7 +26,6 @@ class GameSettingsTest {
   @Test
   void derivedValuesMatchDefaultDifficulty() {
     assertEquals(1.0, settings.getVolatilityMultiplier(), DELTA);
-    assertEquals(60.0, settings.getNewsIntervalSeconds(), DELTA);
     assertEquals(0.10, settings.getMaxEventChance(), DELTA);
   }
 
@@ -36,7 +35,6 @@ class GameSettingsTest {
 
     // difficultyProperty itself stores the raw value; only the derived knobs clamp.
     assertEquals(GameSettings.MIN_DIFFICULTY, settings.getVolatilityMultiplier(), DELTA);
-    assertEquals(60.0 / GameSettings.MIN_DIFFICULTY, settings.getNewsIntervalSeconds(), DELTA);
     assertEquals(0.06 + 0.04 * GameSettings.MIN_DIFFICULTY, settings.getMaxEventChance(), DELTA);
   }
 
@@ -45,7 +43,6 @@ class GameSettingsTest {
     settings.setDifficulty(10.0);
 
     assertEquals(GameSettings.MAX_DIFFICULTY, settings.getVolatilityMultiplier(), DELTA);
-    assertEquals(60.0 / GameSettings.MAX_DIFFICULTY, settings.getNewsIntervalSeconds(), DELTA);
     assertEquals(0.06 + 0.04 * GameSettings.MAX_DIFFICULTY, settings.getMaxEventChance(), DELTA);
   }
 
@@ -54,7 +51,6 @@ class GameSettingsTest {
     settings.setDifficulty(2.0);
 
     assertEquals(2.0, settings.getVolatilityMultiplier(), DELTA);
-    assertEquals(30.0, settings.getNewsIntervalSeconds(), DELTA);
     assertEquals(0.14, settings.getMaxEventChance(), DELTA);
   }
 
@@ -75,7 +71,6 @@ class GameSettingsTest {
     settings.setDifficulty(1.5);
 
     assertEquals(1.5, settings.volatilityMultiplierProperty().get(), DELTA);
-    assertEquals(60.0 / 1.5, settings.newsIntervalSecondsProperty().get(), DELTA);
     assertEquals(0.06 + 0.04 * 1.5, settings.maxEventChanceProperty().get(), DELTA);
   }
 }

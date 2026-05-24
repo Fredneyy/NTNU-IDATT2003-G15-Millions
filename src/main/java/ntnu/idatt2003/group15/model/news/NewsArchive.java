@@ -47,7 +47,10 @@ public class NewsArchive {
   /**
    * Puts a random {@link NewsItem} in the active news list for observers to see.
    */
-  public void publishNews() {
+  public void publishNews(double maxEventChance) {
+    if (random.nextDouble() > maxEventChance) {
+      return;
+    }
     FilteredList<NewsItem> sortedNews =  new FilteredList<>(loadedNewsItems,
         item -> !activeNewsItems.contains(item));
     if (!sortedNews.isEmpty()) {

@@ -9,8 +9,7 @@ import javafx.beans.property.SimpleDoubleProperty;
  * Observable holder for tunable game-wide parameters driven by the settings panel.
  *
  * <p>A single {@code difficulty} multiplier (0.5x – 2.5x) is the user-facing knob.
- * All other knobs ({@link #volatilityMultiplierProperty()},
- * {@link #newsIntervalSecondsProperty()}, {@link #maxEventChanceProperty()})
+ * All other knobs ({@link #volatilityMultiplierProperty()}, {@link #maxEventChanceProperty()})
  * are derived from it and recomputed whenever difficulty changes, so views and
  * controllers can simply bind to whichever value they care about.
  */
@@ -31,11 +30,8 @@ public class GameSettings {
 
   private final DoubleProperty difficulty =
       new SimpleDoubleProperty(this, "difficulty", DEFAULT_DIFFICULTY);
-
   private final ReadOnlyDoubleWrapper volatilityMultiplier =
       new ReadOnlyDoubleWrapper(this, "volatilityMultiplier", DEFAULT_DIFFICULTY);
-  private final ReadOnlyDoubleWrapper newsIntervalSeconds =
-      new ReadOnlyDoubleWrapper(this, "newsIntervalSeconds", 60.0);
   private final ReadOnlyDoubleWrapper maxEventChance =
       new ReadOnlyDoubleWrapper(this, "maxEventChance", 0.10);
 
@@ -50,7 +46,6 @@ public class GameSettings {
   private void recompute(double d) {
     double clamped = clamp(d, MIN_DIFFICULTY, MAX_DIFFICULTY);
     volatilityMultiplier.set(clamped);
-    newsIntervalSeconds.set(60.0 / clamped);
     maxEventChance.set(0.06 + 0.04 * clamped);
   }
 
@@ -101,24 +96,6 @@ public class GameSettings {
    */
   public double getVolatilityMultiplier() {
     return volatilityMultiplier.get();
-  }
-
-  /**
-   * News interval seconds property read only double property.
-   *
-   * @return the read only double property
-   */
-  public ReadOnlyDoubleProperty newsIntervalSecondsProperty() {
-    return newsIntervalSeconds.getReadOnlyProperty();
-  }
-
-  /**
-   * Gets news interval seconds.
-   *
-   * @return the news interval seconds
-   */
-  public double getNewsIntervalSeconds() {
-    return newsIntervalSeconds.get();
   }
 
   /**

@@ -67,7 +67,6 @@ public final class SaveGameUtil {
     StringJoiner j = new StringJoiner(", ", "{", "}");
     j.add(field("difficulty", number(s.getDifficulty())));
     j.add(field("volatilityMultiplier", number(s.getVolatilityMultiplier())));
-    j.add(field("newsIntervalSeconds", number(s.getNewsIntervalSeconds())));
     j.add(field("maxEventChance", number(s.getMaxEventChance())));
     return j.toString();
   }
