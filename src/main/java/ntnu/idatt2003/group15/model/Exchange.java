@@ -210,16 +210,8 @@ public class Exchange {
             }
 
             if (!item.appliedChange() && item.changePercent() != null) {
-              double baseChange = (item.changePercent().doubleValue() - 1.0);
-              double stdDev = 0.02;
-              double randomFactor = rnd.nextGaussian() * stdDev;
-              double finalIndividualChange = baseChange + randomFactor;
-
-              if (baseChange > 0 && finalIndividualChange <= 0) {
-                finalIndividualChange = 0.005;
-              } else if (baseChange < 0 && finalIndividualChange >= 0) {
-                finalIndividualChange = -0.005;
-              }
+              double baseChange = item.changePercent().doubleValue();
+              double finalIndividualChange = rnd.nextGaussian(baseChange,0.1);
               
               stackedImpactJump += finalIndividualChange;
             }
