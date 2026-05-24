@@ -70,23 +70,6 @@ public class Share {
     return quantityProperty;
   }
 
-  private void setQuantity(BigDecimal quantity) {
-    Objects.requireNonNull(quantity, "Quantity cannot be null");
-    if (!InputValidator.isBigDecimalValuePositive(quantity)) {
-      throw new IllegalArgumentException("Quantity must be positive");
-    }
-    this.quantity = quantity;
-    this.quantityProperty.set(quantity);
-  }
-
-  private void setPricePerShare(BigDecimal pricePerShare) {
-    Objects.requireNonNull(pricePerShare, "Price per share cannot be null");
-    if (!InputValidator.isBigDecimalValuePositive(pricePerShare)) {
-      throw new IllegalArgumentException("PricePerShare must be positive");
-    }
-    this.pricePerShare = pricePerShare;
-  }
-
   /**
    * Sell shares, reducing the held quantity.
    *
@@ -119,6 +102,23 @@ public class Share {
         .divide(this.quantity.add(quantity), 10, RoundingMode.HALF_EVEN);
     setQuantity(this.quantity.add(quantity));
     setPricePerShare(newPricePerShare);
+  }
+
+  private void setQuantity(BigDecimal quantity) {
+    Objects.requireNonNull(quantity, "Quantity cannot be null");
+    if (!InputValidator.isBigDecimalValuePositive(quantity)) {
+      throw new IllegalArgumentException("Quantity must be positive");
+    }
+    this.quantity = quantity;
+    this.quantityProperty.set(quantity);
+  }
+
+  private void setPricePerShare(BigDecimal pricePerShare) {
+    Objects.requireNonNull(pricePerShare, "Price per share cannot be null");
+    if (!InputValidator.isBigDecimalValuePositive(pricePerShare)) {
+      throw new IllegalArgumentException("PricePerShare must be positive");
+    }
+    this.pricePerShare = pricePerShare;
   }
 
   private void validateQuantity(BigDecimal quantity) {
