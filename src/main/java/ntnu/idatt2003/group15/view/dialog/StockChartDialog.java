@@ -5,6 +5,7 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
@@ -15,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 import ntnu.idatt2003.group15.model.stocks.Stock;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.*;
@@ -195,26 +197,46 @@ public class StockChartDialog extends BaseDialog {
     return wrapper;
   }
 
-  private HBox buildStatCards() {
+  private GridPane buildStatCards() {
     currentPriceLabel.getStyleClass().addAll("stock-stat-value", "stock-price");
     lastRelativeChange.getStyleClass().addAll("stock-stat-value", "value-negative");
     lastAbsoluteChangeLabel.getStyleClass().addAll("stock-stat-value", "value-positive");
     dataPointsLabel.getStyleClass().addAll("stock-stat-value");
 
-    HBox row = new HBox(12,
-        statCard("Current Price",   currentPriceLabel),
-        statCard("Last Relative Change", lastRelativeChange),
-        statCard("Last Absolute Change", lastAbsoluteChangeLabel),
-        statCard("Data Points",     dataPointsLabel)
-    );
-    row.setFillHeight(true);
-    for (var child : row.getChildren()) {
-      HBox.setHgrow(child, Priority.ALWAYS);
+    GridPane grid = new GridPane();
+    grid.setHgap(12);
+    grid.setVgap(12);
+    grid.setMaxWidth(Double.MAX_VALUE);
+
+    // Two equally-sized columns so each card gets ~half the dialog width
+    // instead of the ~quarter it had in the old 4x1 layout.
+    for (int i = 0; i < 2; i++) {
+      ColumnConstraints col = new ColumnConstraints();
+      col.setPercentWidth(50);
+      col.setHgrow(Priority.ALWAYS);
+      col.setFillWidth(true);
+      col.setHalignment(HPos.LEFT);
+      grid.getColumnConstraints().add(col);
+    }
+
+    VBox priceCard      = statCard("Current Price",          currentPriceLabel);
+    VBox relChangeCard  = statCard("Last Relative Change",   lastRelativeChange);
+    VBox absChangeCard  = statCard("Last Absolute Change",   lastAbsoluteChangeLabel);
+    VBox dataPointsCard = statCard("Data Points",            dataPointsLabel);
+
+    grid.add(priceCard,      0, 0);
+    grid.add(relChangeCard,  1, 0);
+    grid.add(absChangeCard,  0, 1);
+    grid.add(dataPointsCard, 1, 1);
+
+    for (var child : grid.getChildren()) {
+      GridPane.setHgrow(child, Priority.ALWAYS);
+      GridPane.setFillWidth(child, true);
       if (child instanceof Region r) {
         r.setMaxWidth(Double.MAX_VALUE);
       }
     }
-    return row;
+    return grid;
   }
 
   private VBox statCard(String title, Label valueLabel) {
@@ -267,7 +289,19 @@ public class StockChartDialog extends BaseDialog {
     xAxis.getStyleClass().add("chart-axis");
 
     yAxis.setAutoRanging(false);
-    yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis, "$", null));
+    // Format as whole-dollar labels (no decimals) — keeps the axis readable
+    // even on stocks whose price ticks in fractions.
+    yAxis.setTickLabelFormatter(new StringConverter<>() {
+      @Override
+      public String toString(Number value) {
+        return String.format("$%,.0f", value.doubleValue());
+      }
+
+      @Override
+      public Number fromString(String s) {
+        return 0;
+      }
+    });
     yAxis.getStyleClass().add("chart-axis");
     yAxis.setMinorTickVisible(false);
 
@@ -291,10 +325,18 @@ public class StockChartDialog extends BaseDialog {
     BigDecimal range = max.subtract(min);
     boolean flat = range.signum() == 0;
     BigDecimal padding = flat ? BigDecimal.ONE : range.multiply(new BigDecimal("0.05"));
-    BigDecimal tick = flat ? BigDecimal.ONE : range.divide(new BigDecimal("4"), 2, RoundingMode.HALF_UP);
+    // Snap tick + bounds to whole dollars so the integer-formatted labels stay
+    // distinct (a 0.05 tick on a $1 range would otherwise render four "$100"s).
+    BigDecimal tick = flat
+        ? BigDecimal.ONE
+        : range.divide(new BigDecimal("4"), 0, RoundingMode.CEILING).max(BigDecimal.ONE);
 
-    yAxis.setLowerBound(min.subtract(padding).doubleValue());
-    yAxis.setUpperBound(max.add(padding).doubleValue());
+    // Stocks in this game can't go negative, so clamp the floor at $0 — without
+    // this, a near-zero crash would render a few negative tick labels because
+    // of the padding subtraction below.
+    BigDecimal lower = min.subtract(padding).setScale(0, RoundingMode.FLOOR).max(BigDecimal.ZERO);
+    yAxis.setLowerBound(lower.doubleValue());
+    yAxis.setUpperBound(max.add(padding).setScale(0, RoundingMode.CEILING).doubleValue());
     yAxis.setTickUnit(tick.doubleValue());
 
     List<XYChart.Data<Number, Number>> data = new ArrayList<>(historicalPrices.size());
