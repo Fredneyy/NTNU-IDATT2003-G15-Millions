@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.player.Portfolio;
@@ -139,6 +141,38 @@ class DialogSmokeTest {
       // constructor already exercised most of the wiring.
       assertNotNull(apple);
       assertNotNull(dialog);
+    });
+  }
+
+  @Test
+  void receiptDialogConstructorAndShowFlows() {
+    JavaFxTestSupport.runAndWait(() -> {
+      ReceiptDialog dialog = new ReceiptDialog();
+      assertNotNull(dialog);
+      // close before any show() is safe — exercises the null-root guard.
+      assertDoesNotThrow(dialog::close);
+
+      Stock apple = new Stock("AAPL", "Apple", BigDecimal.valueOf(100), 0.0, 0.0,
+          List.of(StockSectors.TECHNOLOGY));
+      StackPane root = new StackPane();
+
+      // BUY path — no fees, row 3 hides. Includes a timestamp for the Date row.
+      dialog.show(root, ReceiptDialog.Type.BUY, apple,
+          BigDecimal.valueOf(3), BigDecimal.valueOf(100),
+          BigDecimal.ZERO, BigDecimal.valueOf(-300), Instant.now());
+      assertDoesNotThrow(dialog::close);
+
+      // SELL path — full breakdown with gross / fees / net.
+      dialog.show(root, ReceiptDialog.Type.SELL, apple,
+          BigDecimal.valueOf(2), BigDecimal.valueOf(150),
+          BigDecimal.valueOf(15), BigDecimal.valueOf(285), Instant.now());
+      assertDoesNotThrow(dialog::close);
+
+      // Null timestamp must render as an em-dash, not crash.
+      dialog.show(root, ReceiptDialog.Type.BUY, apple,
+          BigDecimal.valueOf(1), BigDecimal.valueOf(50),
+          BigDecimal.ZERO, BigDecimal.valueOf(-50), null);
+      assertDoesNotThrow(dialog::close);
     });
   }
 

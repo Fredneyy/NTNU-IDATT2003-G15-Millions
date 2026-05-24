@@ -103,15 +103,22 @@ class ViewSmokeTest {
       assertNotNull(trades.getView());
       assertEquals(0, trades.getTrades().size());
 
+      Stock apple = new Stock("AAPL", "Apple", BigDecimal.valueOf(100), 0.0, 0.0,
+          List.of(StockSectors.TECHNOLOGY));
       TradesView.TradeRecord record = new TradesView.TradeRecord(
           TradesView.TradeType.BUY,
+          apple,
           "AAPL", "Apple",
           BigDecimal.valueOf(5), BigDecimal.valueOf(100),
-          Instant.now());
+          Instant.now(),
+          BigDecimal.ZERO);
 
       trades.setTrades(List.of(record));
       assertEquals(1, trades.getTrades().size());
       trades.setSearchFilter("AAPL");
+      // Wiring the receipt callback after rows exist should be safe — rows
+      // dispatch through TradesView's live field, not a captured snapshot.
+      trades.setOnOpenReceipt(r -> { /* no-op */ });
     });
   }
 
