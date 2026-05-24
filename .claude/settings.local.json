@@ -16,7 +16,8 @@
       "Bash(mvn -q -o compile)",
       "Bash(mvn test-compile *)",
       "Bash(find ~/.m2/repository/org/kordamp/ikonli/ikonli-fontawesome-pack -name \"*.jar\" | head -3)",
-      "Bash(unzip -p /Users/fredr/.m2/repository/org/kordamp/ikonli/ikonli-fontawesome-pack/12.4.0/ikonli-fontawesome-pack-12.4.0.jar org/kordamp/ikonli/fontawesome/FontAwesome.class)"
+      "Bash(unzip -p /Users/fredr/.m2/repository/org/kordamp/ikonli/ikonli-fontawesome-pack/12.4.0/ikonli-fontawesome-pack-12.4.0.jar org/kordamp/ikonli/fontawesome/FontAwesome.class)",
+      "Bash(grep -v \"^[+-]\\\\s*$\")"
     ]
   }
 }

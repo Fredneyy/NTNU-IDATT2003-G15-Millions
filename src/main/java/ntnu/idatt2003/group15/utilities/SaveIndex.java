@@ -94,7 +94,7 @@ public final class SaveIndex {
       }
       Files.writeString(p, sb.toString(), StandardCharsets.UTF_8);
     } catch (IOException ignored) {
-      // Best-effort — the index is a UX aid, not critical state.
+      // best-effort, the index isn't critical state
     }
   }
 }

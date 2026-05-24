@@ -134,8 +134,7 @@ public class MainMenu {
     particleLayer.getChildren().addAll(createBackgroundCircles());
     particleLayer.setMouseTransparent(true);
 
-    // Anchor the menu to the top so growing content (e.g. the Continue Playing
-    // card) pushes downward only, and overflow becomes scrollable.
+    // anchored to top so growing content pushes down and overflow scrolls
     StackPane centerHolder = new StackPane(center);
     centerHolder.setAlignment(Pos.TOP_CENTER);
     centerHolder.setPadding(new javafx.geometry.Insets(48, 0, 48, 0));
@@ -427,7 +426,7 @@ public class MainMenu {
       continuePlayingList.getChildren().add(continuePlayingEmpty);
       return;
     }
-    // Keep the menu compact: show at most the three most-recent saves.
+    // cap at the 3 most recent
     int max = Math.min(3, entries.size());
     for (int i = 0; i < max; i++) {
       continuePlayingList.getChildren().add(buildSaveRow(entries.get(i)));
@@ -450,8 +449,7 @@ public class MainMenu {
     dollarIcon.getStyleClass().add("save-meta-icon");
     Label cashLabel = new Label(formatMoney(entry.cash()));
     cashLabel.getStyleClass().add("save-meta");
-    // Refuse to shrink past their natural size — otherwise the cash value gets
-    // chopped to "$8..." when the row is narrow.
+    // don't shrink below natural width, otherwise cash gets truncated on narrow rows
     cashLabel.setMinWidth(Region.USE_PREF_SIZE);
 
     FontIcon clockIcon = new FontIcon(FontAwesome.CLOCK_O);
@@ -460,8 +458,7 @@ public class MainMenu {
     whenLabel.getStyleClass().add("save-meta");
     whenLabel.setMinWidth(Region.USE_PREF_SIZE);
 
-    // Two stacked sub-rows keep both money and date fully visible even on
-    // narrow menu widths instead of cramming everything into one HBox.
+    // stacked sub-rows keep money + date readable on narrow menus
     HBox cashRow = new HBox(6, dollarIcon, cashLabel);
     cashRow.setAlignment(Pos.CENTER_LEFT);
     cashRow.getStyleClass().add("save-meta-row");
