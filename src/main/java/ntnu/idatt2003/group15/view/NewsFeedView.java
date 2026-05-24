@@ -114,14 +114,12 @@ public class NewsFeedView {
             BigDecimal rawPct = ev.changePercent() == null ? BigDecimal.ZERO : ev.changePercent();
             boolean bullish = rawPct.compareTo(BigDecimal.ZERO) > 0;
 
-            // Trend-arrow icon tile (green up / red down)
             FontIcon arrow = new FontIcon(bullish ? FontAwesome.LINE_CHART : FontAwesome.AREA_CHART);
             arrow.getStyleClass().add("news-row-icon");
             StackPane iconBox = new StackPane(arrow);
             iconBox.getStyleClass().addAll("news-row-icon-box",
                     bullish ? "news-row-icon-box--bullish" : "news-row-icon-box--bearish");
 
-            // Top badges row: SECTOR  ±X.X%  [BULLISH | BEARISH]  ............ clock + ago
             Label symbolBadge = new Label(ev.sector() == null ? "" : ev.sector().getLabel());
             symbolBadge.getStyleClass().addAll("news-badge", "news-badge--symbol");
 
