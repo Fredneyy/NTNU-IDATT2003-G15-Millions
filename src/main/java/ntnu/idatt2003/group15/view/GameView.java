@@ -53,6 +53,7 @@ public class GameView {
   private final BuyStockDialog buyStockDialog;
   private final SellStockDialog sellStockDialog;
   private final StockChartDialog stockChartDialog = new StockChartDialog();
+  private final ReceiptDialog receiptDialog = new ReceiptDialog();
   private final MarketTableView marketTable;
   private final PortfolioTableView portfolioTable;
   private final NewsFeedView newsFeedView = new NewsFeedView();
@@ -87,19 +88,48 @@ public class GameView {
 
     buyStockDialog = new BuyStockDialog(
         playerController.getCashProperty(),
-        (Stock stock, BigDecimal quantity) -> exchangeController.buy(stock, quantity, playerController.getPlayer()),
+        (Stock stock, BigDecimal quantity) -> {
+          // Capture the price before the controller call — if the model ever
+          // updates the price as a side effect, the receipt still reflects
+          // what the user actually paid.
+          BigDecimal price = stock.getSalesPrice();
+          exchangeController.buy(stock, quantity, playerController.getPlayer());
+          // Buy succeeded. No fees on the buy side in this game, so the net
+          // cash change is just -gross.
+          BigDecimal gross = price.multiply(quantity);
+          receiptDialog.show(view, ReceiptDialog.Type.BUY, stock, quantity, price,
+              BigDecimal.ZERO, gross.negate());
+        },
         errorHandler);
 
     PortfolioController portfolioController =
         new PortfolioController(playerController.getPortfolio());
 
+    // Share one SaleCalculator instance between the sell dialog and the
+    // receipt computation so they agree on rounding and intermediate values.
+    SaleCalculator saleCalculator = new SaleCalculator();
+
     sellStockDialog = new SellStockDialog(
         playerController.getCashProperty(),
         portfolioController,
-        new SaleCalculator(),
+        saleCalculator,
         exchangeController.getCommission(),
         exchangeController.getTax(),
-        (Share share, BigDecimal amount) -> exchangeController.sell(share, amount, playerController.getPlayer()),
+        (Share share, BigDecimal amount) -> {
+          // Compute receipt values before mutating the portfolio — the sell
+          // call reduces the share's quantity, so capture sale price and the
+          // sold quantity up front.
+          BigDecimal salePrice = share.stock().getSalesPrice();
+          BigDecimal soldQty = amount.min(share.quantity());
+          Share soldLot = new Share(share.stock(), soldQty, share.pricePerShare());
+          BigDecimal gross = saleCalculator.calculateGross(soldLot);
+          BigDecimal net = saleCalculator.calculateTotal(
+              soldLot, exchangeController.getCommission(), exchangeController.getTax());
+          BigDecimal fees = gross.subtract(net);
+          exchangeController.sell(share, amount, playerController.getPlayer());
+          receiptDialog.show(view, ReceiptDialog.Type.SELL, share.stock(), soldQty,
+              salePrice, fees, net);
+        },
         errorHandler);
 
     portfolioTable = new PortfolioTableView(portfolioController,
