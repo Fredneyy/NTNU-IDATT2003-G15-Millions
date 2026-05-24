@@ -2,6 +2,10 @@ package ntnu.idatt2003.group15.view.dialog;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import javafx.animation.ParallelTransition;
 import javafx.geometry.Pos;
@@ -32,12 +36,18 @@ public class ReceiptDialog extends BaseDialog {
 
   public enum Type { BUY, SELL }
 
+  // Matches the trades-tab format so the same trade reads identically in
+  // both places (24-hour clock, no AM/PM).
+  private static final DateTimeFormatter DATE_FMT =
+      DateTimeFormatter.ofPattern("MMM d, yyyy, HH:mm");
+
   private final Label avatarLabel = new Label();
   private final Label headerTitle = new Label("Order succeeded");
   private final Label companyLabel = new Label();
   private final Label typeBadge = new Label();
   private final Label quantityValue = new Label();
   private final Label priceValue = new Label();
+  private final Label dateValue = new Label();
 
   // Totals card — three rows; row 3 is hidden for BUY (no fees).
   private final Label totalsLabel1 = new Label();
@@ -96,12 +106,14 @@ public class ReceiptDialog extends BaseDialog {
    * @param pricePerShare per-share price paid (BUY) or received (SELL)
    * @param fees          commission + tax (0 for BUY)
    * @param net           net cash change — gross for BUY, gross-minus-fees for SELL
+   * @param when          timestamp of the trade — pass {@link Instant#now()} for a
+   *                      fresh trade, or the stored commit time for a historical one
    */
   public void show(StackPane root, Type type, Stock stock,
                    BigDecimal quantity, BigDecimal pricePerShare,
-                   BigDecimal fees, BigDecimal net) {
+                   BigDecimal fees, BigDecimal net, Instant when) {
     this.root = Objects.requireNonNull(root, "root");
-    populate(type, stock, quantity, pricePerShare, fees, net);
+    populate(type, stock, quantity, pricePerShare, fees, net, when);
     if (!root.getChildren().contains(dialog)) {
       dialog.setOpacity(0);
       dialog.setScaleX(0.1);
@@ -118,7 +130,8 @@ public class ReceiptDialog extends BaseDialog {
   }
 
   private void populate(Type type, Stock stock, BigDecimal quantity,
-                        BigDecimal pricePerShare, BigDecimal fees, BigDecimal net) {
+                        BigDecimal pricePerShare, BigDecimal fees, BigDecimal net,
+                        Instant when) {
     Objects.requireNonNull(type, "type");
     Objects.requireNonNull(stock, "stock");
     Objects.requireNonNull(quantity, "quantity");
@@ -136,6 +149,14 @@ public class ReceiptDialog extends BaseDialog {
 
     quantityValue.setText(quantity.stripTrailingZeros().toPlainString());
     priceValue.setText(formatMoney(pricePerShare));
+    // Render the trade timestamp in the user's local zone. Null is tolerated
+    // — old saves that lack a timestamp simply render an em-dash.
+    if (when == null) {
+      dateValue.setText("—");
+    } else {
+      dateValue.setText(DATE_FMT.format(
+          LocalDateTime.ofInstant(when, ZoneId.systemDefault())));
+    }
 
     BigDecimal gross = pricePerShare.multiply(quantity);
     if (type == Type.BUY) {
@@ -203,8 +224,9 @@ public class ReceiptDialog extends BaseDialog {
 
     HBox quantityRow = makeSummaryRow(new Label("Quantity"), quantityValue, false);
     HBox priceRow = makeSummaryRow(new Label("Price per share"), priceValue, false);
+    HBox dateRow = makeSummaryRow(new Label("Date"), dateValue, false);
 
-    VBox detailsCard = new VBox(typeRow, quantityRow, priceRow);
+    VBox detailsCard = new VBox(typeRow, quantityRow, priceRow, dateRow);
     detailsCard.getStyleClass().add("buy-card");
     detailsCard.setSpacing(10);
 

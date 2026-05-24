@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
@@ -17,6 +18,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
@@ -24,6 +26,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import ntnu.idatt2003.group15.model.stocks.Stock;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -35,23 +38,46 @@ public class TradesView {
 
     public enum TradeType { BUY, SELL }
 
-    /** View-model record decoupled from domain {@code Transaction} so a controller
-     *  can map between them without coupling the view to weeks/calculators. */
+    /**
+     * View-model record decoupled from domain {@code Transaction} so a controller
+     * can map between them without coupling the view to weeks/calculators. Carries
+     * a {@link Stock} reference and the realized {@code fees} so the receipt
+     * dialog opened from the row has everything it needs without a back-lookup.
+     *
+     * <p>{@code fees} is always non-negative — zero for buys (no fees in this game)
+     * and {@code gross - proceeds} for sells, computed at commit time from the
+     * {@code Sale} record so historical receipts stay accurate even if the
+     * current market price drifts.
+     */
     public record TradeRecord(
             TradeType type,
+            Stock stock,
             String symbol,
             String company,
             BigDecimal quantity,
             BigDecimal price,
-            Instant when
+            Instant when,
+            BigDecimal fees
     ) {
+        /** Gross transaction value (qty × price), always positive. */
         public BigDecimal total() {
             return price.multiply(quantity);
         }
+
+        /**
+         * Signed net cash change. Negative for buys (cash out), positive for
+         * sells (cash in, after fees).
+         */
+        public BigDecimal net() {
+            BigDecimal gross = total();
+            return type == TradeType.BUY ? gross.negate() : gross.subtract(fees);
+        }
     }
 
+    // 24-hour clock — "HH:mm" instead of "hh:mm a" — keeps timestamps short
+    // and unambiguous (no AM/PM swing when the user trades around noon).
     private static final DateTimeFormatter DATE_FMT =
-            DateTimeFormatter.ofPattern("MMM d, yyyy, hh:mm a");
+            DateTimeFormatter.ofPattern("MMM d, yyyy, HH:mm");
 
     private final VBox view = new VBox();
     private final Label subtitle = new Label("0 transactions recorded");
@@ -61,6 +87,7 @@ public class TradesView {
     private final HashMap<TradeRecord, TradeRow> tradeRows = new HashMap<>();
 
     private final ObservableList<TradeRecord> trades = FXCollections.observableArrayList();
+    private Consumer<TradeRecord> onOpenReceipt;
 
     public TradesView() {
 
@@ -164,21 +191,38 @@ public class TradesView {
 
         for (TradeRecord tradeRecord : snapshot) {
             if (!tradeRows.containsKey(tradeRecord)) {
-                TradeRow tradeRow = new TradeRow(tradeRecord, true);
+                // Pass a method reference rather than the consumer directly so
+                // setOnOpenReceipt() can be wired *after* TradesView has built
+                // its initial rows — every row dispatches through the live
+                // field instead of capturing a snapshot at construction time.
+                TradeRow tradeRow = new TradeRow(tradeRecord, true, this::triggerReceipt);
                 tradeRows.put(tradeRecord, tradeRow);
                 rowsContainer.getChildren().add(tradeRow.getView());
             }
         }
     }
 
+    private void triggerReceipt(TradeRecord record) {
+        if (onOpenReceipt != null) onOpenReceipt.accept(record);
+    }
+
     public VBox getView() { return view; }
     public ObservableList<TradeRecord> getTrades() { return trades; }
     public void setTrades(List<TradeRecord> records) { trades.setAll(records); }
 
+    /**
+     * Install a handler for the row-level "Open receipt" button. May be set
+     * before or after {@link #setTrades(List)} — existing rows pick it up
+     * because each row dispatches through {@link #triggerReceipt(TradeRecord)}.
+     */
+    public void setOnOpenReceipt(Consumer<TradeRecord> handler) {
+        this.onOpenReceipt = handler;
+    }
+
     private static final class TradeRow {
         final VBox root = new VBox();
 
-        TradeRow(TradeRecord t, boolean withDivider) {
+        TradeRow(TradeRecord t, boolean withDivider, Consumer<TradeRecord> onOpenReceipt) {
             boolean buy = t.type() == TradeType.BUY;
 
             // Left icon tile
@@ -203,15 +247,32 @@ public class TradesView {
             Label company = new Label(t.company());
             company.getStyleClass().add("trade-row-company");
 
-            // Metadata row (quantity, price, date)
+            // Metadata row (quantity, price, date) — with a right-aligned
+            // "Open receipt" button so the user can pull up the full receipt
+            // dialog for any historical trade.
+            Region metaSpacer = new Region();
+            HBox.setHgrow(metaSpacer, Priority.ALWAYS);
+
+            Button receiptButton = new Button("Open receipt");
+            FontIcon receiptIcon = new FontIcon(FontAwesome.FILE_TEXT_O);
+            receiptIcon.getStyleClass().add("trade-receipt-button-icon");
+            receiptButton.setGraphic(receiptIcon);
+            receiptButton.getStyleClass().add("trade-receipt-button");
+            receiptButton.setOnAction(_ -> {
+                if (onOpenReceipt != null) onOpenReceipt.accept(t);
+            });
+
             HBox meta = new HBox(
                     metaPair("Quantity:", t.quantity().stripTrailingZeros().toPlainString()),
                     metaPair("Price:", "$" + t.price().setScale(2, RoundingMode.HALF_UP).toPlainString()),
                     metaPair("Date:", DATE_FMT.format(
-                            LocalDateTime.ofInstant(t.when(), ZoneId.systemDefault())))
+                            LocalDateTime.ofInstant(t.when(), ZoneId.systemDefault()))),
+                    metaSpacer,
+                    receiptButton
             );
             meta.setSpacing(28);
             meta.getStyleClass().add("trade-row-meta");
+            meta.setAlignment(Pos.CENTER_LEFT);
 
             VBox center = new VBox(badges, company);
             center.setSpacing(8);

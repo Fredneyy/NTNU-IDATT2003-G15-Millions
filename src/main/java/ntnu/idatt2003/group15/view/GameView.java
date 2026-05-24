@@ -98,7 +98,7 @@ public class GameView {
           // cash change is just -gross.
           BigDecimal gross = price.multiply(quantity);
           receiptDialog.show(view, ReceiptDialog.Type.BUY, stock, quantity, price,
-              BigDecimal.ZERO, gross.negate());
+              BigDecimal.ZERO, gross.negate(), Instant.now());
         },
         errorHandler);
 
@@ -128,7 +128,7 @@ public class GameView {
           BigDecimal fees = gross.subtract(net);
           exchangeController.sell(share, amount, playerController.getPlayer());
           receiptDialog.show(view, ReceiptDialog.Type.SELL, share.stock(), soldQty,
-              salePrice, fees, net);
+              salePrice, fees, net, Instant.now());
         },
         errorHandler);
 
@@ -148,6 +148,16 @@ public class GameView {
     TradesView tradesView = new TradesView();
     tradesContent = new VBox(tradesView.getView());
     bindTradesView(tradesView);
+    // Clicking "Open receipt" on any trade row replays the receipt dialog
+    // for that historical transaction with the data captured at commit time.
+    tradesView.setOnOpenReceipt(record -> {
+      ReceiptDialog.Type type = record.type() == TradesView.TradeType.BUY
+          ? ReceiptDialog.Type.BUY
+          : ReceiptDialog.Type.SELL;
+      BigDecimal net = record.net();
+      receiptDialog.show(view, type, record.stock(),
+          record.quantity(), record.price(), record.fees(), net, record.when());
+    });
     VBox newsContent = new VBox(newsFeedView.getView());
     tabContainer = new TabContainer(
         new TabContainer.Tab("market",    "Market",    FontAwesome.LINE_CHART,  marketContent),
@@ -361,20 +371,31 @@ public class GameView {
     boolean sell = tx instanceof Sale;
     TradesView.TradeType type = sell ? TradesView.TradeType.SELL : TradesView.TradeType.BUY;
     Stock stock = tx.getShare().stock();
+    BigDecimal qty = tx.getShare().quantity();
     // For sells, prefer the actual sale price captured at commit time; the lot's
     // pricePerShare is the original *buy* price.
     BigDecimal price = tx.getShare().pricePerShare();
+    BigDecimal fees = BigDecimal.ZERO;
     if (sell) {
-      BigDecimal sp = ((Sale) tx).getSalePricePerShare();
+      Sale sale = (Sale) tx;
+      BigDecimal sp = sale.getSalePricePerShare();
       if (sp != null) price = sp;
+      // Reconstruct fees from the values the Sale persisted at commit time
+      // (sale price + net proceeds). gross - proceeds = commission + tax.
+      BigDecimal proceeds = sale.getProceeds();
+      if (sp != null && proceeds != null) {
+        fees = sp.multiply(qty).subtract(proceeds).max(BigDecimal.ZERO);
+      }
     }
     return new TradesView.TradeRecord(
         type,
+        stock,
         stock.getSymbol(),
         stock.getCompany(),
-        tx.getShare().quantity(),
+        qty,
         price,
-        when
+        when,
+        fees
     );
   }
 
