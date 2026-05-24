@@ -2,6 +2,8 @@ package ntnu.idatt2003.group15.controller;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
 import ntnu.idatt2003.group15.model.player.Player;
@@ -49,14 +51,6 @@ public class PlayerController {
     return player.getNetWorth();
   }
 
-  public ObservableValue<PlayerStatus> statusProperty() {
-    return player.statusProperty();
-  }
-
-  public PlayerStatus getStatus() {
-    return player.statusProperty().getValue();
-  }
-
   public ObservableValue<BigDecimal> getCashProperty() {
     return player.moneyProperty();
   }
@@ -71,5 +65,9 @@ public class PlayerController {
 
   public ObservableValue<BigDecimal> getNetWorthChangePercentProperty() {
     return player.getNetWorthChangePercentProperty();
+  }
+
+  public PlayerStatus getStatus(int week) {
+    return player.getStatus(week);
   }
 }

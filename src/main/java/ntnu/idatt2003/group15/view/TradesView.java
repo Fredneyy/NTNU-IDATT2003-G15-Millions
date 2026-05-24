@@ -74,8 +74,6 @@ public class TradesView {
         }
     }
 
-    // 24-hour clock — "HH:mm" instead of "hh:mm a" — keeps timestamps short
-    // and unambiguous (no AM/PM swing when the user trades around noon).
     private static final DateTimeFormatter DATE_FMT =
             DateTimeFormatter.ofPattern("MMM d, yyyy, HH:mm");
 
@@ -148,9 +146,6 @@ public class TradesView {
                 "Your transaction history will appear here.\n"
                         + "Buy or sell a stock to get started.");
 
-        // Overlay the empty-state panel on top of the scroller; visibility
-        // and managed flags flip off the trades list — once a trade lands,
-        // the empty panel disappears entirely.
         StackPane content = new StackPane(scroller, emptyState);
         VBox.setVgrow(content, Priority.ALWAYS);
 
@@ -162,9 +157,6 @@ public class TradesView {
 
         VBox body = new VBox(content);
         body.getStyleClass().add("trades-body");
-        // Without Vgrow on body, the StackPane shrinks to the empty-state's
-        // preferred size when the scroller is hidden — leaving the panel
-        // glued to the top of the card with no vertical breathing room.
         VBox.setVgrow(body, Priority.ALWAYS);
         return body;
     }
@@ -191,10 +183,6 @@ public class TradesView {
 
         for (TradeRecord tradeRecord : snapshot) {
             if (!tradeRows.containsKey(tradeRecord)) {
-                // Pass a method reference rather than the consumer directly so
-                // setOnOpenReceipt() can be wired *after* TradesView has built
-                // its initial rows — every row dispatches through the live
-                // field instead of capturing a snapshot at construction time.
                 TradeRow tradeRow = new TradeRow(tradeRecord, true, this::triggerReceipt);
                 tradeRows.put(tradeRecord, tradeRow);
                 rowsContainer.getChildren().add(tradeRow.getView());
@@ -247,9 +235,6 @@ public class TradesView {
             Label company = new Label(t.company());
             company.getStyleClass().add("trade-row-company");
 
-            // Metadata row (quantity, price, date) — with a right-aligned
-            // "Open receipt" button so the user can pull up the full receipt
-            // dialog for any historical trade.
             Region metaSpacer = new Region();
             HBox.setHgrow(metaSpacer, Priority.ALWAYS);
 
@@ -277,7 +262,6 @@ public class TradesView {
             VBox center = new VBox(badges, company);
             center.setSpacing(8);
 
-            // Right-side amount + relative time
             BigDecimal abs = t.total().abs().setScale(2, RoundingMode.HALF_UP);
             Label amount = new Label((buy ? "-" : "+") + "$" + abs.toPlainString());
             amount.getStyleClass().addAll("trade-row-amount",

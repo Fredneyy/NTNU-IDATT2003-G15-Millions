@@ -21,7 +21,6 @@ public class Player {
   private final BigDecimal startingMoney;
   private final Portfolio portfolio = new Portfolio();
   private final TransactionArchive transactionArchive = new TransactionArchive();
-  private final ObservableValue<PlayerStatus> status;
   private final ObjectBinding<BigDecimal> netWorthBinding;
   private final ObjectBinding<BigDecimal> netWorthChangeBinding;
   private final ObjectBinding<BigDecimal> netWorthChangePercentBinding;
@@ -43,7 +42,6 @@ public class Player {
     this.name = name;
     this.startingMoney = startingMoney;
     this.money = new SimpleObjectProperty<>(startingMoney);
-    this.status = new SimpleObjectProperty<>(PlayerStatus.NOVICE);
 
     ObservableValue<BigDecimal> marketValue = portfolio.getTotalMarketValueProperty();
     this.netWorthBinding = Bindings.createObjectBinding(
@@ -164,12 +162,13 @@ public class Player {
     return marketValue.add(money.get());
   }
 
-  /**
-   * Returns the observable property for the player's status.
-   *
-   * @return the status property of the player
-   */
-  public ObservableValue<PlayerStatus> statusProperty() {
-    return status;
+  public PlayerStatus getStatus(int week) {
+    BigDecimal gained = netWorthBinding.get().divide(startingMoney, 4, RoundingMode.HALF_UP);
+    if (week >= 10 && gained.compareTo(BigDecimal.valueOf(Double.parseDouble("1.2"))) > 0) {
+      return PlayerStatus.INVESTOR;
+    } else if (week >= 20 && gained.compareTo(BigDecimal.valueOf(Long.parseLong("2"))) > 0) {
+      return PlayerStatus.SPECULATOR;
+    }
+    return PlayerStatus.NOVICE;
   }
 }

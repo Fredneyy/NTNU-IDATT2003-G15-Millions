@@ -88,9 +88,6 @@ public class NewsFeedView {
                 "Headlines will appear here as the market reacts.\n"
                         + "Advance the week to see what happens.");
 
-        // Stack the scroller and the empty-state panel; toggle which is shown
-        // off the events list — when the first item arrives the empty panel
-        // hides itself and gives up its layout slot via managedProperty.
         StackPane content = new StackPane(scroller, emptyState);
         VBox.setVgrow(content, Priority.ALWAYS);
 
@@ -102,9 +99,6 @@ public class NewsFeedView {
 
         VBox body = new VBox(content);
         body.getStyleClass().add("news-body");
-        // Without Vgrow on body, the StackPane shrinks to the empty-state's
-        // preferred size when the scroller is hidden — leaving the panel
-        // glued to the top of the card with no vertical breathing room.
         VBox.setVgrow(body, Priority.ALWAYS);
         return body;
     }
@@ -163,11 +157,16 @@ public class NewsFeedView {
             description.getStyleClass().add("news-row-description");
             description.setWrapText(true);
 
-            // Meta row
             BigDecimal vol = ev.volatility() == null ? BigDecimal.ZERO : ev.volatility();
+            Label remainingValue = new Label(ev.durationUpdates() + " updates");
+            remainingValue.getStyleClass().add("news-meta-value");
+            remainingValue.textProperty().bind(
+                    ev.durationUpdatesProperty().asString().concat(" updates"));
+
             HBox meta = new HBox(
                     metaPair("Volatility:", vol.stripTrailingZeros().toPlainString() + "x"),
-                    metaPair("Duration:", ev.durationUpdates() + " updates")
+                    metaPair("Duration:", ev.originalDurationUpdates() + " updates"),
+                    metaPairNode("Remaining:", remainingValue)
             );
             meta.setSpacing(28);
             meta.getStyleClass().add("news-row-meta");
@@ -189,6 +188,20 @@ public class NewsFeedView {
                 divider.getStyleClass().add("news-row-divider");
                 root.getChildren().add(divider);
             }
+        }
+
+        /**
+         * Variant that accepts an already-styled value node (e.g. a Label whose
+         * textProperty is bound to an IntegerProperty) so the live "Remaining"
+         * countdown can re-render on each tick without rebuilding the row.
+         */
+        private static HBox metaPairNode(String label, javafx.scene.Node value) {
+            Label l = new Label(label);
+            l.getStyleClass().add("news-meta-label");
+            HBox row = new HBox(l, value);
+            row.setSpacing(6);
+            row.setAlignment(Pos.CENTER_LEFT);
+            return row;
         }
 
         private static HBox metaPair(String label, String value) {

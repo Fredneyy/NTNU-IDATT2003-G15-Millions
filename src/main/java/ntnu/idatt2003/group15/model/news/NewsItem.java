@@ -2,6 +2,9 @@ package ntnu.idatt2003.group15.model.news;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import ntnu.idatt2003.group15.model.stocks.StockSectors;
 
 /**
@@ -13,7 +16,8 @@ public class NewsItem {
   private final BigDecimal changePercent;
   private final String headline;
   private final BigDecimal volatility;
-  private int durationUpdates;
+  private final IntegerProperty durationUpdates;
+  private final int originalDurationUpdates;
   private final Instant when;
   private boolean appliedChange;
 
@@ -41,7 +45,8 @@ public class NewsItem {
     this.changePercent = changePercent;
     this.headline = headline;
     this.volatility = volatility;
-    this.durationUpdates = durationUpdates;
+    this.durationUpdates = new SimpleIntegerProperty(durationUpdates);
+    this.originalDurationUpdates = durationUpdates;
     this.when = when;
     this.appliedChange = appliedChange;
   }
@@ -51,8 +56,9 @@ public class NewsItem {
    * it from the active list.
    */
   public void reduceDuration() {
-    if (durationUpdates > 0) {
-      durationUpdates--;
+    int current = durationUpdates.get();
+    if (current > 0) {
+      durationUpdates.set(current - 1);
     }
   }
 
@@ -63,7 +69,7 @@ public class NewsItem {
    *{@code false} otherwise
    */
   public boolean isExpired() {
-    return durationUpdates <= 0;
+    return durationUpdates.get() <= 0;
   }
 
   /**
@@ -72,10 +78,11 @@ public class NewsItem {
    * @return the string containing the duration updates and description
    */
   public String footerText() {
-    if (durationUpdates <= 0) {
+    int remaining = durationUpdates.get();
+    if (remaining <= 0) {
       return null;
     }
-    return "Volatility increased for " + durationUpdates + " updates";
+    return "Volatility increased for " + remaining + " updates";
   }
 
   /**
@@ -137,12 +144,35 @@ public class NewsItem {
   }
 
   /**
-   * Returns the amount of updates the news will last.
+   * Returns the current remaining number of updates this news is active for.
+   * Ticks down via {@link #reduceDuration()}; reaches 0 when the news expires.
    *
-   * @return the int duration updates
+   * @return remaining duration updates
    */
   public int durationUpdates() {
+    return durationUpdates.get();
+  }
+
+  /**
+   * Observable handle to the remaining-updates count so a view can live-bind
+   * a countdown label (e.g. "Remaining: 2 updates" that ticks down each
+   * advance). Read-only — callers must use {@link #reduceDuration()} to mutate.
+   *
+   * @return read-only property tracking the live remaining count
+   */
+  public ReadOnlyIntegerProperty durationUpdatesProperty() {
     return durationUpdates;
+  }
+
+  /**
+   * Returns the original number of updates the news was scheduled to last —
+   * the value passed to the constructor, never mutated. Pair with
+   * {@link #durationUpdates()} to show "X of Y" style progress.
+   *
+   * @return original duration updates at construction time
+   */
+  public int originalDurationUpdates() {
+    return originalDurationUpdates;
   }
 
   /**
