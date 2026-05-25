@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.view;
 
 import javafx.animation.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
@@ -105,7 +106,17 @@ public class SettingsView {
       HBox iconAndTitle = new HBox(iconBox, titleBox);
       iconAndTitle.getStyleClass().add("settings-icon-and-title");
         difficultyValueLabel.getStyleClass().add("settings-difficulty-badge");
-      HBox headerContent = new HBox(iconAndTitle, headerSpacer, difficultyValueLabel);
+
+        FontIcon closeIcon = new FontIcon(FontAwesome.TIMES);
+        closeIcon.getStyleClass().add("settings-close-icon");
+        Button closeButton = new Button();
+        closeButton.setGraphic(closeIcon);
+        closeButton.getStyleClass().add("settings-close-button");
+        closeButton.setOnAction(_ -> {
+            if (open) toggle();
+        });
+
+      HBox headerContent = new HBox(iconAndTitle, headerSpacer, difficultyValueLabel, closeButton);
       headerContent.getStyleClass().add("settings-header");
 
         sliderLabel.getStyleClass().add("settings-slider-label");
