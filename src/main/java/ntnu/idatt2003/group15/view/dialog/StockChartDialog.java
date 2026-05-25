@@ -39,6 +39,8 @@ public class StockChartDialog extends BaseDialog {
   private final Label lastRelativeChange = new Label();
   private final Label lastAbsoluteChangeLabel = new Label();
   private final Label dataPointsLabel = new Label();
+  private final Label highestPriceLabel = new Label();
+  private final Label lowestPriceLabel = new Label();
   private final VBox chartContainer  = new VBox();
   private final VBox chartSection = new VBox();
 
@@ -147,6 +149,9 @@ public class StockChartDialog extends BaseDialog {
         relChange.compareTo(BigDecimal.ZERO) >= 0 ? "value-positive" : "value-negative");
 
     dataPointsLabel.setText(String.valueOf(historicalPrices.size()));
+
+    highestPriceLabel.setText(String.format("$%.2f", currentStock.getHighestPrice()));
+    lowestPriceLabel.setText(String.format("$%.2f", currentStock.getLowestPrice()));
   }
 
   private void detachPricesListener() {
@@ -202,6 +207,8 @@ public class StockChartDialog extends BaseDialog {
     lastRelativeChange.getStyleClass().addAll("stock-stat-value", "value-negative");
     lastAbsoluteChangeLabel.getStyleClass().addAll("stock-stat-value", "value-positive");
     dataPointsLabel.getStyleClass().addAll("stock-stat-value");
+    highestPriceLabel.getStyleClass().addAll("stock-stat-value", "value-positive");
+    lowestPriceLabel.getStyleClass().addAll("stock-stat-value", "value-negative");
 
     GridPane grid = new GridPane();
     grid.setHgap(12);
@@ -218,15 +225,19 @@ public class StockChartDialog extends BaseDialog {
       grid.getColumnConstraints().add(col);
     }
 
-    VBox priceCard      = statCard("Current Price",          currentPriceLabel);
-    VBox relChangeCard  = statCard("Last Relative Change",   lastRelativeChange);
-    VBox absChangeCard  = statCard("Last Absolute Change",   lastAbsoluteChangeLabel);
-    VBox dataPointsCard = statCard("Data Points",            dataPointsLabel);
+    VBox priceCard       = statCard("Current Price",          currentPriceLabel);
+    VBox relChangeCard   = statCard("Last Relative Change",   lastRelativeChange);
+    VBox absChangeCard   = statCard("Last Absolute Change",   lastAbsoluteChangeLabel);
+    VBox dataPointsCard  = statCard("Data Points",            dataPointsLabel);
+    VBox highestCard     = statCard("All-Time High",          highestPriceLabel);
+    VBox lowestCard      = statCard("All-Time Low",           lowestPriceLabel);
 
     grid.add(priceCard,      0, 0);
     grid.add(relChangeCard,  1, 0);
     grid.add(absChangeCard,  0, 1);
     grid.add(dataPointsCard, 1, 1);
+    grid.add(highestCard,    0, 2);
+    grid.add(lowestCard,     1, 2);
 
     for (var child : grid.getChildren()) {
       GridPane.setHgrow(child, Priority.ALWAYS);
