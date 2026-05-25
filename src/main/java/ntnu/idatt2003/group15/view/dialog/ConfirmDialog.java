@@ -26,6 +26,7 @@ public class ConfirmDialog extends BaseDialog {
   private final StackPane dialogPane = new StackPane();
   private final StackPane overlay;
   private final Button cancelButton = new Button("Cancel");
+  private final Button altButton = new Button();
   private final Button confirmButton = new Button("Confirm");
   private final ParallelTransition closeAnimation;
   private final EventHandler<KeyEvent> escapeFilter = event -> {
@@ -35,6 +36,7 @@ public class ConfirmDialog extends BaseDialog {
     }
   };
   private Runnable onConfirm;
+  private Runnable onAlt;
   private Scene installedScene;
 
   public ConfirmDialog() {
@@ -66,6 +68,13 @@ public class ConfirmDialog extends BaseDialog {
       if (action != null) action.run();
     });
 
+    altButton.getStyleClass().add("confirm-alt-button");
+    altButton.setOnAction(_ -> {
+      Runnable action = onAlt;
+      close();
+      if (action != null) action.run();
+    });
+
     closeAnimation = createCloseAnimation(_ -> {
       root.getChildren().removeAll(overlay, dialog);
       blurBackground(root, false, 0);
@@ -75,8 +84,26 @@ public class ConfirmDialog extends BaseDialog {
 
   public void show(StackPane root, String title, String message,
                    String confirmText, String cancelText, Runnable onConfirm) {
+    showInternal(root, title, message, confirmText, null, cancelText, onConfirm, null);
+  }
+
+  /**
+   * Three-button variant. Adds an "alternative" action that sits between the
+   * cancel and confirm buttons. Useful when a third intermediate choice exists,
+   * e.g. "Save", "Save and exit", "Cancel".
+   */
+  public void show(StackPane root, String title, String message,
+                   String confirmText, String altText, String cancelText,
+                   Runnable onConfirm, Runnable onAlt) {
+    showInternal(root, title, message, confirmText, altText, cancelText, onConfirm, onAlt);
+  }
+
+  private void showInternal(StackPane root, String title, String message,
+                            String confirmText, String altText, String cancelText,
+                            Runnable onConfirm, Runnable onAlt) {
     this.root = Objects.requireNonNull(root);
     this.onConfirm = onConfirm;
+    this.onAlt = onAlt;
 
     titleLabel.setText(title);
     messageLabel.setText(message);
@@ -86,7 +113,13 @@ public class ConfirmDialog extends BaseDialog {
     VBox messageBox = new VBox(messageLabel);
     messageBox.setAlignment(Pos.CENTER);
 
-    HBox buttonRow = new HBox(12, cancelButton, confirmButton);
+    HBox buttonRow = new HBox(12);
+    buttonRow.getChildren().add(cancelButton);
+    if (altText != null) {
+      altButton.setText(altText);
+      buttonRow.getChildren().add(altButton);
+    }
+    buttonRow.getChildren().add(confirmButton);
     buttonRow.setAlignment(Pos.CENTER);
     buttonRow.getStyleClass().add("confirm-button-row");
 
