@@ -27,6 +27,7 @@ public record SaveData(
     Instant savedAt,
     List<ShareEntry> shares,
     Map<String, BigDecimal> stockPrices,
+    Map<String, List<BigDecimal>> stockHistories,
     List<TxEntry> transactions
 ) {
   /**

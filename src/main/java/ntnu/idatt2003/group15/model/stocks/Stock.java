@@ -173,6 +173,21 @@ public class Stock {
     }
   }
 
+  public void setHistoricalPrices(List<BigDecimal> newPrices) {
+    Objects.requireNonNull(newPrices, "newPrices");
+    if (newPrices.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Cannot restore an empty price history for " + getSymbol() + ".");
+    }
+    for (BigDecimal price : newPrices) {
+      if (!InputValidator.isBigDecimalValuePositive(price)) {
+        throw new IllegalArgumentException(
+            "Saved price history for " + getSymbol() + " contains a non-positive value.");
+      }
+    }
+    prices.setAll(newPrices);
+  }
+
   /**
    * Returns the highest price of the stock.
    *
