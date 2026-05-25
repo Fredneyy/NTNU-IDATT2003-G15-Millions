@@ -166,7 +166,18 @@ public class GameView {
         new TabContainer.Tab("trades",    "Trades",    FontAwesome.CLOCK_O,     tradesContent),
         new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent)
     );
-    HeaderView headerView = new HeaderView(runnableExit);
+    Runnable exitWithConfirmation = () -> confirmDialog.show(
+        view,
+        "Save before exiting?",
+        "You're about to leave the game. Would you like to save your progress first?",
+        "Exit without saving",
+        "Save and exit",
+        "Cancel",
+        runnableExit,
+        () -> {
+          if (saveGame()) runnableExit.run();
+        });
+    HeaderView headerView = new HeaderView(exitWithConfirmation);
     settingsView = new SettingsView(view);
     settingsController = new SettingsController(settingsView, gameSettings);
     headerView.setPlayerName(player.getName());
@@ -292,7 +303,7 @@ public class GameView {
     }
   }
 
-  private void saveGame() {
+  private boolean saveGame() {
     FileChooser chooser = new FileChooser();
     chooser.setTitle("Save Game");
     chooser.getExtensionFilters().add(
@@ -304,7 +315,7 @@ public class GameView {
     chooser.setInitialFileName(suggested);
 
     File target = chooser.showSaveDialog(view.getScene() == null ? null : view.getScene().getWindow());
-    if (target == null) return; // user cancelled
+    if (target == null) return false; // user cancelled
     if (!target.getName().toLowerCase().endsWith(".json")) {
       target = new File(target.getParentFile(), target.getName() + ".json");
     }
@@ -312,8 +323,10 @@ public class GameView {
     try {
       SaveGameUtil.save(target, playerController, exchangeController, gameSettings);
       showInfo("Game saved", "Saved to:\n" + target.getAbsolutePath());
+      return true;
     } catch (IOException ex) {
       errorHandler.accept(ex);
+      return false;
     }
   }
 

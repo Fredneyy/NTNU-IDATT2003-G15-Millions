@@ -312,6 +312,7 @@
 }
 
 .confirm-cancel-button,
+.confirm-alt-button,
 .confirm-confirm-button {
     -fx-font-size: 13px;
     -fx-font-weight: bold;
@@ -355,6 +356,25 @@
 
 .confirm-confirm-button:pressed {
     -fx-background-color: linear-gradient(to bottom, #d63a3a, #b22828);
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
+
+.confirm-alt-button {
+    -fx-background-color: linear-gradient(to bottom, #5c6ef5, #4452d6);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(92, 110, 245, 0.30), 8, 0.0, 0, 2);
+}
+
+.confirm-alt-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #6d7ff7, #5061e0);
+    -fx-effect: dropshadow(gaussian, rgba(92, 110, 245, 0.55), 14, 0.25, 0, 3);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.confirm-alt-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #4452d6, #3340b8);
     -fx-scale-x: 0.97;
     -fx-scale-y: 0.97;
 }
