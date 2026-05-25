@@ -269,4 +269,12 @@ public class Exchange {
         .limit(limit)
         .collect(Collectors.toList());
   }
+
+  public void reset() {
+    week.set(1);
+    volatilityMultiplier = 1.0;
+    for (Stock stock : stockMap.values()) {
+      stock.reset();
+    }
+  }
 }

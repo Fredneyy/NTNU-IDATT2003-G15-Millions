@@ -166,6 +166,13 @@ public class Stock {
     return prices;
   }
 
+  public void reset() {
+    if (prices.size() > 1) {
+      BigDecimal original = prices.get(0);
+      prices.setAll(original);
+    }
+  }
+
   /**
    * Returns the highest price of the stock.
    *

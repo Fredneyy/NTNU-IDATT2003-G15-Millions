@@ -44,6 +44,10 @@ public class NewsArchive {
     activeNewsItems.removeIf(NewsItem::isExpired);
   }
 
+  public void reset() {
+    activeNewsItems.clear();
+  }
+
   /**
    * Puts a random {@link NewsItem} in the active news list for observers to see.
    */

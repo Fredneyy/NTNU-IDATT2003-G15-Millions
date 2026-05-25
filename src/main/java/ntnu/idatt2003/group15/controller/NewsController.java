@@ -26,4 +26,8 @@ public class NewsController {
     public void publish(double maxEventChance) {
         newsArchive.publishNews(maxEventChance);
     }
+
+    public void reset() {
+        newsArchive.reset();
+    }
 }
