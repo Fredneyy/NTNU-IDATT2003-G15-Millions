@@ -32,6 +32,7 @@ public class MainController {
   private Timeline priceTicker;
   private PauseTransition newsTicker;
   private final Random random = new Random();
+  private ExchangeController activeExchangeController;
 
   public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvParser csvParser,
                         TaskUtil taskUtil, List<Stock> stocks, List<NewsItem> news) {
@@ -50,7 +51,12 @@ public class MainController {
 
   public void showMainMenu() {
     stopPriceTicker();
-    
+    if (activeExchangeController != null) {
+      activeExchangeController.reset();
+      newsController.reset();
+      activeExchangeController = null;
+    }
+
     mainMenu.getView().setEffect(null);
     mainMenu.refreshContinueCard();
     root.getChildren().setAll(mainMenu.getView());
@@ -66,6 +72,7 @@ public class MainController {
 
   private void enterGame(ExchangeController exchangeController, PlayerController playerController,
                          boolean showOnboarding) {
+    this.activeExchangeController = exchangeController;
     GameView gameView = new GameView(playerController, exchangeController, gameSettings,
         this::showMainMenu, errorHandler, newsController, () -> {
       try {
