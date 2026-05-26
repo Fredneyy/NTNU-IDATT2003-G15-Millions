@@ -44,6 +44,7 @@ public class OnBoardingDialog extends BaseDialog {
   private int currentStep = 0;
   private final List<FontIcon> icons;
   private final Hyperlink nextLabel;
+  private final Hyperlink skipLabel;
   private final ParallelTransition closeAnimation;
 
 
@@ -95,10 +96,14 @@ public class OnBoardingDialog extends BaseDialog {
     nextLabel.getStyleClass().add("onboarding-nav-link-next");
     nextLabel.setOnAction(_ -> nextSlide());
 
+    skipLabel = new Hyperlink("Skip tutorial");
+    skipLabel.getStyleClass().add("onboarding-nav-link");
+    skipLabel.setOnAction(_ -> close());
+
     Region footerSpacer = new Region();
     HBox.setHgrow(footerSpacer, Priority.ALWAYS);
 
-    HBox footerContainer = new HBox(backLabel, footerSpacer, nextLabel);
+    HBox footerContainer = new HBox(12, backLabel, footerSpacer, skipLabel, nextLabel);
     footerContainer.setAlignment(Pos.CENTER);
     footerContainer.setMaxWidth(Double.MAX_VALUE);
 
@@ -144,6 +149,8 @@ public class OnBoardingDialog extends BaseDialog {
       nextLabel.setText("Next >");
       nextLabel.setOnAction(_ -> nextSlide());
     }
+    skipLabel.setVisible(!lastSlide);
+    skipLabel.setManaged(!lastSlide);
   }
 
   private List<FontIcon> setUpIcons() {
