@@ -2,6 +2,7 @@ package ntnu.idatt2003.group15.view;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -10,15 +11,13 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.controller.PortfolioController;
 import ntnu.idatt2003.group15.model.stocks.Share;
 import ntnu.idatt2003.group15.model.stocks.Stock;
@@ -39,7 +38,7 @@ public class MarketTableView {
     private final Label subtitle = new Label("Real-time stock prices");
     private final TableView<Stock> table = new TableView<>();
     private final FilteredList<Stock> filteredStocks;
-    private final ObservableList<Stock> stocks;
+    private final SortedList<Stock> sortedStocks;
     private final PortfolioController portfolioController;
     private Function<Stock, EventStatus> eventLookup = _ -> EventStatus.NONE;
     private final Consumer<Stock> onBuyPressed;
@@ -52,8 +51,8 @@ public class MarketTableView {
         this.portfolioController = Objects.requireNonNull(portfolioController);
         this.onBuyPressed = onBuyPressed;
         this.onChartPressed = onChartPressed;
-        this.stocks = stocks;
-        this.filteredStocks = new FilteredList<>(stocks, _ -> true);
+        this.sortedStocks = new SortedList<>(stocks);
+        this.filteredStocks = new FilteredList<>(sortedStocks, _ -> true);
         table.setMaxHeight(Double.MAX_VALUE);
         table.setMaxWidth(Double.MAX_VALUE);
 
@@ -65,6 +64,22 @@ public class MarketTableView {
         VBox.setVgrow(view, Priority.ALWAYS);
         view.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         view.getChildren().addAll(buildHeaderRow(), table);
+    }
+    
+    private void getVinners() {
+        sortedStocks.setComparator(
+            Comparator.comparing(Stock::getLatestPriceChangeRelative).reversed()
+        );
+    }
+    
+    private void getLoosers() {
+        sortedStocks.setComparator(
+            Comparator.comparing(Stock::getLatestPriceChangeRelative)
+        );
+    }
+
+    private void clearFilter() {
+        sortedStocks.setComparator(null);
     }
 
     private void buildHeader() {
@@ -79,7 +94,24 @@ public class MarketTableView {
         VBox titleBox = new VBox(title, subtitle);
         titleBox.getStyleClass().add("market-table-title-box");
 
-        HBox row = new HBox(icon, titleBox);
+        Button clearFilterButton = new Button("Clear Filter");
+        clearFilterButton.getStyleClass().add("market-clearFilter-button");
+        clearFilterButton.setOnAction(_ -> clearFilter());
+        
+        Button getVinnersButton = new Button("Get Winners");
+        getVinnersButton.getStyleClass().add("market-buy-button");
+        getVinnersButton.setOnAction(_ -> getVinners());
+
+        Button getLoosersButton = new Button("Get Losers");
+        getLoosersButton.getStyleClass().add("market-sell-button");
+        getLoosersButton.setOnAction(_ -> getLoosers());
+
+        HBox losersAndWinners = new HBox(20, clearFilterButton, getVinnersButton, getLoosersButton);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox row = new HBox(icon, titleBox, spacer, losersAndWinners);
         row.getStyleClass().add("market-table-header");
         return row;
     }
@@ -325,7 +357,7 @@ public class MarketTableView {
         };
     }
 
-    /** Filter table rows by symbol/company substring (case insensitive). Empty resets. */
+    /** Filter table rows by symbol/company substring (case-insensitive). Empty resets. */
     public void setSearchFilter(String query) {
         if (query == null || query.isBlank()) {
             filteredStocks.setPredicate(_ -> true);
@@ -338,8 +370,6 @@ public class MarketTableView {
     }
 
     public VBox getView() { return view; }
-    public TableView<Stock> getTable() { return table; }
-    public ObservableList<Stock> getStocks() { return stocks; }
 
     /** Plug in the source of event status per stock. */
     public void setEventLookup(Function<Stock, EventStatus> lookup) {
