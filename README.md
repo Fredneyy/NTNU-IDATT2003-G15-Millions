@@ -1,6 +1,7 @@
 # 📈 Millions – Stock Market Simulator
 
-A JavaFX stock-market simulator where you grow a virtual portfolio against a live-ticking, news-driven market.
+A JavaFX-based stock market simulation game where players build and manage a virtual
+portfolio in a dynamic, news-driven market environment.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -15,8 +16,15 @@ A JavaFX stock-market simulator where you grow a virtual portfolio against a liv
 - [Authors](#authors)
 
 ## Overview
-Millions simulates an evolving stock market with sector-tagged news events, weekly price ticks, and a portfolio you actually have to manage. Tune the difficulty, ride the auto-advance ticker, or step through week by week. Save your progress to JSON and pick up exactly where you left off.
+Millions is a desktop stock market simulator developed in Java with JavaFX. The application
+presents players with a simulated exchange populated by real-world company tickers, where
+market prices respond dynamically to procedurally generated news events tied to specific
+market sectors. Players manage a personal portfolio by buying and selling shares across
+weekly market cycles, with the goal of maximising their net worth over time.
 
+The application supports configurable difficulty settings, manual and automatic week
+advancement, and persistent save functionality via JSON serialization — allowing players
+to resume sessions seamlessly.
 ## Features
 - **Live Market Table** — simulated stock prices with one-click buy and sell.
 - **News Events** — sector-tagged news that nudges drift and volatility for a limited duration.
