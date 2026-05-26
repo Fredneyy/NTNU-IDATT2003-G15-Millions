@@ -2,10 +2,10 @@ package ntnu.idatt2003.group15.utilities;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Instant;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,6 +22,13 @@ public final class LoadGameUtil {
 
   private LoadGameUtil() {}
 
+  /**
+   * Load save data.
+   *
+   * @param file the file
+   * @return the save data
+   * @throws IOException if loading fails
+   */
   public static SaveData load(File file) throws IOException {
     String text = Files.readString(file.toPath(), StandardCharsets.UTF_8);
     Object parsed = JsonParser.parse(text);
@@ -49,7 +56,9 @@ public final class LoadGameUtil {
     if (pf instanceof List<?> list) {
       for (Object item : list) {
         Map<String, Object> share = asMap(item);
-        if (share == null) continue;
+        if (share == null) {
+          continue;
+        }
         String symbol = asString(share.get("symbol"));
         BigDecimal qty = asDecimal(share.get("quantity"));
         BigDecimal pps = asDecimal(share.get("pricePerShare"));
@@ -64,7 +73,9 @@ public final class LoadGameUtil {
     if (exchange != null && exchange.get("stocks") instanceof List<?> stockList) {
       for (Object item : stockList) {
         Map<String, Object> stock = asMap(item);
-        if (stock == null) continue;
+        if (stock == null) {
+          continue;
+        }
         String symbol = asString(stock.get("symbol"));
         BigDecimal price = asDecimal(stock.get("salesPrice"));
         if (symbol != null && price != null) {
@@ -90,12 +101,16 @@ public final class LoadGameUtil {
     if (txList instanceof List<?> list) {
       for (Object item : list) {
         Map<String, Object> tx = asMap(item);
-        if (tx == null) continue;
+        if (tx == null) {
+          continue;
+        }
         String type = asString(tx.get("type"));
         String symbol = asString(tx.get("symbol"));
         BigDecimal qty = asDecimal(tx.get("quantity"));
         BigDecimal pps = asDecimal(tx.get("pricePerShare"));
-        if (type == null || symbol == null || qty == null || pps == null) continue;
+        if (type == null || symbol == null || qty == null || pps == null) {
+          continue;
+        }
         Integer txWeek = asInt(tx.get("week"));
         Instant committedAt = asInstant(tx.get("committedAt"));
         BigDecimal salePrice = asDecimal(tx.get("salePricePerShare"));
@@ -105,7 +120,8 @@ public final class LoadGameUtil {
       }
     }
 
-    return new SaveData(name, cash, startingMoney, difficulty, week, savedAt, shares, stockPrices, stockHistories, transactions);
+    return new SaveData(name, cash, startingMoney, difficulty, week,
+        savedAt, shares, stockPrices, stockHistories, transactions);
   }
 
   @SuppressWarnings("unchecked")
@@ -118,10 +134,18 @@ public final class LoadGameUtil {
   }
 
   private static BigDecimal asDecimal(Object v) {
-    if (v instanceof BigDecimal b) return b;
-    if (v instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+    if (v instanceof BigDecimal b) {
+      return b;
+    }
+    if (v instanceof Number n) {
+      return BigDecimal.valueOf(n.doubleValue());
+    }
     if (v instanceof String s && !s.isBlank()) {
-      try { return new BigDecimal(s); } catch (NumberFormatException ignored) { /* fall through */ }
+      try {
+        return new BigDecimal(s);
+      } catch (NumberFormatException ignored) {
+
+      }
     }
     return null;
   }
@@ -137,8 +161,13 @@ public final class LoadGameUtil {
   }
 
   private static Instant asInstant(Object v) {
-    if (v == null) return null;
-    try { return Instant.parse(v.toString()); }
-    catch (RuntimeException e) { return null; }
+    if (v == null) {
+      return null;
+    }
+    try {
+      return Instant.parse(v.toString());
+    } catch (RuntimeException e) {
+      return null;
+    }
   }
 }

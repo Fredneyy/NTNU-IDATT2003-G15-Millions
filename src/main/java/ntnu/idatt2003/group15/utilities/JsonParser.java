@@ -25,7 +25,7 @@ public final class JsonParser {
   }
 
   /**
-   * Parse object.
+   * Parse the object object.
    *
    * @param src the src
    * @return the object
