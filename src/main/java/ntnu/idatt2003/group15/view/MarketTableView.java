@@ -66,13 +66,13 @@ public class MarketTableView {
         view.getChildren().addAll(buildHeaderRow(), table);
     }
     
-    private void getVinners() {
+    private void sortByWinners() {
         sortedStocks.setComparator(
             Comparator.comparing(Stock::getLatestPriceChangeRelative).reversed()
         );
     }
     
-    private void getLoosers() {
+    private void sortByLosers() {
         sortedStocks.setComparator(
             Comparator.comparing(Stock::getLatestPriceChangeRelative)
         );
@@ -100,11 +100,11 @@ public class MarketTableView {
         
         Button getVinnersButton = new Button("Get Winners");
         getVinnersButton.getStyleClass().add("market-buy-button");
-        getVinnersButton.setOnAction(_ -> getVinners());
+        getVinnersButton.setOnAction(_ -> sortByWinners());
 
         Button getLoosersButton = new Button("Get Losers");
         getLoosersButton.getStyleClass().add("market-sell-button");
-        getLoosersButton.setOnAction(_ -> getLoosers());
+        getLoosersButton.setOnAction(_ -> sortByLosers());
 
         HBox losersAndWinners = new HBox(20, clearFilterButton, getVinnersButton, getLoosersButton);
 
