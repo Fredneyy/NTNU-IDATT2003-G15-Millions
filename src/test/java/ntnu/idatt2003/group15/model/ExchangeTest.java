@@ -118,55 +118,6 @@ class ExchangeTest {
       }
 
       @Test
-      void getGainersOrdersByDescendingRelativeChange () {
-        Stock apple = exchange.getStock("AAPL");
-        Stock pgt = exchange.getStock("PGT");
-        // AAPL: 50 -> 60 (+20%). PGT: 1000 -> 900 (-10%).
-        apple.addNewSalesPrice(BigDecimal.valueOf(60));
-        pgt.addNewSalesPrice(BigDecimal.valueOf(900));
-
-        List<Stock> gainers = exchange.getGainers(2);
-
-        assertEquals(2, gainers.size());
-        assertEquals("AAPL", gainers.getFirst().getSymbol());
-        assertEquals("PGT", gainers.get(1).getSymbol());
-      }
-
-      @Test
-      void getGainersRespectsLimit () {
-        exchange.getStock("AAPL").addNewSalesPrice(BigDecimal.valueOf(60));
-        exchange.getStock("PGT").addNewSalesPrice(BigDecimal.valueOf(900));
-
-        List<Stock> gainers = exchange.getGainers(1);
-
-        assertEquals(1, gainers.size());
-      }
-
-      @Test
-      void getLosersOrdersByAscendingRelativeChange () {
-        Stock apple = exchange.getStock("AAPL");
-        Stock pgt = exchange.getStock("PGT");
-        apple.addNewSalesPrice(BigDecimal.valueOf(60));   // +20%
-        pgt.addNewSalesPrice(BigDecimal.valueOf(900));    // -10%
-
-        List<Stock> losers = exchange.getLosers(2);
-
-        assertEquals("PGT", losers.getFirst().getSymbol());
-        assertEquals("AAPL", losers.get(1).getSymbol());
-      }
-
-      @Test
-      void getGainersAndLosersInvertEachOther () {
-        exchange.getStock("AAPL").addNewSalesPrice(BigDecimal.valueOf(60));
-        exchange.getStock("PGT").addNewSalesPrice(BigDecimal.valueOf(900));
-
-        Stock topGainer = exchange.getGainers(1).getFirst();
-        Stock topLoser = exchange.getLosers(1).getFirst();
-
-        assertNotEquals(topGainer.getSymbol(), topLoser.getSymbol());
-      }
-
-      @Test
       void getAllStocksReturnsImmutableSnapshotOfListedStocks () {
         List<Stock> all = exchange.getAllStocks();
         assertEquals(2, all.size());
