@@ -136,7 +136,8 @@ public class GameView {
         portfolioController.getListProperty(),
         () -> confirmDialog.show(view,
             "Sell all stocks?",
-            "This will liquidate every share you currently hold. Do you really want to sell all stocks?",
+            "This will liquidate every share you "
+            + "currently hold. Do you really want to sell all stocks?",
             "Sell all",
             "Cancel",
             this::sellAllStocks));
@@ -257,10 +258,6 @@ public class GameView {
     });
   }
 
-  /**
-   * Forward a freshly-emitted news item into the feed and bump the unread
-   * counter on the News tab (unless that tab is already open).
-   */
   public void onNewsEmitted(NewsItem item) {
     pushItem(item);
     TabContainer.Tab sel = tabContainer.selectedTabProperty().get();
@@ -269,11 +266,6 @@ public class GameView {
     }
     unreadNews++;
     tabContainer.setBadge("news", unreadNews > 99 ? "99+" : Integer.toString(unreadNews));
-  }
-
-  private void clearNewsBadge() {
-    unreadNews = 0;
-    tabContainer.setBadge("news", null);
   }
 
   public NewsFeedView getNewsFeedView() {
@@ -293,7 +285,6 @@ public class GameView {
     }
   }
 
-
   public void close() {
     if (root != null) {
       root.getChildren().remove(view);
@@ -311,6 +302,11 @@ public class GameView {
     }
   }
 
+  private void clearNewsBadge() {
+    unreadNews = 0;
+    tabContainer.setBadge("news", null);
+  }
+
   private boolean saveGame() {
     FileChooser chooser = new FileChooser();
     chooser.setTitle("Save Game");
@@ -322,7 +318,8 @@ public class GameView {
         : "millions-" + name.toLowerCase().replaceAll("\\s+", "-") + ".json";
     chooser.setInitialFileName(suggested);
 
-    File target = chooser.showSaveDialog(view.getScene() == null ? null : view.getScene().getWindow());
+    File target = chooser.showSaveDialog(view.getScene() == null ? null : view.getScene()
+        .getWindow());
     if (target == null) {
       return false;
     }
@@ -429,8 +426,10 @@ public class GameView {
   private void addStatisticsCards() {
     ObservableValue<BigDecimal> netWorth = playerController.getNetWorthProperty();
     ObservableValue<BigDecimal> cash = playerController.getCashProperty();
-    ObservableValue<BigDecimal> portfolioValue = playerController.getPlayer().getPortfolio().getTotalMarketValueProperty();
-    ObservableValue<BigDecimal> pnl = playerController.getPlayer().getPortfolio().getUnrealizedPnlProperty();
+    ObservableValue<BigDecimal> portfolioValue = playerController.getPlayer()
+        .getPortfolio().getTotalMarketValueProperty();
+    ObservableValue<BigDecimal> pnl = playerController.getPlayer()
+        .getPortfolio().getUnrealizedPnlProperty();
 
     statisticsOverview.addCard(new StatisticsOverview.StatCard(
         "netWorth", "Net Worth", FontAwesome.DOLLAR,
@@ -465,8 +464,10 @@ public class GameView {
     return Bindings.createStringBinding(() -> formatSignedMoney(source.getValue()), source);
   }
 
-  private static ObservableValue<String> playerStatus(ExchangeController exchangeController, PlayerController playerController) {
-    return Bindings.createStringBinding(() -> formatPlayerStatus(playerController.getStatus(exchangeController.getWeek().get())), exchangeController.getWeek());
+  private static ObservableValue<String> playerStatus(ExchangeController exchangeController,
+                                                      PlayerController playerController) {
+    return Bindings.createStringBinding(() -> formatPlayerStatus(playerController
+        .getStatus(exchangeController.getWeek().get())), exchangeController.getWeek());
   }
 
   private static String formatPlayerStatus(PlayerStatus value) {

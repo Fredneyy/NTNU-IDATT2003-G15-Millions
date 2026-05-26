@@ -33,7 +33,9 @@ public class NewsContainer {
 
     /** Add this container to the given root if not already present. Top-right. */
     public void mountIn(StackPane root) {
-        if (root == null) return;
+        if (root == null) {
+            return;
+        }
         if (!root.getChildren().contains(stack)) {
             root.getChildren().add(stack);
             StackPane.setAlignment(stack, Pos.TOP_RIGHT);

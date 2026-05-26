@@ -55,10 +55,16 @@ public class StatisticsOverview {
 
         private static void applySign(Label label, String text) {
             label.getStyleClass().removeAll("stat-positive", "stat-negative");
-            if (text == null || text.isBlank()) return;
+            if (text == null || text.isBlank()) {
+                return;
+            }
             char first = text.charAt(0);
-            if (first == '+') label.getStyleClass().add("stat-positive");
-            else if (first == '-') label.getStyleClass().add("stat-negative");
+            if (first == '+') {
+                label.getStyleClass().add("stat-positive");
+            }
+            else if (first == '-') {
+                label.getStyleClass().add("stat-negative");
+            }
         }
     }
 

@@ -1,13 +1,39 @@
 package ntnu.idatt2003.group15.view;
 
-import javafx.animation.*;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.GaussianBlur;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
@@ -17,19 +43,15 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.MainMenuController;
 import ntnu.idatt2003.group15.model.SaveData;
 import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.utilities.CsvParser;
+import ntnu.idatt2003.group15.utilities.InputValidator;
+import ntnu.idatt2003.group15.utilities.LoadGameUtil;
+import ntnu.idatt2003.group15.utilities.SaveIndex;
+import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.utilities.stockparser.StockLoader;
+
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import ntnu.idatt2003.group15.utilities.*;
 
 public class MainMenu {
 
@@ -606,13 +628,13 @@ public class MainMenu {
       shakeField(startingMoneyField, shakeAnimationStartMoneyField);
     }
     if (!name.isBlank() && InputValidator.isInt(startingMoney)) {
-        try {
-          mainMenuController.startGame(
-              name, BigDecimal.valueOf(Long.parseLong(startingMoney)), customStocks);
-          close();
-        } catch (RuntimeException ex) {
-          errorHandler.accept(ex);
-        }
+      try {
+        mainMenuController.startGame(
+            name, BigDecimal.valueOf(Long.parseLong(startingMoney)), customStocks);
+        close();
+      } catch (RuntimeException ex) {
+        errorHandler.accept(ex);
+      }
     }
   }
 

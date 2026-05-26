@@ -31,349 +31,349 @@ import org.kordamp.ikonli.javafx.FontIcon;
  */
 public class MarketTableView {
 
-    public enum EventStatus { NONE, POSITIVE, NEGATIVE }
+  public enum EventStatus { NONE, POSITIVE, NEGATIVE }
 
-    private final VBox view = new VBox();
-    private final Label title = new Label("Live Market");
-    private final Label subtitle = new Label("Real-time stock prices");
-    private final TableView<Stock> table = new TableView<>();
-    private final FilteredList<Stock> filteredStocks;
-    private final SortedList<Stock> sortedStocks;
-    private final PortfolioController portfolioController;
-    private Function<Stock, EventStatus> eventLookup = _ -> EventStatus.NONE;
-    private final Consumer<Stock> onBuyPressed;
-    private final Consumer<Stock> onChartPressed;
+  private final VBox view = new VBox();
+  private final Label title = new Label("Live Market");
+  private final Label subtitle = new Label("Real-time stock prices");
+  private final TableView<Stock> table = new TableView<>();
+  private final FilteredList<Stock> filteredStocks;
+  private final SortedList<Stock> sortedStocks;
+  private final PortfolioController portfolioController;
+  private Function<Stock, EventStatus> eventLookup = _ -> EventStatus.NONE;
+  private final Consumer<Stock> onBuyPressed;
+  private final Consumer<Stock> onChartPressed;
 
-    public MarketTableView(ObservableList<Stock> stocks,
-                           PortfolioController portfolioController,
-                           Consumer<Stock> onBuyPressed,
-                           Consumer<Stock> onChartPressed) {
-        this.portfolioController = Objects.requireNonNull(portfolioController);
-        this.onBuyPressed = onBuyPressed;
-        this.onChartPressed = onChartPressed;
-        this.sortedStocks = new SortedList<>(stocks);
-        this.filteredStocks = new FilteredList<>(sortedStocks, _ -> true);
-        table.setMaxHeight(Double.MAX_VALUE);
-        table.setMaxWidth(Double.MAX_VALUE);
+  public MarketTableView(ObservableList<Stock> stocks,
+                         PortfolioController portfolioController,
+                         Consumer<Stock> onBuyPressed,
+                         Consumer<Stock> onChartPressed) {
+    this.portfolioController = Objects.requireNonNull(portfolioController);
+    this.onBuyPressed = onBuyPressed;
+    this.onChartPressed = onChartPressed;
+    this.sortedStocks = new SortedList<>(stocks);
+    this.filteredStocks = new FilteredList<>(sortedStocks, _ -> true);
+    table.setMaxHeight(Double.MAX_VALUE);
+    table.setMaxWidth(Double.MAX_VALUE);
 
-        buildHeader();
-        buildTable();
+    buildHeader();
+    buildTable();
 
-        view.getStyleClass().add("market-table");
-        view.setFillWidth(true);
-        VBox.setVgrow(view, Priority.ALWAYS);
-        view.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        view.getChildren().addAll(buildHeaderRow(), table);
-    }
-    
-    private void sortByWinners() {
-        sortedStocks.setComparator(
-            Comparator.comparing(Stock::getLatestPriceChangeRelative).reversed()
-        );
-    }
-    
-    private void sortByLosers() {
-        sortedStocks.setComparator(
-            Comparator.comparing(Stock::getLatestPriceChangeRelative)
-        );
-    }
+    view.getStyleClass().add("market-table");
+    view.setFillWidth(true);
+    VBox.setVgrow(view, Priority.ALWAYS);
+    view.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+    view.getChildren().addAll(buildHeaderRow(), table);
+  }
 
-    private void clearFilter() {
-        sortedStocks.setComparator(null);
-    }
+  private void sortByWinners() {
+    sortedStocks.setComparator(
+        Comparator.comparing(Stock::getLatestPriceChangeRelative).reversed()
+    );
+  }
 
-    private void buildHeader() {
-        title.getStyleClass().add("market-table-title");
-        subtitle.getStyleClass().add("market-table-subtitle");
-    }
+  private void sortByLosers() {
+    sortedStocks.setComparator(
+        Comparator.comparing(Stock::getLatestPriceChangeRelative)
+    );
+  }
 
-    private HBox buildHeaderRow() {
-        FontIcon icon = new FontIcon(FontAwesome.LINE_CHART);
-        icon.getStyleClass().add("market-table-icon");
+  private void clearFilter() {
+    sortedStocks.setComparator(null);
+  }
 
-        VBox titleBox = new VBox(title, subtitle);
-        titleBox.getStyleClass().add("market-table-title-box");
+  private void buildHeader() {
+    title.getStyleClass().add("market-table-title");
+    subtitle.getStyleClass().add("market-table-subtitle");
+  }
 
-        Button clearFilterButton = new Button("Clear Filter");
-        clearFilterButton.getStyleClass().add("market-clearFilter-button");
-        clearFilterButton.setOnAction(_ -> clearFilter());
-        
-        Button getVinnersButton = new Button("Get Winners");
-        getVinnersButton.getStyleClass().add("market-buy-button");
-        getVinnersButton.setOnAction(_ -> sortByWinners());
+  private HBox buildHeaderRow() {
+    FontIcon icon = new FontIcon(FontAwesome.LINE_CHART);
+    icon.getStyleClass().add("market-table-icon");
 
-        Button getLoosersButton = new Button("Get Losers");
-        getLoosersButton.getStyleClass().add("market-sell-button");
-        getLoosersButton.setOnAction(_ -> sortByLosers());
+    VBox titleBox = new VBox(title, subtitle);
+    titleBox.getStyleClass().add("market-table-title-box");
 
-        HBox losersAndWinners = new HBox(20, clearFilterButton, getVinnersButton, getLoosersButton);
+    Button clearFilterButton = new Button("Clear Filter");
+    clearFilterButton.getStyleClass().add("market-clearFilter-button");
+    clearFilterButton.setOnAction(_ -> clearFilter());
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+    Button getVinnersButton = new Button("Get Winners");
+    getVinnersButton.getStyleClass().add("market-buy-button");
+    getVinnersButton.setOnAction(_ -> sortByWinners());
 
-        HBox row = new HBox(icon, titleBox, spacer, losersAndWinners);
-        row.getStyleClass().add("market-table-header");
-        return row;
-    }
+    Button getLoosersButton = new Button("Get Losers");
+    getLoosersButton.getStyleClass().add("market-sell-button");
+    getLoosersButton.setOnAction(_ -> sortByLosers());
 
-    @SuppressWarnings("unchecked")
-    private void buildTable() {
-        TableColumn<Stock, Stock> symbolCol = new TableColumn<>("Symbol");
-        symbolCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
-        symbolCol.setCellFactory(_ -> symbolCell());
-        styleCellsAs(symbolCol, "col-symbol");
+    HBox losersAndWinners = new HBox(20, clearFilterButton, getVinnersButton, getLoosersButton);
 
-        TableColumn<Stock, String> companyCol = new TableColumn<>("Company");
-        companyCol.setCellValueFactory(c -> c.getValue().companyProperty());
-        styleCellsAs(companyCol, "col-company");
+    Region spacer = new Region();
+    HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        TableColumn<Stock, BigDecimal> priceCol = new TableColumn<>("Price");
-        priceCol.setCellValueFactory(c -> c.getValue().getPriceBinding());
-        priceCol.setCellFactory(_ -> moneyCell());
-        styleCellsAs(priceCol, "col-price");
+    HBox row = new HBox(icon, titleBox, spacer, losersAndWinners);
+    row.getStyleClass().add("market-table-header");
+    return row;
+  }
 
-        TableColumn<Stock, Stock> changeCol = new TableColumn<>("Change");
-        changeCol.setCellValueFactory(c -> {
-            Stock s = c.getValue();
-            return Bindings.createObjectBinding(() -> s, s.getPriceBinding());
-        });
-        changeCol.setCellFactory(_ -> combinedChangeCell());
-        styleCellsAs(changeCol, "col-change");
+  @SuppressWarnings("unchecked")
+  private void buildTable() {
+    TableColumn<Stock, Stock> symbolCol = new TableColumn<>("Symbol");
+    symbolCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+    symbolCol.setCellFactory(_ -> symbolCell());
+    styleCellsAs(symbolCol, "col-symbol");
 
-        ObservableList<Share> portfolioShares = portfolioController.getListProperty();
-        TableColumn<Stock, BigDecimal> ownedCol = new TableColumn<>("Owned");
-        ownedCol.setCellValueFactory(c -> {
-            Stock s = c.getValue();
-            return Bindings.createObjectBinding(
-                () -> totalOwnedFor(s, portfolioShares),
-                portfolioShares);
-        });
-        ownedCol.setCellFactory(_ -> ownedCell());
-        styleCellsAs(ownedCol, "col-owned");
+    TableColumn<Stock, String> companyCol = new TableColumn<>("Company");
+    companyCol.setCellValueFactory(c -> c.getValue().companyProperty());
+    styleCellsAs(companyCol, "col-company");
 
-        TableColumn<Stock, Stock> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
-        statusCol.setCellFactory(_ -> statusCell(this::lookupEvent));
-        styleCellsAs(statusCol, "col-status");
+    TableColumn<Stock, BigDecimal> priceCol = new TableColumn<>("Price");
+    priceCol.setCellValueFactory(c -> c.getValue().getPriceBinding());
+    priceCol.setCellFactory(_ -> moneyCell());
+    styleCellsAs(priceCol, "col-price");
 
-        TableColumn<Stock, Stock> actionCol = new TableColumn<>("Action");
-        actionCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
-        actionCol.setCellFactory(_ -> buyButtonCell());
-        actionCol.setSortable(false);
-        styleCellsAs(actionCol, "col-action");
+    TableColumn<Stock, Stock> changeCol = new TableColumn<>("Change");
+    changeCol.setCellValueFactory(c -> {
+      Stock s = c.getValue();
+      return Bindings.createObjectBinding(() -> s, s.getPriceBinding());
+    });
+    changeCol.setCellFactory(_ -> combinedChangeCell());
+    styleCellsAs(changeCol, "col-change");
 
-        table.getColumns().setAll(
-                symbolCol, companyCol, priceCol, changeCol, ownedCol, statusCol, actionCol);
+    ObservableList<Share> portfolioShares = portfolioController.getListProperty();
+    TableColumn<Stock, BigDecimal> ownedCol = new TableColumn<>("Owned");
+    ownedCol.setCellValueFactory(c -> {
+      Stock s = c.getValue();
+      return Bindings.createObjectBinding(
+          () -> totalOwnedFor(s, portfolioShares),
+          portfolioShares);
+    });
+    ownedCol.setCellFactory(_ -> ownedCell());
+    styleCellsAs(ownedCol, "col-owned");
 
-        table.setItems(filteredStocks);
-        table.setPlaceholder(new Label("No stocks match your filter."));
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        VBox.setVgrow(table, Priority.ALWAYS);
-        table.getStyleClass().add("market-table-inner");
-    }
+    TableColumn<Stock, Stock> statusCol = new TableColumn<>("Status");
+    statusCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+    statusCol.setCellFactory(_ -> statusCell(this::lookupEvent));
+    styleCellsAs(statusCol, "col-status");
 
-    private static <S, T> void styleCellsAs(TableColumn<S, T> column, String styleClass) {
-        column.getStyleClass().add(styleClass);
-    }
+    TableColumn<Stock, Stock> actionCol = new TableColumn<>("Action");
+    actionCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+    actionCol.setCellFactory(_ -> buyButtonCell());
+    actionCol.setSortable(false);
+    styleCellsAs(actionCol, "col-action");
 
-    private static TableCell<Stock, BigDecimal> moneyCell() {
-        return new TableCell<>() {
-            @Override
-            protected void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                if (empty || value == null) {
-                    setText(null);
-                } else {
-                    setText("$" + value.setScale(2, RoundingMode.HALF_UP).toPlainString());
-                }
-            }
-        };
-    }
+    table.getColumns().setAll(
+        symbolCol, companyCol, priceCol, changeCol, ownedCol, statusCol, actionCol);
 
-    private static TableCell<Stock, Stock> symbolCell() {
-        return new TableCell<>() {
-            private final Label avatarLabel = new Label();
-            private final StackPane avatar = new StackPane(avatarLabel);
-            private final HBox wrapper = new HBox(avatar);
-            {
-                avatar.getStyleClass().add("symbol-avatar");
-                avatarLabel.getStyleClass().add("symbol-avatar-text");
-                wrapper.getStyleClass().add("symbol-cell");
-                wrapper.setSpacing(12);
-                avatarLabel.setWrapText(true);
-            }
+    table.setItems(filteredStocks);
+    table.setPlaceholder(new Label("No stocks match your filter."));
+    table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+    VBox.setVgrow(table, Priority.ALWAYS);
+    table.getStyleClass().add("market-table-inner");
+  }
 
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                if (empty || stock == null) {
-                    setGraphic(null);
-                    return;
-                }
-                String sym = stock.getSymbol();
-                avatarLabel.setText(sym.length() >= 3 ? sym.substring(0, 3) : sym);
-                setGraphic(wrapper);
-            }
-        };
-    }
+  private static <S, T> void styleCellsAs(TableColumn<S, T> column, String styleClass) {
+    column.getStyleClass().add(styleClass);
+  }
 
-    private static TableCell<Stock, Stock> combinedChangeCell() {
-        return new TableCell<>() {
-            private final FontIcon arrow = new FontIcon();
-            private final Label amount = new Label();
-            private final Label percent = new Label();
-            private final HBox wrapper = new HBox(arrow, amount, percent);
-            {
-                wrapper.getStyleClass().add("change-cell");
-                amount.getStyleClass().add("change-amount");
-                percent.getStyleClass().add("change-percent");
-                wrapper.setSpacing(6);
-            }
-
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                wrapper.getStyleClass().removeAll("change-cell--positive", "change-cell--negative");
-                if (empty || stock == null) {
-                    setGraphic(null);
-                    return;
-                }
-                BigDecimal delta = stock.getLatestPriceChange();
-                BigDecimal pct = stock.getLatestPriceChangeRelative().movePointRight(2);
-                int sign = delta.signum();
-                String tone = sign >= 0 ? "change-cell--positive" : "change-cell--negative";
-                wrapper.getStyleClass().add(tone);
-
-                arrow.setIconCode(sign >= 0 ? FontAwesome.LINE_CHART : FontAwesome.AREA_CHART);
-                amount.setText((sign >= 0 ? "+" : "-") + "$"
-                        + delta.abs().setScale(2, RoundingMode.HALF_UP).toPlainString());
-                percent.setText("(" + (sign >= 0 ? "+" : "")
-                        + pct.setScale(2, RoundingMode.HALF_UP).toPlainString() + "%)");
-                setGraphic(wrapper);
-            }
-        };
-    }
-
-    private static TableCell<Stock, BigDecimal> ownedCell() {
-        return new TableCell<>() {
-            @Override
-            protected void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                getStyleClass().removeAll("cell-muted", "cell-owned");
-                if (empty || value == null || value.signum() <= 0) {
-                    setText(empty ? null : "—");
-                    if (!empty) getStyleClass().add("cell-muted");
-                } else {
-                    setText(value.stripTrailingZeros().toPlainString());
-                    getStyleClass().add("cell-owned");
-                }
-            }
-        };
-    }
-
-    private static BigDecimal totalOwnedFor(Stock stock, List<Share> shares) {
-        BigDecimal total = BigDecimal.ZERO;
-        String symbol = stock.getSymbol();
-        for (Share share : shares) {
-            if (share.stock().getSymbol().equalsIgnoreCase(symbol)) {
-                total = total.add(share.quantity());
-            }
+  private static TableCell<Stock, BigDecimal> moneyCell() {
+    return new TableCell<>() {
+      @Override
+      protected void updateItem(BigDecimal value, boolean empty) {
+        super.updateItem(value, empty);
+        if (empty || value == null) {
+          setText(null);
+        } else {
+          setText("$" + value.setScale(2, RoundingMode.HALF_UP).toPlainString());
         }
-        return total;
-    }
+      }
+    };
+  }
 
-    private static TableCell<Stock, Stock> statusCell(Function<Stock, EventStatus> lookup) {
-        return new TableCell<>() {
-            private final FontIcon warning = new FontIcon(FontAwesome.EXCLAMATION_TRIANGLE);
-            private final Label text = new Label("EVENT");
-            private final HBox badge = new HBox(warning, text);
-            {
-                badge.getStyleClass().add("status-badge");
-                badge.setSpacing(6);
-                text.getStyleClass().add("status-badge-text");
-            }
+  private static TableCell<Stock, Stock> symbolCell() {
+    return new TableCell<>() {
+      private final Label avatarLabel = new Label();
+      private final StackPane avatar = new StackPane(avatarLabel);
+      private final HBox wrapper = new HBox(avatar);
+      {
+        avatar.getStyleClass().add("symbol-avatar");
+        avatarLabel.getStyleClass().add("symbol-avatar-text");
+        wrapper.getStyleClass().add("symbol-cell");
+        wrapper.setSpacing(12);
+        avatarLabel.setWrapText(true);
+      }
 
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                badge.getStyleClass().removeAll("status-badge--positive", "status-badge--negative");
-                getStyleClass().removeAll("cell-muted");
-                if (empty || stock == null) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-                EventStatus status = lookup.apply(stock);
-                if (status == null || status == EventStatus.NONE) {
-                    setText("—");
-                    setGraphic(null);
-                    getStyleClass().add("cell-muted");
-                    return;
-                }
-                badge.getStyleClass().add(
-                        status == EventStatus.POSITIVE
-                                ? "status-badge--positive" : "status-badge--negative");
-                setText(null);
-                setGraphic(badge);
-            }
-        };
-    }
-
-    private EventStatus lookupEvent(Stock s) { return eventLookup.apply(s); }
-
-    private TableCell<Stock, Stock> buyButtonCell() {
-        return new TableCell<>() {
-            private final Button graphButton = new Button();
-            private final Button buyButton = new Button("Buy");
-            private final HBox wrapper = new HBox(graphButton, buyButton);
-            {
-                graphButton.setGraphic(new FontIcon(FontAwesome.AREA_CHART));
-                graphButton.getStyleClass().add("market-graph-button");
-                graphButton.setOnAction(_ -> {
-                    Stock stock = getItem();
-                    if (stock != null && onChartPressed != null) {
-                        onChartPressed.accept(stock);
-                    }
-                });
-
-                buyButton.setGraphic(new FontIcon(FontAwesome.SHOPPING_CART));
-                buyButton.getStyleClass().add("market-buy-button");
-                buyButton.setOnAction(_ -> {
-                    Stock stock = getItem();
-                    if (stock != null && onBuyPressed != null) {
-                        onBuyPressed.accept(stock);
-                    }
-                });
-
-                wrapper.getStyleClass().add("market-action-cell");
-                wrapper.setSpacing(8);
-            }
-
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                setGraphic(empty || stock == null ? null : wrapper);
-            }
-        };
-    }
-
-    /** Filter table rows by symbol/company substring (case-insensitive). Empty resets. */
-    public void setSearchFilter(String query) {
-        if (query == null || query.isBlank()) {
-            filteredStocks.setPredicate(_ -> true);
-            return;
+      @Override
+      protected void updateItem(Stock stock, boolean empty) {
+        super.updateItem(stock, empty);
+        if (empty || stock == null) {
+          setGraphic(null);
+          return;
         }
-        String q = query.trim().toLowerCase();
-        filteredStocks.setPredicate(s ->
-                s.getSymbol().toLowerCase().contains(q)
-                        || s.getCompany().toLowerCase().contains(q));
-    }
+        String sym = stock.getSymbol();
+        avatarLabel.setText(sym.length() >= 3 ? sym.substring(0, 3) : sym);
+        setGraphic(wrapper);
+      }
+    };
+  }
 
-    public VBox getView() { return view; }
+  private static TableCell<Stock, Stock> combinedChangeCell() {
+    return new TableCell<>() {
+      private final FontIcon arrow = new FontIcon();
+      private final Label amount = new Label();
+      private final Label percent = new Label();
+      private final HBox wrapper = new HBox(arrow, amount, percent);
+      {
+        wrapper.getStyleClass().add("change-cell");
+        amount.getStyleClass().add("change-amount");
+        percent.getStyleClass().add("change-percent");
+        wrapper.setSpacing(6);
+      }
 
-    /** Plug in the source of event status per stock. */
-    public void setEventLookup(Function<Stock, EventStatus> lookup) {
-        this.eventLookup = lookup == null ? _ -> EventStatus.NONE : lookup;
-        table.refresh();
+      @Override
+      protected void updateItem(Stock stock, boolean empty) {
+        super.updateItem(stock, empty);
+        wrapper.getStyleClass().removeAll("change-cell--positive", "change-cell--negative");
+        if (empty || stock == null) {
+          setGraphic(null);
+          return;
+        }
+        BigDecimal delta = stock.getLatestPriceChange();
+        BigDecimal pct = stock.getLatestPriceChangeRelative().movePointRight(2);
+        int sign = delta.signum();
+        String tone = sign >= 0 ? "change-cell--positive" : "change-cell--negative";
+        wrapper.getStyleClass().add(tone);
+
+        arrow.setIconCode(sign >= 0 ? FontAwesome.LINE_CHART : FontAwesome.AREA_CHART);
+        amount.setText((sign >= 0 ? "+" : "-") + "$"
+            + delta.abs().setScale(2, RoundingMode.HALF_UP).toPlainString());
+        percent.setText("(" + (sign >= 0 ? "+" : "")
+            + pct.setScale(2, RoundingMode.HALF_UP).toPlainString() + "%)");
+        setGraphic(wrapper);
+      }
+    };
+  }
+
+  private static TableCell<Stock, BigDecimal> ownedCell() {
+    return new TableCell<>() {
+      @Override
+      protected void updateItem(BigDecimal value, boolean empty) {
+        super.updateItem(value, empty);
+        getStyleClass().removeAll("cell-muted", "cell-owned");
+        if (empty || value == null || value.signum() <= 0) {
+          setText(empty ? null : "—");
+          if (!empty) getStyleClass().add("cell-muted");
+        } else {
+          setText(value.stripTrailingZeros().toPlainString());
+          getStyleClass().add("cell-owned");
+        }
+      }
+    };
+  }
+
+  private static BigDecimal totalOwnedFor(Stock stock, List<Share> shares) {
+    BigDecimal total = BigDecimal.ZERO;
+    String symbol = stock.getSymbol();
+    for (Share share : shares) {
+      if (share.stock().getSymbol().equalsIgnoreCase(symbol)) {
+        total = total.add(share.quantity());
+      }
     }
+    return total;
+  }
+
+  private static TableCell<Stock, Stock> statusCell(Function<Stock, EventStatus> lookup) {
+    return new TableCell<>() {
+      private final FontIcon warning = new FontIcon(FontAwesome.EXCLAMATION_TRIANGLE);
+      private final Label text = new Label("EVENT");
+      private final HBox badge = new HBox(warning, text);
+      {
+        badge.getStyleClass().add("status-badge");
+        badge.setSpacing(6);
+        text.getStyleClass().add("status-badge-text");
+      }
+
+      @Override
+      protected void updateItem(Stock stock, boolean empty) {
+        super.updateItem(stock, empty);
+        badge.getStyleClass().removeAll("status-badge--positive", "status-badge--negative");
+        getStyleClass().removeAll("cell-muted");
+        if (empty || stock == null) {
+          setText(null);
+          setGraphic(null);
+          return;
+        }
+        EventStatus status = lookup.apply(stock);
+        if (status == null || status == EventStatus.NONE) {
+          setText("—");
+          setGraphic(null);
+          getStyleClass().add("cell-muted");
+          return;
+        }
+        badge.getStyleClass().add(
+            status == EventStatus.POSITIVE
+                ? "status-badge--positive" : "status-badge--negative");
+        setText(null);
+        setGraphic(badge);
+      }
+    };
+  }
+
+  private EventStatus lookupEvent(Stock s) { return eventLookup.apply(s); }
+
+  private TableCell<Stock, Stock> buyButtonCell() {
+    return new TableCell<>() {
+      private final Button graphButton = new Button();
+      private final Button buyButton = new Button("Buy");
+      private final HBox wrapper = new HBox(graphButton, buyButton);
+      {
+        graphButton.setGraphic(new FontIcon(FontAwesome.AREA_CHART));
+        graphButton.getStyleClass().add("market-graph-button");
+        graphButton.setOnAction(_ -> {
+          Stock stock = getItem();
+          if (stock != null && onChartPressed != null) {
+            onChartPressed.accept(stock);
+          }
+        });
+
+        buyButton.setGraphic(new FontIcon(FontAwesome.SHOPPING_CART));
+        buyButton.getStyleClass().add("market-buy-button");
+        buyButton.setOnAction(_ -> {
+          Stock stock = getItem();
+          if (stock != null && onBuyPressed != null) {
+            onBuyPressed.accept(stock);
+          }
+        });
+
+        wrapper.getStyleClass().add("market-action-cell");
+        wrapper.setSpacing(8);
+      }
+
+      @Override
+      protected void updateItem(Stock stock, boolean empty) {
+        super.updateItem(stock, empty);
+        setGraphic(empty || stock == null ? null : wrapper);
+      }
+    };
+  }
+
+  /** Filter table rows by symbol/company substring (case-insensitive). Empty resets. */
+  public void setSearchFilter(String query) {
+    if (query == null || query.isBlank()) {
+      filteredStocks.setPredicate(_ -> true);
+      return;
+    }
+    String q = query.trim().toLowerCase();
+    filteredStocks.setPredicate(s ->
+        s.getSymbol().toLowerCase().contains(q)
+            || s.getCompany().toLowerCase().contains(q));
+  }
+
+  public VBox getView() { return view; }
+
+  /** Plug in the source of event status per stock. */
+  public void setEventLookup(Function<Stock, EventStatus> lookup) {
+    this.eventLookup = lookup == null ? _ -> EventStatus.NONE : lookup;
+    table.refresh();
+  }
 }

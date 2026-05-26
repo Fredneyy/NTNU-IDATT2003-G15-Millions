@@ -191,7 +191,9 @@ public class TradesView {
     }
 
     private void triggerReceipt(TradeRecord record) {
-        if (onOpenReceipt != null) onOpenReceipt.accept(record);
+        if (onOpenReceipt != null) {
+            onOpenReceipt.accept(record);
+        }
     }
 
     public VBox getView() { return view; }
@@ -242,7 +244,9 @@ public class TradesView {
             receiptButton.setGraphic(receiptIcon);
             receiptButton.getStyleClass().add("trade-receipt-button");
             receiptButton.setOnAction(_ -> {
-                if (onOpenReceipt != null) onOpenReceipt.accept(t);
+                if (onOpenReceipt != null) {
+                    onOpenReceipt.accept(t);
+                }
             });
 
             HBox meta = new HBox(
@@ -324,18 +328,30 @@ public class TradesView {
         }
 
         private static String relativeTime(Instant when) {
-            if (when == null) return "";
+            if (when == null) {
+                return "";
+            }
             Duration d = Duration.between(when, Instant.now());
             long seconds = d.getSeconds();
-            if (seconds < 60)      return seconds + "s ago";
+            if (seconds < 60) {
+                return seconds + "s ago";
+            }
             long minutes = seconds / 60;
-            if (minutes < 60)      return minutes + "m ago";
+            if (minutes < 60) {
+                return minutes + "m ago";
+            }
             long hours = minutes / 60;
-            if (hours < 24)        return hours + "h ago";
+            if (hours < 24) {
+                return hours + "h ago";
+            }
             long days = hours / 24;
-            if (days < 30)         return days + "d ago";
+            if (days < 30) {
+                return days + "d ago";
+            }
             long months = days / 30;
-            if (months < 12)       return months + "mo ago";
+            if (months < 12) {
+                return months + "mo ago";
+            }
             return (days / 365) + "y ago";
         }
     }
@@ -353,7 +369,9 @@ public class TradesView {
 
         for (TradeRecord record : trades) {
             TradeRow row = tradeRows.get(record);
-            if (row == null) continue;
+            if (row == null) {
+                continue;
+            }
             if (filteredTradeRecords.contains(record)) {
                 row.setVisible();
             } else {

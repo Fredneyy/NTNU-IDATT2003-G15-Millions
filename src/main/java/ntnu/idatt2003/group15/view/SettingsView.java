@@ -93,7 +93,9 @@ public class SettingsView {
         closeButton.setGraphic(closeIcon);
         closeButton.getStyleClass().add("settings-close-button");
         closeButton.setOnAction(_ -> {
-            if (open) toggle();
+            if (open) {
+              toggle();
+            }
         });
 
       HBox headerContent = new HBox(iconAndTitle, headerSpacer, difficultyValueLabel, closeButton);

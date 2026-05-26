@@ -78,7 +78,9 @@ public class TabContainer {
     public TabContainer(Tab... initialTabs) {
         this();
         for (Tab t : initialTabs) addTab(t);
-        if (!tabs.isEmpty()) select(tabs.getFirst().getId());
+        if (!tabs.isEmpty()) {
+            select(tabs.getFirst().getId());
+        }
     }
 
     public void addTab(Tab tab) {
@@ -100,7 +102,9 @@ public class TabContainer {
     /** Select a tab by id. No-op if id is unknown. */
     public void select(String id) {
         Tab target = findTab(id);
-        if (target == null) return;
+        if (target == null) {
+            return;
+        }
 
         for (Map.Entry<String, HBox> entry : tabButtons.entrySet()) {
             boolean active = entry.getKey().equals(id);
@@ -114,11 +118,15 @@ public class TabContainer {
     /** Update (or clear) a tab's badge text at runtime. */
     public void setBadge(String tabId, String badgeText) {
         Tab tab = findTab(tabId);
-        if (tab == null) return;
+        if (tab == null) {
+            return;
+        }
         tab.setBadgeText(badgeText);
 
         Label badge = badgeLabels.get(tabId);
-        if (badge == null) return;
+        if (badge == null) {
+            return;
+        }
 
         if (badgeText == null || badgeText.isBlank()) {
             badge.setVisible(false);
@@ -137,7 +145,9 @@ public class TabContainer {
     }
 
     private Tab findTab(String id) {
-        for (Tab t : tabs) if (t.getId().equals(id)) return t;
+        for (Tab t : tabs) if (t.getId().equals(id)) {
+            return t;
+        }
         return null;
     }
 
