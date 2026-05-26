@@ -50,6 +50,10 @@ public class ExchangeController {
         exchange.sell(share, amount, player);
     }
 
+    public void reset() {
+        exchange.reset();
+    }
+
     public BigDecimal getCommission() {
         return exchange.getCommission();
     }
@@ -70,7 +74,4 @@ public class ExchangeController {
         exchange.setNewsObservableList(newsObserver);
     }
 
-    public void reset() {
-        exchange.reset();
-    }
 }

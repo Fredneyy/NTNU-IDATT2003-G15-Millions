@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.collections.ListChangeListener;
@@ -80,14 +82,18 @@ public class GameView {
   public GameView(PlayerController player, ExchangeController exchange,
                   GameSettings settings, Runnable runnableExit,
                   Consumer<Throwable> errorHandler, NewsController newsController, Runnable advance,
-                  Runnable autoAdvanceOn, Runnable autoadvanceOff) {
+                  Runnable autoAdvanceOn, Runnable autoAdvanceOff) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
     ObservableList<NewsItem> news = Objects.requireNonNull(newsController.getNewsObservable());
     this.newsFeedView.setEvents(newsController.getNewsObservable());
     this.gameSettings = Objects.requireNonNull(settings, "settings");
     this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler");
-    ObservableList<Stock> marketStocks = FXCollections.observableArrayList();
+    ObservableList<Stock> marketStocks = FXCollections.observableArrayList(
+        stock -> new Observable[] {
+            stock.getHistoricalPrices()
+        }
+    );
     marketStocks.addAll(exchangeController.getAllStocks());
 
     buyStockDialog = new BuyStockDialog(
@@ -188,7 +194,7 @@ public class GameView {
       if (value.getValue() == true) {
         autoAdvanceOn.run();
       } else {
-        autoadvanceOff.run();
+        autoAdvanceOff.run();
       }
     });
     headerView.getAdvanceWeekButton().setOnAction(_ -> advance.run());
@@ -229,6 +235,7 @@ public class GameView {
     view.getStyleClass().add("game-view");
     ScrollPane scroll = new ScrollPane(layout);
     scroll.setFitToWidth(true);
+    scroll.setFitToHeight(true);
     scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
     scroll.getStyleClass().add("game-scroll");

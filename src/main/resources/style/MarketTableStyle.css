@@ -306,6 +306,38 @@
     -fx-scale-x: 0.94;
     -fx-scale-y: 0.94;
 }
+.market-clearFilter-button {
+    -fx-background-color: linear-gradient(to bottom, #3a3f46, #2e333a);
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 7 16;
+    -fx-min-height: 34;
+    -fx-pref-height: 34;
+    -fx-cursor: hand;
+    -fx-graphic-text-gap: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 8, 0.0, 0, 2);
+}
+
+.market-clearFilter-button .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 13;
+}
+
+.market-clearFilter-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #454b53, #373d44);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 14, 0.25, 0, 3);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.market-clearFilter-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2f343a, #252a30);
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.20), 4, 0.0, 0, 1);
+}
 
 .market-buy-button {
     -fx-background-color: linear-gradient(to bottom, #28E07A, #1bbf66);

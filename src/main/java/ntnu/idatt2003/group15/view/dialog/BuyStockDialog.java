@@ -7,6 +7,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.utilities.InputValidator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -107,7 +108,13 @@ public class BuyStockDialog extends TransactionDialog {
 
     transactionButton.setOnAction(_ -> {
       BigDecimal q = qtyValue.get();
-      if (q == null || q.signum() <= 0) return;
+      try {
+        if (!InputValidator.isBigDecimalValuePositive(q)) {
+          return;
+        }
+      } catch (NullPointerException e) {
+        errorHandler.accept(e);
+      }
       try {
         onConfirm.accept(stock, q);
         close();

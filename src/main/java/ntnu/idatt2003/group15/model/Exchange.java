@@ -212,7 +212,7 @@ public class Exchange {
 
             if (!item.appliedChange() && item.changePercent() != null) {
               double baseChange = item.changePercent().doubleValue();
-              double finalIndividualChange = rnd.nextGaussian(baseChange,0.1);
+              double finalIndividualChange = rnd.nextGaussian(baseChange, 0.05);
               
               stackedImpactJump += finalIndividualChange;
             }
@@ -238,36 +238,6 @@ public class Exchange {
         }
       }
     }
-  }
-
-  /**
-   * Retrieves the top gaining stocks bounded by the given limit.
-   *
-   * @param limit the amount of stocks to retrieve
-   * @return a {@code List} containing the best to worst stocks
-   */
-  public List<Stock> getGainers(int limit) {
-    List<Stock> list = new ArrayList<>(stockMap.values());
-
-    return list.stream()
-        .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative).reversed())
-        .limit(limit)
-        .collect(Collectors.toList());
-  }
-
-  /**
-   * Retrieves the top losing stocks bounded by the given limit.
-   *
-   * @param limit the amount of stocks to retrieve
-   * @return a {@code List} containing the worst to best stocks
-   */
-  public List<Stock> getLosers(int limit) {
-    List<Stock> list = new ArrayList<>(stockMap.values());
-
-    return list.stream()
-        .sorted(Comparator.comparing(Stock::getLatestPriceChangeRelative))
-        .limit(limit)
-        .collect(Collectors.toList());
   }
 
   public void reset() {
