@@ -44,13 +44,13 @@ public class GameSettings {
   }
 
   private void recompute(double d) {
-    double clamped = clamp(d, MIN_DIFFICULTY, MAX_DIFFICULTY);
+    double clamped = clamp(d);
     volatilityMultiplier.set(clamped);
     maxEventChance.set(0.06 + 0.04 * clamped);
   }
 
-  private static double clamp(double v, double lo, double hi) {
-    return Math.max(lo, Math.min(hi, v));
+  private static double clamp(double v) {
+    return Math.max(GameSettings.MIN_DIFFICULTY, Math.min(GameSettings.MAX_DIFFICULTY, v));
   }
 
   /**

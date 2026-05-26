@@ -12,6 +12,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
@@ -104,7 +105,7 @@ public class NewsFeedView {
     }
 
     public VBox getView() { return view; }
-    public ObservableList<NewsItem> getEvents() { return events; }
+
     public void setEvents(ObservableList<NewsItem> items) { Bindings.bindContent(events, items); }
 
     private static final class NewsRow {
@@ -164,7 +165,7 @@ public class NewsFeedView {
             HBox meta = new HBox(
                     metaPair("Volatility:", vol.stripTrailingZeros().toPlainString() + "x"),
                     metaPair("Duration:", ev.originalDurationUpdates() + " updates"),
-                    metaPairNode("Remaining:", remainingValue)
+                    metaPairNode(remainingValue)
             );
             meta.setSpacing(28);
             meta.getStyleClass().add("news-row-meta");
@@ -193,8 +194,8 @@ public class NewsFeedView {
          * textProperty is bound to an IntegerProperty) so the live "Remaining"
          * countdown can re-render on each tick without rebuilding the row.
          */
-        private static HBox metaPairNode(String label, javafx.scene.Node value) {
-            Label l = new Label(label);
+        private static HBox metaPairNode(Node value) {
+            Label l = new Label("Remaining:");
             l.getStyleClass().add("news-meta-label");
             HBox row = new HBox(l, value);
             row.setSpacing(6);

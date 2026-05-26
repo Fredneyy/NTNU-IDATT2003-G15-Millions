@@ -37,7 +37,7 @@ public class Sale extends Transaction {
     }
     s.salePricePerShare = salePricePerShare;
     s.proceeds = proceeds;
-    s.setCommitted(true);
+    s.setCommitted();
     return s;
   }
 
@@ -83,6 +83,6 @@ public class Sale extends Transaction {
     player.addMoney(this.proceeds);
     player.getPortfolio().removeShare(getShare());
     player.getTransactionArchive().add(this);
-    setCommitted(true);
+    setCommitted();
   }
 }

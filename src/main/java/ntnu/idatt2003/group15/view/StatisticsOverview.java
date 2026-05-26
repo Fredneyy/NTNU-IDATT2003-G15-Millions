@@ -50,7 +50,7 @@ public class StatisticsOverview {
             this.model = model;
 
             applySign(valueLabel, valueLabel.getText());
-            valueLabel.textProperty().addListener((obs, oldText, newText) -> applySign(valueLabel, newText));
+            valueLabel.textProperty().addListener((_, _, newText) -> applySign(valueLabel, newText));
         }
 
         private static void applySign(Label label, String text) {

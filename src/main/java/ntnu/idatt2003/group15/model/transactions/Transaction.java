@@ -70,11 +70,9 @@ public abstract class Transaction {
 
   /**
    * Sets transaction to committed or not.
-   *
-   * @param committed the new state of the transaction
    */
-  protected void setCommitted(boolean committed) {
-    this.committed = committed;
+  protected void setCommitted() {
+    this.committed = true;
   }
 
   /** Returns when this transaction was first instantiated (committed). */

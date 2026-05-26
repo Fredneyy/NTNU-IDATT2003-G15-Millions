@@ -30,7 +30,7 @@ public class Purchase extends Transaction {
     if (committedAt != null) {
       p.setCommittedAt(committedAt);
     }
-    p.setCommitted(true);
+    p.setCommitted();
     return p;
   }
 
@@ -53,6 +53,6 @@ public class Purchase extends Transaction {
       player.getPortfolio().addShare(getShare());
     }
     player.getTransactionArchive().add(this);
-    setCommitted(true);
+    setCommitted();
   }
 }

@@ -168,7 +168,7 @@ public class Stock {
 
   public void reset() {
     if (prices.size() > 1) {
-      BigDecimal original = prices.get(0);
+      BigDecimal original = prices.getFirst();
       prices.setAll(original);
     }
   }

@@ -23,7 +23,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 /**
  * Stats tab content. Four KPI cards on top + a Performance Summary card below.
- *
+ * <p>
  * Values are exposed via setters so a controller can wire real data.
  */
 public class StatsView {
@@ -85,7 +85,7 @@ public class StatsView {
 
         HBox columns = new HBox(
                 buildSummaryColumn("Total Return",
-                        wrapHBox(totalReturnValue, totalReturnPercent, 8),
+                        wrapHBox(totalReturnValue, totalReturnPercent),
                         Pos.CENTER_LEFT),
                 buildSummaryColumn("Avg Trade Size", avgTradeSize, Pos.CENTER),
                 buildSummaryColumn("Most Traded", mostTraded, Pos.CENTER_RIGHT));
@@ -115,9 +115,9 @@ public class StatsView {
         return col;
     }
 
-    private static HBox wrapHBox(Node a, Node b, double spacing) {
+    private static HBox wrapHBox(Node a, Node b) {
         HBox h = new HBox(a, b);
-        h.setSpacing(spacing);
+        h.setSpacing(8);
         h.setAlignment(Pos.BASELINE_LEFT);
         return h;
     }

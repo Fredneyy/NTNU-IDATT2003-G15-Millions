@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.IntegerProperty;
 import javafx.collections.ListChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -32,7 +31,6 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.*;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.model.news.NewsItem;
-import ntnu.idatt2003.group15.model.player.Player;
 import ntnu.idatt2003.group15.model.player.PlayerStatus;
 import ntnu.idatt2003.group15.model.stocks.Share;
 import ntnu.idatt2003.group15.model.stocks.Stock;
@@ -61,7 +59,6 @@ public class GameView {
   private final ConfirmDialog confirmDialog = new ConfirmDialog();
   private final MarketTableView marketTable;
   private final PortfolioTableView portfolioTable;
-  private final SellAllCard sellAllCard;
   private final NewsFeedView newsFeedView = new NewsFeedView();
   private final TextField searchField = new TextField();
   private final HBox searchBar;
@@ -135,7 +132,7 @@ public class GameView {
     portfolioTable = new PortfolioTableView(portfolioController,
         share -> sellStockDialog.show(view, share),
         stock -> stockChartDialog.show(view, stock));
-    sellAllCard = new SellAllCard(
+    SellAllCard sellAllCard = new SellAllCard(
         portfolioController.getListProperty(),
         () -> confirmDialog.show(view,
             "Sell all stocks?",
@@ -329,7 +326,7 @@ public class GameView {
 
     try {
       SaveGameUtil.save(target, playerController, exchangeController, gameSettings);
-      showInfo("Game saved", "Saved to:\n" + target.getAbsolutePath());
+      showInfo("Saved to:\n" + target.getAbsolutePath());
       return true;
     } catch (IOException ex) {
       errorHandler.accept(ex);
@@ -365,10 +362,10 @@ public class GameView {
     );
   }
 
-  private static void showInfo(String header, String message) {
+  private static void showInfo(String message) {
     Alert a = new Alert(Alert.AlertType.INFORMATION);
     a.setTitle("Millions");
-    a.setHeaderText(header);
+    a.setHeaderText("Game saved");
     a.setContentText(message);
     a.showAndWait();
   }

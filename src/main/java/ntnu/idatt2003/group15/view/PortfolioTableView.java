@@ -287,7 +287,7 @@ public class PortfolioTableView {
 
 
     public VBox getView() { return view; }
-    public TableView<Share> getTable() { return table; }
+
     public ObservableList<Share> getShares() { return portfolioController.getListProperty(); }
 
     /** Filter rows by symbol or company substring (case insensitive). Empty resets. */

@@ -78,7 +78,7 @@ public class TabContainer {
     public TabContainer(Tab... initialTabs) {
         this();
         for (Tab t : initialTabs) addTab(t);
-        if (!tabs.isEmpty()) select(tabs.get(0).getId());
+        if (!tabs.isEmpty()) select(tabs.getFirst().getId());
     }
 
     public void addTab(Tab tab) {

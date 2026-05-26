@@ -52,7 +52,7 @@ public class NewsContainer {
     /** Insert a dialog node at the top of the stack. Older ones get pushed down. */
     public void pushTop(Node dialogNode) {
         if (!stack.getChildren().contains(dialogNode)) {
-            stack.getChildren().add(0, dialogNode);
+            stack.getChildren().addFirst(dialogNode);
         }
     }
 
@@ -60,13 +60,6 @@ public class NewsContainer {
     public void remove(Node dialogNode) {
         stack.getChildren().remove(dialogNode);
     }
-
-    /** Drop every notification currently shown. */
-    public void clear() {
-        stack.getChildren().clear();
-    }
-
-    public int count() { return stack.getChildren().size(); }
 
     public VBox getView() { return stack; }
 }
