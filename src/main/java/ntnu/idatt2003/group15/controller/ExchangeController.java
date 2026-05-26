@@ -69,4 +69,8 @@ public class ExchangeController {
     public void setNewsObserver(ObservableList<NewsItem> newsObserver) {
         exchange.setNewsObservableList(newsObserver);
     }
+
+    public void reset() {
+        exchange.reset();
+    }
 }

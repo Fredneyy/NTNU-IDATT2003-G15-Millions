@@ -60,6 +60,7 @@ public final class LoadGameUtil {
     }
 
     Map<String, BigDecimal> stockPrices = new LinkedHashMap<>();
+    Map<String, List<BigDecimal>> stockHistories = new LinkedHashMap<>();
     if (exchange != null && exchange.get("stocks") instanceof List<?> stockList) {
       for (Object item : stockList) {
         Map<String, Object> stock = asMap(item);
@@ -68,6 +69,18 @@ public final class LoadGameUtil {
         BigDecimal price = asDecimal(stock.get("salesPrice"));
         if (symbol != null && price != null) {
           stockPrices.put(symbol, price);
+        }
+        if (symbol != null && stock.get("history") instanceof List<?> rawHistory) {
+          List<BigDecimal> history = new ArrayList<>(rawHistory.size());
+          for (Object raw : rawHistory) {
+            BigDecimal hp = asDecimal(raw);
+            if (hp != null && hp.signum() > 0) {
+              history.add(hp);
+            }
+          }
+          if (!history.isEmpty()) {
+            stockHistories.put(symbol, history);
+          }
         }
       }
     }
@@ -92,7 +105,7 @@ public final class LoadGameUtil {
       }
     }
 
-    return new SaveData(name, cash, startingMoney, difficulty, week, savedAt, shares, stockPrices, transactions);
+    return new SaveData(name, cash, startingMoney, difficulty, week, savedAt, shares, stockPrices, stockHistories, transactions);
   }
 
   @SuppressWarnings("unchecked")
