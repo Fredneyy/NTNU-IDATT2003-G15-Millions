@@ -18,7 +18,6 @@ import java.util.Objects;
 public class SettingsView {
 
     private final StackPane view = new StackPane();
-
   private boolean open = false;
     private final double naturalHeight = 0;
 
@@ -130,28 +129,28 @@ public class SettingsView {
 
     FontIcon tipIcon = new FontIcon(FontAwesome.BOLT);
     tipIcon.getStyleClass().add("settings-tip-icon");
-        tipLabel.getStyleClass().add("settings-tip-label");
+    tipLabel.getStyleClass().add("settings-tip-label");
     HBox tipBox = new HBox(tipIcon, tipLabel);
     tipBox.getStyleClass().add("settings-tip-box");
 
-        card.getChildren().addAll(
-            headerContent,
-            sliderSection,
-            divider,
-            statsRow,
-            tipBox
-        );
+    card.getChildren().addAll(
+        headerContent,
+        sliderSection,
+        divider,
+        statsRow,
+        tipBox
+    );
 
-        view.getChildren().add(card);
+    view.getChildren().add(card);
 
-        Rectangle clip = new Rectangle();
-        clip.widthProperty().bind(view.widthProperty());
-        clip.heightProperty().bind(view.heightProperty());
-        view.setClip(clip);
+    Rectangle clip = new Rectangle();
+    clip.widthProperty().bind(view.widthProperty());
+    clip.heightProperty().bind(view.heightProperty());
+    view.setClip(clip);
 
-        view.setManaged(false);
-        view.setVisible(false);
-        view.setPrefHeight(0);
+    view.setManaged(false);
+    view.setVisible(false);
+    view.setPrefHeight(0);
     }
 
     public void toggle() {

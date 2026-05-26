@@ -28,7 +28,8 @@ public class SellAllCard {
     Label title = new Label("Cash Out");
     title.getStyleClass().add("sell-all-title");
 
-    Label subtitle = new Label("Sell every share you currently hold and turn your portfolio into cash.");
+    Label subtitle = new Label("Sell every share you currently "
+        + "hold and turn your portfolio into cash.");
     subtitle.getStyleClass().add("sell-all-subtitle");
     subtitle.setWrapText(true);
 
