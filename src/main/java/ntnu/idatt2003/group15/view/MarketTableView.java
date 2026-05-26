@@ -43,6 +43,9 @@ public class MarketTableView {
     private Function<Stock, EventStatus> eventLookup = _ -> EventStatus.NONE;
     private final Consumer<Stock> onBuyPressed;
     private final Consumer<Stock> onChartPressed;
+    private final Button clearFilterButton = new Button("Clear Filter");
+    private final Button getWinnersButton = new Button("Get Vinners");
+    private final Button getLosersButton = new Button("Get Loosers");
 
     public MarketTableView(ObservableList<Stock> stocks,
                            PortfolioController portfolioController,
@@ -70,16 +73,22 @@ public class MarketTableView {
         sortedStocks.setComparator(
             Comparator.comparing(Stock::getLatestPriceChangeRelative).reversed()
         );
+        getWinnersButton.getStyleClass().add("active-filter");
+        getLosersButton.getStyleClass().remove("active-filter");
     }
     
     private void sortByLosers() {
         sortedStocks.setComparator(
             Comparator.comparing(Stock::getLatestPriceChangeRelative)
         );
+        getLosersButton.getStyleClass().add("active-filter");
+        getWinnersButton.getStyleClass().remove("active-filter");
     }
 
     private void clearFilter() {
         sortedStocks.setComparator(null);
+        getWinnersButton.getStyleClass().remove("active-filter");
+        getLosersButton.getStyleClass().remove("active-filter");
     }
 
     private void buildHeader() {
@@ -94,19 +103,16 @@ public class MarketTableView {
         VBox titleBox = new VBox(title, subtitle);
         titleBox.getStyleClass().add("market-table-title-box");
 
-        Button clearFilterButton = new Button("Clear Filter");
         clearFilterButton.getStyleClass().add("market-clearFilter-button");
         clearFilterButton.setOnAction(_ -> clearFilter());
-        
-        Button getVinnersButton = new Button("Get Winners");
-        getVinnersButton.getStyleClass().add("market-buy-button");
-        getVinnersButton.setOnAction(_ -> sortByWinners());
 
-        Button getLoosersButton = new Button("Get Losers");
-        getLoosersButton.getStyleClass().add("market-sell-button");
-        getLoosersButton.setOnAction(_ -> sortByLosers());
+        getWinnersButton.getStyleClass().add("market-winners-button");
+        getWinnersButton.setOnAction(_ -> sortByWinners());
 
-        HBox losersAndWinners = new HBox(20, clearFilterButton, getVinnersButton, getLoosersButton);
+        getLosersButton.getStyleClass().add("market-losers-button");
+        getLosersButton.setOnAction(_ -> sortByLosers());
+
+        HBox losersAndWinners = new HBox(20, clearFilterButton, getWinnersButton, getLosersButton);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -151,19 +157,14 @@ public class MarketTableView {
         ownedCol.setCellFactory(_ -> ownedCell());
         styleCellsAs(ownedCol, "col-owned");
 
-        TableColumn<Stock, Stock> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
-        statusCol.setCellFactory(_ -> statusCell(this::lookupEvent));
-        styleCellsAs(statusCol, "col-status");
-
-        TableColumn<Stock, Stock> actionCol = new TableColumn<>("Action");
+        TableColumn<Stock, Stock> actionCol = new TableColumn<>("Chart/Buy");
         actionCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
         actionCol.setCellFactory(_ -> buyButtonCell());
         actionCol.setSortable(false);
         styleCellsAs(actionCol, "col-action");
 
         table.getColumns().setAll(
-                symbolCol, companyCol, priceCol, changeCol, ownedCol, statusCol, actionCol);
+                symbolCol, companyCol, priceCol, changeCol, ownedCol, actionCol);
 
         table.setItems(filteredStocks);
         table.setPlaceholder(new Label("No stocks match your filter."));
@@ -281,45 +282,6 @@ public class MarketTableView {
         }
         return total;
     }
-
-    private static TableCell<Stock, Stock> statusCell(Function<Stock, EventStatus> lookup) {
-        return new TableCell<>() {
-            private final FontIcon warning = new FontIcon(FontAwesome.EXCLAMATION_TRIANGLE);
-            private final Label text = new Label("EVENT");
-            private final HBox badge = new HBox(warning, text);
-            {
-                badge.getStyleClass().add("status-badge");
-                badge.setSpacing(6);
-                text.getStyleClass().add("status-badge-text");
-            }
-
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                badge.getStyleClass().removeAll("status-badge--positive", "status-badge--negative");
-                getStyleClass().removeAll("cell-muted");
-                if (empty || stock == null) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-                EventStatus status = lookup.apply(stock);
-                if (status == null || status == EventStatus.NONE) {
-                    setText("—");
-                    setGraphic(null);
-                    getStyleClass().add("cell-muted");
-                    return;
-                }
-                badge.getStyleClass().add(
-                        status == EventStatus.POSITIVE
-                                ? "status-badge--positive" : "status-badge--negative");
-                setText(null);
-                setGraphic(badge);
-            }
-        };
-    }
-
-    private EventStatus lookupEvent(Stock s) { return eventLookup.apply(s); }
 
     private TableCell<Stock, Stock> buyButtonCell() {
         return new TableCell<>() {

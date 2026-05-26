@@ -312,6 +312,7 @@
     -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-background-radius: 8;
+    -fx-border-radius: 8;
     -fx-padding: 7 16;
     -fx-min-height: 34;
     -fx-pref-height: 34;
@@ -337,6 +338,91 @@
     -fx-scale-x: 0.97;
     -fx-scale-y: 0.97;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.20), 4, 0.0, 0, 1);
+}
+
+/* ── Get Winners (grønn) ─────────────────────────────────────────────────── */
+.market-winners-button {
+    -fx-background-color: linear-gradient(to bottom, #28E07A, #1bbf66);
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 7 16;
+    -fx-min-height: 34;
+    -fx-pref-height: 34;
+    -fx-cursor: hand;
+    -fx-graphic-text-gap: 8;
+    -fx-effect: dropshadow(gaussian, rgba(40, 224, 122, 0.30), 8, 0.0, 0, 2);
+}
+
+.market-winners-button .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 13;
+}
+
+.market-winners-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #34eb8a, #25cf72);
+    -fx-effect: dropshadow(gaussian, rgba(40, 224, 122, 0.55), 14, 0.25, 0, 3);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.market-winners-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #1fcf6e, #18a85a);
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-effect: dropshadow(gaussian, rgba(40, 224, 122, 0.20), 4, 0.0, 0, 1);
+}
+
+.market-winners-button.active-filter {
+    -fx-border-color: white;
+    -fx-border-width: 2.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(40, 224, 122, 0.9), 20, 0.5, 0, 0);
+}
+.market-losers-button {
+    -fx-background-color: linear-gradient(to bottom, #ff3333, #cc0000);
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 7 18;
+    -fx-min-height: 34;
+    -fx-pref-height: 34;
+    -fx-cursor: hand;
+    -fx-graphic-text-gap: 8;
+    -fx-effect: dropshadow(gaussian, rgba(255, 50, 50, 0.40), 8, 0.0, 0, 2);
+}
+
+.market-losers-button .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 13;
+}
+
+.market-losers-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ff5555, #dd1111);
+    -fx-effect: dropshadow(gaussian, rgba(255, 50, 50, 0.60), 14, 0.25, 0, 3);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.market-losers-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #cc0000, #aa0000);
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-effect: dropshadow(gaussian, rgba(255, 50, 50, 0.20), 4, 0.0, 0, 1);
+}
+
+.market-losers-button.active-filter {
+    -fx-background-color: linear-gradient(to bottom, #ff6666, #ff2222);
+    -fx-border-color: white;
+    -fx-border-width: 2.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(255, 50, 50, 0.9), 20, 0.5, 0, 0);
 }
 
 .market-buy-button {
