@@ -106,6 +106,7 @@ class MainMenuControllerTest {
         Instant.now(),
         List.of(new SaveData.ShareEntry("AAPL", BigDecimal.valueOf(2), BigDecimal.valueOf(120))),
         Map.of("AAPL", BigDecimal.valueOf(150)),
+        Map.of(),
         List.of());
 
     controller.loadGame(save);
@@ -124,7 +125,7 @@ class MainMenuControllerTest {
   void loadGameWithBlankNameFallsBackToDefaultTrader() {
     SaveData save = new SaveData(
         "  ", BigDecimal.valueOf(100), BigDecimal.valueOf(100),
-        null, null, null, List.of(), Map.of(), List.of());
+        null, null, null, List.of(), Map.of(), Map.of(), List.of());
 
     controller.loadGame(save);
 
@@ -138,7 +139,7 @@ class MainMenuControllerTest {
 
     SaveData save = new SaveData(
         "Diff", BigDecimal.valueOf(100), BigDecimal.valueOf(100),
-        2.0, null, null, List.of(), Map.of(), List.of());
+        2.0, null, null, List.of(), Map.of(), Map.of(), List.of());
 
     controller.loadGame(save);
 
@@ -152,7 +153,7 @@ class MainMenuControllerTest {
 
     SaveData save = new SaveData(
         "LoadOnly", BigDecimal.valueOf(50), BigDecimal.valueOf(50),
-        null, null, null, List.of(), Map.of(), List.of());
+        null, null, null, List.of(), Map.of(), Map.of(), List.of());
 
     controller.loadGame(save);
 
@@ -166,6 +167,7 @@ class MainMenuControllerTest {
     SaveData save = new SaveData(
         "Skipper", BigDecimal.valueOf(100), BigDecimal.valueOf(100),
         null, null, null, List.of(),
+        Map.of(),
         Map.of(),
         List.of(new SaveData.TxEntry(
             "BUY", "GHOST", BigDecimal.ONE, BigDecimal.ONE, 1, Instant.now(), null, null)));

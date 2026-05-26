@@ -69,9 +69,19 @@ public class MainMenuController {
     if (diff.signum() > 0) player.addMoney(diff);
     else if (diff.signum() < 0) player.withdrawMoney(diff.negate());
 
+    if (save.stockHistories() != null) {
+      for (var entry : save.stockHistories().entrySet()) {
+        if (!exchange.hasStock(entry.getKey())) continue;
+        var history = entry.getValue();
+        if (history != null && !history.isEmpty()) {
+          exchange.getStock(entry.getKey()).setHistoricalPrices(history);
+        }
+      }
+    }
     if (save.stockPrices() != null) {
       for (var entry : save.stockPrices().entrySet()) {
         if (!exchange.hasStock(entry.getKey())) continue;
+        if (save.stockHistories() != null && save.stockHistories().containsKey(entry.getKey())) continue;
         Stock stock = exchange.getStock(entry.getKey());
         BigDecimal price = entry.getValue();
         if (price != null && price.signum() > 0) {
