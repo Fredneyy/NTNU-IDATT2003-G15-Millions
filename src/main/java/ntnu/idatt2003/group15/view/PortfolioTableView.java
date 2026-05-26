@@ -137,9 +137,14 @@ public class PortfolioTableView {
         actionCol.setSortable(false);
         styleCellsAs(actionCol, "col-action");
 
-        table.getColumns().setAll(
-                symbolCol, companyCol, qtyCol, priceCol, totalCol,
-                changeCol, actionCol);
+        table.getColumns().add(symbolCol);
+        table.getColumns().add(companyCol);
+        table.getColumns().add(qtyCol);
+        table.getColumns().add(priceCol);
+        table.getColumns().add(totalCol);
+        table.getColumns().add(changeCol);
+        table.getColumns().add(actionCol);
+        
         table.setItems(filtered);
         table.setPlaceholder(EmptyState.create(
                 FontAwesome.PIE_CHART,
