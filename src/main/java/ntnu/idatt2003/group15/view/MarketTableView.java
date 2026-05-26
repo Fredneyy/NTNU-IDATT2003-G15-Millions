@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
@@ -31,8 +30,6 @@ import org.kordamp.ikonli.javafx.FontIcon;
  */
 public class MarketTableView {
 
-    public enum EventStatus { NONE, POSITIVE, NEGATIVE }
-
     private final VBox view = new VBox();
     private final Label title = new Label("Live Market");
     private final Label subtitle = new Label("Real-time stock prices");
@@ -40,12 +37,11 @@ public class MarketTableView {
     private final FilteredList<Stock> filteredStocks;
     private final SortedList<Stock> sortedStocks;
     private final PortfolioController portfolioController;
-    private Function<Stock, EventStatus> eventLookup = _ -> EventStatus.NONE;
     private final Consumer<Stock> onBuyPressed;
     private final Consumer<Stock> onChartPressed;
-    private final Button clearFilterButton = new Button("Clear Filter");
-    private final Button getWinnersButton = new Button("Get Vinners");
-    private final Button getLosersButton = new Button("Get Loosers");
+    private final Button clearSortingButton = new Button("Remove Sorting");
+    private final Button getWinnersButton = new Button("Sort By Winners");
+    private final Button getLosersButton = new Button("Sort By Losers");
 
     public MarketTableView(ObservableList<Stock> stocks,
                            PortfolioController portfolioController,
@@ -103,8 +99,8 @@ public class MarketTableView {
         VBox titleBox = new VBox(title, subtitle);
         titleBox.getStyleClass().add("market-table-title-box");
 
-        clearFilterButton.getStyleClass().add("market-clearFilter-button");
-        clearFilterButton.setOnAction(_ -> clearFilter());
+        clearSortingButton.getStyleClass().add("market-clearFilter-button");
+        clearSortingButton.setOnAction(_ -> clearFilter());
 
         getWinnersButton.getStyleClass().add("market-winners-button");
         getWinnersButton.setOnAction(_ -> sortByWinners());
@@ -112,7 +108,7 @@ public class MarketTableView {
         getLosersButton.getStyleClass().add("market-losers-button");
         getLosersButton.setOnAction(_ -> sortByLosers());
 
-        HBox losersAndWinners = new HBox(20, clearFilterButton, getWinnersButton, getLosersButton);
+        HBox losersAndWinners = new HBox(20, clearSortingButton, getWinnersButton, getLosersButton);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -332,10 +328,4 @@ public class MarketTableView {
     }
 
     public VBox getView() { return view; }
-
-    /** Plug in the source of event status per stock. */
-    public void setEventLookup(Function<Stock, EventStatus> lookup) {
-        this.eventLookup = lookup == null ? _ -> EventStatus.NONE : lookup;
-        table.refresh();
-    }
 }
