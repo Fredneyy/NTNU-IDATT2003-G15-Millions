@@ -40,6 +40,7 @@ public class NewsFeedView {
     public NewsFeedView() {
         view.getStyleClass().add("news-card");
         view.getChildren().addAll(buildHeader(), buildBody());
+        VBox.setVgrow(view, Priority.ALWAYS);
 
         events.addListener((ListChangeListener<NewsItem>) change -> {
             if (change.next()) {
@@ -80,6 +81,7 @@ public class NewsFeedView {
         rowsContainer.getStyleClass().add("news-rows");
         ScrollPane scroller = new ScrollPane(rowsContainer);
         scroller.setFitToWidth(true);
+        scroller.setFitToHeight(true);
         scroller.getStyleClass().add("news-scroll");
 
         VBox emptyState = EmptyState.create(

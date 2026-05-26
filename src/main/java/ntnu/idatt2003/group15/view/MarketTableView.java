@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
@@ -31,8 +30,6 @@ import org.kordamp.ikonli.javafx.FontIcon;
  */
 public class MarketTableView {
 
-    public enum EventStatus { NONE, POSITIVE, NEGATIVE }
-
     private final VBox view = new VBox();
     private final Label title = new Label("Live Market");
     private final Label subtitle = new Label("Real-time stock prices");
@@ -40,9 +37,11 @@ public class MarketTableView {
     private final FilteredList<Stock> filteredStocks;
     private final SortedList<Stock> sortedStocks;
     private final PortfolioController portfolioController;
-    private Function<Stock, EventStatus> eventLookup = _ -> EventStatus.NONE;
     private final Consumer<Stock> onBuyPressed;
     private final Consumer<Stock> onChartPressed;
+    private final Button clearSortingButton = new Button("Remove Sorting");
+    private final Button getWinnersButton = new Button("Sort By Winners");
+    private final Button getLosersButton = new Button("Sort By Losers");
 
     public MarketTableView(ObservableList<Stock> stocks,
                            PortfolioController portfolioController,
@@ -70,16 +69,22 @@ public class MarketTableView {
         sortedStocks.setComparator(
             Comparator.comparing(Stock::getLatestPriceChangeRelative).reversed()
         );
+        getWinnersButton.getStyleClass().add("active-filter");
+        getLosersButton.getStyleClass().remove("active-filter");
     }
     
     private void sortByLosers() {
         sortedStocks.setComparator(
             Comparator.comparing(Stock::getLatestPriceChangeRelative)
         );
+        getLosersButton.getStyleClass().add("active-filter");
+        getWinnersButton.getStyleClass().remove("active-filter");
     }
 
     private void clearFilter() {
         sortedStocks.setComparator(null);
+        getWinnersButton.getStyleClass().remove("active-filter");
+        getLosersButton.getStyleClass().remove("active-filter");
     }
 
     private void buildHeader() {
@@ -94,19 +99,16 @@ public class MarketTableView {
         VBox titleBox = new VBox(title, subtitle);
         titleBox.getStyleClass().add("market-table-title-box");
 
-        Button clearFilterButton = new Button("Clear Filter");
-        clearFilterButton.getStyleClass().add("market-clearFilter-button");
-        clearFilterButton.setOnAction(_ -> clearFilter());
-        
-        Button getVinnersButton = new Button("Get Winners");
-        getVinnersButton.getStyleClass().add("market-buy-button");
-        getVinnersButton.setOnAction(_ -> sortByWinners());
+        clearSortingButton.getStyleClass().add("market-clearFilter-button");
+        clearSortingButton.setOnAction(_ -> clearFilter());
 
-        Button getLoosersButton = new Button("Get Losers");
-        getLoosersButton.getStyleClass().add("market-sell-button");
-        getLoosersButton.setOnAction(_ -> sortByLosers());
+        getWinnersButton.getStyleClass().add("market-winners-button");
+        getWinnersButton.setOnAction(_ -> sortByWinners());
 
-        HBox losersAndWinners = new HBox(20, clearFilterButton, getVinnersButton, getLoosersButton);
+        getLosersButton.getStyleClass().add("market-losers-button");
+        getLosersButton.setOnAction(_ -> sortByLosers());
+
+        HBox losersAndWinners = new HBox(20, clearSortingButton, getWinnersButton, getLosersButton);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -151,19 +153,14 @@ public class MarketTableView {
         ownedCol.setCellFactory(_ -> ownedCell());
         styleCellsAs(ownedCol, "col-owned");
 
-        TableColumn<Stock, Stock> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
-        statusCol.setCellFactory(_ -> statusCell(this::lookupEvent));
-        styleCellsAs(statusCol, "col-status");
-
-        TableColumn<Stock, Stock> actionCol = new TableColumn<>("Action");
+        TableColumn<Stock, Stock> actionCol = new TableColumn<>("Chart/Buy");
         actionCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
         actionCol.setCellFactory(_ -> buyButtonCell());
         actionCol.setSortable(false);
         styleCellsAs(actionCol, "col-action");
 
         table.getColumns().setAll(
-                symbolCol, companyCol, priceCol, changeCol, ownedCol, statusCol, actionCol);
+                symbolCol, companyCol, priceCol, changeCol, ownedCol, actionCol);
 
         table.setItems(filteredStocks);
         table.setPlaceholder(new Label("No stocks match your filter."));
@@ -282,45 +279,6 @@ public class MarketTableView {
         return total;
     }
 
-    private static TableCell<Stock, Stock> statusCell(Function<Stock, EventStatus> lookup) {
-        return new TableCell<>() {
-            private final FontIcon warning = new FontIcon(FontAwesome.EXCLAMATION_TRIANGLE);
-            private final Label text = new Label("EVENT");
-            private final HBox badge = new HBox(warning, text);
-            {
-                badge.getStyleClass().add("status-badge");
-                badge.setSpacing(6);
-                text.getStyleClass().add("status-badge-text");
-            }
-
-            @Override
-            protected void updateItem(Stock stock, boolean empty) {
-                super.updateItem(stock, empty);
-                badge.getStyleClass().removeAll("status-badge--positive", "status-badge--negative");
-                getStyleClass().removeAll("cell-muted");
-                if (empty || stock == null) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-                EventStatus status = lookup.apply(stock);
-                if (status == null || status == EventStatus.NONE) {
-                    setText("—");
-                    setGraphic(null);
-                    getStyleClass().add("cell-muted");
-                    return;
-                }
-                badge.getStyleClass().add(
-                        status == EventStatus.POSITIVE
-                                ? "status-badge--positive" : "status-badge--negative");
-                setText(null);
-                setGraphic(badge);
-            }
-        };
-    }
-
-    private EventStatus lookupEvent(Stock s) { return eventLookup.apply(s); }
-
     private TableCell<Stock, Stock> buyButtonCell() {
         return new TableCell<>() {
             private final Button graphButton = new Button();
@@ -370,10 +328,4 @@ public class MarketTableView {
     }
 
     public VBox getView() { return view; }
-
-    /** Plug in the source of event status per stock. */
-    public void setEventLookup(Function<Stock, EventStatus> lookup) {
-        this.eventLookup = lookup == null ? _ -> EventStatus.NONE : lookup;
-        table.refresh();
-    }
 }

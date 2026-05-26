@@ -92,7 +92,7 @@ public class TradesView {
         filteredTradeRecords = new FilteredList<>(trades, _ -> true);
 
         view.getStyleClass().add("trades-card");
-
+        VBox.setVgrow(view, Priority.ALWAYS);
         view.getChildren().addAll(buildHeader(), buildBody());
 
         trades.addListener((ListChangeListener<TradeRecord>) _ -> rebuildRows());
@@ -138,6 +138,7 @@ public class TradesView {
         rowsContainer.getStyleClass().add("trades-rows");
         ScrollPane scroller = new ScrollPane(rowsContainer);
         scroller.setFitToWidth(true);
+        scroller.setFitToHeight(true);
         scroller.getStyleClass().add("trades-scroll");
 
         VBox emptyState = EmptyState.create(
