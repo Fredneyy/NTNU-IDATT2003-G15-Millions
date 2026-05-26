@@ -28,20 +28,20 @@ public class Player {
   /**
    * Initializes a new player with a name and starting balance.
    *
-   * @param name the name of the player
+   * @param name          the name of the player
    * @param startingMoney the amount of money to start with
+   * @throws BlankArgumentException the blank argument exception
+   * @throws NullPointerException   the null pointer exception
    */
   public Player(String name, BigDecimal startingMoney)
       throws BlankArgumentException, NullPointerException {
-    Objects.requireNonNull(name, "Player name cannot be null");
+    this.name = Objects.requireNonNull(name, "Player name cannot be null");
     if (name.isBlank()) {
       throw new BlankArgumentException(
           "The player name can't be empty. Please enter a name before starting the game.");
     }
-    Objects.requireNonNull(startingMoney, "StartingMoney cannot be null");
 
-    this.name = name;
-    this.startingMoney = startingMoney;
+    this.startingMoney =  Objects.requireNonNull(startingMoney, "StartingMoney cannot be null");
     this.money = new SimpleObjectProperty<>(startingMoney);
 
     ObservableValue<BigDecimal> marketValue = portfolio.getTotalMarketValueProperty();
@@ -61,27 +61,47 @@ public class Player {
     }, netWorthChangeBinding);
   }
 
-  /** The balance the player started the session with — anchor for total-return calculations. */
+  /**
+   * The balance the player started the session with — anchor for total-return calculations.
+   *
+   * @return  the starting money
+   */
   public BigDecimal getStartingMoney() {
     return startingMoney;
   }
 
-  /** Observable cash balance, exposed as a read-only view of the money property. */
+  /**
+   * Observable cash balance, exposed as a read-only view of the money property.
+   *
+   * @return  the cash property
+   */
   public ObservableValue<BigDecimal> getCashProperty() {
     return money;
   }
 
-  /** Observable net worth: cash + portfolio market value. */
+  /**
+   * Observable net worth: cash + portfolio market value.
+   *
+   * @return  the net worth property
+   */
   public ObservableValue<BigDecimal> getNetWorthProperty() {
     return netWorthBinding;
   }
 
-  /** Observable change in net worth from starting balance. */
+  /**
+   * Observable change in net worth from starting balance.
+   *
+   * @return  the net worth change property
+   */
   public ObservableValue<BigDecimal> getNetWorthChangeProperty() {
     return netWorthChangeBinding;
   }
 
-  /** Observable net worth change as a percent of the starting balance. */
+  /**
+   * Observable net worth change as a percent of the starting balance.
+   *
+   * @return  the net worth change percent property
+   */
   public ObservableValue<BigDecimal> getNetWorthChangePercentProperty() {
     return netWorthChangePercentBinding;
   }
@@ -163,6 +183,12 @@ public class Player {
     return marketValue.add(money.get());
   }
 
+  /**
+   * Returns the status of the player, calculated based on the week and total return.
+   *
+   * @param week the week number
+   * @return the {@link PlayerStatus}
+   */
   public PlayerStatus getStatus(int week) {
     BigDecimal gained = netWorthBinding.get().divide(startingMoney, 4, RoundingMode.HALF_UP);
     if (week >= 10 && gained.compareTo(BigDecimal.valueOf(Double.parseDouble("1.2"))) > 0) {

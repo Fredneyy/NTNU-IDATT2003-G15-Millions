@@ -27,9 +27,9 @@ public class Share {
    * @throws NullPointerException     if any value is null
    * @throws IllegalArgumentException if quantity or price is negative or 0
    */
-  public Share(Stock stock, BigDecimal quantity, BigDecimal pricePerShare) {
-    Objects.requireNonNull(stock, "Stock cannot be null");
-    this.stock = stock;
+  public Share(Stock stock, BigDecimal quantity, BigDecimal pricePerShare)
+      throws IllegalArgumentException, NullPointerException {
+    this.stock = Objects.requireNonNull(stock, "Stock cannot be null");
     setQuantity(quantity);
     setPricePerShare(pricePerShare);
   }
@@ -87,8 +87,10 @@ public class Share {
    * @param quantity      the quantity to buy
    * @param pricePerShare the price per share of the new purchase
    * @throws IllegalArgumentException if input is null or not positive in value
+   * @throws NullPointerException if any parameter is null
    */
-  public void buy(BigDecimal quantity, BigDecimal pricePerShare) throws IllegalArgumentException {
+  public void buy(BigDecimal quantity, BigDecimal pricePerShare)
+      throws IllegalArgumentException, NullPointerException {
     Objects.requireNonNull(pricePerShare, "Price per share cannot be null");
     Objects.requireNonNull(quantity, "Quantity cannot be null");
     if (!InputValidator.isBigDecimalValuePositive(pricePerShare)) {
