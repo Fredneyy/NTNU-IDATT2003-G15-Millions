@@ -49,8 +49,8 @@ class StatsViewTest {
       StatsView view = new StatsView();
       // Exercise every public setter — drives line coverage on the view's update paths.
       view.setTotalTrades(10, 6, 4);
-      view.setRealizedPL("+$50.00", StatsView.Tone.POSITIVE);
-      view.setUnrealizedPL("-$10.00", StatsView.Tone.NEGATIVE);
+      view.setRealizedPl("+$50.00", StatsView.Tone.POSITIVE);
+      view.setUnrealizedPl("-$10.00", StatsView.Tone.NEGATIVE);
       view.setWinRate("60.0%", 3, 2);
       view.setTotalReturn("+$40.00", "(+4.00%)", StatsView.Tone.POSITIVE);
       view.setAvgTradeSize("$5.00");
