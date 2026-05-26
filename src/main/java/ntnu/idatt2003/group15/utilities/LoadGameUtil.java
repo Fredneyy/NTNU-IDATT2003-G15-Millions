@@ -20,8 +20,6 @@ import ntnu.idatt2003.group15.model.SaveData;
  */
 public final class LoadGameUtil {
 
-  private LoadGameUtil() {}
-
   /**
    * Load save data.
    *
@@ -42,14 +40,6 @@ public final class LoadGameUtil {
 
     Map<String, Object> player = asMap(root.get("player"));
     Map<String, Object> exchange = asMap(root.get("exchange"));
-    Map<String, Object> settings = asMap(root.get("settings"));
-
-    String name = asString(player.get("name"));
-    BigDecimal cash = asDecimal(player.get("cash"));
-    BigDecimal startingMoney = asDecimal(player.get("startingMoney"));
-    Double difficulty = settings == null ? null : asDouble(settings.get("difficulty"));
-    Integer week = exchange == null ? null : asInt(exchange.get("week"));
-    Instant savedAt = asInstant(root.get("savedAt"));
 
     List<SaveData.ShareEntry> shares = new ArrayList<>();
     Object pf = player.get("portfolio");
@@ -120,6 +110,14 @@ public final class LoadGameUtil {
       }
     }
 
+    String name = asString(player.get("name"));
+    BigDecimal cash = asDecimal(player.get("cash"));
+    BigDecimal startingMoney = asDecimal(player.get("startingMoney"));
+    Map<String, Object> settings = asMap(root.get("settings"));
+    Double difficulty = settings == null ? null : asDouble(settings.get("difficulty"));
+    Integer week = exchange == null ? null : asInt(exchange.get("week"));
+    Instant savedAt = asInstant(root.get("savedAt"));
+
     return new SaveData(name, cash, startingMoney, difficulty, week,
         savedAt, shares, stockPrices, stockHistories, transactions);
   }
@@ -170,4 +168,6 @@ public final class LoadGameUtil {
       return null;
     }
   }
+
+  private LoadGameUtil() {}
 }

@@ -482,11 +482,15 @@ public class MainMenu {
     chooser.getExtensionFilters().add(
         new FileChooser.ExtensionFilter("Millions save file (*.json)", "*.json"));
     File picked = chooser.showOpenDialog(view.getScene() == null ? null : view.getScene().getWindow());
-    if (picked != null) loadFromFile(picked);
+    if (picked != null) {
+      loadFromFile(picked);
+    }
   }
 
   private void loadFromPath(String absolutePath) {
-    if (absolutePath == null) return;
+    if (absolutePath == null) {
+      return;
+    }
     loadFromFile(new File(absolutePath));
   }
 
@@ -507,7 +511,9 @@ public class MainMenu {
   }
 
   private static String formatMoney(BigDecimal v) {
-    if (v == null) return "$—";
+    if (v == null) {
+      return "$—";
+    }
     NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
     nf.setMaximumFractionDigits(0);
     return "$" + nf.format(v);
@@ -517,7 +523,9 @@ public class MainMenu {
       DateTimeFormatter.ofPattern("MMM d, yyyy, hh:mm a", Locale.US);
 
   private static String formatWhen(java.time.Instant when) {
-    if (when == null) return "—";
+    if (when == null) {
+      return "—";
+    }
     return WHEN_FORMAT.format(when.atZone(ZoneId.systemDefault()));
   }
 
@@ -558,7 +566,9 @@ public class MainMenu {
         new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"),
         new FileChooser.ExtensionFilter("JSON (*.json)", "*.json"));
     File picked = chooser.showOpenDialog(view.getScene() == null ? null : view.getScene().getWindow());
-    if (picked == null) return;
+    if (picked == null) {
+      return;
+    }
     try {
       List<Stock> loaded = new StockLoader(picked.getAbsolutePath()).load();
       if (loaded.isEmpty()) {
@@ -583,7 +593,9 @@ public class MainMenu {
   }
 
   private void handlePlay() {
-    if (playButton.isDisabled()) return;
+    if (playButton.isDisabled()) {
+      return;
+    }
 
     String name = nameField.getText().trim();
     String startingMoney = startingMoneyField.getText();

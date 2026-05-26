@@ -12,7 +12,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.util.Duration;
-
 import java.util.Objects;
 
 public class ExceptionDialog extends BaseDialog {
@@ -39,7 +38,6 @@ public class ExceptionDialog extends BaseDialog {
 
     this.dialogPane = new StackPane();
     this.overlay = createOverlay();
-    HBox closeButtonContainer = createCloseButtonAndContainer();
 
     closeButton.getStyleClass().add("close-button");
     closeButton.setOnAction(_ -> close());
@@ -52,6 +50,7 @@ public class ExceptionDialog extends BaseDialog {
       blurBackground(root, false, 0);
       uninstallEscapeFilter();
     });
+    HBox closeButtonContainer = createCloseButtonAndContainer();
     dialog.getChildren().addAll(closeButtonContainer, dialogPane);
   }
 
@@ -87,13 +86,15 @@ public class ExceptionDialog extends BaseDialog {
 
   public void close() {
     if (root != null && root.getChildren().contains(overlay)
-    && root.getChildren().contains(dialog)) {
+            && root.getChildren().contains(dialog)) {
       closeAnimation.play();
     }
   }
 
   private void installEscapeFilter(Scene scene) {
-    if (scene == null || scene == installedScene) return;
+    if (scene == null || scene == installedScene) {
+      return;
+    }
     uninstallEscapeFilter();
     scene.addEventFilter(KeyEvent.KEY_PRESSED, escapeFilter);
     installedScene = scene;
@@ -121,6 +122,4 @@ public class ExceptionDialog extends BaseDialog {
     newOverlay.setOnMouseClicked(_ -> close());
     return newOverlay;
   }
-
-
 }

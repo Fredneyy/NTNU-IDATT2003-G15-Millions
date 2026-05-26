@@ -1,5 +1,10 @@
 package ntnu.idatt2003.group15.view.dialog;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -8,12 +13,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.*;
 import ntnu.idatt2003.group15.model.stocks.Stock;
 import ntnu.idatt2003.group15.utilities.InputValidator;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Objects;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class BuyStockDialog extends TransactionDialog {
 
@@ -78,7 +77,9 @@ public class BuyStockDialog extends TransactionDialog {
     ObjectBinding<BigDecimal> totalCostValue = Bindings.createObjectBinding(() -> {
       BigDecimal p = price.getValue();
       BigDecimal q = qtyValue.get();
-      if (p == null || q == null) return BigDecimal.ZERO;
+      if (p == null || q == null) {
+        return BigDecimal.ZERO;
+      }
       return p.multiply(q);
     }, price, qtyValue);
 
@@ -88,7 +89,9 @@ public class BuyStockDialog extends TransactionDialog {
 
     ObjectBinding<BigDecimal> remainingValue = Bindings.createObjectBinding(() -> {
       BigDecimal cash = cashProperty.getValue();
-      if (cash == null) return BigDecimal.ZERO.subtract(totalCostValue.get());
+      if (cash == null) {
+        return BigDecimal.ZERO.subtract(totalCostValue.get());
+      }
       return cash.subtract(totalCostValue.get());
     }, cashProperty, totalCostValue);
 
@@ -139,7 +142,9 @@ public class BuyStockDialog extends TransactionDialog {
 
   private void updateRemainingStyle(BigDecimal v) {
     summaryLabel3.getStyleClass().removeAll("value-positive", "value-negative");
-    if (v == null) return;
+    if (v == null) {
+      return;
+    }
     summaryLabel3.getStyleClass().add(v.signum() >= 0 ? "value-positive" : "value-negative");
   }
 }

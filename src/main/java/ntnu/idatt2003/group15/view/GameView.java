@@ -178,7 +178,9 @@ public class GameView {
         "Cancel",
         runnableExit,
         () -> {
-          if (saveGame()) runnableExit.run();
+          if (saveGame()) {
+            runnableExit.run();
+          }
         });
     HeaderView headerView = new HeaderView(exitWithConfirmation);
     settingsView = new SettingsView(view);
@@ -249,7 +251,9 @@ public class GameView {
     });
 
     tabContainer.selectedTabProperty().addListener((_, _, sel) -> {
-      if (sel != null && "news".equals(sel.getId())) clearNewsBadge();
+      if (sel != null && "news".equals(sel.getId())) {
+        clearNewsBadge();
+      }
     });
   }
 
@@ -319,9 +323,14 @@ public class GameView {
     chooser.setInitialFileName(suggested);
 
     File target = chooser.showSaveDialog(view.getScene() == null ? null : view.getScene().getWindow());
-    if (target == null) return false; // user cancelled
+    if (target == null) {
+      return false;
+    }
     if (!target.getName().toLowerCase().endsWith(".json")) {
-      target = new File(target.getParentFile(), target.getName() + ".json");
+      target = new File(
+          target.getParentFile(),
+          target.getName() + ".json"
+      );
     }
 
     try {
@@ -397,7 +406,9 @@ public class GameView {
     if (sell) {
       Sale sale = (Sale) tx;
       BigDecimal sp = sale.getSalePricePerShare();
-      if (sp != null) price = sp;
+      if (sp != null) {
+        price = sp;
+      }
       BigDecimal proceeds = sale.getProceeds();
       if (sp != null && proceeds != null) {
         fees = sp.multiply(qty).subtract(proceeds).max(BigDecimal.ZERO);
@@ -466,12 +477,16 @@ public class GameView {
   }
 
   private static String formatMoney(BigDecimal v) {
-    if (v == null) return "$0.00";
+    if (v == null) {
+      return "$0.00";
+    }
     return "$" + v.setScale(2, RoundingMode.HALF_UP).toPlainString();
   }
 
   private static String formatSignedMoney(BigDecimal v) {
-    if (v == null) return "+$0.00";
+    if (v == null) {
+      return "+$0.00";
+    }
     String sign = v.signum() >= 0 ? "+" : "-";
     return sign + "$" + v.abs().setScale(2, RoundingMode.HALF_UP).toPlainString();
   }
@@ -500,7 +515,9 @@ public class GameView {
   }
 
   private void placeSearchBarIn(VBox target) {
-    if (target == null) return;
+    if (target == null) {
+      return;
+    }
     if (!target.getChildren().contains(searchBar)) {
       target.getChildren().addFirst(searchBar);
     }

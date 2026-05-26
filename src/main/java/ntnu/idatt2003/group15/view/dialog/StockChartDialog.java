@@ -133,7 +133,9 @@ public class StockChartDialog extends BaseDialog {
   }
 
   private void refreshLiveLabels() {
-    if (currentStock == null) return;
+    if (currentStock == null) {
+      return;
+    }
     currentPriceLabel.setText(String.format("$%.2f", currentStock.getSalesPrice()));
 
     BigDecimal absChange = currentStock.getLatestPriceChange();
