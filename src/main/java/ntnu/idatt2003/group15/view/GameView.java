@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.IntegerProperty;
 import javafx.collections.ListChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -32,7 +31,6 @@ import javafx.util.Duration;
 import ntnu.idatt2003.group15.controller.*;
 import ntnu.idatt2003.group15.model.*;
 import ntnu.idatt2003.group15.model.news.NewsItem;
-import ntnu.idatt2003.group15.model.player.Player;
 import ntnu.idatt2003.group15.model.player.PlayerStatus;
 import ntnu.idatt2003.group15.model.stocks.Share;
 import ntnu.idatt2003.group15.model.stocks.Stock;
@@ -61,7 +59,6 @@ public class GameView {
   private final ConfirmDialog confirmDialog = new ConfirmDialog();
   private final MarketTableView marketTable;
   private final PortfolioTableView portfolioTable;
-  private final SellAllCard sellAllCard;
   private final NewsFeedView newsFeedView = new NewsFeedView();
   private final TextField searchField = new TextField();
   private final HBox searchBar;
@@ -135,11 +132,12 @@ public class GameView {
     portfolioTable = new PortfolioTableView(portfolioController,
         share -> sellStockDialog.show(view, share),
         stock -> stockChartDialog.show(view, stock));
-    sellAllCard = new SellAllCard(
+    SellAllCard sellAllCard = new SellAllCard(
         portfolioController.getListProperty(),
         () -> confirmDialog.show(view,
             "Sell all stocks?",
-            "This will liquidate every share you currently hold. Do you really want to sell all stocks?",
+            "This will liquidate every share you "
+            + "currently hold. Do you really want to sell all stocks?",
             "Sell all",
             "Cancel",
             this::sellAllStocks));
@@ -181,7 +179,9 @@ public class GameView {
         "Cancel",
         runnableExit,
         () -> {
-          if (saveGame()) runnableExit.run();
+          if (saveGame()) {
+            runnableExit.run();
+          }
         });
     HeaderView headerView = new HeaderView(exitWithConfirmation);
     settingsView = new SettingsView(view);
@@ -252,14 +252,12 @@ public class GameView {
     });
 
     tabContainer.selectedTabProperty().addListener((_, _, sel) -> {
-      if (sel != null && "news".equals(sel.getId())) clearNewsBadge();
+      if (sel != null && "news".equals(sel.getId())) {
+        clearNewsBadge();
+      }
     });
   }
 
-  /**
-   * Forward a freshly-emitted news item into the feed and bump the unread
-   * counter on the News tab (unless that tab is already open).
-   */
   public void onNewsEmitted(NewsItem item) {
     pushItem(item);
     TabContainer.Tab sel = tabContainer.selectedTabProperty().get();
@@ -268,11 +266,6 @@ public class GameView {
     }
     unreadNews++;
     tabContainer.setBadge("news", unreadNews > 99 ? "99+" : Integer.toString(unreadNews));
-  }
-
-  private void clearNewsBadge() {
-    unreadNews = 0;
-    tabContainer.setBadge("news", null);
   }
 
   public NewsFeedView getNewsFeedView() {
@@ -292,7 +285,6 @@ public class GameView {
     }
   }
 
-
   public void close() {
     if (root != null) {
       root.getChildren().remove(view);
@@ -310,6 +302,11 @@ public class GameView {
     }
   }
 
+  private void clearNewsBadge() {
+    unreadNews = 0;
+    tabContainer.setBadge("news", null);
+  }
+
   private boolean saveGame() {
     FileChooser chooser = new FileChooser();
     chooser.setTitle("Save Game");
@@ -321,15 +318,21 @@ public class GameView {
         : "millions-" + name.toLowerCase().replaceAll("\\s+", "-") + ".json";
     chooser.setInitialFileName(suggested);
 
-    File target = chooser.showSaveDialog(view.getScene() == null ? null : view.getScene().getWindow());
-    if (target == null) return false; // user cancelled
+    File target = chooser.showSaveDialog(view.getScene() == null ? null : view.getScene()
+        .getWindow());
+    if (target == null) {
+      return false;
+    }
     if (!target.getName().toLowerCase().endsWith(".json")) {
-      target = new File(target.getParentFile(), target.getName() + ".json");
+      target = new File(
+          target.getParentFile(),
+          target.getName() + ".json"
+      );
     }
 
     try {
       SaveGameUtil.save(target, playerController, exchangeController, gameSettings);
-      showInfo("Game saved", "Saved to:\n" + target.getAbsolutePath());
+      showInfo("Saved to:\n" + target.getAbsolutePath());
       return true;
     } catch (IOException ex) {
       errorHandler.accept(ex);
@@ -365,10 +368,10 @@ public class GameView {
     );
   }
 
-  private static void showInfo(String header, String message) {
+  private static void showInfo(String message) {
     Alert a = new Alert(Alert.AlertType.INFORMATION);
     a.setTitle("Millions");
-    a.setHeaderText(header);
+    a.setHeaderText("Game saved");
     a.setContentText(message);
     a.showAndWait();
   }
@@ -400,7 +403,9 @@ public class GameView {
     if (sell) {
       Sale sale = (Sale) tx;
       BigDecimal sp = sale.getSalePricePerShare();
-      if (sp != null) price = sp;
+      if (sp != null) {
+        price = sp;
+      }
       BigDecimal proceeds = sale.getProceeds();
       if (sp != null && proceeds != null) {
         fees = sp.multiply(qty).subtract(proceeds).max(BigDecimal.ZERO);
@@ -421,8 +426,10 @@ public class GameView {
   private void addStatisticsCards() {
     ObservableValue<BigDecimal> netWorth = playerController.getNetWorthProperty();
     ObservableValue<BigDecimal> cash = playerController.getCashProperty();
-    ObservableValue<BigDecimal> portfolioValue = playerController.getPlayer().getPortfolio().getTotalMarketValueProperty();
-    ObservableValue<BigDecimal> pnl = playerController.getPlayer().getPortfolio().getUnrealizedPnlProperty();
+    ObservableValue<BigDecimal> portfolioValue = playerController.getPlayer()
+        .getPortfolio().getTotalMarketValueProperty();
+    ObservableValue<BigDecimal> pnl = playerController.getPlayer()
+        .getPortfolio().getUnrealizedPnlProperty();
 
     statisticsOverview.addCard(new StatisticsOverview.StatCard(
         "netWorth", "Net Worth", FontAwesome.DOLLAR,
@@ -457,8 +464,10 @@ public class GameView {
     return Bindings.createStringBinding(() -> formatSignedMoney(source.getValue()), source);
   }
 
-  private static ObservableValue<String> playerStatus(ExchangeController exchangeController, PlayerController playerController) {
-    return Bindings.createStringBinding(() -> formatPlayerStatus(playerController.getStatus(exchangeController.getWeek().get())), exchangeController.getWeek());
+  private static ObservableValue<String> playerStatus(ExchangeController exchangeController,
+                                                      PlayerController playerController) {
+    return Bindings.createStringBinding(() -> formatPlayerStatus(playerController
+        .getStatus(exchangeController.getWeek().get())), exchangeController.getWeek());
   }
 
   private static String formatPlayerStatus(PlayerStatus value) {
@@ -469,12 +478,16 @@ public class GameView {
   }
 
   private static String formatMoney(BigDecimal v) {
-    if (v == null) return "$0.00";
+    if (v == null) {
+      return "$0.00";
+    }
     return "$" + v.setScale(2, RoundingMode.HALF_UP).toPlainString();
   }
 
   private static String formatSignedMoney(BigDecimal v) {
-    if (v == null) return "+$0.00";
+    if (v == null) {
+      return "+$0.00";
+    }
     String sign = v.signum() >= 0 ? "+" : "-";
     return sign + "$" + v.abs().setScale(2, RoundingMode.HALF_UP).toPlainString();
   }
@@ -503,7 +516,9 @@ public class GameView {
   }
 
   private void placeSearchBarIn(VBox target) {
-    if (target == null) return;
+    if (target == null) {
+      return;
+    }
     if (!target.getChildren().contains(searchBar)) {
       target.getChildren().addFirst(searchBar);
     }

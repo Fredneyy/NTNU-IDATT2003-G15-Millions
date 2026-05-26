@@ -6,7 +6,7 @@ package ntnu.idatt2003.group15.model.exceptions;
 public class FileReaderException extends RuntimeException {
 
   /**
-   * Create a new instance of file reader exception.
+   * Create a new instance of FileReaderException.
    *
    * @param message the message of the exception
    */

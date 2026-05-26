@@ -59,11 +59,10 @@ public abstract class BaseDialog {
   }
 
   protected ParallelTransition createOpenAnimation() {
-    ParallelTransition animation = new ParallelTransition(
+    return new ParallelTransition(
         createFadeTransition(dialog, Duration.millis(300), 0, 1),
         createScaleTransition(dialog,  Duration.millis(300), 0.1, 1)
     );
-    return animation;
   }
 
   protected FadeTransition createFadeTransition(Node node, Duration duration,  double from, double to) {

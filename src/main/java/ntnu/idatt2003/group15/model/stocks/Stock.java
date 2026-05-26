@@ -32,6 +32,9 @@ public class Stock {
    * @param symbol the symbol of the stock
    * @param company the name of the stock
    * @param salesPrice the price of the stock
+   * @throws NullPointerException if any parameter is null
+   * @throws BlankArgumentException if any string parameter is blank
+   * @throws IllegalArgumentException if salesPrice is negative or 0
    */
   public Stock(String symbol, String company, BigDecimal salesPrice,
                double drift, double volatility, List<StockSectors> categories)
@@ -42,16 +45,19 @@ public class Stock {
     this.volatility = volatility;
     if (symbol.isBlank()) {
       throw new BlankArgumentException(
-          "The stock symbol can't be empty. Please give it a ticker symbol, like \"AAPL\".");
+          "The stock symbol can't be empty. Please give"
+              + " it a ticker symbol, like \"AAPL\".");
     }
     Objects.requireNonNull(company, "Company cannot be null");
     if (company.isBlank()) {
       throw new BlankArgumentException(
-          "The company name can't be empty. Please enter the name of the company that issues the stock.");
+          "The company name can't be empty. Please enter the name of "
+              + "the company that issues the stock.");
     }
     if (!InputValidator.isBigDecimalValuePositive(salesPrice)) {
       throw new IllegalArgumentException(
-          "The sales price for " + symbol + " has to be greater than zero. A stock can't have a price of zero or below.");
+          "The sales price for " + symbol + " has to be greater than zero."
+              + " A stock can't have a price of zero or below.");
     }
     this.symbol = new SimpleStringProperty(symbol);
     this.company = new SimpleStringProperty(company);
@@ -67,7 +73,7 @@ public class Stock {
   }
 
   /**
-   * Returns the observable  for UI binding and real-time updates.
+   * Returns the observable for UI binding and real-time updates.
    *
    * @return the symbol property of the stock
    */
@@ -145,6 +151,8 @@ public class Stock {
    * Adds a new sales price to the stock.
    *
    * @param price the new price
+   * @throws NullPointerException if price is null
+   * @throws IllegalArgumentException if price is negative or 0
    */
   public void addNewSalesPrice(BigDecimal price)
       throws NullPointerException, IllegalArgumentException {
@@ -152,7 +160,8 @@ public class Stock {
       prices.add(price);
     } else {
       throw new IllegalArgumentException(
-          "The new price for " + getSymbol() + " has to be greater than zero. Stock prices can't drop to zero or below.");
+          "The new price for " + getSymbol() + " has to be greater than zero. "
+              + "Stock prices can't drop to zero or below.");
     }
   }
 
@@ -166,13 +175,21 @@ public class Stock {
     return prices;
   }
 
+  /**
+   * Clears price history.
+   * */
   public void reset() {
     if (prices.size() > 1) {
-      BigDecimal original = prices.get(0);
+      BigDecimal original = prices.getFirst();
       prices.setAll(original);
     }
   }
 
+  /**
+   * Sets historical prices. Used for importing a save file.
+   *
+   * @param newPrices takes in a list of the new prices
+   * */
   public void setHistoricalPrices(List<BigDecimal> newPrices) {
     Objects.requireNonNull(newPrices, "newPrices");
     if (newPrices.isEmpty()) {

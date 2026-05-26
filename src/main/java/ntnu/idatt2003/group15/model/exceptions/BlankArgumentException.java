@@ -5,7 +5,7 @@ package ntnu.idatt2003.group15.model.exceptions;
  */
 public class BlankArgumentException extends RuntimeException {
   /**
-   * Executes the  operation to manage market logic.
+   * Create a new instance of BlankArgumentException.
    *
    * @param message the message of the exception
    */

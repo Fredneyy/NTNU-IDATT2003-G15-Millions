@@ -23,12 +23,12 @@ public class SellStockDialog extends TransactionDialog {
   private final Consumer<Throwable> errorHandler;
 
   public SellStockDialog(ObservableValue<BigDecimal> cashProperty,
-                         PortfolioController portfolioController,
-                         SaleCalculator calculator,
-                         BigDecimal commissionRate,
-                         BigDecimal taxRate,
-                         BiConsumer<Share, BigDecimal> onConfirm,
-                         Consumer<Throwable> errorHandler) {
+       PortfolioController portfolioController,
+       SaleCalculator calculator,
+       BigDecimal commissionRate,
+       BigDecimal taxRate,
+       BiConsumer<Share, BigDecimal> onConfirm,
+       Consumer<Throwable> errorHandler) {
     super(cashProperty);
     this.onConfirm = Objects.requireNonNull(onConfirm);
     this.calculator = Objects.requireNonNull(calculator, "calculator cannot be null");
@@ -69,28 +69,34 @@ public class SellStockDialog extends TransactionDialog {
     amountLabel.setText("Owned: %s".formatted(share.quantity().toPlainString()));
 
     ObjectBinding<BigDecimal> gross = Bindings.createObjectBinding(() -> {
-          if (qtyValue.get().compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-          } else {
-            BigDecimal number = calculator.calculateGross(new Share(share.stock(), qtyValue.get().min(share.quantity()), share.pricePerShare()));
-            return Objects.requireNonNullElse(number, BigDecimal.ZERO);
-          }
-        }
-        , share.stock().getPriceBinding(), qtyValue);
-
+      if (qtyValue.get().compareTo(BigDecimal.ZERO) == 0) {
+        return BigDecimal.ZERO;
+      } else {
+        BigDecimal number = calculator.calculateGross(
+            new Share(
+                share.stock(),
+                qtyValue.get().min(share.quantity()),
+                share.pricePerShare()
+            )
+        );
+        return Objects.requireNonNullElse(number, BigDecimal.ZERO);
+      }
+    }, share.stock().getPriceBinding(), qtyValue);
     ObjectBinding<BigDecimal> net = Bindings.createObjectBinding(() -> {
-          if (qtyValue.get().compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-          } else {
-            BigDecimal number = calculator.calculateTotal(
-                new Share(share.stock(),  qtyValue.get().min(share.quantity()), share.pricePerShare()), commissionRate, taxRate);
-            return Objects.requireNonNullElse(number, BigDecimal.ZERO);
-          }
-        }
-    , share.stock().getPriceBinding(), qtyValue);
-
-    ObjectBinding<BigDecimal> fee = Bindings.createObjectBinding(
-        () -> gross.get().subtract(net.get()), share.stock().getPriceBinding(), qtyValue);
+      if (qtyValue.get().compareTo(BigDecimal.ZERO) == 0) {
+        return BigDecimal.ZERO;
+      } else {
+        BigDecimal number = calculator.calculateTotal(
+            new Share(
+                share.stock(),
+                qtyValue.get().min(share.quantity()),
+                share.pricePerShare()
+            ),
+            commissionRate, taxRate
+        );
+        return Objects.requireNonNullElse(number, BigDecimal.ZERO);
+      }
+    }, share.stock().getPriceBinding(), qtyValue);
 
     maxButton.setOnAction(_ -> {
       BigDecimal m = share.quantity();
@@ -100,6 +106,10 @@ public class SellStockDialog extends TransactionDialog {
     summaryLabel3.textProperty().unbind();
     summaryLabel3.textProperty().bind(Bindings.createStringBinding(
         () -> formatMoney(gross.get()), gross));
+
+
+    ObjectBinding<BigDecimal> fee = Bindings.createObjectBinding(
+        () -> gross.get().subtract(net.get()), share.stock().getPriceBinding(), qtyValue);
 
     summaryLabel2.textProperty().unbind();
     summaryLabel2.textProperty().bind(Bindings.createStringBinding(

@@ -75,10 +75,10 @@ public class StatsController {
 
     int total = buys + sells;
     view.setTotalTrades(total, buys, sells);
-    view.setRealizedPL(formatSigned(realized), tone(realized.signum()));
+    view.setRealizedPl(formatSigned(realized), tone(realized.signum()));
 
     BigDecimal unrealized = nz(player.getPlayer().getPortfolio().getUnrealizedPnlProperty().getValue());
-    view.setUnrealizedPL(formatSigned(unrealized), tone(unrealized.signum()));
+    view.setUnrealizedPl(formatSigned(unrealized), tone(unrealized.signum()));
 
     int rated = wins + losses;
     BigDecimal winRate = rated == 0

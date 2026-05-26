@@ -2,8 +2,6 @@ package ntnu.idatt2003.group15.controller;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
 import ntnu.idatt2003.group15.model.player.Player;

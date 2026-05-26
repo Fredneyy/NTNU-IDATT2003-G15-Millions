@@ -82,7 +82,9 @@ public abstract class TransactionDialog extends BaseDialog {
   }
 
   protected static BigDecimal parseQuantity(String text) {
-    if (text == null || text.isBlank()) return BigDecimal.ZERO;
+    if (text == null || text.isBlank()) {
+      return BigDecimal.ZERO;
+    }
     try {
       BigDecimal v = new BigDecimal(text.trim());
       return v.signum() < 0 ? BigDecimal.ZERO : v;
@@ -92,7 +94,9 @@ public abstract class TransactionDialog extends BaseDialog {
   }
 
   protected static String formatMoney(BigDecimal v) {
-    if (v == null) return "$0.00";
+    if (v == null) {
+      return "$0.00";
+    }
     String sign = v.signum() < 0 ? "-" : "";
     return sign + "$" + v.abs().setScale(2, RoundingMode.HALF_UP).toPlainString();
   }

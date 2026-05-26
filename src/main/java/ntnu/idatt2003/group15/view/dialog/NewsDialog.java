@@ -25,20 +25,8 @@ import ntnu.idatt2003.group15.view.NewsContainer;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-/**
- * Rich breaking-news notification.
- * Layout (top to bottom): colored header strip with "BREAKING NEWS" caption +
- * close button, a body row with sentiment-tinted icon tile and content column
- * (symbol badge, percent change, headline, description), a metadata footer
- * with a colored sentiment chip on the right, and a progress bar pinned to
- * the bottom that drains over the dialog's lifetime.
- * Coloring is driven by {@link Sentiment}; pass {@code NEUTRAL} for plain
- * informational dialogs (e.g. the welcome message) — badges and percent
- * collapse out of view when their data is missing.
- */
 public class NewsDialog extends BaseDialog {
 
-  /** Visual sentiment — drives border/header/icon colors. */
   public enum Sentiment { BULLISH, BEARISH, NEUTRAL }
 
   private final Duration displayDuration;
@@ -154,7 +142,9 @@ public class NewsDialog extends BaseDialog {
       double r = 14;
       double w = b.getWidth();
       double h = b.getHeight();
-      if (w <= 0 || h <= 0) return;
+      if (w <= 0 || h <= 0) {
+        return;
+      }
       Rectangle clip = new Rectangle(0, -r, w, h + r);
       clip.setArcWidth(r * 2);
       clip.setArcHeight(r * 2);
@@ -243,14 +233,18 @@ public class NewsDialog extends BaseDialog {
 
   public void close() {
     if (container != null) {
-      if (progressTimeline != null) progressTimeline.stop();
+      if (progressTimeline != null) {
+        progressTimeline.stop();
+      }
       ParallelTransition exit = buildExitAnimation();
       exit.setOnFinished(_ -> container.remove(dialog));
       exit.play();
       return;
     }
     if (root != null && root.getChildren().contains(dialog)) {
-      if (progressTimeline != null) progressTimeline.stop();
+      if (progressTimeline != null) {
+        progressTimeline.stop();
+      }
       ParallelTransition exit = buildExitAnimation();
       exit.setOnFinished(_ -> root.getChildren().remove(dialog));
       exit.play();
@@ -280,7 +274,9 @@ public class NewsDialog extends BaseDialog {
 
   /** Show this dialog as the newest notification inside a {@link NewsContainer}. */
   public void showIn(NewsContainer container) {
-    if (container == null) return;
+    if (container == null) {
+      return;
+    }
     this.container = container;
     container.pushTop(dialog);
     playEntranceAnimation();
@@ -302,7 +298,9 @@ public class NewsDialog extends BaseDialog {
 
   private void startProgressTimer() {
     progressBar.setProgress(1.0);
-    if (progressTimeline != null) progressTimeline.stop();
+    if (progressTimeline != null) {
+      progressTimeline.stop();
+    }
 
     progressTimeline = new Timeline(
             new KeyFrame(Duration.ZERO, new KeyValue(progressBar.progressProperty(), 1.0)),

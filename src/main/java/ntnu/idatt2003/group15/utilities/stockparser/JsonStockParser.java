@@ -7,9 +7,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
 import ntnu.idatt2003.group15.model.stocks.Stock;
 import ntnu.idatt2003.group15.model.stocks.StockSectors;
-import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
 import ntnu.idatt2003.group15.utilities.JsonParser;
 
 /**
@@ -21,7 +21,7 @@ import ntnu.idatt2003.group15.utilities.JsonParser;
 public class JsonStockParser implements StockParser {
 
   @Override
-  public List<Stock> parse(String filePath) throws FileReaderException{
+  public List<Stock> parse(String filePath) throws FileReaderException {
     Object parsed = readJson(filePath);
     if (!(parsed instanceof List<?> entries)) {
       throw new FileReaderException(

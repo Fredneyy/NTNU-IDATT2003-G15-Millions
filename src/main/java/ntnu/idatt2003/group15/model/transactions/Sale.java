@@ -10,6 +10,7 @@ import ntnu.idatt2003.group15.model.stocks.Share;
  * Represents a sell transaction executed on the stock exchange.
  */
 public class Sale extends Transaction {
+
   private BigDecimal salePricePerShare;
   private BigDecimal proceeds;
 
@@ -37,7 +38,7 @@ public class Sale extends Transaction {
     }
     s.salePricePerShare = salePricePerShare;
     s.proceeds = proceeds;
-    s.setCommitted(true);
+    s.setCommitted();
     return s;
   }
 
@@ -71,6 +72,7 @@ public class Sale extends Transaction {
    * @param player the player that sells
    * @param commission the amount of commission
    * @param tax the amount of tax
+   * @throws NullPointerException if any parameter is null
    */
   @Override
   public void commit(Player player, BigDecimal commission, BigDecimal tax)
@@ -83,6 +85,6 @@ public class Sale extends Transaction {
     player.addMoney(this.proceeds);
     player.getPortfolio().removeShare(getShare());
     player.getTransactionArchive().add(this);
-    setCommitted(true);
+    setCommitted();
   }
 }

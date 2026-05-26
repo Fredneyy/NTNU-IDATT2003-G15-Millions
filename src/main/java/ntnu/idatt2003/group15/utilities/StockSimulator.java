@@ -1,11 +1,10 @@
 package ntnu.idatt2003.group15.utilities;
 
-import ntnu.idatt2003.group15.model.news.NewsItem;
-import ntnu.idatt2003.group15.model.stocks.Stock;
-
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Random;
+import ntnu.idatt2003.group15.model.news.NewsItem;
+import ntnu.idatt2003.group15.model.stocks.Stock;
 
 /**
  * Geometric Brownian Motion price simulator driven by {@link NewsItem}.
@@ -20,26 +19,33 @@ public class StockSimulator {
   private final Random random = new Random();
   private final double dt;
 
+  /**
+   * Instantiates a new Stock simulator.
+   *
+   * @param dt the dt of the simulation
+   */
   public StockSimulator(double dt) {
     this.dt = dt;
   }
 
   /**
-   * Stock-only tick: uses the stock's own {@code drift} and {@code volatility}
+   * Stock-only tick: uses the stock's own {@code drift} and {@code volatility}.
    *
-   * @param stock the stock being ticked
+   * @param stock                the stock being ticked
+   * @param volatilityMultiplier the volatility multiplier
    * @return the next stock price
    */
   public BigDecimal nextPrice(Stock stock, double volatilityMultiplier) {
     Objects.requireNonNull(stock, "stock cannot be null.");
 
-    return gbmStep(stock.getSalesPrice(), stock.getDrift(), stock.getVolatility() * volatilityMultiplier);
+    return gbmStep(stock.getSalesPrice(), stock.getDrift(),
+        stock.getVolatility() * volatilityMultiplier);
   }
 
   /**
    * Sets the stock price to a product of it and the initial change.
    *
-   * @param stock to change price of
+   * @param stock  to change price of
    * @param change the number to multiply stock price with
    * @return the product of the stock price and the change
    */

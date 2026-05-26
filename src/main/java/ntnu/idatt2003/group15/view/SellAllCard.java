@@ -20,7 +20,6 @@ import ntnu.idatt2003.group15.model.stocks.Share;
 public class SellAllCard {
 
   private final VBox view = new VBox();
-  private final Button sellAllButton = new Button("Sell All Stocks");
 
   public SellAllCard(ObservableList<Share> shares, Runnable onSellAllPressed) {
     Objects.requireNonNull(shares, "shares");
@@ -29,13 +28,15 @@ public class SellAllCard {
     Label title = new Label("Cash Out");
     title.getStyleClass().add("sell-all-title");
 
-    Label subtitle = new Label("Sell every share you currently hold and turn your portfolio into cash.");
+    Label subtitle = new Label("Sell every share you currently "
+        + "hold and turn your portfolio into cash.");
     subtitle.getStyleClass().add("sell-all-subtitle");
     subtitle.setWrapText(true);
 
     VBox text = new VBox(4, title, subtitle);
     text.setAlignment(Pos.CENTER_LEFT);
 
+    Button sellAllButton = new Button("Sell All Stocks");
     sellAllButton.getStyleClass().add("sell-all-button");
     sellAllButton.setOnAction(_ -> onSellAllPressed.run());
     sellAllButton.disableProperty().bind(Bindings.isEmpty(shares));

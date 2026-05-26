@@ -54,11 +54,4 @@ public class SettingsController {
     if (d < 2.25)  return "Expert";
     return "Insane";
   }
-
-  private static String eventFrequencyLabel(double intervalSeconds) {
-    if (intervalSeconds >= 100) return "Slow";
-    if (intervalSeconds >= 55)  return "Normal";
-    if (intervalSeconds >= 35)  return "Fast";
-    return "Frantic";
-  }
 }

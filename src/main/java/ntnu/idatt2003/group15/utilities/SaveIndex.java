@@ -25,7 +25,9 @@ public final class SaveIndex {
 
   public static final int MAX_ENTRIES = 10;
 
-  /** One row in the index — describes a known save file. */
+  /**
+   * One row in the index — describes a known save file.
+   */
   public record Entry(String path, String playerName, BigDecimal cash, Instant savedAt) {}
 
   private SaveIndex() {}
@@ -35,22 +37,34 @@ public final class SaveIndex {
     return Paths.get(home, ".millions", "recent-saves.tsv");
   }
 
-  /** Read the index; missing/malformed file -> empty list. */
+  /**
+   * Read the index; missing/malformed file -> empty list.
+   *
+   * @return  the list
+   */
   public static List<Entry> list() {
     Path p = indexPath();
-    if (!Files.exists(p)) return List.of();
+    if (!Files.exists(p)) {
+      return List.of();
+    }
     try {
       List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
       List<Entry> out = new ArrayList<>(lines.size());
       for (String line : lines) {
-        if (line.isBlank()) continue;
+        if (line.isBlank()) {
+          continue;
+        }
         String[] parts = line.split("\t", -1);
-        if (parts.length < 4) continue;
+        if (parts.length < 4) {
+          continue;
+        }
         try {
           BigDecimal cash = parts[2].isBlank() ? null : new BigDecimal(parts[2]);
           Instant when = parts[3].isBlank() ? null : Instant.parse(parts[3]);
           out.add(new Entry(parts[0], parts[1], cash, when));
-        } catch (RuntimeException ignored) { /* skip bad row */ }
+        } catch (RuntimeException ignored) {
+
+        }
       }
       return out;
     } catch (IOException e) {
@@ -58,16 +72,26 @@ public final class SaveIndex {
     }
   }
 
-  /** Insert/update an entry. Newest first; older duplicates by path are removed. */
+  /**
+   * Insert/update an entry. Newest first; older duplicates by path are removed.
+   *
+   * @param entry the entry
+   */
   public static void record(Entry entry) {
     List<Entry> existing = new ArrayList<>(list());
     existing.removeIf(e -> e.path().equals(entry.path()));
     existing.addFirst(entry);
-    while (existing.size() > MAX_ENTRIES) existing.removeLast();
+    while (existing.size() > MAX_ENTRIES) {
+      existing.removeLast();
+    }
     write(existing);
   }
 
-  /** Remove any entries pointing to paths that no longer exist on disk. */
+  /**
+   * Remove any entries pointing to paths that no longer exist on disk.
+   *
+   * @return the list of valid entries
+   */
   public static List<Entry> prune() {
     List<Entry> kept = new ArrayList<>();
     Set<String> seen = new LinkedHashSet<>();
@@ -94,7 +118,7 @@ public final class SaveIndex {
       }
       Files.writeString(p, sb.toString(), StandardCharsets.UTF_8);
     } catch (IOException ignored) {
-      // best-effort, the index isn't critical state
+
     }
   }
 }

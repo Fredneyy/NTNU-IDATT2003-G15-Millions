@@ -15,17 +15,8 @@ import javafx.beans.property.SimpleDoubleProperty;
  */
 public class GameSettings {
 
-  /**
-   * The constant MIN_DIFFICULTY.
-   */
   public static final double MIN_DIFFICULTY = 0.5;
-  /**
-   * The constant MAX_DIFFICULTY.
-   */
   public static final double MAX_DIFFICULTY = 2.5;
-  /**
-   * The constant DEFAULT_DIFFICULTY.
-   */
   public static final double DEFAULT_DIFFICULTY = 1.0;
 
   private final DoubleProperty difficulty =
@@ -41,16 +32,6 @@ public class GameSettings {
   public GameSettings() {
     difficulty.addListener((_, _, v) -> recompute(v.doubleValue()));
     recompute(DEFAULT_DIFFICULTY);
-  }
-
-  private void recompute(double d) {
-    double clamped = clamp(d, MIN_DIFFICULTY, MAX_DIFFICULTY);
-    volatilityMultiplier.set(clamped);
-    maxEventChance.set(0.06 + 0.04 * clamped);
-  }
-
-  private static double clamp(double v, double lo, double hi) {
-    return Math.max(lo, Math.min(hi, v));
   }
 
   /**
@@ -114,5 +95,15 @@ public class GameSettings {
    */
   public double getMaxEventChance() {
     return maxEventChance.get();
+  }
+
+  private void recompute(double d) {
+    double clamped = clamp(d);
+    volatilityMultiplier.set(clamped);
+    maxEventChance.set(0.06 + 0.04 * clamped);
+  }
+
+  private static double clamp(double v) {
+    return Math.max(GameSettings.MIN_DIFFICULTY, Math.min(GameSettings.MAX_DIFFICULTY, v));
   }
 }

@@ -2,7 +2,6 @@ package ntnu.idatt2003.group15.controller;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
-import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
@@ -15,10 +14,8 @@ import ntnu.idatt2003.group15.utilities.TaskUtil;
 import ntnu.idatt2003.group15.view.GameView;
 import ntnu.idatt2003.group15.view.MainMenu;
 import ntnu.idatt2003.group15.view.dialog.OnBoardingDialog;
-
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.Random;
 
 public class MainController {
 
@@ -30,8 +27,6 @@ public class MainController {
   private final GameSettings gameSettings = new GameSettings();
   private final Consumer<Throwable> errorHandler;
   private Timeline priceTicker;
-  private PauseTransition newsTicker;
-  private final Random random = new Random();
   private ExchangeController activeExchangeController;
 
   public MainController(StackPane root, Consumer<Throwable> errorHandler, CsvParser csvParser,

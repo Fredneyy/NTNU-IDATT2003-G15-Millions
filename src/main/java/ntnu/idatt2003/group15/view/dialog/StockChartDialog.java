@@ -18,6 +18,7 @@ import javafx.stage.Screen;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import ntnu.idatt2003.group15.model.stocks.Stock;
+import ntnu.idatt2003.group15.model.stocks.StockSectors;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.*;
 import java.math.BigDecimal;
@@ -117,7 +118,7 @@ public class StockChartDialog extends BaseDialog {
     companyLabel.setText(stockData.getCompany());
     
     String sectors = stockData.getCategories().stream()
-            .map(c -> c.getLabel())
+            .map(StockSectors::getLabel)
             .collect(Collectors.joining(", "));
     sectorLabel.setText(sectors.isEmpty() ? "" : sectors);
 
@@ -132,7 +133,9 @@ public class StockChartDialog extends BaseDialog {
   }
 
   private void refreshLiveLabels() {
-    if (currentStock == null) return;
+    if (currentStock == null) {
+      return;
+    }
     currentPriceLabel.setText(String.format("$%.2f", currentStock.getSalesPrice()));
 
     BigDecimal absChange = currentStock.getLatestPriceChange();
