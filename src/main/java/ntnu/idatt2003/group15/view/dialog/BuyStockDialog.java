@@ -108,8 +108,12 @@ public class BuyStockDialog extends TransactionDialog {
 
     transactionButton.setOnAction(_ -> {
       BigDecimal q = qtyValue.get();
-      if (!InputValidator.isBigDecimalValuePositive(q)) {
-        return;
+      try {
+        if (!InputValidator.isBigDecimalValuePositive(q)) {
+          return;
+        }
+      } catch (NullPointerException e) {
+        errorHandler.accept(e);
       }
       try {
         onConfirm.accept(stock, q);
