@@ -85,6 +85,39 @@
     -fx-font-weight: bold;
 }
 
+.settings-close-button {
+    -fx-background-color: transparent;
+    -fx-border-color: -set-border-subtle;
+    -fx-border-width: 1.5;
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+    -fx-min-width: 32;
+    -fx-min-height: 32;
+    -fx-max-width: 32;
+    -fx-max-height: 32;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.settings-close-button:hover {
+    -fx-background-color: rgba(59, 130, 246, 0.12);
+    -fx-border-color: -set-accent-blue;
+}
+
+.settings-close-button:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+.settings-close-icon {
+    -fx-icon-color: -set-text-muted;
+    -fx-icon-size: 14;
+}
+
+.settings-close-button:hover .settings-close-icon {
+    -fx-icon-color: -set-text-strong;
+}
+
 /* ---------- Slider section ---------- */
 .settings-slider-section {
     -fx-spacing: 10;
