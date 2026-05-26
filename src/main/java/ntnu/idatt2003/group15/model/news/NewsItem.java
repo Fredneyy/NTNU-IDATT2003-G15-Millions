@@ -29,7 +29,7 @@ public class NewsItem {
    * @param headline        the headline
    * @param volatility      the volatility
    * @param durationUpdates the duration updates
-   * @param when            the when
+   * @param when            the time of publishing
    * @param appliedChange   the applied change
    */
   public NewsItem(
@@ -89,7 +89,7 @@ public class NewsItem {
    * For creating an information dialog using the news dialog,
    * does not affect stocks but shows information.
    *
-   * @param headline the headline
+   * @param headline the news headline
    * @return the news item
    */
   public static NewsItem info(String headline) {
@@ -101,14 +101,14 @@ public class NewsItem {
    * Sets applied change, the applied change is true if the news
    * change percent has been applied to the affected stocks.
    *
-   * @param appliedChange the applied change
+   * @param appliedChange the applied change percentage
    */
   public void setAppliedChange(boolean appliedChange) {
     this.appliedChange = appliedChange;
   }
 
   /**
-   * Returns the stock sector the news affects.
+   * Returns affected sector for this news item.
    *
    * @return the stock sector
    */

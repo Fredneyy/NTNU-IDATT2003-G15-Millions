@@ -72,15 +72,25 @@ public class Exchange {
     return name;
   }
 
-  /** Restore the simulation week (used when loading a saved game). */
+  /** Restore the simulation week (used when loading a saved game).
+   * @param week the week you would like to set
+   * */
   public void setWeek(int week) {
     this.week.set(week);
   }
 
+  /**
+   * Sets the volatility multiplier
+   * @param volatilityMultiplier the volatility multiplier you want to set
+   * */
   public void setVolatilityMultiplier(double volatilityMultiplier) {
     this.volatilityMultiplier = volatilityMultiplier;
   }
 
+  /**
+   * Gets the week property
+   * @return current week int
+   * */
   public ObservableIntegerValue getWeekProperty() {
     return week;
   }
@@ -90,8 +100,10 @@ public class Exchange {
    *
    * @param symbol the symbol to search for
    * @return if the stock exists in the map
+   * @throws  NullPointerException if any parameter is null
    */
   public boolean hasStock(String symbol) throws NullPointerException {
+    Objects.requireNonNull(symbol, "symbol cannot be null");
     return this.stockMap.containsKey(symbol);
   }
 
@@ -100,8 +112,10 @@ public class Exchange {
    *
    * @param symbol the symbol to search for
    * @return the {@code Stock} in the map matching the symbol
+   * @throws NullPointerException if any parameter is null
    */
   public Stock getStock(String symbol) throws NullPointerException {
+    Objects.requireNonNull(symbol, "symbol cannot be null");
     return this.stockMap.get(symbol);
   }
 
@@ -119,6 +133,7 @@ public class Exchange {
    *
    * @param searchTerm the term to search for
    * @return a {@code List} containing stock matching searchTerm
+   * @throws NullPointerException if any parameter is null
    */
   public List<Stock> findStocks(String searchTerm) throws NullPointerException {
     Objects.requireNonNull(searchTerm, "Search term cannot be null");
@@ -136,8 +151,9 @@ public class Exchange {
    * @param symbol the symbol of the stock
    * @param quantity the amount to purchase
    * @param player the player
+   * @throws NullPointerException if any parameter is null
    */
-  public void buy(String symbol, BigDecimal quantity, Player player) {
+  public void buy(String symbol, BigDecimal quantity, Player player) throws NullPointerException {
     Objects.requireNonNull(symbol, "Symbol cannot be null");
     Objects.requireNonNull(quantity, "Quantity cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
@@ -159,8 +175,9 @@ public class Exchange {
    * @param share the share to sell
    * @param amount the amount to sell
    * @param player the player that sells
+   * @throws NullPointerException if any parameter is null
    */
-  public void sell(Share share, BigDecimal amount, Player player) {
+  public void sell(Share share, BigDecimal amount, Player player) throws NullPointerException {
     Objects.requireNonNull(share, "Share cannot be null");
     Objects.requireNonNull(player, "Player cannot be null");
     Objects.requireNonNull(amount, "Amount cannot be null");
@@ -240,6 +257,9 @@ public class Exchange {
     }
   }
 
+  /**
+   * Resets the exchange. Used when exiting a game.
+   * */
   public void reset() {
     week.set(1);
     volatilityMultiplier = 1.0;

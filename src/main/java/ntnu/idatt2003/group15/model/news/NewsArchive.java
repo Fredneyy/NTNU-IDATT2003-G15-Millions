@@ -7,7 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 
 /**
- * The news archive for storing the {@link NewsItem} and publishing for events.
+ * The news archive for storing the {@link NewsItem}, and publishing for events.
  */
 public class NewsArchive {
 
@@ -34,8 +34,9 @@ public class NewsArchive {
   }
 
   /**
-   * Used in the same way as the {@link ntnu.idatt2003.group15.model.Exchange} advance for
-   * updating durations of news.
+   * Iterates over the active news items and reduces the duration of each {@link NewsItem}
+   * also removes expired {@link NewsItem} objects.
+   *
    */
   public void advance() {
     for (NewsItem item : activeNewsItems) {
@@ -44,12 +45,17 @@ public class NewsArchive {
     activeNewsItems.removeIf(NewsItem::isExpired);
   }
 
+  /**
+   * Clears the active news items list.
+   */
   public void reset() {
     activeNewsItems.clear();
   }
 
   /**
    * Puts a random {@link NewsItem} in the active news list for observers to see.
+   *
+   * @param maxEventChance the chance of a new {@link NewsItem} being added to active news items
    */
   public void publishNews(double maxEventChance) {
     if (random.nextDouble() > maxEventChance) {

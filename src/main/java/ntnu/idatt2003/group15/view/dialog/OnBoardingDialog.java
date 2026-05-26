@@ -17,7 +17,6 @@ import ntnu.idatt2003.group15.utilities.CsvParser;
 import ntnu.idatt2003.group15.utilities.TaskUtil;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -47,7 +46,6 @@ public class OnBoardingDialog extends BaseDialog {
   private final Hyperlink skipLabel;
   private final ParallelTransition closeAnimation;
 
-
   public OnBoardingDialog(CsvParser csvParser, TaskUtil taskUtil) throws NullPointerException {
     super();
 
@@ -58,7 +56,7 @@ public class OnBoardingDialog extends BaseDialog {
     icons = setUpIcons();
     progressBar = setUpProgressBar();
     closeAnimation = createCloseAnimation(_ -> {
-      root.getChildren().removeAll(overlay,dialog);
+      root.getChildren().removeAll(overlay, dialog);
       blurBackground(root, false, 0);
     });
 
@@ -164,17 +162,17 @@ public class OnBoardingDialog extends BaseDialog {
   }
 
   private void loadText() {
-    taskUtil.runTaskAsync(() -> csvParser.parse("src/main/resources/storage/onboarding.csv"), result -> {
-          this.onboardingText = result == null ? List.of() : result;
-          if (onboardingText.isEmpty()) {
-            close();
-            return;
-          }
-          currentStep = 0;
-          renderStep(currentStep);
-          progressBar.setProgress(progressFor(currentStep));
-        },
-        _ -> close());
+    taskUtil.runTaskAsync(() -> csvParser.parse(
+        "src/main/resources/storage/onboarding.csv"), result -> {
+        this.onboardingText = result == null ? List.of() : result;
+        if (onboardingText.isEmpty()) {
+          close();
+          return;
+        }
+        currentStep = 0;
+        renderStep(currentStep);
+        progressBar.setProgress(progressFor(currentStep));
+      }, _ -> close());
   }
 
   private double progressFor(int step) {
@@ -183,7 +181,9 @@ public class OnBoardingDialog extends BaseDialog {
   }
 
   private void renderStep(int step) {
-    if (step < 0 || step >= onboardingText.size()) return;
+    if (step < 0 || step >= onboardingText.size()) {
+      return;
+    }
     List<String> row = onboardingText.get(step);
     titleLabel.setText(row.isEmpty() ? "" : row.getFirst());
     messageLabel.setText(row.size() < 2 ? "" : row.getLast());
@@ -213,7 +213,8 @@ public class OnBoardingDialog extends BaseDialog {
     double slideDistance = 40;
 
     FadeTransition fadeOut = createFadeTransition(textContainer,  Duration.millis(300), 1.0, 0.0);
-    TranslateTransition slideOut = createTranslateTransition(textContainer,  Duration.millis(300), 0, -1 * outDirection * slideDistance);
+    TranslateTransition slideOut = createTranslateTransition(textContainer,
+        Duration.millis(300), 0, -1 * outDirection * slideDistance);
 
     ParallelTransition out = new ParallelTransition(fadeOut, slideOut);
     out.setOnFinished(_ -> {
@@ -229,14 +230,18 @@ public class OnBoardingDialog extends BaseDialog {
   }
 
   private void nextSlide() {
-    if (currentStep >= onboardingText.size() - 1) return;
+    if (currentStep >= onboardingText.size() - 1) {
+      return;
+    }
     currentStep++;
     progressBar.setProgress(progressFor(currentStep));
     animateSlide(1, () -> renderStep(currentStep));
   }
 
   private void previousSlide() {
-    if (currentStep <= 0) return;
+    if (currentStep <= 0) {
+      return;
+    }
     currentStep--;
     progressBar.setProgress(progressFor(currentStep));
     animateSlide(-1, () -> renderStep(currentStep));

@@ -22,21 +22,10 @@ import ntnu.idatt2003.group15.model.stocks.Stock;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 
-/**
- * Post-transaction confirmation dialog. Opens after a successful buy/sell to
- * acknowledge the order with a full breakdown — quantity, per-share price, and
- * totals (with fees for sells). Modal-style: user must click Done to dismiss.
- *
- * <p>Built on {@link BaseDialog} and visually a sibling of {@link TransactionDialog};
- * the two share several CSS classes ({@code stock-dialog-card}, {@code buy-header*},
- * {@code buy-card}, {@code buy-cost-card}) so the receipt feels like a natural
- * next step after the buy/sell flow rather than a different dialog system.
- */
 public class ReceiptDialog extends BaseDialog {
 
   public enum Type { BUY, SELL }
 
-  // matches the trades-tab format (24-hour clock)
   private static final DateTimeFormatter DATE_FMT =
       DateTimeFormatter.ofPattern("MMM d, yyyy, HH:mm");
 
@@ -84,7 +73,9 @@ public class ReceiptDialog extends BaseDialog {
 
     openAnimation = createOpenAnimation();
     closeAnimation = createCloseAnimation(_ -> {
-      if (root != null) root.getChildren().remove(dialog);
+      if (root != null) {
+        root.getChildren().remove(dialog);
+      }
     });
   }
 
@@ -130,8 +121,6 @@ public class ReceiptDialog extends BaseDialog {
     Objects.requireNonNull(stock, "stock");
     Objects.requireNonNull(quantity, "quantity");
     Objects.requireNonNull(pricePerShare, "pricePerShare");
-    BigDecimal safeFees = fees == null ? BigDecimal.ZERO : fees;
-    BigDecimal safeNet = net == null ? BigDecimal.ZERO : net;
 
     String sym = stock.getSymbol() == null ? "" : stock.getSymbol();
     avatarLabel.setText(sym.length() >= 3 ? sym.substring(0, 3) : sym);
@@ -143,7 +132,6 @@ public class ReceiptDialog extends BaseDialog {
 
     quantityValue.setText(quantity.stripTrailingZeros().toPlainString());
     priceValue.setText(formatMoney(pricePerShare));
-    // local-zone timestamp, null tolerated for old saves that lacked one
     if (when == null) {
       dateValue.setText("—");
     } else {
@@ -151,6 +139,8 @@ public class ReceiptDialog extends BaseDialog {
           LocalDateTime.ofInstant(when, ZoneId.systemDefault())));
     }
 
+    BigDecimal safeFees = fees == null ? BigDecimal.ZERO : fees;
+    BigDecimal safeNet = net == null ? BigDecimal.ZERO : net;
     BigDecimal gross = pricePerShare.multiply(quantity);
     if (type == Type.BUY) {
       // no buy-side fees, hide the fees row entirely
@@ -261,7 +251,9 @@ public class ReceiptDialog extends BaseDialog {
   }
 
   private static String formatMoney(BigDecimal v) {
-    if (v == null) return "$0.00";
+    if (v == null) {
+      return "$0.00";
+    }
     return "$" + v.abs().setScale(2, RoundingMode.HALF_UP).toPlainString();
   }
 }

@@ -24,13 +24,18 @@ public class Purchase extends Transaction {
    * Rebuilds a previously-committed purchase from a save file. The portfolio and
    * cash are restored separately, so this does <strong>not</strong> mutate the player —
    * the result is only suitable for adding to the transaction archive.
+   *
+   * @param lot the Share that is affected
+   * @param week the week the purchase was at
+   * @param committedAt the time the purchase was committed
+   * @return returns a {@link Purchase}
    */
   public static Purchase restored(Share lot, int week, Instant committedAt) {
     Purchase p = new Purchase(lot, week);
     if (committedAt != null) {
       p.setCommittedAt(committedAt);
     }
-    p.setCommitted(true);
+    p.setCommitted();
     return p;
   }
 
@@ -40,6 +45,7 @@ public class Purchase extends Transaction {
    * @param player the player
    * @param commission the commission of the purchase
    * @param tax the tax of the purchase
+   * @throws NullPointerException if any parameter is null
    */
   @Override
   public void commit(Player player, BigDecimal commission, BigDecimal tax)
@@ -53,6 +59,6 @@ public class Purchase extends Transaction {
       player.getPortfolio().addShare(getShare());
     }
     player.getTransactionArchive().add(this);
-    setCommitted(true);
+    setCommitted();
   }
 }

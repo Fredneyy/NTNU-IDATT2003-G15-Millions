@@ -1,6 +1,7 @@
 package ntnu.idatt2003.group15.model.transactions;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
@@ -25,8 +26,10 @@ public class TransactionArchive {
    *
    * @param transaction the transaction to add
    * @return {@code true} if added, {@code false} otherwise
+   * @throws NullPointerException if transaction is null
    */
-  public boolean add(Transaction transaction) {
+  public boolean add(Transaction transaction) throws NullPointerException {
+    Objects.requireNonNull(transaction, "Transaction cannot be null");
     return transactions.add(transaction);
   }
 
@@ -87,8 +90,8 @@ public class TransactionArchive {
    */
   public int countDistinctWeeks() {
     Set<Integer> distinctWeeks = transactions.stream()
-        .map(Transaction::getWeek) // Get the week numbers
-        .collect(Collectors.toSet()); // Collect into a Set for uniqueness
+        .map(Transaction::getWeek)
+        .collect(Collectors.toSet());
 
     return distinctWeeks.size();
   }

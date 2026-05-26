@@ -1,6 +1,5 @@
 package ntnu.idatt2003.group15.view.dialog;
 
-import java.util.Objects;
 import javafx.animation.ParallelTransition;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -8,19 +7,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.util.Duration;
+import java.util.Objects;
 
-/**
- * Modal yes / no confirmation dialog. Mirrors {@link InfoDialog} but exposes
- * two action buttons. The confirm action runs the supplied {@link Runnable}
- * after the close animation kicks off.
- */
 public class ConfirmDialog extends BaseDialog {
 
   private final StackPane dialogPane = new StackPane();
@@ -65,14 +56,18 @@ public class ConfirmDialog extends BaseDialog {
     confirmButton.setOnAction(_ -> {
       Runnable action = onConfirm;
       close();
-      if (action != null) action.run();
+      if (action != null) {
+        action.run();
+      }
     });
 
     altButton.getStyleClass().add("confirm-alt-button");
     altButton.setOnAction(_ -> {
       Runnable action = onAlt;
       close();
-      if (action != null) action.run();
+      if (action != null) {
+        action.run();
+      }
     });
 
     closeAnimation = createCloseAnimation(_ -> {
@@ -160,7 +155,9 @@ public class ConfirmDialog extends BaseDialog {
   }
 
   private void installEscapeFilter(Scene scene) {
-    if (scene == null || scene == installedScene) return;
+    if (scene == null || scene == installedScene) {
+      return;
+    }
     uninstallEscapeFilter();
     scene.addEventFilter(KeyEvent.KEY_PRESSED, escapeFilter);
     installedScene = scene;

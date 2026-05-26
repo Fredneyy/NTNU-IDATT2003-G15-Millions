@@ -12,10 +12,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.util.Duration;
-
 import java.util.Objects;
 
-/** Modal dialog for non-exception messages (e.g. "Game saved"). Mirrors {@link ExceptionDialog}. */
 public class InfoDialog extends BaseDialog {
 
   private StackPane root;
@@ -40,7 +38,6 @@ public class InfoDialog extends BaseDialog {
 
     this.dialogPane = new StackPane();
     this.overlay = createOverlay();
-    HBox closeButtonContainer = createCloseButtonAndContainer();
 
     closeButton.getStyleClass().add("close-button");
     closeButton.setOnAction(_ -> close());
@@ -53,6 +50,7 @@ public class InfoDialog extends BaseDialog {
       blurBackground(root, false, 0);
       uninstallEscapeFilter();
     });
+    HBox closeButtonContainer = createCloseButtonAndContainer();
     dialog.getChildren().addAll(closeButtonContainer, dialogPane);
   }
 
@@ -110,7 +108,9 @@ public class InfoDialog extends BaseDialog {
   }
 
   private void installEscapeFilter(Scene scene) {
-    if (scene == null || scene == installedScene) return;
+    if (scene == null || scene == installedScene) {
+      return;
+    }
     uninstallEscapeFilter();
     scene.addEventFilter(KeyEvent.KEY_PRESSED, escapeFilter);
     installedScene = scene;
