@@ -1,12 +1,11 @@
 package ntnu.idatt2003.group15.utilities;
 
-import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
-
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+import ntnu.idatt2003.group15.model.exceptions.FileReaderException;
 
 /**
  * Provides utility methods for parsing and writing CSV data.
