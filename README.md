@@ -7,6 +7,7 @@ A JavaFX stock-market simulator where you grow a virtual portfolio against a liv
 - [Features](#features)
 - [Getting Started](#getting-started)
 - [How to Play](#how-to-play)
+- [Custom Stock Data](#custom-stock-data)
 - [Project Structure](#project-structure)
 - [Save Files](#save-files)
 - [Technologies](#technologies)
@@ -64,6 +65,47 @@ mvn javafx:run
 7. Advance the week with the calendar button, or toggle **Auto-advance** for a live ticker.
 8. Sell individual holdings from the Portfolio tab, or cash out everything with **Sell All**.
 9. Use the save icon in the header to save your run. The exit icon prompts you to save before leaving.
+
+## Custom Stock Data
+The Main Menu lets you import your own stock list when starting a new game. Two file formats are supported, selected by file extension: **`.csv`** and **`.json`**. Anything else is rejected.
+
+### Fields
+Every stock requires the same six fields, regardless of format:
+
+| Field        | Type            | Description                                                     |
+|--------------|-----------------|-----------------------------------------------------------------|
+| `symbol`     | string          | Ticker symbol, e.g. `AAPL`. Must be unique within the file.     |
+| `company`    | string          | Display name of the issuing company.                            |
+| `salesPrice` | positive number | Starting price per share. Must be greater than zero.            |
+| `drift`      | number          | Steady-state drift used by the price simulator (e.g. `0.0010`). |
+| `volatility` | number          | Steady-state volatility (e.g. `0.22`).                          |
+| `sectors`    | list            | One or more sectors the stock belongs to (see below).           |
+
+### Valid sectors
+`FINANCIALS`, `TECHNOLOGY`, `HEALTHCARE`, `INDUSTRIALS`, `CONSUMER`, `ENERGY`, `REALESTATE`, `MACRO`
+
+Sector names are case-insensitive but must match one of the labels above. Any other value is rejected.
+
+### CSV format
+The first row must be a header row matching the field names exactly. Multiple sectors are joined with a pipe (`|`) inside the `sectors` cell.
+
+```csv
+symbol,company,salesPrice,drift,volatility,sectors
+NVDA,Nvidia,191.27,0.0015,0.32,TECHNOLOGY
+AAPL,Apple Inc.,276.43,0.0010,0.22,TECHNOLOGY|CONSUMER
+EQNR,Equinor,300.00,0.0005,0.15,ENERGY
+```
+
+### JSON format
+A top-level array of stock objects. `sectors` is a JSON array of strings.
+
+```json
+[
+  { "symbol": "NVDA", "company": "Nvidia",     "salesPrice": 191.27, "drift": 0.0015, "volatility": 0.32, "sectors": ["TECHNOLOGY"] },
+  { "symbol": "AAPL", "company": "Apple Inc.", "salesPrice": 276.43, "drift": 0.0010, "volatility": 0.22, "sectors": ["TECHNOLOGY", "CONSUMER"] },
+  { "symbol": "EQNR", "company": "Equinor",    "salesPrice": 300.00, "drift": 0.0005, "volatility": 0.15, "sectors": ["ENERGY"] }
+]
+```
 
 ## Project Structure
 ```
