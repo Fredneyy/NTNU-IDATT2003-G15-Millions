@@ -59,6 +59,7 @@ public class GameView {
   private final ConfirmDialog confirmDialog = new ConfirmDialog();
   private final MarketTableView marketTable;
   private final PortfolioTableView portfolioTable;
+  private final TradesView tradesView = new TradesView();
   private final NewsFeedView newsFeedView = new NewsFeedView();
   private final TextField searchField = new TextField();
   private final HBox searchBar;
@@ -82,18 +83,72 @@ public class GameView {
                   Runnable autoAdvanceOn, Runnable autoAdvanceOff) {
     this.playerController = Objects.requireNonNull(player);
     this.exchangeController = Objects.requireNonNull(exchange);
-    ObservableList<NewsItem> news = Objects.requireNonNull(newsController.getNewsObservable());
-    this.newsFeedView.setEvents(newsController.getNewsObservable());
     this.gameSettings = Objects.requireNonNull(settings, "settings");
     this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler");
-    ObservableList<Stock> marketStocks = FXCollections.observableArrayList(
-        stock -> new Observable[] {
-            stock.getHistoricalPrices()
-        }
-    );
-    marketStocks.addAll(exchangeController.getAllStocks());
 
-    buyStockDialog = new BuyStockDialog(
+    ObservableList<NewsItem> news = Objects.requireNonNull(newsController.getNewsObservable());
+    this.newsFeedView.setEvents(news);
+
+    PortfolioController portfolioController =
+        new PortfolioController(playerController.getPortfolio());
+    SaleCalculator saleCalculator = new SaleCalculator();
+
+    buyStockDialog = createBuyStockDialog();
+    sellStockDialog = createSellStockDialog(portfolioController, saleCalculator);
+
+    portfolioTable = new PortfolioTableView(portfolioController,
+        share -> sellStockDialog.show(view, share),
+        stock -> stockChartDialog.show(view, stock));
+    portfolioContent = createPortfolioContent(portfolioController);
+
+    marketTable = new MarketTableView(createMarketStocks(),
+        portfolioController,
+        stock -> buyStockDialog.show(view, stock),
+        stock -> stockChartDialog.show(view, stock));
+    marketContent = new VBox(marketTable.getView());
+
+    VBox statsContent = createStatsContent();
+    tradesContent = createTradesContent();
+    VBox newsContent = new VBox(newsFeedView.getView());
+
+    tabContainer = createTabContainer(
+        marketContent, portfolioContent, statsContent, tradesContent, newsContent);
+
+    HeaderView headerView = new HeaderView(createExitWithConfirmation(runnableExit));
+    settingsView = new SettingsView(view);
+    settingsController = new SettingsController(settingsView, gameSettings);
+
+    view.getStylesheets().add(Objects.requireNonNull(
+        getClass().getResource("/style/RootStyle.css")).toExternalForm());
+
+    HBox header = buildHeader(headerView, advance, autoAdvanceOn, autoAdvanceOff);
+
+    addStatisticsCards();
+    searchBar = buildSearchBar();
+    styleTabContent(marketContent, portfolioContent, statsContent, tradesContent, newsContent);
+    VBox.setVgrow(marketTable.getView(), Priority.ALWAYS);
+    VBox.setVgrow(portfolioTable.getView(), Priority.ALWAYS);
+    VBox.setVgrow(tabContainer.getView(), Priority.ALWAYS);
+
+    wireSearchFilter();
+    applyContainerStyles(header);
+    wireSearchBarToTabs();
+    assembleScrollableLayout(header);
+
+    wireNewsListener(news);
+    wireTabChangeListener();
+  }
+
+  private ObservableList<Stock> createMarketStocks() {
+    ObservableList<Stock> stocks = FXCollections.observableArrayList(
+        stock -> new Observable[] { stock.getHistoricalPrices() }
+    );
+    stocks.addAll(exchangeController.getAllStocks());
+    return stocks;
+  }
+
+  private BuyStockDialog createBuyStockDialog() {
+    return new BuyStockDialog(
         playerController.getCashProperty(),
         (Stock stock, BigDecimal quantity) -> {
           BigDecimal price = stock.getSalesPrice();
@@ -103,13 +158,11 @@ public class GameView {
               BigDecimal.ZERO, gross.negate(), Instant.now());
         },
         errorHandler);
+  }
 
-    PortfolioController portfolioController =
-        new PortfolioController(playerController.getPortfolio());
-
-    SaleCalculator saleCalculator = new SaleCalculator();
-
-    sellStockDialog = new SellStockDialog(
+  private SellStockDialog createSellStockDialog(PortfolioController portfolioController,
+                                                SaleCalculator saleCalculator) {
+    return new SellStockDialog(
         playerController.getCashProperty(),
         portfolioController,
         saleCalculator,
@@ -128,10 +181,9 @@ public class GameView {
               salePrice, fees, net, Instant.now());
         },
         errorHandler);
+  }
 
-    portfolioTable = new PortfolioTableView(portfolioController,
-        share -> sellStockDialog.show(view, share),
-        stock -> stockChartDialog.show(view, stock));
+  private VBox createPortfolioContent(PortfolioController portfolioController) {
     SellAllCard sellAllCard = new SellAllCard(
         portfolioController.getListProperty(),
         () -> confirmDialog.show(view,
@@ -141,18 +193,17 @@ public class GameView {
             "Sell all",
             "Cancel",
             this::sellAllStocks));
-    portfolioContent = new VBox(portfolioTable.getView(), sellAllCard.getView());
+    return new VBox(portfolioTable.getView(), sellAllCard.getView());
+  }
 
-    marketTable = new MarketTableView(marketStocks,
-        portfolioController,
-        stock -> buyStockDialog.show(view, stock),
-        stock -> stockChartDialog.show(view, stock));
-    marketContent = new VBox(marketTable.getView());
+  private VBox createStatsContent() {
     StatsView statsView = new StatsView();
-    VBox statsContent = new VBox(statsView.getView());
     new StatsController(statsView, playerController);
-    TradesView tradesView = new TradesView();
-    tradesContent = new VBox(tradesView.getView());
+    return new VBox(statsView.getView());
+  }
+
+  private VBox createTradesContent() {
+    VBox content = new VBox(tradesView.getView());
     bindTradesView(tradesView);
     tradesView.setOnOpenReceipt(record -> {
       ReceiptDialog.Type type = record.type() == TradesView.TradeType.BUY
@@ -162,15 +213,23 @@ public class GameView {
       receiptDialog.show(view, type, record.stock(),
           record.quantity(), record.price(), record.fees(), net, record.when());
     });
-    VBox newsContent = new VBox(newsFeedView.getView());
-    tabContainer = new TabContainer(
+    return content;
+  }
+
+  private TabContainer createTabContainer(VBox marketContent, VBox portfolioContent,
+                                          VBox statsContent, VBox tradesContent,
+                                          VBox newsContent) {
+    return new TabContainer(
         new TabContainer.Tab("market",    "Market",    FontAwesome.LINE_CHART,  marketContent),
         new TabContainer.Tab("portfolio", "Portfolio", FontAwesome.BRIEFCASE,   portfolioContent),
         new TabContainer.Tab("stats",     "Stats",     FontAwesome.BAR_CHART,   statsContent),
         new TabContainer.Tab("trades",    "Trades",    FontAwesome.CLOCK_O,     tradesContent),
         new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent)
     );
-    Runnable exitWithConfirmation = () -> confirmDialog.show(
+  }
+
+  private Runnable createExitWithConfirmation(Runnable runnableExit) {
+    return () -> confirmDialog.show(
         view,
         "Save before exiting?",
         "You're about to leave the game. Would you like to save your progress first?",
@@ -183,15 +242,14 @@ public class GameView {
             runnableExit.run();
           }
         });
-    HeaderView headerView = new HeaderView(exitWithConfirmation);
-    settingsView = new SettingsView(view);
-    settingsController = new SettingsController(settingsView, gameSettings);
-    headerView.setPlayerName(player.getName());
-    view.getStylesheets().add(Objects.requireNonNull(
-        getClass().getResource("/style/RootStyle.css")).toExternalForm());
+  }
+
+  private HBox buildHeader(HeaderView headerView, Runnable advance,
+                           Runnable autoAdvanceOn, Runnable autoAdvanceOff) {
+    headerView.setPlayerName(playerController.getName());
     HBox header = headerView.createHeader();
     headerView.getAutoAdvanceCheckBox().selectedProperty().addListener((value, _, _) -> {
-      if (value.getValue() == true) {
+      if (value.getValue()) {
         autoAdvanceOn.run();
       } else {
         autoAdvanceOff.run();
@@ -200,27 +258,25 @@ public class GameView {
     headerView.getAdvanceWeekButton().setOnAction(_ -> advance.run());
     headerView.getSettingsButton().setOnAction(_ -> settingsView.toggle());
     headerView.getSaveButton().setOnAction(_ -> saveGame());
+    return header;
+  }
 
-    addStatisticsCards();
-    searchBar = buildSearchBar();
-    styleTabContent(marketContent, portfolioContent, statsContent, tradesContent, newsContent);
-    VBox.setVgrow(marketTable.getView(), Priority.ALWAYS);
-    VBox.setVgrow(portfolioTable.getView(), Priority.ALWAYS);
+  private void wireSearchFilter() {
     searchField.textProperty().addListener((_, _, q) -> {
       marketTable.setSearchFilter(q);
       portfolioTable.setSearchFilter(q);
       tradesView.setSearchFilter(q);
     });
+  }
 
-    VBox.setVgrow(tabContainer.getView(), Priority.ALWAYS);
-
+  private void applyContainerStyles(HBox header) {
     settingsView.getView().getStyleClass().add("container");
     statisticsOverview.getView().getStyleClass().add("container");
     tabContainer.getView().getStyleClass().add("container");
     header.getStyleClass().add("container");
+  }
 
-    wireSearchBarToTabs();
-
+  private void assembleScrollableLayout(HBox header) {
     VBox layout = new VBox();
     layout.getStyleClass().add("game-layout");
     layout.setFillWidth(false);
@@ -240,7 +296,9 @@ public class GameView {
     scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
     scroll.getStyleClass().add("game-scroll");
     view.getChildren().add(scroll);
+  }
 
+  private void wireNewsListener(ObservableList<NewsItem> news) {
     news.addListener((ListChangeListener<? super NewsItem>) c -> {
       while (c.next()) {
         if (c.wasAdded()) {
@@ -250,7 +308,9 @@ public class GameView {
         }
       }
     });
+  }
 
+  private void wireTabChangeListener() {
     tabContainer.selectedTabProperty().addListener((_, _, sel) -> {
       if (sel != null && "news".equals(sel.getId())) {
         clearNewsBadge();
