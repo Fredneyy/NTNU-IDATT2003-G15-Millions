@@ -10,26 +10,30 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.collections.ListChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.stage.FileChooser;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.util.Duration;
-import ntnu.idatt2003.group15.controller.*;
-import ntnu.idatt2003.group15.model.*;
+import ntnu.idatt2003.group15.controller.ExchangeController;
+import ntnu.idatt2003.group15.controller.NewsController;
+import ntnu.idatt2003.group15.controller.PlayerController;
+import ntnu.idatt2003.group15.controller.PortfolioController;
+import ntnu.idatt2003.group15.controller.SettingsController;
+import ntnu.idatt2003.group15.controller.StatsController;
+import ntnu.idatt2003.group15.model.GameSettings;
 import ntnu.idatt2003.group15.model.news.NewsItem;
 import ntnu.idatt2003.group15.model.player.PlayerStatus;
 import ntnu.idatt2003.group15.model.stocks.Share;
@@ -38,7 +42,13 @@ import ntnu.idatt2003.group15.model.transactions.Sale;
 import ntnu.idatt2003.group15.model.transactions.SaleCalculator;
 import ntnu.idatt2003.group15.model.transactions.Transaction;
 import ntnu.idatt2003.group15.utilities.SaveGameUtil;
-import ntnu.idatt2003.group15.view.dialog.*;
+import ntnu.idatt2003.group15.view.dialog.BuyStockDialog;
+import ntnu.idatt2003.group15.view.dialog.ConfirmDialog;
+import ntnu.idatt2003.group15.view.dialog.InfoDialog;
+import ntnu.idatt2003.group15.view.dialog.NewsDialog;
+import ntnu.idatt2003.group15.view.dialog.ReceiptDialog;
+import ntnu.idatt2003.group15.view.dialog.SellStockDialog;
+import ntnu.idatt2003.group15.view.dialog.StockChartDialog;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -220,11 +230,11 @@ public class GameView {
                                           VBox statsContent, VBox tradesContent,
                                           VBox newsContent) {
     return new TabContainer(
-        new TabContainer.Tab("market",    "Market",    FontAwesome.LINE_CHART,  marketContent),
-        new TabContainer.Tab("portfolio", "Portfolio", FontAwesome.BRIEFCASE,   portfolioContent),
-        new TabContainer.Tab("stats",     "Stats",     FontAwesome.BAR_CHART,   statsContent),
-        new TabContainer.Tab("trades",    "Trades",    FontAwesome.CLOCK_O,     tradesContent),
-        new TabContainer.Tab("news",      "News",      FontAwesome.NEWSPAPER_O, newsContent)
+        new TabContainer.Tab("market", "Market", FontAwesome.LINE_CHART, marketContent),
+        new TabContainer.Tab("portfolio", "Portfolio", FontAwesome.BRIEFCASE, portfolioContent),
+        new TabContainer.Tab("stats", "Stats", FontAwesome.BAR_CHART, statsContent),
+        new TabContainer.Tab("trades", "Trades", FontAwesome.CLOCK_O, tradesContent),
+        new TabContainer.Tab("news", "News", FontAwesome.NEWSPAPER_O, newsContent)
     );
   }
 
@@ -335,7 +345,6 @@ public class GameView {
   public SettingsController getSettingsController() {
     return settingsController;
   }
-
 
   public void show(StackPane root) {
     if (root != null && !root.getChildren().contains(view)) {
