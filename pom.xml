@@ -4,11 +4,11 @@
 
   <groupId>ntnu.idatt2003.group15</groupId>
   <artifactId>Millions</artifactId>
-  <version>1.0</version>
+  <version>1.0.1</version>
   <packaging>jar</packaging>
 
   <name>Millions</name>
-  <url>http://maven.apache.org</url>
+  <url>https://maven.apache.org</url>
 
   <properties>
     <maven.compiler.source>25</maven.compiler.source>
