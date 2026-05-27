@@ -24,11 +24,6 @@ import ntnu.idatt2003.group15.model.news.NewsItem;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-/**
- * News tab content: scrollable list of recent market events. Each row shows
- * sentiment (bullish/bearish), the affected ticker, percent change, headline,
- * description, and meta (volatility / duration / type).
- */
 public class NewsFeedView {
 
   private final VBox view = new VBox();
@@ -41,6 +36,7 @@ public class NewsFeedView {
   public NewsFeedView() {
     view.getStyleClass().add("news-card");
     view.getChildren().addAll(buildHeader(), buildBody());
+    VBox.setVgrow(view, Priority.ALWAYS);
 
     events.addListener((ListChangeListener<NewsItem>) change -> {
       if (change.next()) {
@@ -81,6 +77,7 @@ public class NewsFeedView {
     rowsContainer.getStyleClass().add("news-rows");
     ScrollPane scroller = new ScrollPane(rowsContainer);
     scroller.setFitToWidth(true);
+    scroller.setFitToHeight(true);
     scroller.getStyleClass().add("news-scroll");
 
     VBox emptyState = EmptyState.create(
