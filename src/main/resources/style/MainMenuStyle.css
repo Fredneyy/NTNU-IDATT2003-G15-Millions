@@ -1,4 +1,5 @@
-.app-icon {
+/* KI har hjulpet å generere denne filen */
+﻿.app-icon {
     -fx-background-color: linear-gradient(to bottom right, #5c6ef5, #7c6ef5);
     -fx-background-radius: 18;
     -fx-effect: dropshadow(gaussian, rgba(92,110,245,0.55), 20, 0.3, 0, 4);
@@ -455,3 +456,4 @@
     -fx-background-color: rgba(92,110,245,0.12);
     -fx-text-fill: #e8eaf6;
 }
+

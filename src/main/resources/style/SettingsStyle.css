@@ -1,4 +1,5 @@
-/* =========================================================
+/* KI har hjulpet å generere denne filen */
+﻿/* =========================================================
    SettingsView stylesheet
    Matches the dark navy "Difficulty Settings" card design.
    ========================================================= */
@@ -222,3 +223,5 @@
     -fx-font-size: 13px;
     -fx-wrap-text: true;
 }
+
+

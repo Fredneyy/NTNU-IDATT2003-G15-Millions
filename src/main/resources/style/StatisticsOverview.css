@@ -1,4 +1,5 @@
-/* =========================================================
+/* KI har hjulpet å generere denne filen */
+﻿/* =========================================================
    StatisticsOverview stylesheet
    Row of stat cards with icon tile, big value text, and subline.
    ========================================================= */
@@ -76,3 +77,4 @@
 /* ---------- Auto sign coloring (applied by CardNodes) ---------- */
 .stat-positive { -fx-text-fill: -stats-positive; }
 .stat-negative { -fx-text-fill: -stats-negative; }
+
