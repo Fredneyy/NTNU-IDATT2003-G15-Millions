@@ -52,6 +52,10 @@ import ntnu.idatt2003.group15.view.dialog.StockChartDialog;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+/**
+ * Main in-game screen. Wires together the header, statistics cards, tabs (market, portfolio,
+ * stats, trades, news) and the dialogs used for buying, selling and viewing receipts.
+ */
 public class GameView {
 
   private static final Set<String> TABS_WITH_SEARCH = Set.of("market", "portfolio", "trades");
@@ -87,6 +91,19 @@ public class GameView {
   private int unreadNews = 0;
   private final NewsContainer newsContainer = new NewsContainer();
 
+  /**
+   * Builds the game view and wires every panel, dialog and listener it needs.
+   *
+   * @param player          controller for the current player
+   * @param exchange        controller for the stock exchange
+   * @param settings        current game settings
+   * @param runnableExit    action to run when the user confirms exit
+   * @param errorHandler    callback used to surface errors to the user
+   * @param newsController  source of news items shown in the feed and popups
+   * @param advance         action that advances the simulation by one week
+   * @param autoAdvanceOn   action that starts auto-advancing weeks
+   * @param autoAdvanceOff  action that stops auto-advancing weeks
+   */
   public GameView(PlayerController player, ExchangeController exchange,
                   GameSettings settings, Runnable runnableExit,
                   Consumer<Throwable> errorHandler, NewsController newsController, Runnable advance,
@@ -124,14 +141,13 @@ public class GameView {
     tabContainer = createTabContainer(
         marketContent, portfolioContent, statsContent, tradesContent, newsContent);
 
-    HeaderView headerView = new HeaderView(createExitWithConfirmation(runnableExit));
     settingsView = new SettingsView(view);
     settingsController = new SettingsController(settingsView, gameSettings);
 
     view.getStylesheets().add(Objects.requireNonNull(
         getClass().getResource("/style/RootStyle.css")).toExternalForm());
 
-    HBox header = buildHeader(headerView, advance, autoAdvanceOn, autoAdvanceOff);
+
 
     addStatisticsCards();
     searchBar = buildSearchBar();
@@ -139,6 +155,10 @@ public class GameView {
     VBox.setVgrow(marketTable.getView(), Priority.ALWAYS);
     VBox.setVgrow(portfolioTable.getView(), Priority.ALWAYS);
     VBox.setVgrow(tabContainer.getView(), Priority.ALWAYS);
+
+    HeaderView headerView = new HeaderView(createExitWithConfirmation(runnableExit));
+
+    HBox header = buildHeader(headerView, advance, autoAdvanceOn, autoAdvanceOff);
 
     wireSearchFilter();
     applyContainerStyles(header);
@@ -257,7 +277,7 @@ public class GameView {
   private HBox buildHeader(HeaderView headerView, Runnable advance,
                            Runnable autoAdvanceOn, Runnable autoAdvanceOff) {
     headerView.setPlayerName(playerController.getName());
-    HBox header = headerView.createHeader();
+    final HBox header = headerView.createHeader();
     headerView.getAutoAdvanceCheckBox().selectedProperty().addListener((value, _, _) -> {
       if (value.getValue()) {
         autoAdvanceOn.run();
@@ -328,6 +348,12 @@ public class GameView {
     });
   }
 
+  /**
+   * Shows the incoming news item as a popup and bumps the unread badge on the news tab when the
+   * user is looking at another tab.
+   *
+   * @param item the news item that was just emitted
+   */
   public void onNewsEmitted(NewsItem item) {
     pushItem(item);
     TabContainer.Tab sel = tabContainer.selectedTabProperty().get();
@@ -346,6 +372,11 @@ public class GameView {
     return settingsController;
   }
 
+  /**
+   * Attaches this view to the given root pane so it becomes visible on screen.
+   *
+   * @param root the root pane to mount the view in
+   */
   public void show(StackPane root) {
     if (root != null && !root.getChildren().contains(view)) {
       this.root = root;
@@ -354,6 +385,9 @@ public class GameView {
     }
   }
 
+  /**
+   * Removes this view (and any floating news popups) from the root it was shown in.
+   */
   public void close() {
     if (root != null) {
       root.getChildren().remove(view);
@@ -409,6 +443,12 @@ public class GameView {
     }
   }
 
+  /**
+   * Pops up a news dialog for the given item, choosing a bullish or bearish style based on its
+   * change percent.
+   *
+   * @param item the news item to display
+   */
   public void pushItem(NewsItem item) {
     NewsItem stamped = ensureStamped(item);
 
