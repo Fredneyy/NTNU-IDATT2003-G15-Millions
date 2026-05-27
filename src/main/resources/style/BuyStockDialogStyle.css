@@ -1,7 +1,6 @@
-/* =========================================================================
+/* KI har hjulpet å generere denne filen */
+﻿/* =========================================================================
    Buy Stock Dialog
-   Matches the dark navy / green "Buy AAPL" mockup.
-   Relies on a few colour tokens — adjust to match the rest of your theme.
    ========================================================================= */
 
 /* ---------- Card root ---------- */
@@ -206,3 +205,4 @@
 .buy-confirm-button:pressed {
     -fx-background-color: #3fc56e;
 }
+

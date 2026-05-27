@@ -1,4 +1,5 @@
-/* =========================================================
+/* KI har hjulpet å generere denne filen */
+﻿/* =========================================================
    MarketTableView stylesheet
    Card-styled live market table that sits below the search
    bar inside the Market tab content.
@@ -600,3 +601,5 @@
     -fx-opacity: 0.45;
     -fx-effect: null;
 }
+
+

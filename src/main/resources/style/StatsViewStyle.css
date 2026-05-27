@@ -1,4 +1,5 @@
-/* =========================================================
+/* KI har hjulpet å generere denne filen */
+﻿/* =========================================================
    StatsView stylesheet
    Top: row of four KPI cards.
    Bottom: Performance Summary card with three numeric columns.
@@ -303,3 +304,5 @@
 .holdings-pl-cell.pl--negative .holdings-pl-percent {
     -fx-text-fill: #f0637a;
 }
+
+
