@@ -1,8 +1,4 @@
 /* KI har hjulpet å generere denne filen */
-﻿/* =========================================================
-   TradesView stylesheet
-   A "Transaction History" card with one row per past trade.
-   ========================================================= */
 
 .trades-card {
     -fx-background-color: -stock-bg-card;
